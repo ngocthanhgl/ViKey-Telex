@@ -1,5 +1,11 @@
 <p align="center">
-  <img src=".github/repo_banner.svg" width="100%" alt="ViKey">
+  <img src=".github/repo_icon.png" width="96" height="96" alt="ViKey">
+</p>
+
+<h1 align="center">ViKey</h1>
+
+<p align="center">
+  <strong>Vietnamese Telex Keyboard for Android</strong>
 </p>
 
 <p align="center">
