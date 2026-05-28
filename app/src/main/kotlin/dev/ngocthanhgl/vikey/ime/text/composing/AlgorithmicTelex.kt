@@ -269,7 +269,7 @@ class AlgorithmicTelex(
             val before = word.substring(0, tonePos)
             val after = word.substring(tonePos + 1)
             val casedBase = if (current.isUpperCase()) base.uppercaseChar() else base
-            return word.length to (before + casedBase + after + toneKey)
+            return word.length to (before + casedBase + after + ch)
         }
 
         val chars = word.toCharArray()
