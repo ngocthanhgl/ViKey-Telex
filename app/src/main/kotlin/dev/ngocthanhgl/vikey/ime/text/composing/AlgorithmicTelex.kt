@@ -223,6 +223,10 @@ class AlgorithmicTelex(
             return word.length to ch.toString()
         }
 
+        if (lowerCh == 'w' && word.last().lowercaseChar() == 'ư' && word.length > 1) {
+            return word.length to (word.dropLast(1) + ch)
+        }
+
         if (isShortcutUndo(word, ch)) {
             return doShortcutUndo(word, ch)
         }
@@ -264,7 +268,7 @@ class AlgorithmicTelex(
         if (current == toned) {
             val before = word.substring(0, tonePos)
             val after = word.substring(tonePos + 1)
-            return word.length to (before + base + toneKey + after)
+            return word.length to (before + base + after + toneKey)
         }
 
         val chars = word.toCharArray()
@@ -340,6 +344,10 @@ class AlgorithmicTelex(
         val last = word.lastOrNull()
 
         if (last?.lowercaseChar() == 'ư' && word.length > 1) {
+            return word.length to (word.dropLast(1) + 'u' + ch)
+        }
+
+        if (last?.lowercaseChar() == 'w') {
             return word.length to (word + ch)
         }
 

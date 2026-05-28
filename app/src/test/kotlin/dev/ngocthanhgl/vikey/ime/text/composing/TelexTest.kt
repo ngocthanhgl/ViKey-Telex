@@ -78,4 +78,15 @@ class TelexTest {
         assertEquals("kư", simulate("kw"))
         assertEquals("ă", simulate("aw"))
     }
+
+    @Test
+    fun testToneCancelMultiChar() {
+        assertEquals("floris", simulate("florriss"))
+    }
+
+    @Test
+    fun testDoubleWCancelMultiChar() {
+        assertEquals("polkw", simulate("polkww"))
+        assertEquals("polkww", simulate("polkwww"))
+    }
 }
