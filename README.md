@@ -38,6 +38,14 @@ ViKey replaces that entirely with a **syllable-based recomposition engine** writ
 
 ---
 
+## Theme
+
+| Dark | Light |
+|:---:|:---:|
+| <img src=".github/theme-dark.jpg" width="300" alt="Dark theme"> | <img src=".github/theme-light.jpg" width="300" alt="Light theme"> |
+
+---
+
 ## How It Works
 
 Every keystroke triggers a full parse → apply → rebuild cycle:
