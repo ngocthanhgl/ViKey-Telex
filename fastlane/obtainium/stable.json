@@ -1,7 +1,7 @@
 {
   "id": "dev.ngocthanhgl.vikey",
-  "url": "https://github.com/florisboard/florisboard",
-  "author": "florisboard",
-  "name": "FlorisBoard Stable",
-  "additionalSettings": "{\"includePrereleases\":false,\"fallbackToOlderReleases\":true,\"apkFilterRegEx\":\"stable\"}"
+  "url": "https://github.com/ngocthanhdev81/ViKey-Telex",
+  "author": "ngocthanhdev81",
+  "name": "ViKey Stable",
+  "additionalSettings": "{\"includePrereleases\":false,\"fallbackToOlderReleases\":true,\"apkFilterRegEx\":\"release\"}"
 }

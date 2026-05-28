@@ -1,7 +1,0 @@
-- New app icon (adaptive + raster)
-- Fix: English word suggestions now work (Latin provider prefix matching)
-- Fix: composing region enabled for Vietnamese (word underline)
-- Fix: conflicting icon resources (AAPT duplicate resolved)
-- Algorithmic Telex engine v1.0.2 — no dictionary dependency
-- Standalone w → w (ư only from uw shortcut)
-- Uppercase tone keys: QUAF→QUÀ, FOSS→FOSS (context-sensitive)

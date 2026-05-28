@@ -1,4 +1,0 @@
-- Fix: Vietnamese word suggestions now show (on-demand dictionary loading)
-- Fix: English dictionary loading made robust with error handling
-- Fix: word duplicate when pressing space after selecting suggestion
-- Fix: vowel loss when typing Vietnamese — disabled suggestion system (interfered with Telex composing)
