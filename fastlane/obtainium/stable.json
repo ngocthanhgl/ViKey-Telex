@@ -1,7 +1,7 @@
 {
   "id": "dev.ngocthanhgl.vikey",
-  "url": "https://github.com/ngocthanhdev81/ViKey-Telex",
-  "author": "ngocthanhdev81",
+  "url": "https://github.com/ngocthanhgl/ViKey-Telex",
+  "author": "ngocthanhgl",
   "name": "ViKey Stable",
   "additionalSettings": "{\"includePrereleases\":false,\"fallbackToOlderReleases\":true,\"apkFilterRegEx\":\"release\"}"
 }
