@@ -38,7 +38,7 @@ ViKey replaces that entirely with a **syllable-based recomposition engine** writ
 | **`z` undo** | Strips tones, returns to base form | Not supported |
 | **`ww`→`w` undo** | Built-in lifecycle | Produces `ưw` |
 | **English fallback** | Pattern + consonant cluster + vowel density | Not supported |
-| **Case preservation** | Shortcuts, tones, standalone `ư` | Partial |
+| **Case preservation** | Shortcuts, tones, standalone `w` | Partial |
 | **`gi`/`qu` handlin** | Syllable-aware (`gi`=onset `g`+nucleus `i`) | Table-dependent |
 | **Recomposition** | Full re-parse every keystroke — no drift | N/A |
 
