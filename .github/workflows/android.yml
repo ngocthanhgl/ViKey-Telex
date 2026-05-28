@@ -1,23 +1,6 @@
 name: ViKey CI
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".github/PULL_REQUEST_TEMPLATE.md"
-      - ".github/FUNDING.yml"
-      - ".dockerignore"
-      - ".editorconfig"
-      - "fastlane/**"
-      - "AI_POLICY.md"
-      - "CODE_OF_CONDUCT.md"
-      - "CONTRIBUTING.md"
-      - "LICENSE"
-      - "README.md"
-      - "ROADMAP.md"
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 permissions:
