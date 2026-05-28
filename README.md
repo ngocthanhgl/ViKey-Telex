@@ -43,6 +43,10 @@ ViKey replaces that entirely with a **syllable-based recomposition engine** writ
 | Dark | Light |
 |:---:|:---:|
 | <img src=".github/theme-dark.jpg" width="300" alt="Dark theme"> | <img src=".github/theme-light.jpg" width="300" alt="Light theme"> |
+|:---:|:---:|
+| Dark | Light |
+
+...and 12+ more custom themes built-in.
 
 ---
 
