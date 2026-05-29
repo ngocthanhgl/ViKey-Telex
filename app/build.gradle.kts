@@ -124,7 +124,16 @@ configure<ApplicationExtension> {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (project.hasProperty("releaseKeystore")) {
+                signingConfigs.create("release") {
+                    storeFile = file(project.property("releaseKeystore") as String)
+                    storePassword = project.property("releaseKeystorePassword") as String
+                    keyAlias = project.property("releaseKeyAlias") as String
+                    keyPassword = project.property("releaseKeyPassword") as String
+                }
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
 
         create("benchmark") {
