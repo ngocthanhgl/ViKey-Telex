@@ -39,12 +39,17 @@ jobs:
           fi
 
       - name: Build with Gradle
-        run: >
-          ./gradlew clean assembleRelease
-          -PreleaseKeystore=${{ runner.temp }}/vikey-release.jks
-          -PreleaseKeystorePassword=${{ secrets.KEYSTORE_PASSWORD }}
-          -PreleaseKeyAlias=${{ secrets.KEY_ALIAS }}
-          -PreleaseKeyPassword=${{ secrets.KEY_PASSWORD }}
+        env:
+          KS_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          KS="${{ runner.temp }}/vikey-release.jks"
+          EXTRA=""
+          if [ -f "$KS" ]; then
+            EXTRA="-PreleaseKeystore=$KS -PreleaseKeystorePassword=$KS_PASS -PreleaseKeyAlias=$KEY_ALIAS -PreleaseKeyPassword=$KEY_PASS"
+          fi
+          ./gradlew clean assembleRelease $EXTRA
         shell: bash
 
       - name: Rename APK
