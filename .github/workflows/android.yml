@@ -49,7 +49,7 @@ jobs:
           if [ -f "$KS" ]; then
             EXTRA="-PreleaseKeystore=$KS -PreleaseKeystorePassword=$KS_PASS -PreleaseKeyAlias=$KEY_ALIAS -PreleaseKeyPassword=$KEY_PASS"
           fi
-          ./gradlew clean assembleRelease $EXTRA
+          ./gradlew clean assembleRelease $EXTRA -Pandroid.isReproducibleBuild=true
         shell: bash
 
       - name: Rename APK
