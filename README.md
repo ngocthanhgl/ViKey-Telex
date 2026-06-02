@@ -101,7 +101,7 @@ Type `z` at the end of any word to strip all tones:
 
 | Type | See |
 |------|-----|
-| `ỚỚz` | `chao` |
+| `ƯỚz` | `ươ` |
 | `chàoz` | `chao` |
 
 If no tones exist, `z` is literal text.
