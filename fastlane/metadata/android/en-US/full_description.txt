@@ -1,12 +1,10 @@
-<p><i>ViKey</i> is a Vietnamese Telex keyboard for Android — a fork of FlorisBoard with a ground-up rewritten Telex engine.</p>
+ViKey is a Vietnamese Telex keyboard for Android - a fork of FlorisBoard with a ground-up rewritten Telex engine.
 
-<p><b>Features:</b></p>
-<ul>
-    <li>Algorithmic Telex engine (no JSON lookup tables)</li>
-    <li>Syllable-based recomposition — every keystroke re-parses</li>
-    <li>Full Vietnamese diphthong support</li>
-    <li>Z undo (strip tones back to base form)</li>
-    <li>WW→W undo built-in</li>
-    <li>English fallback detection</li>
-    <li>Gi/Qu syllable-aware handling</li>
-</ul>
+Features:
+- Algorithmic Telex engine (no JSON lookup tables)
+- Syllable-based recomposition - every keystroke re-parses
+- Full Vietnamese diphthong support
+- Z undo (strip tones back to base form)
+- WW→W undo built-in
+- English fallback detection
+- Gi/Qu syllable-aware handling
