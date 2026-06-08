@@ -40,6 +40,12 @@ configure<LibraryExtension> {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    externalNativeBuild {
+        cmake {
+            path("src/main/rust/CMakeLists.txt")
+        }
+    }
 }
 
 dependencies {
