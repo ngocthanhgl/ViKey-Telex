@@ -20,7 +20,7 @@
 ViKey replaces FlorisBoard Telex with a **syllable-based recomposition engine** written in pure Kotlin. It understands Vietnamese phonology — not just character mappings. Each keystroke triggers a full parse of the current syllable, applies Vietnamese orthographic rules, and recomposes the correct output from first principles. No JSON. No lookup tables. No accumulated drift.
 
 ```kotlin
-// FlorisBoard (mutation-based): "chaos" → "chào"
+// FlorisBoard (mutation-based): "a" → "chào"
 //   requires table entry for "ào" or cascading replacements
 // ViKey (recomposition-based): parse("chao") + applyTone('f') → "chào"
 //   algorithmic — any valid Vietnamese sequence works
@@ -168,7 +168,7 @@ Three-case mode system threaded through every transform path:
 |:---:|:---:|
 | <img src=".github/theme-dark.jpg" width="300" alt="Dark theme"> | <img src=".github/theme-light.jpg" width="300" alt="Light theme"> |
 
-...and 12+ more custom themes built-in.
+And 12+ more custom themes built-in.
 
 ---
 
