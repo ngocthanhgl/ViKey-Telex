@@ -41,7 +41,7 @@ class CharNGramPredictor(context: Context) {
                     .sortedByDescending { it.value }
                     .map { it.key }
                 allWords = sorted
-                singleWords = sorted.filter { !it.contains(" ") }
+                singleWords = sorted.filter { w -> !w.contains(" ") && (unigrams[w] ?: 0) > 1 }
                 buildNGrams()
                 buildWordBigrams()
                 loaded = true
