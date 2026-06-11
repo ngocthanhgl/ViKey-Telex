@@ -117,25 +117,16 @@ class CharNGramPredictor(context: Context) {
     }
 
     fun completePrefix(prefix: String, maxCount: Int = 8): List<String> {
-        if (prefix.isBlank()) {
-            return allWords.take(maxCount)
-        }
+        if (prefix.isBlank()) return emptyList()
         val lower = prefix.lowercase()
-        val scored = allWords
-            .filter { it.startsWith(lower) }
-            .map { it to wordScore(it) }
-            .sortedByDescending { it.second }
-            .take(maxCount)
-            .map { it.first }
-
-        if (scored.isNotEmpty()) return scored
-
         return allWords
-            .filter { it.contains(lower) }
-            .map { it to wordScore(it) }
-            .sortedByDescending { it.second }
+            .filter { it.startsWith(lower) }
             .take(maxCount)
-            .map { it.first }
+            .ifEmpty {
+                allWords
+                    .filter { it.contains(lower) }
+                    .take(maxCount)
+            }
     }
 
     fun unrollWord(prefix: String, maxLen: Int = 20): List<String> {
