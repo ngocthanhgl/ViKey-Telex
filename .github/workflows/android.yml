@@ -67,5 +67,5 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             --repo ${{ github.repository }} \
             --title "ViKey $GITHUB_REF_NAME" \
-            --notes "APK with algorithmic Telex — Char-level n-gram suggestion system for Vietnamese & English (tap-to-commit, no Telex interference). Removed Chinese language support." \
+            --notes "APK with algorithmic Telex — Char-level n-gram suggestion system for Vietnamese & English (tap-to-commit, no Telex interference). Removed Chinese language support. Fix: suggestions now actually appear in smartbar." \
             "app/build/outputs/apk/release/ViKey-${GITHUB_REF_NAME}-universal.apk"

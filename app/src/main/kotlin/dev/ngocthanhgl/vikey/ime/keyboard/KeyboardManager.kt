@@ -224,7 +224,7 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
     }
 
     fun resetSuggestions(content: EditorContent) {
-        nlpManager.clearSuggestions()
+        nlpManager.suggest(subtypeManager.activeSubtype, content)
     }
 
     /**
