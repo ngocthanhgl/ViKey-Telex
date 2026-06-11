@@ -76,6 +76,31 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
         subtype: Subtype, content: EditorContent, maxCandidateCount: Int,
         allowPossiblyOffensive: Boolean, isPrivateSession: Boolean,
     ): List<SuggestionCandidate> {
+        val textBefore = content.textBeforeSelection
+
+        // Word just committed (trailing space) → predict next word
+        if (textBefore.endsWith(" ")) {
+            val words = textBefore.split(Regex("[\\s\\p{Punct}]+"))
+            val lastWord = words.lastOrNull { it.isNotBlank() } ?: return emptyList()
+            val nextWords = if (predictorLoaded) {
+                predictor.predictNextWords(lastWord, maxCandidateCount)
+            } else {
+                emptyList()
+            }
+            if (nextWords.isNotEmpty()) {
+                return nextWords.mapIndexed { index, word ->
+                    WordSuggestionCandidate(
+                        text = word,
+                        confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
+                        isEligibleForAutoCommit = false,
+                        sourceProvider = this,
+                    )
+                }
+            }
+            return emptyList()
+        }
+
+        // Still typing a word → complete it
         val prefix = getCurrentWord(content) ?: return emptyList()
         if (prefix.isBlank()) return emptyList()
 

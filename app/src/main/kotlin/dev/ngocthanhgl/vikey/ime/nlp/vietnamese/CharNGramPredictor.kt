@@ -24,6 +24,8 @@ class CharNGramPredictor(context: Context) {
     private var bigrams: MutableMap<String, MutableMap<String, Int>> = mutableMapOf()
     private var trigrams: MutableMap<String, MutableMap<String, Int>> = mutableMapOf()
     private var allWords: List<String> = emptyList()
+    private var singleWords: List<String> = emptyList()
+    private var wordBigrams: Map<String, List<Pair<String, Int>>> = emptyMap()
     private var loaded = false
 
     suspend fun load() {
@@ -35,13 +37,18 @@ class CharNGramPredictor(context: Context) {
                 val merged = viWords.toMutableMap()
                 enWords.forEach { (k, v) -> merged.merge(k, v) { a, b -> a.coerceAtLeast(b) } }
                 unigrams = merged
-                allWords = merged.entries
+                val sorted = merged.entries
                     .filter { it.key.all { c -> c.isLetter() || c == ' ' } }
                     .sortedByDescending { it.value }
                     .map { it.key }
+                allWords = sorted
+                singleWords = sorted.filter { !it.contains(" ") }
                 buildNGrams()
+                buildWordBigrams()
                 loaded = true
-                Log.i(TAG, "Loaded ${allWords.size} words, ${bigrams.size} bigrams, ${trigrams.size} trigrams")
+                Log.i(TAG, "Loaded ${allWords.size} words, ${singleWords.size} single, " +
+                    "${bigrams.size} char-bigrams, ${trigrams.size} char-trigrams, " +
+                    "${wordBigrams.size} word-bigrams")
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to load: ${e.message}")
             }
@@ -119,14 +126,37 @@ class CharNGramPredictor(context: Context) {
     fun completePrefix(prefix: String, maxCount: Int = 8): List<String> {
         if (prefix.isBlank()) return emptyList()
         val lower = prefix.lowercase()
-        return allWords
+        return singleWords
             .filter { it.startsWith(lower) }
             .take(maxCount)
             .ifEmpty {
-                allWords
+                singleWords
                     .filter { it.contains(lower) }
                     .take(maxCount)
             }
+    }
+
+    fun predictNextWords(word: String, maxCount: Int = 8): List<String> {
+        val lower = word.lowercase()
+        return wordBigrams[lower]?.take(maxCount)?.map { it.first } ?: emptyList()
+    }
+
+    private fun buildWordBigrams() {
+        val map = mutableMapOf<String, MutableMap<String, Int>>()
+        for ((phrase, freq) in unigrams) {
+            val parts = phrase.split(" ")
+            if (parts.size >= 2) {
+                for (i in 0 until parts.size - 1) {
+                    val w1 = parts[i].lowercase()
+                    val w2 = parts[i + 1].lowercase()
+                    map.getOrPut(w1) { mutableMapOf() }
+                        .merge(w2, freq) { a, b -> a + b }
+                }
+            }
+        }
+        wordBigrams = map.mapValues { (_, v) ->
+            v.entries.sortedByDescending { it.value }.map { it.key to it.value }
+        }
     }
 
     fun unrollWord(prefix: String, maxLen: Int = 20): List<String> {
