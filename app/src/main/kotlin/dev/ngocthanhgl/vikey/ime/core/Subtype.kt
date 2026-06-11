@@ -24,7 +24,6 @@ import dev.ngocthanhgl.vikey.ime.keyboard.extCoreLayout
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePopupMapping
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePunctuationRule
 import dev.ngocthanhgl.vikey.ime.nlp.latin.LatinLanguageProvider
-import dev.ngocthanhgl.vikey.ime.nlp.han.HanShapeBasedLanguageProvider
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
 import kotlinx.serialization.SerialName

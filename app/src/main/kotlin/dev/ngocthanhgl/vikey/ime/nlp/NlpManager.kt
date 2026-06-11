@@ -28,9 +28,8 @@ import dev.ngocthanhgl.vikey.ime.core.Subtype
 import dev.ngocthanhgl.vikey.ime.editor.EditorContent
 import dev.ngocthanhgl.vikey.ime.editor.EditorRange
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSuggestionProvider
-import dev.ngocthanhgl.vikey.ime.nlp.han.HanShapeBasedLanguageProvider
 import dev.ngocthanhgl.vikey.ime.nlp.latin.LatinLanguageProvider
-import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.VietnameseLanguageProvider
+import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.VietnameseLlmSuggestionProvider
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.util.NetworkUtils
 import dev.ngocthanhgl.vikey.subtypeManager
@@ -66,8 +65,7 @@ class NlpManager(context: Context) {
     private val providers = guardedByLock {
         mapOf(
             LatinLanguageProvider.ProviderId to ProviderInstanceWrapper(LatinLanguageProvider(context)),
-            VietnameseLanguageProvider.ProviderId to ProviderInstanceWrapper(VietnameseLanguageProvider(context)),
-            HanShapeBasedLanguageProvider.ProviderId to ProviderInstanceWrapper(HanShapeBasedLanguageProvider(context)),
+            VietnameseLlmSuggestionProvider.ProviderId to ProviderInstanceWrapper(VietnameseLlmSuggestionProvider(context)),
         )
     }
     // lock unnecessary because values constant
@@ -90,10 +88,6 @@ class NlpManager(context: Context) {
     var debugOverlayVersion = MutableStateFlow(0)
 
     init {
-        scope.launch {
-            // Force suggestions off — they interfere with Vietnamese Telex input
-            prefs.suggestion.enabled.set(false)
-        }
         clipboardManager.primaryClipFlow.collectLatestIn(scope) {
             assembleCandidates()
         }
