@@ -9,7 +9,6 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import org.florisboard.lib.android.readText
-import kotlin.math.sqrt
 
 class CharNGramPredictor(context: Context) {
     companion object {
@@ -108,19 +107,6 @@ class CharNGramPredictor(context: Context) {
             }
         }
         return listOf(" " to 0.3, "a" to 0.1, "c" to 0.1, "t" to 0.1, "n" to 0.1)
-    }
-
-    fun wordScore(word: String): Double {
-        val freq = unigrams[word] ?: return 0.0
-        var score = freq / 255.0
-        val w = " $word "
-        for (i in 0 until w.length - 1) {
-            val c1 = w[i].toString()
-            val c2 = w[i + 1].toString()
-            val bg = bigrams[c1]?.get(c2) ?: 0
-            if (bg > 0) score *= 1.0 + sqrt(bg.toDouble()) * 0.01
-        }
-        return score
     }
 
     fun completePrefix(prefix: String, maxCount: Int = 8): List<String> {
