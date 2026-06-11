@@ -78,7 +78,6 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
     ): List<SuggestionCandidate> {
         val textBefore = content.textBeforeSelection
 
-        // Word just committed (trailing space) → predict next word
         if (textBefore.endsWith(" ")) {
             val words = textBefore.split(Regex("[\\s\\p{Punct}]+"))
             val lastWord = words.lastOrNull { it.isNotBlank() } ?: return emptyList()
@@ -90,7 +89,7 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
             if (nextWords.isNotEmpty()) {
                 return nextWords.mapIndexed { index, word ->
                     WordSuggestionCandidate(
-                        text = word,
+                        text = adjustCase(lastWord, word),
                         confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
                         isEligibleForAutoCommit = false,
                         sourceProvider = this,
@@ -100,7 +99,6 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
             return emptyList()
         }
 
-        // Still typing a word → complete it
         val prefix = getCurrentWord(content) ?: return emptyList()
         if (prefix.isBlank()) return emptyList()
 
@@ -113,7 +111,7 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
         if (completions.isNotEmpty()) {
             return completions.mapIndexed { index, word ->
                 WordSuggestionCandidate(
-                    text = word,
+                    text = adjustCase(prefix, word),
                     confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
                     isEligibleForAutoCommit = false,
                     sourceProvider = this,
@@ -125,17 +123,23 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
         if (dict.isEmpty()) return emptyList()
         val lower = prefix.lowercase()
         return dict.entries
-            .filter { it.key.startsWith(lower) }
+            .filter { it.key.startsWith(lower) && !it.key.contains(" ") }
             .sortedByDescending { it.value }
             .take(maxCandidateCount)
             .map { (word, _) ->
                 WordSuggestionCandidate(
-                    text = word,
+                    text = adjustCase(prefix, word),
                     confidence = 0.5,
                     isEligibleForAutoCommit = false,
                     sourceProvider = this,
                 )
             }
+    }
+
+    private fun adjustCase(reference: String, word: String): String {
+        if (reference.length > 1 && reference.all { it.isUpperCase() }) return word.uppercase()
+        if (reference.firstOrNull()?.isUpperCase() == true) return word.replaceFirstChar { it.uppercase() }
+        return word
     }
 
     private fun getCurrentWord(content: EditorContent): String? {
