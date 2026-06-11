@@ -250,25 +250,18 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
         val text = candidate.text.toString()
         if (text.isEmpty() || activeInfo.isRawInputEditor) return false
         val content = activeContent
+        val committedText = "$text "
         val result = if (content.composing.isValid) {
-            phantomSpace.setActive(showComposingRegion = false, candidate = candidate)
-            super.finalizeComposingText(text)
+            super.finalizeComposingText(committedText)
         } else {
-            val isPhantomSpaceActive = phantomSpace.determine(text)
-            phantomSpace.setActive(showComposingRegion = false, candidate = candidate)
-            val committed = if (isPhantomSpaceActive) {
-                super.commitText("$SPACE$text")
-            } else {
-                super.commitText(text)
-            }
+            val committed = super.commitText(committedText)
             if (committed) {
                 updateLastCommitPosition()
             }
             committed
         }
-        // Prevent the just-committed word from being auto-committed again on the next
-        // non-alphabetic key (space, punctuation). The content-change-triggered suggest()
-        // will see a newer timestamp and not override the clear.
+        // Trailing space prevents suggest() from picking up the committed word as a prefix,
+        // so suggestions naturally clear after commit without overriding clearSuggestions().
         nlpManager.clearSuggestions()
         nlpManager.suppressNextAutoCommit()
         return result
