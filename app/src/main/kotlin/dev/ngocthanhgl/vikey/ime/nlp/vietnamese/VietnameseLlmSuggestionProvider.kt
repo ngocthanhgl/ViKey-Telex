@@ -120,52 +120,56 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
 
     private suspend fun suggestCompletions(prefix: String, maxCount: Int): List<SuggestionCandidate> {
         return try {
-            val completions = if (predictorLoaded) {
-                predictor.completePrefix(prefix, maxCount)
-            } else {
-                emptyList()
-            }
-
-            if (completions.isNotEmpty()) {
-                return@try rankCompletions(prefix, completions, maxCount)
-            }
-
-            val unrolled = if (predictorLoaded) {
-                predictor.unrollWord(prefix, 20, 5)
-            } else {
-                emptyList()
-            }
-
-            if (unrolled.isNotEmpty()) {
-                return@try unrolled.mapIndexed { index, word ->
-                    WordSuggestionCandidate(
-                        text = adjustCase(prefix, word),
-                        confidence = (1.0 - index * 0.15).coerceAtLeast(0.1),
-                        isEligibleForAutoCommit = false,
-                        sourceProvider = this,
-                    )
-                }
-            }
-
-            val dict = wordData.withLock { it.toMap() }
-            if (dict.isEmpty()) return@try emptyList()
-            val lower = prefix.lowercase()
-            dict.entries
-                .filter { it.key.startsWith(lower) && !it.key.contains(" ") }
-                .sortedByDescending { it.value }
-                .take(maxCount)
-                .map { (word, _) ->
-                    WordSuggestionCandidate(
-                        text = adjustCase(prefix, word),
-                        confidence = 0.5,
-                        isEligibleForAutoCommit = false,
-                        sourceProvider = this,
-                    )
-                }
+            suggestCompletionsImpl(prefix, maxCount)
         } catch (e: Exception) {
             flogDebug { "suggestCompletions failed: ${e.message}" }
             emptyList()
         }
+    }
+
+    private suspend fun suggestCompletionsImpl(prefix: String, maxCount: Int): List<SuggestionCandidate> {
+        val completions = if (predictorLoaded) {
+            predictor.completePrefix(prefix, maxCount)
+        } else {
+            emptyList()
+        }
+
+        if (completions.isNotEmpty()) {
+            return rankCompletions(prefix, completions, maxCount)
+        }
+
+        val unrolled = if (predictorLoaded) {
+            predictor.unrollWord(prefix, 20, 5)
+        } else {
+            emptyList()
+        }
+
+        if (unrolled.isNotEmpty()) {
+            return unrolled.mapIndexed { index, word ->
+                WordSuggestionCandidate(
+                    text = adjustCase(prefix, word),
+                    confidence = (1.0 - index * 0.15).coerceAtLeast(0.1),
+                    isEligibleForAutoCommit = false,
+                    sourceProvider = this,
+                )
+            }
+        }
+
+        val dict = wordData.withLock { it.toMap() }
+        if (dict.isEmpty()) return emptyList()
+        val lower = prefix.lowercase()
+        return dict.entries
+            .filter { it.key.startsWith(lower) && !it.key.contains(" ") }
+            .sortedByDescending { it.value }
+            .take(maxCount)
+            .map { (word, _) ->
+                WordSuggestionCandidate(
+                    text = adjustCase(prefix, word),
+                    confidence = 0.5,
+                    isEligibleForAutoCommit = false,
+                    sourceProvider = this,
+                )
+            }
     }
 
     private fun rankCompletions(
