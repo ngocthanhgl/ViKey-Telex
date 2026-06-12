@@ -226,32 +226,36 @@ class CharNGramPredictor(context: Context) {
 
     fun completePrefix(prefix: String, maxCount: Int = 8): List<String> {
         return try {
-            if (prefix.isBlank()) return@try emptyList()
-            val lower = prefix.lowercase()
-
-            val pool = when (detectLanguage(prefix)) {
-                Language.VIETNAMESE -> viCompletionWords
-                Language.ENGLISH -> enCompletionWords
-                Language.UNKNOWN -> mergedCompletionWords
-            }
-
-            pool
-                .filter { it.startsWith(lower) }
-                .take(maxCount)
-                .ifEmpty {
-                    pool
-                        .filter { it.contains(lower) }
-                        .take(maxCount)
-                }
-                .ifEmpty {
-                    mergedCompletionWords
-                        .filter { it.contains(lower) }
-                        .take(maxCount)
-                }
+            completePrefixImpl(prefix, maxCount)
         } catch (e: Exception) {
             Log.w(TAG, "completePrefix failed: ${e.message}")
             emptyList()
         }
+    }
+
+    private fun completePrefixImpl(prefix: String, maxCount: Int = 8): List<String> {
+        if (prefix.isBlank()) return emptyList()
+        val lower = prefix.lowercase()
+
+        val pool = when (detectLanguage(prefix)) {
+            Language.VIETNAMESE -> viCompletionWords
+            Language.ENGLISH -> enCompletionWords
+            Language.UNKNOWN -> mergedCompletionWords
+        }
+
+        return pool
+            .filter { it.startsWith(lower) }
+            .take(maxCount)
+            .ifEmpty {
+                pool
+                    .filter { it.contains(lower) }
+                    .take(maxCount)
+            }
+            .ifEmpty {
+                mergedCompletionWords
+                    .filter { it.contains(lower) }
+                    .take(maxCount)
+            }
     }
 
     fun predictNextWords(context: String, maxCount: Int = 8): List<String> {
