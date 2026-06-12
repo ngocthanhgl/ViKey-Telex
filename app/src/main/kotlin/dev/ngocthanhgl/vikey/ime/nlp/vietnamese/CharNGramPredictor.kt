@@ -43,6 +43,7 @@ class CharNGramPredictor(context: Context) {
     private var viFreqMax: Long = 1
     private var enFreqMax: Long = 1
     private var topUnigrams: List<Pair<String, Int>> = emptyList()
+    private var charUniTotal: Double = 0.0
     private var loaded = false
 
     private val viDiacritics: Regex by lazy {
@@ -139,6 +140,7 @@ class CharNGramPredictor(context: Context) {
             }
         }
         charUnigrams = charCounts
+        charUniTotal = charCounts.values.sum().toDouble()
     }
 
     private fun buildWordNGrams() {
@@ -219,10 +221,9 @@ class CharNGramPredictor(context: Context) {
             }
         }
 
-        val uniTotal = charUnigrams.values.sum().toDouble()
         val uniWeight = 0.10
         for ((c, count) in charUnigrams.entries.sortedByDescending { it.value }.take(26)) {
-            candidates.merge(c, uniWeight * count / uniTotal) { a, b -> a + b }
+            candidates.merge(c, uniWeight * count / charUniTotal) { a, b -> a + b }
         }
 
         return candidates.entries
@@ -368,8 +369,9 @@ class CharNGramPredictor(context: Context) {
         if (prefix.length >= maxLen) return emptyList()
         val found = mutableSetOf<String>()
         var beam = listOf(prefix.lowercase() to 1.0)
+        val maxSteps = (maxLen - prefix.length).coerceAtMost(5)
 
-        for (step in 0 until (maxLen - prefix.length)) {
+        for (step in 0 until maxSteps) {
             val expanded = mutableListOf<Pair<String, Double>>()
 
             for ((text, score) in beam) {

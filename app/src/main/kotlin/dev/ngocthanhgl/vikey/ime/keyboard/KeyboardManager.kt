@@ -163,7 +163,9 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
                 updateActiveEvaluators()
             }
             editorInstance.activeContentFlow.collectIn(scope) { content ->
-                resetSuggestions(content)
+                if (FlorisImeService.windowControllerOrNull()?.isWindowShown?.value == true) {
+                    resetSuggestions(content)
+                }
             }
             prefs.devtools.enabled.asFlow().collectLatestIn(scope) {
                 reevaluateDebugFlags()

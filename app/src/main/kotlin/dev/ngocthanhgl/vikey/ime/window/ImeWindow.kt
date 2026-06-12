@@ -209,7 +209,7 @@ private fun ImeInnerWindow() {
             .wrapContentHeight()
             .ifIsInstance<ImeWindowProps.Fixed>(windowSpec.props) { props ->
                 Modifier
-                    .safeDrawingPadding()
+                    .navigationBarsPadding()
                     .systemGestureExclusion()
                     .padding(
                         start = props.paddingLeft.coerceAtLeast(0.dp),
