@@ -79,40 +79,56 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
         val textBefore = content.textBeforeSelection
 
         if (textBefore.endsWith(" ")) {
-            val words = textBefore.split(Regex("[\\s\\p{Punct}]+"))
-            val lastWord = words.lastOrNull { it.isNotBlank() } ?: return emptyList()
-            val nextWords = if (predictorLoaded) {
-                predictor.predictNextWords(lastWord, maxCandidateCount)
-            } else {
-                emptyList()
-            }
-            if (nextWords.isNotEmpty()) {
-                return nextWords.mapIndexed { index, word ->
-                    WordSuggestionCandidate(
-                        text = adjustCase(lastWord, word),
-                        confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
-                        isEligibleForAutoCommit = false,
-                        sourceProvider = this,
-                    )
-                }
-            }
-            return emptyList()
+            return suggestNextWords(textBefore, maxCandidateCount)
         }
 
         val prefix = getCurrentWord(content) ?: return emptyList()
         if (prefix.isBlank()) return emptyList()
 
+        return suggestCompletions(prefix, maxCandidateCount)
+    }
+
+    private fun suggestNextWords(textBefore: String, maxCount: Int): List<SuggestionCandidate> {
+        if (!predictorLoaded) return emptyList()
+
+        val nextWords = predictor.predictNextWords(textBefore, maxCount)
+        if (nextWords.isEmpty()) return emptyList()
+
+        val lastWord = textBefore.split(Regex("[\\s\\p{Punct}]+"))
+            .lastOrNull { it.isNotBlank() } ?: return emptyList()
+
+        return nextWords.mapIndexed { index, word ->
+            WordSuggestionCandidate(
+                text = adjustCase(lastWord, word),
+                confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
+                isEligibleForAutoCommit = false,
+                sourceProvider = this,
+            )
+        }
+    }
+
+    private fun suggestCompletions(prefix: String, maxCount: Int): List<SuggestionCandidate> {
         val completions = if (predictorLoaded) {
-            predictor.completePrefix(prefix, maxCandidateCount)
+            predictor.completePrefix(prefix, maxCount)
         } else {
             emptyList()
         }
 
         if (completions.isNotEmpty()) {
-            return completions.mapIndexed { index, word ->
+            return rankCompletions(prefix, completions, maxCount)
+        }
+
+        val unrolled = if (predictorLoaded) {
+            predictor.unrollWord(prefix, 20, 5)
+        } else {
+            emptyList()
+        }
+
+        if (unrolled.isNotEmpty()) {
+            return unrolled.mapIndexed { index, word ->
                 WordSuggestionCandidate(
                     text = adjustCase(prefix, word),
-                    confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
+                    confidence = (1.0 - index * 0.15).coerceAtLeast(0.1),
                     isEligibleForAutoCommit = false,
                     sourceProvider = this,
                 )
@@ -125,11 +141,48 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
         return dict.entries
             .filter { it.key.startsWith(lower) && !it.key.contains(" ") }
             .sortedByDescending { it.value }
-            .take(maxCandidateCount)
+            .take(maxCount)
             .map { (word, _) ->
                 WordSuggestionCandidate(
                     text = adjustCase(prefix, word),
                     confidence = 0.5,
+                    isEligibleForAutoCommit = false,
+                    sourceProvider = this,
+                )
+            }
+    }
+
+    private fun rankCompletions(
+        prefix: String,
+        words: List<String>,
+        maxCount: Int,
+    ): List<SuggestionCandidate> {
+        val lang = predictor.detectLanguage(prefix)
+        val bias = when (lang) {
+            CharNGramPredictor.Language.VIETNAMESE -> 1.5
+            CharNGramPredictor.Language.ENGLISH -> 1.5
+            CharNGramPredictor.Language.UNKNOWN -> 1.0
+        }
+
+        val scored = words.map { word ->
+            val normFreq = predictor.normalizedFrequency(word)
+            val langBonus = when (lang) {
+                CharNGramPredictor.Language.VIETNAMESE ->
+                    if (predictor.isVietnameseWord(word)) bias else 1.0
+                CharNGramPredictor.Language.ENGLISH ->
+                    if (predictor.isEnglishWord(word)) bias else 1.0
+                CharNGramPredictor.Language.UNKNOWN -> 1.0
+            }
+            word to (normFreq * langBonus)
+        }
+
+        return scored
+            .sortedByDescending { it.second }
+            .take(maxCount)
+            .mapIndexed { index, (word, _) ->
+                WordSuggestionCandidate(
+                    text = adjustCase(prefix, word),
+                    confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
                     isEligibleForAutoCommit = false,
                     sourceProvider = this,
                 )

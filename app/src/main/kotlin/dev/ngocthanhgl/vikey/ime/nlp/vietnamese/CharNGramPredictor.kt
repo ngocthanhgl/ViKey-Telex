@@ -20,12 +20,28 @@ class CharNGramPredictor(context: Context) {
     private val appContext by context.appContext()
 
     private var unigrams: Map<String, Int> = emptyMap()
+    private var viUnigrams: Map<String, Int> = emptyMap()
+    private var enUnigrams: Map<String, Int> = emptyMap()
+    private var charUnigrams: MutableMap<String, Int> = mutableMapOf()
     private var bigrams: MutableMap<String, MutableMap<String, Int>> = mutableMapOf()
     private var trigrams: MutableMap<String, MutableMap<String, Int>> = mutableMapOf()
+    private var quadgrams: MutableMap<String, MutableMap<String, Int>> = mutableMapOf()
     private var allWords: List<String> = emptyList()
     private var singleWords: List<String> = emptyList()
+    private var viSingleWords: List<String> = emptyList()
+    private var enSingleWords: List<String> = emptyList()
     private var wordBigrams: Map<String, List<Pair<String, Int>>> = emptyMap()
+    private var wordTrigrams: Map<String, List<Pair<String, Int>>> = emptyMap()
+    private var wordQuadgrams: Map<String, List<Pair<String, Int>>> = emptyMap()
+    private var viFreqMax: Long = 1
+    private var enFreqMax: Long = 1
     private var loaded = false
+
+    private val viDiacritics: Regex by lazy {
+        Regex("[âăđêôơưửừữựắằẵặấầẩẫậéèẻẽẹíìỉĩịóòỏõọúùủũụýỳỷỹỵ]")
+    }
+
+    enum class Language { VIETNAMESE, ENGLISH, UNKNOWN }
 
     suspend fun load() {
         if (loaded) return
@@ -33,21 +49,38 @@ class CharNGramPredictor(context: Context) {
             try {
                 val viWords = loadDict(VI_DICT)
                 val enWords = loadDict(EN_DICT)
+
+                viFreqMax = (viWords.values.maxOrNull() ?: 1).toLong()
+                enFreqMax = (enWords.values.maxOrNull() ?: 1).toLong()
+                viUnigrams = viWords
+                enUnigrams = enWords
+
                 val merged = viWords.toMutableMap()
                 enWords.forEach { (k, v) -> merged.merge(k, v) { a, b -> a.coerceAtLeast(b) } }
                 unigrams = merged
+
                 val sorted = merged.entries
                     .filter { it.key.all { c -> c.isLetter() || c == ' ' } }
                     .sortedByDescending { it.value }
                     .map { it.key }
                 allWords = sorted
                 singleWords = sorted.filter { !it.contains(" ") }
+
+                viSingleWords = viWords.keys
+                    .filter { !it.contains(" ") }
+                    .sortedByDescending { viWords[it] }
+                enSingleWords = enWords.keys
+                    .filter { !it.contains(" ") }
+                    .sortedByDescending { enWords[it] }
+
                 buildNGrams()
-                buildWordBigrams()
+                buildWordNGrams()
                 loaded = true
-                Log.i(TAG, "Loaded ${allWords.size} words, ${singleWords.size} single, " +
-                    "${bigrams.size} char-bigrams, ${trigrams.size} char-trigrams, " +
-                    "${wordBigrams.size} word-bigrams")
+
+                Log.i(TAG, "Loaded ${allWords.size} words, " +
+                    "${viSingleWords.size} VI + ${enSingleWords.size} EN singles, " +
+                    "${bigrams.size} bi, ${trigrams.size} tri, ${quadgrams.size} quad chars, " +
+                    "${wordBigrams.size} wbi, ${wordTrigrams.size} wtri, ${wordQuadgrams.size} wquad")
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to load: ${e.message}")
             }
@@ -66,111 +99,276 @@ class CharNGramPredictor(context: Context) {
     }
 
     private fun buildNGrams() {
+        val charCounts = mutableMapOf<String, Int>()
         for (word in allWords) {
             val w = " $word "
+            for (i in 0 until w.length) {
+                charCounts.merge(w[i].toString(), 1) { a, b -> a + b }
+            }
             for (i in 0 until w.length - 1) {
-                val c1 = w[i].toString()
-                val c2 = w[i + 1].toString()
-                bigrams.getOrPut(c1) { mutableMapOf() }.merge(c2, 1) { a, b -> a + b }
+                bigrams.getOrPut(w[i].toString()) { mutableMapOf() }
+                    .merge(w[i + 1].toString(), 1) { a, b -> a + b }
             }
             for (i in 0 until w.length - 2) {
-                val c1 = w[i].toString()
-                val c2 = w[i + 1].toString()
-                val c3 = w[i + 2].toString()
-                val key = "$c1$c2"
-                trigrams.getOrPut(key) { mutableMapOf() }.merge(c3, 1) { a, b -> a + b }
+                trigrams.getOrPut(w.substring(i, i + 2)) { mutableMapOf() }
+                    .merge(w[i + 2].toString(), 1) { a, b -> a + b }
+            }
+            for (i in 0 until w.length - 3) {
+                quadgrams.getOrPut(w.substring(i, i + 3)) { mutableMapOf() }
+                    .merge(w[i + 3].toString(), 1) { a, b -> a + b }
             }
         }
+        charUnigrams = charCounts
     }
 
-    fun predictNextChar(context: String): List<Pair<String, Double>> {
-        if (context.length >= 2) {
-            val lastTwo = context.takeLast(2)
-            val trigramMap = trigrams[lastTwo]
-            if (trigramMap != null) {
-                val total = trigramMap.values.sum().toDouble()
-                return trigramMap.entries
-                    .sortedByDescending { it.value }
-                    .map { (c, count) -> c to count / total }
-                    .take(5)
-            }
-        }
-        if (context.isNotEmpty()) {
-            val lastChar = context.last().toString()
-            val bigramMap = bigrams[lastChar]
-            if (bigramMap != null) {
-                val total = bigramMap.values.sum().toDouble()
-                return bigramMap.entries
-                    .sortedByDescending { it.value }
-                    .map { (c, count) -> c to count / total }
-                    .take(5)
-            }
-        }
-        return listOf(" " to 0.3, "a" to 0.1, "c" to 0.1, "t" to 0.1, "n" to 0.1)
-    }
+    private fun buildWordNGrams() {
+        val bi = mutableMapOf<String, MutableMap<String, Int>>()
+        val tri = mutableMapOf<String, MutableMap<String, Int>>()
+        val quad = mutableMapOf<String, MutableMap<String, Int>>()
 
-    fun completePrefix(prefix: String, maxCount: Int = 8): List<String> {
-        if (prefix.isBlank()) return emptyList()
-        val lower = prefix.lowercase()
-        return singleWords
-            .filter { it.startsWith(lower) }
-            .take(maxCount)
-            .ifEmpty {
-                singleWords
-                    .filter { it.contains(lower) }
-                    .take(maxCount)
-            }
-    }
-
-    fun predictNextWords(word: String, maxCount: Int = 8): List<String> {
-        val lower = word.lowercase()
-        return wordBigrams[lower]?.take(maxCount)?.map { it.first } ?: emptyList()
-    }
-
-    private fun buildWordBigrams() {
-        val map = mutableMapOf<String, MutableMap<String, Int>>()
         for ((phrase, freq) in unigrams) {
             val parts = phrase.split(" ")
             if (parts.size >= 2) {
                 for (i in 0 until parts.size - 1) {
                     val w1 = parts[i].lowercase()
                     val w2 = parts[i + 1].lowercase()
-                    map.getOrPut(w1) { mutableMapOf() }
-                        .merge(w2, freq) { a, b -> a + b }
+                    bi.getOrPut(w1) { mutableMapOf() }.merge(w2, freq) { a, b -> a + b }
+                }
+            }
+            if (parts.size >= 3) {
+                for (i in 0 until parts.size - 2) {
+                    val key = "${parts[i].lowercase()} ${parts[i + 1].lowercase()}"
+                    val w3 = parts[i + 2].lowercase()
+                    tri.getOrPut(key) { mutableMapOf() }.merge(w3, freq) { a, b -> a + b }
+                }
+            }
+            if (parts.size >= 4) {
+                for (i in 0 until parts.size - 3) {
+                    val key = "${parts[i].lowercase()} ${parts[i + 1].lowercase()} ${parts[i + 2].lowercase()}"
+                    val w4 = parts[i + 3].lowercase()
+                    quad.getOrPut(key) { mutableMapOf() }.merge(w4, freq) { a, b -> a + b }
                 }
             }
         }
-        wordBigrams = map.mapValues { (_, v) ->
+
+        wordBigrams = bi.mapValues { (_, v) ->
+            v.entries.sortedByDescending { it.value }.map { it.key to it.value }
+        }
+        wordTrigrams = tri.mapValues { (_, v) ->
+            v.entries.sortedByDescending { it.value }.map { it.key to it.value }
+        }
+        wordQuadgrams = quad.mapValues { (_, v) ->
             v.entries.sortedByDescending { it.value }.map { it.key to it.value }
         }
     }
 
-    fun unrollWord(prefix: String, maxLen: Int = 20): List<String> {
-        if (prefix.length >= maxLen) return emptyList()
-        val suggestions = mutableListOf<String>()
-        val exact = allWords.filter { it == prefix.lowercase() }
-        if (exact.isNotEmpty()) return exact
+    fun predictNextChar(context: String): List<Pair<String, Double>> {
+        val ctx = context.takeLast(3)
+        val candidates = mutableMapOf<String, Double>()
 
-        var current = prefix.lowercase()
-        for (step in 0 until 10) {
-            val nextChars = predictNextChar(current)
-            val best = nextChars.firstOrNull() ?: break
-            val nextChar = best.first
-            if (nextChar == " ") {
-                val word = current.trim()
-                if (word.length > prefix.length) {
-                    suggestions.add(word)
+        if (ctx.length >= 3) {
+            val qmap = quadgrams[ctx.takeLast(3)]
+            if (qmap != null) {
+                val total = qmap.values.sum().toDouble()
+                val weight = 0.40
+                for ((c, count) in qmap) {
+                    candidates.merge(c, weight * count / total) { a, b -> a + b }
                 }
-                break
-            }
-            current += nextChar
-            if (current.length > maxLen) break
-            if (allWords.any { it == current }) {
-                suggestions.add(current)
-                if (suggestions.size >= 3) break
             }
         }
-        return suggestions
+
+        if (ctx.length >= 2) {
+            val tmap = trigrams[ctx.takeLast(2)]
+            if (tmap != null) {
+                val total = tmap.values.sum().toDouble()
+                val weight = 0.30
+                for ((c, count) in tmap) {
+                    candidates.merge(c, weight * count / total) { a, b -> a + b }
+                }
+            }
+        }
+
+        if (ctx.isNotEmpty()) {
+            val bmap = bigrams[ctx.last().toString()]
+            if (bmap != null) {
+                val total = bmap.values.sum().toDouble()
+                val weight = 0.20
+                for ((c, count) in bmap) {
+                    candidates.merge(c, weight * count / total) { a, b -> a + b }
+                }
+            }
+        }
+
+        val uniTotal = charUnigrams.values.sum().toDouble()
+        val uniWeight = 0.10
+        for ((c, count) in charUnigrams.entries.sortedByDescending { it.value }.take(26)) {
+            candidates.merge(c, uniWeight * count / uniTotal) { a, b -> a + b }
+        }
+
+        return candidates.entries
+            .sortedByDescending { it.value }
+            .take(5)
+            .map { it.key to it.value }
+    }
+
+    fun completePrefix(prefix: String, maxCount: Int = 8): List<String> {
+        if (prefix.isBlank()) return emptyList()
+        val lower = prefix.lowercase()
+
+        val pool = when (detectLanguage(prefix)) {
+            Language.VIETNAMESE -> viSingleWords
+            Language.ENGLISH -> enSingleWords
+            Language.UNKNOWN -> singleWords
+        }
+
+        return pool
+            .filter { it.startsWith(lower) }
+            .take(maxCount)
+            .ifEmpty {
+                pool
+                    .filter { it.contains(lower) }
+                    .take(maxCount)
+            }
+            .ifEmpty {
+                singleWords
+                    .filter { it.startsWith(lower) }
+                    .take(maxCount)
+            }
+    }
+
+    fun predictNextWords(context: String, maxCount: Int = 8): List<String> {
+        val words = context.split(Regex("[\\s\\p{Punct}]+"))
+            .filter { it.isNotBlank() }
+            .map { it.lowercase() }
+        if (words.isEmpty()) return emptyList()
+
+        val candidates = mutableMapOf<String, Double>()
+        val last = words.last()
+        val last2 = if (words.size >= 2) listOf(words[words.size - 2], words[words.size - 1])
+            .joinToString(" ") else null
+        val last3 = if (words.size >= 3) listOf(words[words.size - 3], words[words.size - 2], words[words.size - 1])
+            .joinToString(" ") else null
+
+        if (last3 != null) {
+            val qmap = wordQuadgrams[last3]
+            if (qmap != null) {
+                val total = qmap.sumOf { it.second }.toDouble()
+                val weight = 0.40
+                for ((w, count) in qmap) {
+                    candidates.merge(w, weight * count / total) { a, b -> a + b }
+                }
+            }
+        }
+
+        if (last2 != null) {
+            val tmap = wordTrigrams[last2]
+            if (tmap != null) {
+                val total = tmap.sumOf { it.second }.toDouble()
+                val weight = 0.30
+                for ((w, count) in tmap) {
+                    candidates.merge(w, weight * count / total) { a, b -> a + b }
+                }
+            }
+        }
+
+        val bmap = wordBigrams[last]
+        if (bmap != null) {
+            val total = bmap.sumOf { it.second }.toDouble()
+            val weight = 0.20
+            for ((w, count) in bmap) {
+                candidates.merge(w, weight * count / total) { a, b -> a + b }
+            }
+        }
+
+        val uniWeight = 0.10
+        val topUnigrams = unigrams.entries
+            .filter { !it.key.contains(" ") }
+            .sortedByDescending { it.value }
+            .take(20)
+        val uniTotal = topUnigrams.sumOf { it.value.toDouble() }
+        for ((w, count) in topUnigrams) {
+            candidates.merge(w, uniWeight * count / uniTotal) { a, b -> a + b }
+        }
+
+        return candidates.entries
+            .sortedByDescending { it.value }
+            .take(maxCount)
+            .map { it.key }
+    }
+
+    fun unrollWord(prefix: String, maxLen: Int = 20, beamWidth: Int = 5): List<String> {
+        if (prefix.length >= maxLen) return emptyList()
+        val found = mutableSetOf<String>()
+        var beam = listOf(prefix.lowercase() to 1.0)
+
+        for (step in 0 until (maxLen - prefix.length)) {
+            val expanded = mutableListOf<Pair<String, Double>>()
+
+            for ((text, score) in beam) {
+                val nextChars = predictNextChar(text)
+                val best = nextChars.take(beamWidth)
+
+                for ((c, prob) in best) {
+                    val newText = text + c
+                    val newScore = score * prob
+                    val word = newText.trim()
+
+                    if (c == " ") {
+                        if (word.length > prefix.length &&
+                            unigrams.containsKey(word)) {
+                            found.add(word)
+                        }
+                        continue
+                    }
+
+                    if (unigrams.containsKey(newText)) {
+                        found.add(newText)
+                    }
+
+                    expanded.add(newText to newScore)
+                }
+            }
+
+            beam = expanded.sortedByDescending { it.second }.take(beamWidth)
+            if (beam.isEmpty() || found.size >= 3) break
+        }
+
+        return found
+            .filter { it.length > prefix.length }
+            .sortedByDescending { unigrams[it] ?: 0 }
+            .take(3)
+    }
+
+    fun detectLanguage(word: String): Language {
+        val lower = word.lowercase()
+        if (lower.isEmpty()) return Language.UNKNOWN
+        if (viDiacritics.containsMatchIn(lower)) return Language.VIETNAMESE
+
+        val inVi = lower in viUnigrams
+        val inEn = lower in enUnigrams
+
+        return when {
+            inVi && !inEn -> Language.VIETNAMESE
+            inEn && !inVi -> Language.ENGLISH
+            else -> Language.UNKNOWN
+        }
+    }
+
+    fun isVietnameseWord(word: String): Boolean {
+        return word.lowercase() in viUnigrams
+    }
+
+    fun isEnglishWord(word: String): Boolean {
+        return word.lowercase() in enUnigrams
+    }
+
+    fun normalizedFrequency(word: String): Double {
+        val lower = word.lowercase()
+        val viFreq = viUnigrams[lower]?.toDouble() ?: 0.0
+        val enFreq = enUnigrams[lower]?.toDouble() ?: 0.0
+        val viNorm = if (viFreqMax > 0) viFreq / viFreqMax else 0.0
+        val enNorm = if (enFreqMax > 0) enFreq / enFreqMax else 0.0
+        return maxOf(viNorm, enNorm)
     }
 
     val wordCount: Int get() = allWords.size

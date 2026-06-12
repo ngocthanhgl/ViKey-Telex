@@ -64,8 +64,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+          PRERELEASE=""
+          if echo "$GITHUB_REF_NAME" | grep -qi "beta\|alpha\|rc"; then PRERELEASE="--prerelease"; fi
           gh release create "$GITHUB_REF_NAME" \
             --repo ${{ github.repository }} \
             --title "ViKey $GITHUB_REF_NAME" \
-            --notes "APK with algorithmic Telex — Char-level n-gram suggestion system for Vietnamese & English (tap-to-commit, no Telex interference). Removed Chinese language support. Fix: suggestions now actually appear in smartbar." \
+            $PRERELEASE \
+            --notes "See changelog on the release page for details." \
             "app/build/outputs/apk/release/ViKey-${GITHUB_REF_NAME}-universal.apk"
