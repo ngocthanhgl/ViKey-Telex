@@ -39,6 +39,7 @@ class CharNGramPredictor(context: Context) {
     private var wordQuadgrams: Map<String, List<Pair<String, Int>>> = emptyMap()
     private var viFreqMax: Long = 1
     private var enFreqMax: Long = 1
+    private var topUnigrams: List<Pair<String, Int>> = emptyList()
     private var loaded = false
 
     private val viDiacritics: Regex by lazy {
@@ -82,6 +83,11 @@ class CharNGramPredictor(context: Context) {
 
                 buildNGrams()
                 buildWordNGrams()
+                topUnigrams = unigrams.entries
+                    .filter { !it.key.contains(" ") }
+                    .sortedByDescending { it.value }
+                    .take(20)
+                    .map { it.key to it.value }
                 loaded = true
 
                 Log.i(TAG, "Loaded ${allWords.size} words, " +
@@ -219,31 +225,45 @@ class CharNGramPredictor(context: Context) {
     }
 
     fun completePrefix(prefix: String, maxCount: Int = 8): List<String> {
-        if (prefix.isBlank()) return emptyList()
-        val lower = prefix.lowercase()
+        return try {
+            if (prefix.isBlank()) return@try emptyList()
+            val lower = prefix.lowercase()
 
-        val pool = when (detectLanguage(prefix)) {
-            Language.VIETNAMESE -> viCompletionWords
-            Language.ENGLISH -> enCompletionWords
-            Language.UNKNOWN -> mergedCompletionWords
+            val pool = when (detectLanguage(prefix)) {
+                Language.VIETNAMESE -> viCompletionWords
+                Language.ENGLISH -> enCompletionWords
+                Language.UNKNOWN -> mergedCompletionWords
+            }
+
+            pool
+                .filter { it.startsWith(lower) }
+                .take(maxCount)
+                .ifEmpty {
+                    pool
+                        .filter { it.contains(lower) }
+                        .take(maxCount)
+                }
+                .ifEmpty {
+                    mergedCompletionWords
+                        .filter { it.contains(lower) }
+                        .take(maxCount)
+                }
+        } catch (e: Exception) {
+            Log.w(TAG, "completePrefix failed: ${e.message}")
+            emptyList()
         }
-
-        return pool
-            .filter { it.startsWith(lower) }
-            .take(maxCount)
-            .ifEmpty {
-                pool
-                    .filter { it.contains(lower) }
-                    .take(maxCount)
-            }
-            .ifEmpty {
-                mergedCompletionWords
-                    .filter { it.contains(lower) }
-                    .take(maxCount)
-            }
     }
 
     fun predictNextWords(context: String, maxCount: Int = 8): List<String> {
+        return try {
+            predictNextWordsImpl(context, maxCount)
+        } catch (e: Exception) {
+            Log.w(TAG, "predictNextWords failed: ${e.message}")
+            emptyList()
+        }
+    }
+
+    private fun predictNextWordsImpl(context: String, maxCount: Int = 8): List<String> {
         val words = context.split(Regex("[\\s\\p{Punct}]+"))
             .filter { it.isNotBlank() }
             .map { it.lowercase() }
@@ -299,11 +319,7 @@ class CharNGramPredictor(context: Context) {
         }
 
         val uniWeight = 0.10
-        val topUnigrams = unigrams.entries
-            .filter { !it.key.contains(" ") }
-            .sortedByDescending { it.value }
-            .take(20)
-        val uniTotal = topUnigrams.sumOf { it.value.toDouble() }
+        val uniTotal = topUnigrams.sumOf { it.second.toDouble() }
         for ((w, count) in topUnigrams) {
             val bias = when (lang) {
                 Language.VIETNAMESE -> if (isVietnameseWord(w)) langBias else 1.0
@@ -320,6 +336,15 @@ class CharNGramPredictor(context: Context) {
     }
 
     fun unrollWord(prefix: String, maxLen: Int = 20, beamWidth: Int = 5): List<String> {
+        return try {
+            unrollWordImpl(prefix, maxLen, beamWidth)
+        } catch (e: Exception) {
+            Log.w(TAG, "unrollWord failed: ${e.message}")
+            emptyList()
+        }
+    }
+
+    private fun unrollWordImpl(prefix: String, maxLen: Int = 20, beamWidth: Int = 5): List<String> {
         if (prefix.length >= maxLen) return emptyList()
         val found = mutableSetOf<String>()
         var beam = listOf(prefix.lowercase() to 1.0)

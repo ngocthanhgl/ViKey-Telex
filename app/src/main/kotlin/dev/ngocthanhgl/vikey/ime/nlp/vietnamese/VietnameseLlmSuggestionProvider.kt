@@ -77,81 +77,95 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
     override suspend fun suggest(
         subtype: Subtype, content: EditorContent, maxCandidateCount: Int,
         allowPossiblyOffensive: Boolean, isPrivateSession: Boolean,
-    ): List<SuggestionCandidate> {
-        val textBefore = content.textBeforeSelection
+    ): List<SuggestionCandidate> = withContext(Dispatchers.IO) {
+        try {
+            val textBefore = content.textBeforeSelection
 
-        if (textBefore.endsWith(" ")) {
-            return suggestNextWords(textBefore, maxCandidateCount)
+            if (textBefore.endsWith(" ")) {
+                return@withContext suggestNextWords(textBefore, maxCandidateCount)
+            }
+
+            val prefix = getCurrentWord(content) ?: return@withContext emptyList()
+            if (prefix.isBlank()) return@withContext emptyList()
+
+            suggestCompletions(prefix, maxCandidateCount)
+        } catch (e: Exception) {
+            flogDebug { "suggest failed: ${e.message}" }
+            emptyList()
         }
-
-        val prefix = getCurrentWord(content) ?: return emptyList()
-        if (prefix.isBlank()) return emptyList()
-
-        return suggestCompletions(prefix, maxCandidateCount)
     }
 
     private fun suggestNextWords(textBefore: String, maxCount: Int): List<SuggestionCandidate> {
         if (!predictorLoaded) return emptyList()
+        return try {
+            val nextWords = predictor.predictNextWords(textBefore, maxCount)
+            if (nextWords.isEmpty()) return emptyList()
 
-        val nextWords = predictor.predictNextWords(textBefore, maxCount)
-        if (nextWords.isEmpty()) return emptyList()
+            val lastWord = textBefore.split(Regex("[\\s\\p{Punct}]+"))
+                .lastOrNull { it.isNotBlank() } ?: return emptyList()
 
-        val lastWord = textBefore.split(Regex("[\\s\\p{Punct}]+"))
-            .lastOrNull { it.isNotBlank() } ?: return emptyList()
-
-        return nextWords.mapIndexed { index, word ->
-            WordSuggestionCandidate(
-                text = adjustCase(lastWord, word),
-                confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
-                isEligibleForAutoCommit = false,
-                sourceProvider = this,
-            )
+            nextWords.mapIndexed { index, word ->
+                WordSuggestionCandidate(
+                    text = adjustCase(lastWord, word),
+                    confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
+                    isEligibleForAutoCommit = false,
+                    sourceProvider = this,
+                )
+            }
+        } catch (e: Exception) {
+            flogDebug { "suggestNextWords failed: ${e.message}" }
+            emptyList()
         }
     }
 
     private suspend fun suggestCompletions(prefix: String, maxCount: Int): List<SuggestionCandidate> {
-        val completions = if (predictorLoaded) {
-            predictor.completePrefix(prefix, maxCount)
-        } else {
+        return try {
+            val completions = if (predictorLoaded) {
+                predictor.completePrefix(prefix, maxCount)
+            } else {
+                emptyList()
+            }
+
+            if (completions.isNotEmpty()) {
+                return@try rankCompletions(prefix, completions, maxCount)
+            }
+
+            val unrolled = if (predictorLoaded) {
+                predictor.unrollWord(prefix, 20, 5)
+            } else {
+                emptyList()
+            }
+
+            if (unrolled.isNotEmpty()) {
+                return@try unrolled.mapIndexed { index, word ->
+                    WordSuggestionCandidate(
+                        text = adjustCase(prefix, word),
+                        confidence = (1.0 - index * 0.15).coerceAtLeast(0.1),
+                        isEligibleForAutoCommit = false,
+                        sourceProvider = this,
+                    )
+                }
+            }
+
+            val dict = wordData.withLock { it.toMap() }
+            if (dict.isEmpty()) return@try emptyList()
+            val lower = prefix.lowercase()
+            dict.entries
+                .filter { it.key.startsWith(lower) && !it.key.contains(" ") }
+                .sortedByDescending { it.value }
+                .take(maxCount)
+                .map { (word, _) ->
+                    WordSuggestionCandidate(
+                        text = adjustCase(prefix, word),
+                        confidence = 0.5,
+                        isEligibleForAutoCommit = false,
+                        sourceProvider = this,
+                    )
+                }
+        } catch (e: Exception) {
+            flogDebug { "suggestCompletions failed: ${e.message}" }
             emptyList()
         }
-
-        if (completions.isNotEmpty()) {
-            return rankCompletions(prefix, completions, maxCount)
-        }
-
-        val unrolled = if (predictorLoaded) {
-            predictor.unrollWord(prefix, 20, 5)
-        } else {
-            emptyList()
-        }
-
-        if (unrolled.isNotEmpty()) {
-            return unrolled.mapIndexed { index, word ->
-                WordSuggestionCandidate(
-                    text = adjustCase(prefix, word),
-                    confidence = (1.0 - index * 0.15).coerceAtLeast(0.1),
-                    isEligibleForAutoCommit = false,
-                    sourceProvider = this,
-                )
-            }
-        }
-
-        val dict = wordData.withLock { it.toMap() }
-        if (dict.isEmpty()) return emptyList()
-        val lower = prefix.lowercase()
-        return dict.entries
-            .filter { it.key.startsWith(lower) && !it.key.contains(" ") }
-            .sortedByDescending { it.value }
-            .take(maxCount)
-            .map { (word, _) ->
-                WordSuggestionCandidate(
-                    text = adjustCase(prefix, word),
-                    confidence = 0.5,
-                    isEligibleForAutoCommit = false,
-                    sourceProvider = this,
-                )
-            }
     }
 
     private fun rankCompletions(
@@ -159,37 +173,42 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
         words: List<String>,
         maxCount: Int,
     ): List<SuggestionCandidate> {
-        val lang = predictor.detectLanguage(prefix)
-        val bias = when (lang) {
-            CharNGramPredictor.Language.VIETNAMESE -> 1.5
-            CharNGramPredictor.Language.ENGLISH -> 1.5
-            CharNGramPredictor.Language.UNKNOWN -> 1.0
-        }
-
-        val scored = words.map { word ->
-            val normFreq = predictor.normalizedFrequency(word)
-            val langBonus = when (lang) {
-                CharNGramPredictor.Language.VIETNAMESE ->
-                    if (predictor.isVietnameseWord(word)) bias else 1.0
-                CharNGramPredictor.Language.ENGLISH ->
-                    if (predictor.isEnglishWord(word)) bias else 1.0
+        return try {
+            val lang = predictor.detectLanguage(prefix)
+            val bias = when (lang) {
+                CharNGramPredictor.Language.VIETNAMESE -> 1.5
+                CharNGramPredictor.Language.ENGLISH -> 1.5
                 CharNGramPredictor.Language.UNKNOWN -> 1.0
             }
-            val sessionBoost = 1.0 + (sessionFreq[word] ?: 0) * 0.2
-            word to (normFreq * langBonus * sessionBoost)
-        }
 
-        return scored
-            .sortedByDescending { it.second }
-            .take(maxCount)
-            .mapIndexed { index, (word, _) ->
-                WordSuggestionCandidate(
-                    text = adjustCase(prefix, word),
-                    confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
-                    isEligibleForAutoCommit = false,
-                    sourceProvider = this,
-                )
+            val scored = words.map { word ->
+                val normFreq = predictor.normalizedFrequency(word)
+                val langBonus = when (lang) {
+                    CharNGramPredictor.Language.VIETNAMESE ->
+                        if (predictor.isVietnameseWord(word)) bias else 1.0
+                    CharNGramPredictor.Language.ENGLISH ->
+                        if (predictor.isEnglishWord(word)) bias else 1.0
+                    CharNGramPredictor.Language.UNKNOWN -> 1.0
+                }
+                val sessionBoost = 1.0 + (sessionFreq[word] ?: 0) * 0.2
+                word to (normFreq * langBonus * sessionBoost)
             }
+
+            scored
+                .sortedByDescending { it.second }
+                .take(maxCount)
+                .mapIndexed { index, (word, _) ->
+                    WordSuggestionCandidate(
+                        text = adjustCase(prefix, word),
+                        confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
+                        isEligibleForAutoCommit = false,
+                        sourceProvider = this,
+                    )
+                }
+        } catch (e: Exception) {
+            flogDebug { "rankCompletions failed: ${e.message}" }
+            emptyList()
+        }
     }
 
     private fun adjustCase(reference: String, word: String): String {
