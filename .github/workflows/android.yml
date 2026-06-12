@@ -70,5 +70,10 @@ jobs:
             --repo ${{ github.repository }} \
             --title "ViKey $GITHUB_REF_NAME" \
             $PRERELEASE \
-            --notes "See changelog on the release page for details." \
+            --overwrite \
+            --notes "" \
+            "app/build/outputs/apk/release/ViKey-${GITHUB_REF_NAME}-universal.apk" 2>&1 || \
+          gh release upload "$GITHUB_REF_NAME" \
+            --repo ${{ github.repository }} \
+            --clobber \
             "app/build/outputs/apk/release/ViKey-${GITHUB_REF_NAME}-universal.apk"
