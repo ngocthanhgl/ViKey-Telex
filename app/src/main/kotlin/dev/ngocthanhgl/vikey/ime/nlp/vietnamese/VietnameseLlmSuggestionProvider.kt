@@ -109,7 +109,7 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
         }
     }
 
-    private fun suggestCompletions(prefix: String, maxCount: Int): List<SuggestionCandidate> {
+    private suspend fun suggestCompletions(prefix: String, maxCount: Int): List<SuggestionCandidate> {
         val completions = if (predictorLoaded) {
             predictor.completePrefix(prefix, maxCount)
         } else {
@@ -210,7 +210,7 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
     }
 
     override suspend fun notifySuggestionAccepted(subtype: Subtype, candidate: SuggestionCandidate) {
-        val word = candidate.text.lowercase()
+        val word = candidate.text.toString().lowercase()
         sessionFreq.merge(word, 1) { a, b -> a + b }
         sessionTapCount++
         if (sessionFreq.size > 200) {
