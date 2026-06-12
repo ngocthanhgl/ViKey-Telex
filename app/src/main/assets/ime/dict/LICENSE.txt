@@ -1,0 +1,20 @@
+Dictionary Data License Information
+====================================
+
+This directory contains dictionary data derived from the following sources:
+
+1. FrequencyWords (English & Vietnamese)
+   - Source: https://github.com/hermitdave/FrequencyWords
+   - Derived from OpenSubtitles 2018
+   - License: Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)
+   - Used for word frequency data
+
+2. Vietnamese Word List (Viet74K)
+   - Source: https://github.com/duyetdev/vietnamese-wordlist
+   - Based on Hồ Ngọc Đức's Free Vietnamese Dictionary Project
+   - License: GNU General Public License v2.0 (GPL-2.0)
+   - Used for Vietnamese vocabulary
+
+3. Original ViKey dictionary (vi.json initial entries)
+   - 538 multi-word Vietnamese phrases from the original ViKey project
+   - Preserved from initial commit

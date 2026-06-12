@@ -1,23 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#4CAF50</color><!-- Green 500 -->
-    <color name="colorPrimaryDark">#388E3C</color><!-- Green 700 -->
-    <color name="colorAccent">#FF9800</color><!-- Orange 500 -->
-    <color name="colorAccentDark">#F57C00</color><!-- Orange 700 -->
+    <color name="colorPrimary">#4CAF50</color>
+    <color name="colorPrimaryContainer">#C8E6C9</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorOnPrimaryContainer">#1B5E20</color>
+    <color name="colorAccent">#FF9800</color>
+    <color name="colorSecondary">#FF9800</color>
+    <color name="colorOnSecondary">#000000</color>
+    <color name="colorSecondaryContainer">#FFE0B2</color>
+    <color name="colorOnSecondaryContainer">#E65100</color>
+    <color name="colorTertiary">#8BC34A</color>
 
-    <color name="colorSuccess">@color/colorPrimary</color><!-- Green 500 -->
-    <color name="textColorSuccess">#FFFFFF</color><!-- White -->
-    <color name="colorWarning">#FFFF00</color><!-- Yellow A200 -->
-    <color name="textColorWarning">#000000</color><!-- Black -->
-    <color name="colorError">#B00020</color><!-- Red 1000? -->
-    <color name="textColorError">#FFFFFF</color><!-- White -->
+    <color name="colorSuccess">@color/colorPrimary</color>
+    <color name="textColorSuccess">#FFFFFF</color>
+    <color name="colorWarning">#FFEB3B</color>
+    <color name="textColorWarning">#000000</color>
+    <color name="colorError">#B00020</color>
+    <color name="textColorError">#FFFFFF</color>
+
+    <color name="textColorOnPrimary">@color/colorOnPrimary</color>
+    <color name="textColorOnPrimaryContainer">@color/colorOnPrimaryContainer</color>
+    <color name="textColorOnSecondary">@color/colorOnSecondary</color>
+    <color name="textColorOnSecondaryContainer">@color/colorOnSecondaryContainer</color>
 
     <color name="ic_app_icon_background">#0D1B2A</color>
 
-    <color name="cardViewBackgroundColor">#FFFFFF</color><!-- White -->
-    <color name="navigationBarColor">#000000</color><!-- Black -->
-    <color name="toolbarForegroundColor">#000000</color><!-- Black -->
-    <color name="windowBackground">#FAFAFA</color><!-- Gray 50 -->
+    <color name="cardViewBackgroundColor">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="toolbarForegroundColor">#000000</color>
+    <color name="windowBackground">#FAFAFA</color>
 
     <color name="florisApp_windowBackground">#FFFFFFFF</color>
 </resources>

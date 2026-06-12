@@ -29,6 +29,8 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
     private val wordDataSerializer = MapSerializer(String.serializer(), Int.serializer())
     private var dictLoaded = false
     private var predictorLoaded = false
+    private val sessionFreq = mutableMapOf<String, Int>()
+    private var sessionTapCount = 0
 
     override val providerId = ProviderId
 
@@ -173,7 +175,8 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
                     if (predictor.isEnglishWord(word)) bias else 1.0
                 CharNGramPredictor.Language.UNKNOWN -> 1.0
             }
-            word to (normFreq * langBonus)
+            val sessionBoost = 1.0 + (sessionFreq[word] ?: 0) * 0.2
+            word to (normFreq * langBonus * sessionBoost)
         }
 
         return scored
@@ -207,7 +210,17 @@ class VietnameseLlmSuggestionProvider(context: Context) : SpellingProvider, Sugg
     }
 
     override suspend fun notifySuggestionAccepted(subtype: Subtype, candidate: SuggestionCandidate) {
-        flogDebug { candidate.toString() }
+        val word = candidate.text.lowercase()
+        sessionFreq.merge(word, 1) { a, b -> a + b }
+        sessionTapCount++
+        if (sessionFreq.size > 200) {
+            val toRemove = sessionFreq.entries
+                .sortedBy { it.value }
+                .take(50)
+                .map { it.key }
+            toRemove.forEach { sessionFreq.remove(it) }
+        }
+        flogDebug { "Session word: $word (${sessionFreq[word]})" }
     }
 
     override suspend fun notifySuggestionReverted(subtype: Subtype, candidate: SuggestionCandidate) {

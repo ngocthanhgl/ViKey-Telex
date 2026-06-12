@@ -15,6 +15,7 @@ class CharNGramPredictor(context: Context) {
         private const val TAG = "CharNGramPredictor"
         private const val VI_DICT = "ime/dict/vi.json"
         private const val EN_DICT = "ime/dict/data.json"
+        private const val COMPLETION_LIMIT = 100000
     }
 
     private val appContext by context.appContext()
@@ -30,6 +31,9 @@ class CharNGramPredictor(context: Context) {
     private var singleWords: List<String> = emptyList()
     private var viSingleWords: List<String> = emptyList()
     private var enSingleWords: List<String> = emptyList()
+    private var viCompletionWords: List<String> = emptyList()
+    private var enCompletionWords: List<String> = emptyList()
+    private var mergedCompletionWords: List<String> = emptyList()
     private var wordBigrams: Map<String, List<Pair<String, Int>>> = emptyMap()
     private var wordTrigrams: Map<String, List<Pair<String, Int>>> = emptyMap()
     private var wordQuadgrams: Map<String, List<Pair<String, Int>>> = emptyMap()
@@ -72,6 +76,9 @@ class CharNGramPredictor(context: Context) {
                 enSingleWords = enWords.keys
                     .filter { !it.contains(" ") }
                     .sortedByDescending { enWords[it] }
+                viCompletionWords = viSingleWords.take(COMPLETION_LIMIT)
+                enCompletionWords = enSingleWords.take(COMPLETION_LIMIT)
+                mergedCompletionWords = singleWords.take(COMPLETION_LIMIT)
 
                 buildNGrams()
                 buildWordNGrams()
@@ -216,9 +223,9 @@ class CharNGramPredictor(context: Context) {
         val lower = prefix.lowercase()
 
         val pool = when (detectLanguage(prefix)) {
-            Language.VIETNAMESE -> viSingleWords
-            Language.ENGLISH -> enSingleWords
-            Language.UNKNOWN -> singleWords
+            Language.VIETNAMESE -> viCompletionWords
+            Language.ENGLISH -> enCompletionWords
+            Language.UNKNOWN -> mergedCompletionWords
         }
 
         return pool
@@ -230,8 +237,8 @@ class CharNGramPredictor(context: Context) {
                     .take(maxCount)
             }
             .ifEmpty {
-                singleWords
-                    .filter { it.startsWith(lower) }
+                mergedCompletionWords
+                    .filter { it.contains(lower) }
                     .take(maxCount)
             }
     }
@@ -242,12 +249,20 @@ class CharNGramPredictor(context: Context) {
             .map { it.lowercase() }
         if (words.isEmpty()) return emptyList()
 
-        val candidates = mutableMapOf<String, Double>()
-        val last = words.last()
+        val lastWord = words.last()
         val last2 = if (words.size >= 2) listOf(words[words.size - 2], words[words.size - 1])
             .joinToString(" ") else null
         val last3 = if (words.size >= 3) listOf(words[words.size - 3], words[words.size - 2], words[words.size - 1])
             .joinToString(" ") else null
+
+        val lang = detectLanguage(lastWord)
+        val langBias = when (lang) {
+            Language.VIETNAMESE -> 1.5
+            Language.ENGLISH -> 1.5
+            Language.UNKNOWN -> 1.0
+        }
+
+        val candidates = mutableMapOf<String, Double>()
 
         if (last3 != null) {
             val qmap = wordQuadgrams[last3]
@@ -255,7 +270,8 @@ class CharNGramPredictor(context: Context) {
                 val total = qmap.sumOf { it.second }.toDouble()
                 val weight = 0.40
                 for ((w, count) in qmap) {
-                    candidates.merge(w, weight * count / total) { a, b -> a + b }
+                    val bias = if (isVietnameseWord(w)) langBias else 1.0
+                    candidates.merge(w, weight * count / total * bias) { a, b -> a + b }
                 }
             }
         }
@@ -266,17 +282,19 @@ class CharNGramPredictor(context: Context) {
                 val total = tmap.sumOf { it.second }.toDouble()
                 val weight = 0.30
                 for ((w, count) in tmap) {
-                    candidates.merge(w, weight * count / total) { a, b -> a + b }
+                    val bias = if (isVietnameseWord(w)) langBias else 1.0
+                    candidates.merge(w, weight * count / total * bias) { a, b -> a + b }
                 }
             }
         }
 
-        val bmap = wordBigrams[last]
+        val bmap = wordBigrams[lastWord]
         if (bmap != null) {
             val total = bmap.sumOf { it.second }.toDouble()
             val weight = 0.20
             for ((w, count) in bmap) {
-                candidates.merge(w, weight * count / total) { a, b -> a + b }
+                val bias = if (isVietnameseWord(w)) langBias else 1.0
+                candidates.merge(w, weight * count / total * bias) { a, b -> a + b }
             }
         }
 
@@ -287,7 +305,12 @@ class CharNGramPredictor(context: Context) {
             .take(20)
         val uniTotal = topUnigrams.sumOf { it.value.toDouble() }
         for ((w, count) in topUnigrams) {
-            candidates.merge(w, uniWeight * count / uniTotal) { a, b -> a + b }
+            val bias = when (lang) {
+                Language.VIETNAMESE -> if (isVietnameseWord(w)) langBias else 1.0
+                Language.ENGLISH -> if (isEnglishWord(w)) langBias else 1.0
+                Language.UNKNOWN -> 1.0
+            }
+            candidates.merge(w, uniWeight * count / uniTotal * bias) { a, b -> a + b }
         }
 
         return candidates.entries

@@ -1,4 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,12 +8,11 @@
     android:fitsSystemWindows="true"
     android:theme="@style/CrashDialogTheme">
 
-    <Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/crash_dialog_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark"
-        android:elevation="4dp"/>
+        app:title="@string/crash_dialog__title"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -19,32 +20,37 @@
         android:layout_weight="1">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                       android:orientation="vertical">
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/description"
+                style="@style/TextAppearance.Material3.BodyMedium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
+                android:padding="16dp"
                 android:text="@string/crash_dialog__description"/>
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/report_instructions"
+                style="@style/TextAppearance.Material3.BodySmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
+                android:padding="16dp"
                 android:text="@string/crash_dialog__report_instructions"/>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
+                android:background="?android:attr/listDivider"
+                android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"/>
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/stacktrace"
+                style="@style/TextAppearance.Material3.BodySmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"/>
+                android:padding="16dp"
+                android:fontFamily="monospace"/>
         </LinearLayout>
     </ScrollView>
 
@@ -53,37 +59,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="2dp">
+        android:padding="8dp"
+        android:gravity="end">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/copy_to_clipboard"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:padding="8dp"
-            android:text="@string/crash_dialog__copy_to_clipboard" tools:ignore="ButtonStyle"/>
+            android:layout_height="wrap_content"
+            android:text="@string/crash_dialog__copy_to_clipboard"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/open_bug_report_form"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:padding="8dp"
-            android:text="@string/crash_dialog__open_issue_tracker" tools:ignore="ButtonStyle"/>
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:text="@string/crash_dialog__open_issue_tracker"/>
 
-    <LinearLayout
-        android:id="@+id/close_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="2dp">
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/close"
+            style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:padding="8dp"
+            android:layout_height="wrap_content"
             android:text="@string/crash_dialog__close"/>
     </LinearLayout>
-
 
 </LinearLayout>

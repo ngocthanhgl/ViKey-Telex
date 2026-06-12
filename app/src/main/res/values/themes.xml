@@ -10,33 +10,35 @@
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
-    <style name="FlorisAppTheme" parent="android:style/Theme.Material.NoActionBar">
-        <item name="android:colorPrimary">@color/colorPrimary</item>
-        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="android:colorAccent">@color/colorAccent</item>
+    <style name="FlorisAppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/textColorOnPrimary</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/textColorOnPrimaryContainer</item>
+        <item name="colorSecondary">@color/colorAccent</item>
+        <item name="colorOnSecondary">@color/textColorOnSecondary</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/textColorOnSecondaryContainer</item>
+        <item name="colorTertiary">@color/colorTertiary</item>
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/textColorError</item>
 
-        <!-- IMPORTANT: the following 2 colors MUST be references and not inline colors, or older
-             versions of Android will not set the window background and thus causing weird
-             rendering glitches!! -->
         <item name="android:windowBackground">@color/florisApp_windowBackground</item>
         <item name="android:colorBackground">@color/florisApp_windowBackground</item>
 
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
-    <style name="CrashDialogTheme" parent="android:style/Theme.Material.NoActionBar"/>
+    <style name="CrashDialogTheme" parent="Theme.Material3.DayNight.NoActionBar"/>
 
-    <style name="FlorisImeTheme" parent="android:Theme.Material.InputMethod">
-        <!-- Need this to prevent Xiaomi devices from messing with our beautiful UI -->
+    <style name="FlorisImeTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
-        <!-- FFS -->
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="FlorisAppTheme.Transparent" parent="android:style/Theme.Material.NoActionBar">
-        <item name="android:colorPrimary">@android:color/transparent</item>
-        <item name="android:colorPrimaryDark">@android:color/transparent</item>
-        <item name="android:colorAccent">@android:color/transparent</item>
+    <style name="FlorisAppTheme.Transparent" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@android:color/transparent</item>
+        <item name="colorOnPrimary">@android:color/transparent</item>
 
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackground">@android:color/transparent</item>
