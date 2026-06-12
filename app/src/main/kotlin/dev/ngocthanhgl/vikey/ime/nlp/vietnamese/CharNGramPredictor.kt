@@ -34,6 +34,9 @@ class CharNGramPredictor(context: Context) {
     private var viCompletionWords: List<String> = emptyList()
     private var enCompletionWords: List<String> = emptyList()
     private var mergedCompletionWords: List<String> = emptyList()
+    private var viByFirstChar: Map<Char, List<String>> = emptyMap()
+    private var enByFirstChar: Map<Char, List<String>> = emptyMap()
+    private var mergedByFirstChar: Map<Char, List<String>> = emptyMap()
     private var wordBigrams: Map<String, List<Pair<String, Int>>> = emptyMap()
     private var wordTrigrams: Map<String, List<Pair<String, Int>>> = emptyMap()
     private var wordQuadgrams: Map<String, List<Pair<String, Int>>> = emptyMap()
@@ -80,6 +83,10 @@ class CharNGramPredictor(context: Context) {
                 viCompletionWords = viSingleWords.take(COMPLETION_LIMIT)
                 enCompletionWords = enSingleWords.take(COMPLETION_LIMIT)
                 mergedCompletionWords = singleWords.take(COMPLETION_LIMIT)
+
+                viByFirstChar = viCompletionWords.groupBy { it[0] }
+                enByFirstChar = enCompletionWords.groupBy { it[0] }
+                mergedByFirstChar = mergedCompletionWords.groupBy { it[0] }
 
                 buildNGrams()
                 buildWordNGrams()
@@ -236,26 +243,35 @@ class CharNGramPredictor(context: Context) {
     private fun completePrefixImpl(prefix: String, maxCount: Int = 8): List<String> {
         if (prefix.isBlank()) return emptyList()
         val lower = prefix.lowercase()
+        val first = lower[0]
 
-        val pool = when (detectLanguage(prefix)) {
+        val lang = detectLanguage(prefix)
+        val pool = when (lang) {
             Language.VIETNAMESE -> viCompletionWords
             Language.ENGLISH -> enCompletionWords
             Language.UNKNOWN -> mergedCompletionWords
         }
+        val byFirst = when (lang) {
+            Language.VIETNAMESE -> viByFirstChar
+            Language.ENGLISH -> enByFirstChar
+            Language.UNKNOWN -> mergedByFirstChar
+        }
 
-        return pool
-            .filter { it.startsWith(lower) }
-            .take(maxCount)
-            .ifEmpty {
-                pool
-                    .filter { it.contains(lower) }
-                    .take(maxCount)
-            }
-            .ifEmpty {
-                mergedCompletionWords
-                    .filter { it.contains(lower) }
-                    .take(maxCount)
-            }
+        val group = byFirst[first]
+        if (group != null) {
+            val exact = group.filter { it.startsWith(lower) }.take(maxCount)
+            if (exact.isNotEmpty()) return exact
+            val fuzzy = group.filter { it.contains(lower) }.take(maxCount)
+            if (fuzzy.isNotEmpty()) return fuzzy
+        }
+
+        val mergedGroup = mergedByFirstChar[first]
+        if (mergedGroup != null) {
+            val fuzzy = mergedGroup.filter { it.contains(lower) }.take(maxCount)
+            if (fuzzy.isNotEmpty()) return fuzzy
+        }
+
+        return pool.filter { it.contains(lower) }.take(maxCount)
     }
 
     fun predictNextWords(context: String, maxCount: Int = 8): List<String> {
