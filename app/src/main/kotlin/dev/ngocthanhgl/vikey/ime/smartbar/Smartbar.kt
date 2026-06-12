@@ -97,11 +97,7 @@ fun Smartbar() {
     val smartbarEnabled by prefs.smartbar.enabled.collectAsState()
     val extendedActionsPlacement by prefs.smartbar.extendedActionsPlacement.collectAsState()
 
-    AnimatedVisibility(
-        visible = smartbarEnabled,
-        enter = VerticalEnterTransition,
-        exit = VerticalExitTransition,
-    ) {
+    if (smartbarEnabled) {
         when (extendedActionsPlacement) {
             ExtendedActionsPlacement.ABOVE_CANDIDATES -> {
                 SnyggColumn(FlorisImeUi.Smartbar.elementName) {
