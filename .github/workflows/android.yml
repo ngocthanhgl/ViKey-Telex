@@ -52,11 +52,16 @@ jobs:
           ./gradlew clean assembleRelease $EXTRA -Pandroid.isReproducibleBuild=true
         shell: bash
 
-      - name: Rename APK
+      - name: Rename APKs
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          mv app/build/outputs/apk/release/app-release.apk \
-             "app/build/outputs/apk/release/ViKey-${GITHUB_REF_NAME}-universal.apk"
+          for apk in app/build/outputs/apk/release/*.apk; do
+            base=$(basename "$apk")
+            if [[ "$base" == app-*-*.apk ]]; then
+              abi=$(echo "$base" | sed 's/app-\(.*\)-release\.apk/\1/')
+              mv "$apk" "app/build/outputs/apk/release/ViKey-${GITHUB_REF_NAME}-${abi}.apk"
+            fi
+          done
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -67,9 +72,12 @@ jobs:
           PRERELEASE=""
           if echo "$GITHUB_REF_NAME" | grep -qi "beta\|alpha\|rc"; then PRERELEASE="--prerelease"; fi
           gh release delete "$GITHUB_REF_NAME" --repo ${{ github.repository }} --yes 2>/dev/null || true
-          gh release create "$GITHUB_REF_NAME" \
-            --repo ${{ github.repository }} \
-            --title "ViKey $GITHUB_REF_NAME" \
-            $PRERELEASE \
-            --notes "" \
-            "app/build/outputs/apk/release/ViKey-${GITHUB_REF_NAME}-universal.apk"
+          APKS=$(ls app/build/outputs/apk/release/ViKey-*.apk 2>/dev/null || true)
+          if [ -n "$APKS" ]; then
+            gh release create "$GITHUB_REF_NAME" \
+              --repo ${{ github.repository }} \
+              --title "ViKey $GITHUB_REF_NAME" \
+              $PRERELEASE \
+              --notes "" \
+              $APKS
+          fi
