@@ -660,7 +660,7 @@ fun EmojiText(
     fontSize: TextUnit = EmojiDefaultFontSize,
 ) {
     val customTypeface = LocalEmojiTypeface.current
-    if (emojiCompatInstance != null) {
+    if (emojiCompatInstance != null && customTypeface == null) {
         AndroidView(
             modifier = modifier,
             factory = { context ->
@@ -671,7 +671,6 @@ fun EmojiText(
             },
             update = { view ->
                 view.text = text
-                if (customTypeface != null) view.typeface = customTypeface
             },
         )
     } else {
