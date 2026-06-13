@@ -24,7 +24,6 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         private const val CONTEXT_LEN = 30
         private const val VOCAB_SIZE = 15000
         private const val OOV_ID = 3
-        private const val MAX_SUGGESTIONS = 10
     }
 
     private var interpreter: Interpreter? = null
@@ -70,25 +69,20 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                 val prefix = getCurrentWord(content) ?: return@withContext emptyList()
 
                 val words = tokenize(textBefore.removeSuffix(prefix))
-                val nextWordProbs = predictNext(interp, words)
+                val probs = predictRaw(interp, words)
 
-                val scored: List<Pair<String, Double>> = if (prefix.isNotBlank()) {
+                val result = if (prefix.isNotBlank()) {
                     i2w.values.filter { w -> w.startsWith(prefix, ignoreCase = true) && !w.startsWith("<") }
-                        .mapNotNull { w ->
-                            val p = nextWordProbs[w] ?: (1.0 / VOCAB_SIZE.toDouble())
-                            if (p > 0.0) w to p else null
-                        }
+                        .map { w -> w to (probs[w2i[w] ?: OOV_ID].toDouble().coerceAtLeast(0.0)) }
                         .sortedByDescending { it.second }
+                        .take(maxCandidateCount)
                 } else {
-                    nextWordProbs.entries
-                        .filter { e -> !e.key.startsWith("<") }
-                        .sortedByDescending { it.value }
-                        .map { e -> e.key to e.value }
+                    topKWords(probs, maxCandidateCount)
                 }
 
-                scored.take(maxCandidateCount.coerceAtMost(MAX_SUGGESTIONS)).map { pair ->
+                result.map { (word, _) ->
                     WordSuggestionCandidate(
-                        text = adjustCase(prefix, pair.first),
+                        text = adjustCase(prefix, word),
                         confidence = 1.0,
                         isEligibleForAutoCommit = false,
                         sourceProvider = this@TfLiteSuggestionProvider,
@@ -101,7 +95,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         }
     }
 
-    private fun predictNext(interp: Interpreter, words: List<String>): Map<String, Double> {
+    private fun predictRaw(interp: Interpreter, words: List<String>): FloatArray {
         val inputIds = IntArray(CONTEXT_LEN) { 0 }
         val lastWords = words.takeLast(CONTEXT_LEN)
         val offset = CONTEXT_LEN - lastWords.size
@@ -111,15 +105,21 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         val input = arrayOf(inputIds)
         val output = Array(1) { Array(CONTEXT_LEN) { FloatArray(VOCAB_SIZE) } }
         interp.run(input, output)
-        val probs = output[0][CONTEXT_LEN - 1]
+        return output[0][CONTEXT_LEN - 1]
+    }
 
-        val result = mutableMapOf<String, Double>()
+    private fun topKWords(probs: FloatArray, k: Int): List<Pair<String, Double>> {
+        val limit = k.coerceAtMost(50)
+        val scored = mutableListOf<Pair<Int, Float>>()
         for (id in 0 until VOCAB_SIZE) {
             val word = i2w[id] ?: continue
-            val p = probs[id].toDouble()
-            if (p > 0) result[word] = p
+            if (!word.startsWith("<")) {
+                scored.add(id to probs[id])
+            }
         }
-        return result
+        return scored.sortedByDescending { it.second }
+            .take(limit)
+            .map { (id, p) -> i2w[id]!! to p.toDouble() }
     }
 
     private fun tokenize(text: String): List<String> {
