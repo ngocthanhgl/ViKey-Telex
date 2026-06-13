@@ -6,7 +6,7 @@ import java.io.File
 import java.net.URL
 
 object EmojiFontManager {
-    private const val APPLE_EMOJI_URL = "https://github.com/samuelngs/apple-emoji-linux/releases/download/v18.0.0/AppleColorEmoji.ttf"
+    private const val APPLE_EMOJI_URL = "https://github.com/samuelngs/apple-emoji-ttf/releases/download/v26.2.1/AppleColorEmoji.ttf"
     private const val FONT_DIR = "emoji_fonts"
     private const val FONT_FILE = "AppleColorEmoji.ttf"
     private var cachedTypeface: Typeface? = null
@@ -40,7 +40,7 @@ object EmojiFontManager {
             val connection = url.openConnection()
             connection.setRequestProperty("User-Agent", "ViKey-Telex")
             connection.connectTimeout = 15000
-            connection.readTimeout = 30000
+            connection.readTimeout = 120000
             connection.getInputStream().use { input ->
                 file.outputStream().use { output ->
                     input.copyTo(output)
