@@ -23,7 +23,7 @@ import dev.ngocthanhgl.vikey.ime.keyboard.extCoreCurrencySet
 import dev.ngocthanhgl.vikey.ime.keyboard.extCoreLayout
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePopupMapping
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePunctuationRule
-import dev.ngocthanhgl.vikey.ime.nlp.NlpProviders.FallbackNlpProvider
+import dev.ngocthanhgl.vikey.ime.nlp.FallbackNlpProvider
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
 import kotlinx.serialization.SerialName
