@@ -9,6 +9,7 @@ import dev.ngocthanhgl.vikey.ime.nlp.WordSuggestionCandidate
 import dev.ngocthanhgl.vikey.lib.devtools.flogDebug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import org.tensorflow.lite.Interpreter
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -20,13 +21,16 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.tflite"
         private const val MODEL_PATH = "ime/dict/vikey_cifg_int8.tflite"
         private const val DICT_PATH = "ime/dict/vi.json"
+        private const val TOKENIZER_PATH = "ime/dict/tokenizer.json"
         private const val CONTEXT_LEN = 30
         private const val VOCAB_SIZE = 15000
-        private const val PAD_ID = 0
+        private const val OOV_ID = 3
     }
 
     private var interpreter: Interpreter? = null
     private var dictionary: Map<String, Double> = emptyMap()
+    private var w2i: Map<String, Int> = emptyMap()
+    private var i2w: Map<Int, String> = emptyMap()
     private var loaded = false
 
     override val providerId = ProviderId
@@ -36,6 +40,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         withContext(Dispatchers.IO) {
             try {
                 dictionary = loadDictionary()
+                loadTokenizer()
                 val modelBytes = context.assets.open(MODEL_PATH).use { it.readBytes() }
                 val buffer = ByteBuffer.allocateDirect(modelBytes.size)
                 buffer.order(ByteOrder.nativeOrder())
@@ -43,7 +48,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                 interpreter = Interpreter(buffer)
                 loaded = true
             } catch (e: Exception) {
-                flogDebug { "TFLite: failed to init: ${e.message}" }
+                flogDebug { "TFLite: init failed: ${e.message}" }
             }
         }
     }
@@ -67,22 +72,16 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                 val prefix = getCurrentWord(content) ?: return@withContext emptyList()
                 if (prefix.isBlank()) return@withContext emptyList()
 
+                val words = tokenize(textBefore.removeSuffix(prefix))
+                val nextWordProbs = predictNext(interp, words)
+
                 val matches = dictionary.filterKeys { it.startsWith(prefix, ignoreCase = true) }
                     .entries.sortedByDescending { it.value }
-                    .take(maxCandidateCount * 5)
-
-                val fullContext = textBefore + prefix
-                val contextEnd = fullContext.takeLast(CONTEXT_LEN).let { s ->
-                    if (s.length < CONTEXT_LEN) "\u0000".repeat(CONTEXT_LEN - s.length) + s else s
-                }
-                val nextCharProbs = predictNext(interp, contextEnd)
+                    .take(maxCandidateCount * 10)
 
                 val scored = matches.map { (word, freq) ->
-                    val nextChar = word.getOrNull(prefix.length) ?: ' '
-                    val modelScore = if (nextChar.code in 2 until VOCAB_SIZE) {
-                        nextCharProbs[nextChar.code].toDouble().coerceAtLeast(0.0)
-                    } else 0.0
-                    word to freq * (1.5 + modelScore * 5.0)
+                    val wordProb = nextWordProbs[word] ?: 0.0
+                    word to freq * (1.0 + wordProb * 10.0)
                 }.sortedByDescending { it.second }
 
                 scored.take(maxCandidateCount).map { (word, score) ->
@@ -100,31 +99,57 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         }
     }
 
-    private fun predictNext(interpreter: Interpreter, text: String): FloatArray {
-        val inputIds = IntArray(CONTEXT_LEN) { PAD_ID }
-        val chars = text.takeLast(CONTEXT_LEN)
-        val offset = CONTEXT_LEN - chars.length
-        for (i in chars.indices) {
-            val cp = chars[i].code
-            inputIds[offset + i] = if (cp in 32 until VOCAB_SIZE) cp else PAD_ID
+    private fun predictNext(interp: Interpreter, words: List<String>): Map<String, Double> {
+        val inputIds = IntArray(CONTEXT_LEN) { 0 }
+        val lastWords = words.takeLast(CONTEXT_LEN)
+        val offset = CONTEXT_LEN - lastWords.size
+        for (i in lastWords.indices) {
+            inputIds[offset + i] = w2i[lastWords[i]] ?: OOV_ID
         }
         val input = arrayOf(inputIds)
         val output = Array(1) { Array(CONTEXT_LEN) { FloatArray(VOCAB_SIZE) } }
-        interpreter.run(input, output)
-        return output[0][CONTEXT_LEN - 1]
+        interp.run(input, output)
+        val probs = output[0][CONTEXT_LEN - 1]
+
+        val result = mutableMapOf<String, Double>()
+        for (id in 0 until VOCAB_SIZE) {
+            val word = i2w[id] ?: continue
+            if (word.startsWith('<') && word.endsWith('>')) continue
+            val p = probs[id].toDouble()
+            if (p > 0.01) {
+                result[word] = p
+            }
+        }
+        return result
+    }
+
+    private fun tokenize(text: String): List<String> {
+        if (text.isBlank()) return emptyList()
+        return text.split(Regex("\\s+")).filter { it.isNotBlank() }
+    }
+
+    private fun loadTokenizer() {
+        val text = BufferedReader(InputStreamReader(context.assets.open(TOKENIZER_PATH)))
+            .use { it.readText() }
+        val json = JSONObject(text)
+        val w2iObj = json.getJSONObject("w2i")
+        val i2wObj = json.getJSONObject("i2w")
+        w2i = mutableMapOf<String, Int>().apply {
+            for (key in w2iObj.keys()) put(key, w2iObj.getInt(key))
+        }
+        i2w = mutableMapOf<Int, String>().apply {
+            for (key in i2wObj.keys()) put(key.toInt(), i2wObj.getString(key))
+        }
     }
 
     private fun loadDictionary(): Map<String, Double> {
         val map = mutableMapOf<String, Double>()
         try {
-            val reader = BufferedReader(InputStreamReader(context.assets.open(DICT_PATH)))
-            val sb = StringBuilder()
-            reader.forEachLine { sb.append(it) }
-            val text = sb.toString()
+            val text = BufferedReader(InputStreamReader(context.assets.open(DICT_PATH)))
+                .use { it.readText() }
             val stripped = text.trim().removePrefix("[").removeSuffix("]")
             var depth = 0
             var start = -1
-            var key: String? = null
             for (i in stripped.indices) {
                 when (stripped[i]) {
                     '{' -> { depth++; if (depth == 1) start = i }
@@ -141,7 +166,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                 }
             }
         } catch (e: Exception) {
-            flogDebug { "TFLite: dictionary load failed: ${e.message}" }
+            flogDebug { "TFLite: dict load failed: ${e.message}" }
         }
         return map
     }
