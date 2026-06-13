@@ -72,7 +72,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                 val words = tokenize(textBefore.removeSuffix(prefix))
                 val nextWordProbs = predictNext(interp, words)
 
-                val scored = if (prefix.isNotBlank()) {
+                val scored: List<Pair<String, Double>> = if (prefix.isNotBlank()) {
                     i2w.values.filter { w -> w.startsWith(prefix, ignoreCase = true) && !w.startsWith("<") }
                         .mapNotNull { w ->
                             val p = nextWordProbs[w] ?: (1.0 / VOCAB_SIZE.toDouble())
@@ -83,12 +83,13 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                     nextWordProbs.entries
                         .filter { e -> !e.key.startsWith("<") }
                         .sortedByDescending { it.value }
+                        .map { e -> e.key to e.value }
                 }
 
                 scored.take(maxCandidateCount.coerceAtMost(MAX_SUGGESTIONS)).map { pair ->
                     WordSuggestionCandidate(
                         text = adjustCase(prefix, pair.first),
-                        confidence = 1.0f,
+                        confidence = 1.0,
                         isEligibleForAutoCommit = false,
                         sourceProvider = this@TfLiteSuggestionProvider,
                     )
