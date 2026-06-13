@@ -23,7 +23,7 @@ import dev.ngocthanhgl.vikey.ime.keyboard.extCoreCurrencySet
 import dev.ngocthanhgl.vikey.ime.keyboard.extCoreLayout
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePopupMapping
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePunctuationRule
-import dev.ngocthanhgl.vikey.ime.nlp.latin.LatinLanguageProvider
+import dev.ngocthanhgl.vikey.ime.nlp.NlpProviders.FallbackNlpProvider
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
 import kotlinx.serialization.SerialName
@@ -219,8 +219,8 @@ data class SubtypeLayoutMap(
 
 @Serializable
 data class SubtypeNlpProviderMap(
-    val spelling: String = LatinLanguageProvider.ProviderId,
-    val suggestion: String = LatinLanguageProvider.ProviderId,
+    val spelling: String = FallbackNlpProvider.providerId,
+    val suggestion: String = FallbackNlpProvider.providerId,
 ) {
     inline fun forEach(action: (String, String) -> Unit) {
         action("spelling", spelling)
