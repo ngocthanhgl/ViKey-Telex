@@ -150,11 +150,13 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                 pq.add(id to p)
             }
         }
-        val result = mutableListOf<Pair<String, Double>>()
-        while (pq.isNotEmpty()) result.add(pq.poll())
-        result.reverse()
-        return result.map { (id, _) -> idx2word[id] ?: "" to 1.0 }
-            .filter { it.first.isNotBlank() }
+        val ids = mutableListOf<Int>()
+        while (pq.isNotEmpty()) ids.add(pq.poll().first)
+        ids.reverse()
+        return ids.mapNotNull { id ->
+            val word = idx2word[id] ?: return@mapNotNull null
+            if (word.isBlank()) null else word to 1.0
+        }
     }
 
     private fun completeCurrentWord(probs: FloatArray, prefix: String, k: Int): List<Pair<String, Double>> {
