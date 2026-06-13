@@ -72,6 +72,7 @@ import dev.ngocthanhgl.vikey.ime.core.SubtypePreset
 import dev.ngocthanhgl.vikey.ime.keyboard.LayoutArrangementComponent
 import dev.ngocthanhgl.vikey.ime.keyboard.LayoutType
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePopupMapping
+import dev.ngocthanhgl.vikey.ime.nlp.FallbackNlpProvider
 import dev.ngocthanhgl.vikey.ime.nlp.latin.LatinLanguageProvider
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.VietnameseLlmSuggestionProvider
 import dev.ngocthanhgl.vikey.keyboardManager
@@ -397,6 +398,7 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                 // TODO: Put this map somewhere more formal (another KeyboardExtension field?)
                 //  optionally use a string resource below
                 val nlpProviderMappings = mapOf(
+                    FallbackNlpProvider.providerId to "None",
                     LatinLanguageProvider.ProviderId to "Latin",
                     VietnameseLlmSuggestionProvider.ProviderId to "Vietnamese (n-gram)"
                 )
