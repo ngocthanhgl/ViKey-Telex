@@ -20,15 +20,14 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
     companion object {
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.tflite"
         private const val MODEL_PATH = "ime/dict/vikey_cifg_int8.tflite"
-        private const val DICT_PATH = "ime/dict/vi.json"
         private const val TOKENIZER_PATH = "ime/dict/tokenizer.json"
         private const val CONTEXT_LEN = 30
         private const val VOCAB_SIZE = 15000
         private const val OOV_ID = 3
+        private const val MAX_SUGGESTIONS = 10
     }
 
     private var interpreter: Interpreter? = null
-    private var dictionary: Map<String, Double> = emptyMap()
     private var w2i: Map<String, Int> = emptyMap()
     private var i2w: Map<Int, String> = emptyMap()
     private var loaded = false
@@ -39,7 +38,6 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         if (loaded) return
         withContext(Dispatchers.IO) {
             try {
-                dictionary = loadDictionary()
                 loadTokenizer()
                 val modelBytes = context.assets.open(MODEL_PATH).use { it.readBytes() }
                 val buffer = ByteBuffer.allocateDirect(modelBytes.size)
@@ -70,24 +68,27 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
             try {
                 val textBefore = content.textBeforeSelection
                 val prefix = getCurrentWord(content) ?: return@withContext emptyList()
-                if (prefix.isBlank()) return@withContext emptyList()
 
                 val words = tokenize(textBefore.removeSuffix(prefix))
                 val nextWordProbs = predictNext(interp, words)
 
-                val matches = dictionary.filterKeys { it.startsWith(prefix, ignoreCase = true) }
-                    .entries.sortedByDescending { it.value }
-                    .take(maxCandidateCount * 10)
+                val scored = if (prefix.isNotBlank()) {
+                    i2w.filter { (_, w) -> w.startsWith(prefix, ignoreCase = true) && !w.startsWith("<") }
+                        .mapNotNull { (id, w) ->
+                            val p = nextWordProbs[w] ?: (1.0 / VOCAB_SIZE)
+                            if (p > 0) w to p else null
+                        }
+                        .sortedByDescending { it.second }
+                } else {
+                    nextWordProbs.entries
+                        .filter { (w, _) -> !w.startsWith("<") }
+                        .sortedByDescending { it.value }
+                }
 
-                val scored = matches.map { (word, freq) ->
-                    val wordProb = nextWordProbs[word] ?: 0.0
-                    word to freq * (1.0 + wordProb * 10.0)
-                }.sortedByDescending { it.second }
-
-                scored.take(maxCandidateCount).map { (word, score) ->
+                scored.take(maxCandidateCount.coerceAtMost(MAX_SUGGESTIONS)).map { (word, _) ->
                     WordSuggestionCandidate(
                         text = adjustCase(prefix, word),
-                        confidence = score.toFloat(),
+                        confidence = 1.0f,
                         isEligibleForAutoCommit = false,
                         sourceProvider = this@TfLiteSuggestionProvider,
                     )
@@ -114,11 +115,8 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         val result = mutableMapOf<String, Double>()
         for (id in 0 until VOCAB_SIZE) {
             val word = i2w[id] ?: continue
-            if (word.startsWith('<') && word.endsWith('>')) continue
             val p = probs[id].toDouble()
-            if (p > 0.01) {
-                result[word] = p
-            }
+            if (p > 0) result[word] = p
         }
         return result
     }
@@ -140,51 +138,6 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         i2w = mutableMapOf<Int, String>().apply {
             for (key in i2wObj.keys()) put(key.toInt(), i2wObj.getString(key))
         }
-    }
-
-    private fun loadDictionary(): Map<String, Double> {
-        val map = mutableMapOf<String, Double>()
-        try {
-            val text = BufferedReader(InputStreamReader(context.assets.open(DICT_PATH)))
-                .use { it.readText() }
-            val stripped = text.trim().removePrefix("[").removeSuffix("]")
-            var depth = 0
-            var start = -1
-            for (i in stripped.indices) {
-                when (stripped[i]) {
-                    '{' -> { depth++; if (depth == 1) start = i }
-                    '}' -> {
-                        depth--
-                        if (depth == 0 && start >= 0) {
-                            val entry = stripped.substring(start, i + 1)
-                            val k = extractJsonString(entry, "w")
-                            val f = extractJsonDouble(entry, "f")
-                            if (k != null && f != null) map[k] = f
-                            start = -1
-                        }
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            flogDebug { "TFLite: dict load failed: ${e.message}" }
-        }
-        return map
-    }
-
-    private fun extractJsonString(json: String, key: String): String? {
-        val search = "\"$key\":\""
-        val idx = json.indexOf(search) ?: return null
-        val start = idx + search.length
-        val end = json.indexOf('"', start)
-        return if (end > start) json.substring(start, end) else null
-    }
-
-    private fun extractJsonDouble(json: String, key: String): Double? {
-        val search = "\"$key\":"
-        val idx = json.indexOf(search) ?: return null
-        val start = idx + search.length
-        val end = json.indexOfAny(charArrayOf(',', '}'), start)
-        return if (end > start) json.substring(start, end).trim().toDoubleOrNull() else null
     }
 
     private fun adjustCase(reference: String, word: String): String {
