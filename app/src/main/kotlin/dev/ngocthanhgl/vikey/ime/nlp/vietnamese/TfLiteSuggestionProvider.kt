@@ -79,7 +79,9 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                     ?.let { it == ' ' || it == '\n' || it == '\t' } ?: true
 
                 if (isNewWord) {
-                    val ctx = textBefore.takeLast(CONTEXT_LEN)
+                    val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
+                    val lastWord = if (words.isNotEmpty()) words.last() else ""
+                    val ctx = (lastWord + " ").takeLast(CONTEXT_LEN)
                     val probs = getOrPredict(interp, ctx)
                     suggestNextWord(interp, ctx, probs, maxCandidateCount)
                 } else {
@@ -135,62 +137,52 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         interp: Interpreter, ctx: String, probs: FloatArray, k: Int
     ): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
-        val result = mutableListOf<Pair<String, Double>>()
+        val wordPQ = PriorityQueue<Pair<String, Double>>(compareBy { it.second })
         val seen = mutableSetOf<String>()
 
-        data class Beam(val text: String, val score: Double)
-
-        fun topChars(p: FloatArray, n: Int): List<Pair<Int, Float>> {
-            val pq = PriorityQueue<Pair<Int, Float>>(compareBy { it.second })
-            for (cid in 2 until VOCAB_SIZE) {
-                if (!cid.toChar().isLetter()) continue
-                val v = p[cid]
-                if (pq.size < n) { pq.add(cid to v) }
-                else if (v > pq.peek().second) { pq.poll(); pq.add(cid to v) }
-            }
-            val list = mutableListOf<Pair<Int, Float>>()
-            while (pq.isNotEmpty()) list.add(pq.poll())
-            list.reverse()
-            return list
+        // Get top first chars from model
+        val charPQ = PriorityQueue<Pair<Int, Float>>(compareBy { it.second })
+        for (cid in 2 until VOCAB_SIZE) {
+            val c = cid.toChar()
+            if (!c.isLetter()) continue
+            val p = probs[cid]
+            if (charPQ.size < 6) { charPQ.add(cid to p) }
+            else if (p > charPQ.peek().second) { charPQ.poll(); charPQ.add(cid to p) }
         }
+        val topChars = mutableListOf<Pair<Int, Float>>()
+        while (charPQ.isNotEmpty()) topChars.add(charPQ.poll())
+        topChars.reverse()
+        if (topChars.isEmpty()) return emptyList()
 
-        val firstChars = topChars(probs, 5)
-        if (firstChars.isEmpty()) return emptyList()
-        var beam = firstChars.map { (c, p) -> Beam(c.toChar().toString(), p.toDouble()) }
+        // One extra inference for the top first char → second-char distribution
+        val topCid = topChars.first().first
+        val topC = topCid.toChar().lowercaseChar()
+        val secondProbs = predictRaw(interp, ctx + topC)
 
-        // Extend to depth 2: for each prefix, predict next char
-        val depth2 = mutableListOf<Beam>()
-        for (b in beam) {
-            val ext = predictRaw(interp, ctx + b.text)
-            for ((c, p) in topChars(ext, 3)) {
-                depth2.add(Beam(b.text + c.toChar(), b.score * p.toDouble()))
-            }
-        }
-
-        // Extend top 3 depth-2 prefixes to depth 3
-        val depth3 = mutableListOf<Beam>()
-        val prune2 = depth2.sortedByDescending { it.score }.take(3)
-        for (b in prune2) {
-            val ext = predictRaw(interp, ctx + b.text)
-            for ((c, p) in topChars(ext, 2)) {
-                depth3.add(Beam(b.text + c.toChar(), b.score * p.toDouble()))
-            }
-        }
-
-        val allPrefs = (beam + depth2 + depth3).sortedByDescending { it.score }
-        for (bp in allPrefs) {
-            if (result.size >= limit) break
-            val pref = bp.text.lowercase()
-            val firstChar = pref.first()
-            val candidates = prefixIndex[firstChar]
-                ?.filter { it.startsWith(pref, ignoreCase = true) && it !in seen }
-                ?: continue
+        for ((cid, _) in topChars) {
+            val c = cid.toChar().lowercaseChar()
+            val candidates = prefixIndex[c] ?: continue
+            val p1 = probs[cid].toDouble().coerceAtLeast(0.0)
             for (word in candidates) {
+                if (word in seen) continue
                 seen.add(word)
-                result.add(word to bp.score)
-                if (result.size >= limit) break
+                val score = if (c == topC && word.length > 1) {
+                    p1 * secondProbs[charToId(word[1])].toDouble().coerceAtLeast(0.0)
+                } else {
+                    p1
+                }
+                if (wordPQ.size < limit) {
+                    wordPQ.add(word to score)
+                } else if (score > wordPQ.peek().second) {
+                    wordPQ.poll()
+                    wordPQ.add(word to score)
+                }
             }
         }
+
+        val result = mutableListOf<Pair<String, Double>>()
+        while (wordPQ.isNotEmpty()) result.add(wordPQ.poll())
+        result.reverse()
         return result
     }
 
