@@ -649,9 +649,9 @@ private fun EmojiHistoryPopup(
     }
 }
 
-@Composable
 val LocalEmojiTypeface = staticCompositionLocalOf<Typeface?> { null }
 
+@Composable
 fun EmojiText(
     text: String,
     emojiCompatInstance: EmojiCompat?,
