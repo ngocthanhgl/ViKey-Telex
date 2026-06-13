@@ -58,14 +58,14 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         allowPossiblyOffensive: Boolean,
         isPrivateSession: Boolean,
     ): List<SuggestionCandidate> = withContext(Dispatchers.IO) {
-        val interpreter = interpreter ?: return@withContext emptyList()
-        if (!loaded) return@withContext emptyList()
         try {
+            val interp = interpreter ?: return@withContext emptyList()
+            if (!loaded) return@withContext emptyList()
             val textBefore = content.textBeforeSelection
             val prefix = getCurrentWord(content) ?: return@withContext emptyList()
             if (prefix.isBlank()) return@withContext emptyList()
 
-            generateCompletions(interpreter, textBefore, prefix, maxCandidateCount)
+            generateCompletions(interp, textBefore, prefix, maxCandidateCount)
         } catch (e: Exception) {
             flogDebug { "TFLite:suggest failed: ${e.message}" }
             emptyList()
