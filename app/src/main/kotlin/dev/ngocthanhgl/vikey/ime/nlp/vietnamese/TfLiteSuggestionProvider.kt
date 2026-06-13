@@ -18,23 +18,24 @@ import java.nio.ByteOrder
 import java.util.PriorityQueue
 
 /**
- * Char-level CIFG model (Zalo vikey_cifg_int8).
- * Input:  30 Unicode codepoints (right-aligned, pad=0, unk=1)
- * Output: [1, 30, 15000] softmax — next-char probability at each position
+ * Word-level CIFG language model (vikey_cifg_int8).
+ * Input:  [1, 50] token IDs (right-padded, bos=1, pad=0)
+ * Output: [1, 50, vocab] softmax — next-word probability at each position
  */
 class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvider {
     companion object {
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.tflite"
         private const val MODEL_PATH = "ime/dict/vikey_cifg_int8.tflite"
         private const val TOKENIZER_PATH = "ime/dict/tokenizer.json"
-        private const val CONTEXT_LEN = 30
-        private const val VOCAB_SIZE = 15000
+        private const val SEQ_LEN = 50
     }
 
     private var interpreter: Interpreter? = null
-    private var prefixIndex: Map<Char, List<String>> = emptyMap()
+    private var vocabSize = 0
+    private var idx2word: Map<Int, String> = emptyMap()
+    private var word2idx: Map<String, Int> = emptyMap()
     private var loaded = false
-    private var lastContextStr: String? = null
+    private var lastInputHash: Int? = null
     private var lastProbs: FloatArray? = null
 
     override val providerId = ProviderId
@@ -51,7 +52,8 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                 buffer.put(modelBytes)
                 interpreter = Interpreter(buffer)
 
-                predictRaw(interpreter!!, "")
+                val dummy = IntArray(SEQ_LEN) { 1 }
+                predictRaw(interpreter!!, dummy)
                 loaded = true
             } catch (e: Exception) {
                 flogDebug { "TFLite: init failed: ${e.message}" }
@@ -79,17 +81,15 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                     ?.let { it == ' ' || it == '\n' || it == '\t' } ?: true
 
                 if (isNewWord) {
-                    val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
-                    val lastWord = if (words.isNotEmpty()) words.last() else ""
-                    val ctx = (lastWord + " ").takeLast(CONTEXT_LEN)
-                    val probs = getOrPredict(interp, ctx)
+                    val tokenIds = tokenize(textBefore.trimEnd())
+                    val probs = getOrPredict(interp, tokenIds)
                     suggestNextWord(probs, maxCandidateCount)
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
                     if (cur.isBlank()) return@withContext emptyList()
                     val ctx = textBefore.removeSuffix(cur)
-                    val contextStr = (ctx + cur).takeLast(CONTEXT_LEN)
-                    val probs = getOrPredict(interp, contextStr)
+                    val tokenIds = tokenize(ctx)
+                    val probs = getOrPredict(interp, tokenIds)
                     completeCurrentWord(probs, cur, maxCandidateCount)
                 }
             } catch (e: Exception) {
@@ -106,94 +106,65 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         }
     }
 
-    private fun getOrPredict(interp: Interpreter, contextStr: String): FloatArray {
-        if (contextStr == lastContextStr && lastProbs != null) return lastProbs!!
-        val probs = predictRaw(interp, contextStr)
-        lastContextStr = contextStr
+    private fun getOrPredict(interp: Interpreter, tokenIds: List<Int>): FloatArray {
+        val h = tokenIds.hashCode()
+        if (h == lastInputHash && lastProbs != null) return lastProbs!!
+        val probs = predictRaw(interp, tokenIds.toIntArray())
+        lastInputHash = h
         lastProbs = probs
         return probs
     }
 
-    private fun predictRaw(interp: Interpreter, contextStr: String): FloatArray {
-        val inputIds = IntArray(CONTEXT_LEN) { 0 }
-        val chars = contextStr.takeLast(CONTEXT_LEN)
-        val offset = CONTEXT_LEN - chars.length
-        for (i in chars.indices) {
-            inputIds[offset + i] = charToId(chars[i])
-        }
-        val input = arrayOf(inputIds)
-        val output = Array(1) { Array(CONTEXT_LEN) { FloatArray(VOCAB_SIZE) } }
-        interp.run(input, output)
-        return output[0][CONTEXT_LEN - 1].copyOf()
+    private fun tokenize(text: String): List<Int> {
+        val words = text.trim().lowercase()
+            .replace(Regex("[^\\w\\s']"), " ")
+            .split(Regex("\\s+"))
+            .filter { it.isNotBlank() }
+        val oov = word2idx["<oov>"] ?: 3
+        return words.map { word2idx[it] ?: oov }
     }
 
-    private fun charToId(c: Char): Int {
-        val cp = c.code
-        if (cp == '\n'.code) return ' '.code
-        return if (cp in 32 until VOCAB_SIZE) cp else 1
+    private fun predictRaw(interp: Interpreter, tokenIds: IntArray): FloatArray {
+        val bos = word2idx["<bos>"] ?: 1
+        val padded = IntArray(SEQ_LEN) { bos }
+        val offset = SEQ_LEN - tokenIds.size.coerceAtMost(SEQ_LEN)
+        for (i in tokenIds.indices) {
+            if (offset + i >= SEQ_LEN) break
+            padded[offset + i] = tokenIds[i]
+        }
+        val input = arrayOf(padded)
+        val output = Array(1) { Array(SEQ_LEN) { FloatArray(vocabSize) } }
+        interp.run(input, output)
+        return output[0][SEQ_LEN - 1].copyOf()
     }
 
     private fun suggestNextWord(probs: FloatArray, k: Int): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
-        val result = mutableListOf<Pair<String, Double>>()
-        val seen = mutableSetOf<String>()
-
-        // Top first-char groups from model (sorted by prob descending)
-        val groups = mutableListOf<Char>()
         val pq = PriorityQueue<Pair<Int, Float>>(compareBy { it.second })
-        for (cid in 2 until VOCAB_SIZE) {
-            val c = cid.toChar()
-            if (!c.isLetter()) continue
-            val p = probs[cid]
-            if (pq.size < 5) { pq.add(cid to p) }
-            else if (p > pq.peek().second) { pq.poll(); pq.add(cid to p) }
-        }
-        val tmp = mutableListOf<Pair<Int, Float>>()
-        while (pq.isNotEmpty()) tmp.add(pq.poll())
-        for ((cid, _) in tmp.asReversed()) {
-            val c = cid.toChar().lowercaseChar()
-            if (c !in groups && prefixIndex.containsKey(c)) groups.add(c)
-        }
-        if (groups.isEmpty()) return emptyList()
-
-        // Round-robin: pick 1 word from each group in frequency order
-        val iters = groups.map { g -> g to prefixIndex[g]!!.iterator() }
-        while (result.size < limit) {
-            var added = false
-            for ((_, iter) in iters) {
-                if (result.size >= limit) break
-                while (iter.hasNext()) {
-                    val word = iter.next()
-                    if (word !in seen) {
-                        seen.add(word)
-                        result.add(word to 1.0)
-                        added = true
-                        break
-                    }
-                }
+        for (id in 4 until vocabSize) {
+            val p = probs[id]
+            if (pq.size < limit) {
+                pq.add(id to p)
+            } else if (p > pq.peek().second) {
+                pq.poll()
+                pq.add(id to p)
             }
-            if (!added) break
         }
-        return result
+        val result = mutableListOf<Pair<String, Double>>()
+        while (pq.isNotEmpty()) result.add(pq.poll())
+        result.reverse()
+        return result.map { (id, _) -> idx2word[id] ?: "" to 1.0 }
+            .filter { it.first.isNotBlank() }
     }
 
-    private fun completeCurrentWord(
-        probs: FloatArray,
-        prefix: String,
-        k: Int,
-    ): List<Pair<String, Double>> {
+    private fun completeCurrentWord(probs: FloatArray, prefix: String, k: Int): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
-        val firstChar = prefix.first().lowercaseChar()
-        val candidates = prefixIndex[firstChar]
-            ?.filter { it.startsWith(prefix, ignoreCase = true) }
-            ?: return emptyList()
-
-        if (candidates.isEmpty()) return emptyList()
-
+        val lower = prefix.lowercase()
         val pq = PriorityQueue<Pair<String, Double>>(compareBy { it.second })
-        for (word in candidates) {
-            val nextIdx = if (word.length > prefix.length) charToId(word[prefix.length]) else -1
-            val p = if (nextIdx >= 0) probs[nextIdx].toDouble().coerceAtLeast(0.0) else 0.0
+        for (id in 4 until vocabSize) {
+            val word = idx2word[id] ?: continue
+            if (!word.startsWith(lower)) continue
+            val p = probs[id].toDouble().coerceAtLeast(0.0)
             if (pq.size < limit) {
                 pq.add(word to p)
             } else if (p > pq.peek().second) {
@@ -201,7 +172,6 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                 pq.add(word to p)
             }
         }
-
         val result = mutableListOf<Pair<String, Double>>()
         while (pq.isNotEmpty()) result.add(pq.poll())
         result.reverse()
@@ -213,13 +183,20 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
             .use { it.readText() }
         val json = JSONObject(text)
         val w2iObj = json.getJSONObject("w2i")
-        val map = mutableMapOf<Char, MutableList<String>>()
+        val i2wObj = json.getJSONObject("i2w")
+
+        val w2i = mutableMapOf<String, Int>()
         for (key in w2iObj.keys()) {
-            if (key.startsWith("<")) continue
-            val c = key.firstOrNull() ?: continue
-            map.getOrPut(c.lowercaseChar()) { mutableListOf() }.add(key)
+            w2i[key] = w2iObj.getInt(key)
         }
-        prefixIndex = map
+        word2idx = w2i
+        vocabSize = w2i.size
+
+        val i2w = mutableMapOf<Int, String>()
+        for (key in i2wObj.keys()) {
+            i2w[key.toIntOrNull() ?: continue] = i2wObj.getString(key)
+        }
+        idx2word = i2w
     }
 
     private fun getCurrentWord(content: EditorContent): String? {

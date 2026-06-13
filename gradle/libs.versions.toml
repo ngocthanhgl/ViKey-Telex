@@ -76,8 +76,6 @@ patrickgold-jetpref-datastore-model-processor = { module = "dev.patrickgold.jetp
 patrickgold-jetpref-datastore-ui = { module = "dev.patrickgold.jetpref:jetpref-datastore-ui", version.ref = "patrickgold-jetpref" }
 patrickgold-jetpref-material-ui = { module = "dev.patrickgold.jetpref:jetpref-material-ui", version.ref = "patrickgold-jetpref" }
 tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflow-lite" }
-tensorflow-lite-select-tf-ops = { module = "org.tensorflow:tensorflow-lite-select-tf-ops", version.ref = "tensorflow-lite" }
-
 # Testing
 androidx-benchmark-macro = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "androidx-benchmark" }
 androidx-test-ext = { module = "androidx.test.ext:junit", version.ref = "androidx-test-ext" }

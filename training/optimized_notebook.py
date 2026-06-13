@@ -59,7 +59,10 @@ class CIFGCell(layers.Layer):
     def call(self, x, states):
         h, c = states
         gate_input = tf.matmul(x, self.W) + tf.matmul(h, self.U) + self.b
-        z, i, o = tf.split(gate_input, 3, -1)
+        n = self._units
+        z   = gate_input[..., :n]
+        i   = gate_input[..., n:2*n]
+        o   = gate_input[..., 2*n:]
         # LayerNorm on cell input (stabilizes training)
         z = self.ln(z)
         f = 1.0 - tf.sigmoid(i)
@@ -316,7 +319,6 @@ conv.optimizations = [tf.lite.Optimize.DEFAULT]
 conv.target_spec.supported_types = [tf.float16]
 conv.target_spec.supported_ops = [
     tf.lite.OpsSet.TFLITE_BUILTINS,
-    tf.lite.OpsSet.SELECT_TF_OPS
 ]
 tflite = conv.convert()
 p = os.path.join(cfg.working_dir, "vikey_cifg_fp16.tflite")
@@ -328,8 +330,7 @@ try:
     c2 = tf.lite.TFLiteConverter.from_keras_model(model)
     c2.optimizations = [tf.lite.Optimize.DEFAULT]
     c2.target_spec.supported_ops = [
-        tf.lite.OpsSet.TFLITE_BUILTINS,
-        tf.lite.OpsSet.SELECT_TF_OPS
+        tf.lite.OpsSet.TFLITE_BUILTINS_INT8,
     ]
     def rep():
         for _ in range(100):
