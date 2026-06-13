@@ -83,7 +83,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
                     val ctx = (lastWord + " ").takeLast(CONTEXT_LEN)
                     val probs = getOrPredict(interp, ctx)
-                    suggestNextWord(interp, ctx, probs, maxCandidateCount)
+                    suggestNextWord(probs, maxCandidateCount)
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
                     if (cur.isBlank()) return@withContext emptyList()
@@ -133,56 +133,47 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         return if (cp in 32 until VOCAB_SIZE) cp else 1
     }
 
-    private fun suggestNextWord(
-        interp: Interpreter, ctx: String, probs: FloatArray, k: Int
-    ): List<Pair<String, Double>> {
+    private fun suggestNextWord(probs: FloatArray, k: Int): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
-        val wordPQ = PriorityQueue<Pair<String, Double>>(compareBy { it.second })
+        val result = mutableListOf<Pair<String, Double>>()
         val seen = mutableSetOf<String>()
 
-        // Get top first chars from model
-        val charPQ = PriorityQueue<Pair<Int, Float>>(compareBy { it.second })
+        // Top first-char groups from model (sorted by prob descending)
+        val groups = mutableListOf<Char>()
+        val pq = PriorityQueue<Pair<Int, Float>>(compareBy { it.second })
         for (cid in 2 until VOCAB_SIZE) {
             val c = cid.toChar()
             if (!c.isLetter()) continue
             val p = probs[cid]
-            if (charPQ.size < 6) { charPQ.add(cid to p) }
-            else if (p > charPQ.peek().second) { charPQ.poll(); charPQ.add(cid to p) }
+            if (pq.size < 5) { pq.add(cid to p) }
+            else if (p > pq.peek().second) { pq.poll(); pq.add(cid to p) }
         }
-        val topChars = mutableListOf<Pair<Int, Float>>()
-        while (charPQ.isNotEmpty()) topChars.add(charPQ.poll())
-        topChars.reverse()
-        if (topChars.isEmpty()) return emptyList()
-
-        // One extra inference for the top first char → second-char distribution
-        val topCid = topChars.first().first
-        val topC = topCid.toChar().lowercaseChar()
-        val secondProbs = predictRaw(interp, ctx + topC)
-
-        for ((cid, _) in topChars) {
+        val tmp = mutableListOf<Pair<Int, Float>>()
+        while (pq.isNotEmpty()) tmp.add(pq.poll())
+        for ((cid, _) in tmp.asReversed()) {
             val c = cid.toChar().lowercaseChar()
-            val candidates = prefixIndex[c] ?: continue
-            val p1 = probs[cid].toDouble().coerceAtLeast(0.0)
-            for (word in candidates) {
-                if (word in seen) continue
-                seen.add(word)
-                val score = if (c == topC && word.length > 1) {
-                    p1 * secondProbs[charToId(word[1])].toDouble().coerceAtLeast(0.0)
-                } else {
-                    p1
-                }
-                if (wordPQ.size < limit) {
-                    wordPQ.add(word to score)
-                } else if (score > wordPQ.peek().second) {
-                    wordPQ.poll()
-                    wordPQ.add(word to score)
+            if (c !in groups && prefixIndex.containsKey(c)) groups.add(c)
+        }
+        if (groups.isEmpty()) return emptyList()
+
+        // Round-robin: pick 1 word from each group in frequency order
+        val iters = groups.map { g -> g to prefixIndex[g]!!.iterator() }
+        while (result.size < limit) {
+            var added = false
+            for ((_, iter) in iters) {
+                if (result.size >= limit) break
+                while (iter.hasNext()) {
+                    val word = iter.next()
+                    if (word !in seen) {
+                        seen.add(word)
+                        result.add(word to 1.0)
+                        added = true
+                        break
+                    }
                 }
             }
+            if (!added) break
         }
-
-        val result = mutableListOf<Pair<String, Double>>()
-        while (wordPQ.isNotEmpty()) result.add(wordPQ.poll())
-        result.reverse()
         return result
     }
 
