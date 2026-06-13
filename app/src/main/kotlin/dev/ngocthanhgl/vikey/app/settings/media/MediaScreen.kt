@@ -31,6 +31,7 @@ import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.app.enumDisplayEntriesOf
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiHistory
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiHistoryHelper
+import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiFont
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSkinTone
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSuggestionType
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
@@ -62,6 +63,11 @@ fun MediaScreen() = FlorisScreen {
             prefs.emoji.preferredSkinTone,
             title = stringRes(R.string.prefs__media__emoji_preferred_skin_tone),
             entries = enumDisplayEntriesOf(EmojiSkinTone::class),
+        )
+        ListPreference(
+            prefs.emoji.emojiFont,
+            title = stringRes(R.string.prefs__media__emoji_font),
+            entries = enumDisplayEntriesOf(EmojiFont::class),
         )
 
         PreferenceGroup(title = stringRes(R.string.prefs__media__emoji_history__title)) {

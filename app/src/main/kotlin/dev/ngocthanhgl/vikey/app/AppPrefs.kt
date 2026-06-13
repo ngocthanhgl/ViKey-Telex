@@ -35,6 +35,7 @@ import dev.ngocthanhgl.vikey.ime.keyboard.SpaceBarMode
 import dev.ngocthanhgl.vikey.ime.landscapeinput.LandscapeInputUiMode
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiHairStyle
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiHistory
+import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiFont
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSkinTone
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSuggestionType
 import dev.ngocthanhgl.vikey.ime.nlp.SpellingLanguageMode
@@ -233,6 +234,10 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
         val preferredHairStyle = enum(
             key = "emoji__preferred_hair_style",
             default = EmojiHairStyle.DEFAULT,
+        )
+        val emojiFont = enum(
+            key = "emoji__font",
+            default = EmojiFont.SYSTEM,
         )
         val historyEnabled = boolean(
             key = "emoji__history_enabled",

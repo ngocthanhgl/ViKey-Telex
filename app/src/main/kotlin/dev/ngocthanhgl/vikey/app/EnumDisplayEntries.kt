@@ -30,6 +30,7 @@ import dev.ngocthanhgl.vikey.ime.keyboard.IncognitoMode
 import dev.ngocthanhgl.vikey.ime.keyboard.KeyboardMode
 import dev.ngocthanhgl.vikey.ime.keyboard.SpaceBarMode
 import dev.ngocthanhgl.vikey.ime.landscapeinput.LandscapeInputUiMode
+import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiFont
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiHistory
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSkinTone
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSuggestionType
@@ -270,6 +271,18 @@ private val ENUM_DISPLAY_ENTRIES = mapOf<Pair<KClass<*>, String>, @Composable ()
                 key = EmojiSuggestionType.INLINE_TEXT,
                 label = stringRes(R.string.enum__emoji_suggestion_type__inline_text),
                 description = stringRes(R.string.enum__emoji_suggestion_type__inline_text__description),
+            )
+        }
+    },
+    EmojiFont::class to DEFAULT to {
+        listPrefEntries {
+            entry(
+                key = EmojiFont.SYSTEM,
+                label = stringRes(R.string.enum__emoji_font__system),
+            )
+            entry(
+                key = EmojiFont.APPLE,
+                label = stringRes(R.string.enum__emoji_font__apple),
             )
         }
     },

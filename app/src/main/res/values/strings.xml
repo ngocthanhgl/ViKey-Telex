@@ -28,6 +28,7 @@
     <string name="prefs__media__emoji_suggestion__title" comment="Preference group title">Emoji suggestions</string>
     <string name="prefs__media__emoji_suggestion_enabled" comment="Preference title">Enable emoji suggestions</string>
     <string name="prefs__media__emoji_suggestion_enabled__summary" comment="Preference summary">Provide emoji suggestions while you type</string>
+    <string name="prefs__media__emoji_font" comment="Preference title">Emoji font</string>
     <string name="prefs__media__emoji_suggestion_type" comment="Preference title">Trigger type</string>
     <string name="prefs__media__emoji_suggestion_update_history" comment="Preference title">Update emoji history</string>
     <string name="prefs__media__emoji_suggestion_update_history__summary" comment="Preference summary">Accepting suggested emojis adds them to the emoji history</string>
@@ -996,6 +997,9 @@
     <string name="enum__emoji_hair_style__curly_hair" comment="Enum value label">{emoji} Curly hair</string>
     <string name="enum__emoji_hair_style__white_hair" comment="Enum value label">{emoji} White hair</string>
     <string name="enum__emoji_hair_style__bald" comment="Enum value label">{emoji} Bald</string>
+
+    <string name="enum__emoji_font__system">System emoji</string>
+    <string name="enum__emoji_font__apple">Apple emoji</string>
 
     <string name="enum__emoji_suggestion_type__leading_colon">Leading colon</string>
     <string name="enum__emoji_suggestion_type__leading_colon__description" comment="Keep the :emoji_name while translating, this is a syntax guide">Suggest emojis using the :emoji_name syntax</string>

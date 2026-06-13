@@ -39,6 +39,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.icons.Icons
@@ -90,7 +92,9 @@ import dev.ngocthanhgl.vikey.ime.text.keyboard.TextKeyData
 import dev.ngocthanhgl.vikey.ime.theme.FlorisImeUi
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.florisboard.lib.android.AndroidKeyguardManager
 import org.florisboard.lib.android.showShortToast
 import org.florisboard.lib.android.systemService
@@ -162,7 +166,24 @@ fun EmojiPaletteView(
 
     val preferredSkinTone by prefs.emoji.preferredSkinTone.collectAsState()
     val emojiHistoryEnabled by prefs.emoji.historyEnabled.collectAsState()
+    val emojiFont by prefs.emoji.emojiFont.collectAsState()
 
+    var emojiFontReady by remember { mutableStateOf(false) }
+
+    LaunchedEffect(emojiFont) {
+        if (emojiFont == EmojiFont.APPLE && !EmojiFontManager.isAppleEmojiAvailable(context)) {
+            withContext(Dispatchers.IO) { EmojiFontManager.downloadAppleEmoji(context) }
+        }
+        emojiFontReady = true
+    }
+
+    val emojiTypeface = remember(emojiFont, emojiFontReady) {
+        if (emojiFont == EmojiFont.APPLE) {
+            EmojiFontManager.loadAppleEmojiTypeface(context)
+        } else null
+    }
+
+    CompositionLocalProvider(LocalEmojiTypeface provides emojiTypeface) {
     var activeCategory by remember(emojiHistoryEnabled) {
         if (emojiHistoryEnabled) {
             mutableStateOf(EmojiCategory.RECENTLY_USED)
@@ -390,6 +411,7 @@ fun EmojiPaletteView(
                 }
             }
         }
+    }
     }
 }
 
@@ -628,6 +650,8 @@ private fun EmojiHistoryPopup(
 }
 
 @Composable
+val LocalEmojiTypeface = staticCompositionLocalOf<Typeface?> { null }
+
 fun EmojiText(
     text: String,
     emojiCompatInstance: EmojiCompat?,
@@ -635,6 +659,7 @@ fun EmojiText(
     color: Color = Color.Black,
     fontSize: TextUnit = EmojiDefaultFontSize,
 ) {
+    val customTypeface = LocalEmojiTypeface.current
     if (emojiCompatInstance != null) {
         AndroidView(
             modifier = modifier,
@@ -646,6 +671,7 @@ fun EmojiText(
             },
             update = { view ->
                 view.text = text
+                if (customTypeface != null) view.typeface = customTypeface
             },
         )
     } else {
@@ -659,6 +685,7 @@ fun EmojiText(
             },
             update = { view ->
                 view.text = text
+                if (customTypeface != null) view.typeface = customTypeface
             },
         )
     }
