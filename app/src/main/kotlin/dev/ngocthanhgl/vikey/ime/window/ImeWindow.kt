@@ -95,9 +95,12 @@ import org.florisboard.lib.snygg.ui.rememberSnyggThemeQuery
 @Composable
 fun ImeRootWindow() {
     val density = LocalDensity.current
+    val context = LocalContext.current
     val windowController = LocalWindowController.current
+    val keyboardManager by context.keyboardManager()
 
     val editorState by windowController.editor.state.collectAsState()
+    val activeKeyboardState by keyboardManager.activeState.collectAsState()
     val isEditorEnabled by remember {
         derivedStateOf {
             editorState.isEnabled
@@ -107,8 +110,8 @@ fun ImeRootWindow() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .conditional(isEditorEnabled) {
-                Modifier.pointerInput(isEditorEnabled) {
+            .conditional(isEditorEnabled && activeKeyboardState.imeUiMode != ImeUiMode.TEXT) {
+                Modifier.pointerInput(isEditorEnabled, activeKeyboardState.imeUiMode) {
                     detectTapGestures {
                         windowController.editor.disableIfNoGestureInProgress()
                     }
