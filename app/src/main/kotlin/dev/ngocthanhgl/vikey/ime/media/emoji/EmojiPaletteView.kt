@@ -167,8 +167,8 @@ fun EmojiPaletteView(
     val emojiFont by prefs.emoji.emojiFont.collectAsState()
 
     val emojiTypeface = remember(emojiFont) {
-        if (emojiFont == EmojiFont.JOYPIXELS) {
-            EmojiFontManager.loadJoyPixelsTypeface(context)
+        if (emojiFont == EmojiFont.TWEMOJI) {
+            EmojiFontManager.loadTwemojiTypeface(context)
         } else null
     }
 

@@ -999,7 +999,7 @@
     <string name="enum__emoji_hair_style__bald" comment="Enum value label">{emoji} Bald</string>
 
     <string name="enum__emoji_font__system">System emoji</string>
-    <string name="enum__emoji_font__joypixels">JoyPixels</string>
+    <string name="enum__emoji_font__twemoji">Twemoji</string>
 
     <string name="enum__emoji_suggestion_type__leading_colon">Leading colon</string>
     <string name="enum__emoji_suggestion_type__leading_colon__description" comment="Keep the :emoji_name while translating, this is a syntax guide">Suggest emojis using the :emoji_name syntax</string>
