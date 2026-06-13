@@ -65,7 +65,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
             val prefix = getCurrentWord(content) ?: return@withContext emptyList()
             if (prefix.isBlank()) return@withContext emptyList()
 
-            generateCompletions(interp, textBefore, prefix, maxCandidateCount)
+            return@withContext generateCompletions(interp, textBefore, prefix, maxCandidateCount)
         } catch (e: Exception) {
             flogDebug { "TFLite:suggest failed: ${e.message}" }
             emptyList()
@@ -120,7 +120,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
             }
         }
 
-        candidates.take(maxCount)
+        return candidates.take(maxCount)
     }
 
     private fun greedyExtend(
