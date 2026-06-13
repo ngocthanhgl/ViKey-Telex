@@ -28,10 +28,10 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         private const val MODEL_PATH = "ime/dict/vikey_cifg_int8.tflite"
         private const val TOKENIZER_PATH = "ime/dict/tokenizer.json"
         private const val SEQ_LEN = 50
+        private const val VOCAB_SIZE = 30000
     }
 
     private var interpreter: Interpreter? = null
-    private var vocabSize = 0
     private var idx2word: Map<Int, String> = emptyMap()
     private var word2idx: Map<String, Int> = emptyMap()
     private var loaded = false
@@ -133,7 +133,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
             padded[offset + i] = tokenIds[i]
         }
         val input = arrayOf(padded)
-        val output = Array(1) { Array(SEQ_LEN) { FloatArray(vocabSize) } }
+        val output = Array(1) { Array(SEQ_LEN) { FloatArray(VOCAB_SIZE) } }
         interp.run(input, output)
         return output[0][SEQ_LEN - 1].copyOf()
     }
@@ -141,7 +141,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
     private fun suggestNextWord(probs: FloatArray, k: Int): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
         val pq = PriorityQueue<Pair<Int, Float>>(compareBy { it.second })
-        for (id in 4 until vocabSize) {
+        for (id in 4 until VOCAB_SIZE) {
             val p = probs[id]
             if (pq.size < limit) {
                 pq.add(id to p)
@@ -163,7 +163,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         val limit = k.coerceIn(1, 15)
         val lower = prefix.lowercase()
         val pq = PriorityQueue<Pair<String, Double>>(compareBy { it.second })
-        for (id in 4 until vocabSize) {
+        for (id in 4 until VOCAB_SIZE) {
             val word = idx2word[id] ?: continue
             if (!word.startsWith(lower)) continue
             val p = probs[id].toDouble().coerceAtLeast(0.0)
@@ -192,7 +192,6 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
             w2i[key] = w2iObj.getInt(key)
         }
         word2idx = w2i
-        vocabSize = w2i.size
 
         val i2w = mutableMapOf<Int, String>()
         for (key in i2wObj.keys()) {
