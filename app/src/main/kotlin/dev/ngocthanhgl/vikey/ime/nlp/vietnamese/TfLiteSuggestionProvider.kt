@@ -10,23 +10,23 @@ import dev.ngocthanhgl.vikey.lib.devtools.flogDebug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.tensorflow.lite.Interpreter
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.Locale
 
 class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvider {
     companion object {
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.tflite"
         private const val MODEL_PATH = "ime/dict/vikey_cifg_int8.tflite"
+        private const val DICT_PATH = "ime/dict/vi.json"
         private const val CONTEXT_LEN = 30
         private const val VOCAB_SIZE = 15000
         private const val PAD_ID = 0
-        private const val UNK_ID = 1
-        private const val MAX_GEN_LEN = 20
-        private const val BEAM_WIDTH = 3
     }
 
     private var interpreter: Interpreter? = null
+    private var dictionary: Map<String, Double> = emptyMap()
     private var loaded = false
 
     override val providerId = ProviderId
@@ -35,6 +35,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         if (loaded) return
         withContext(Dispatchers.IO) {
             try {
+                dictionary = loadDictionary()
                 val modelBytes = context.assets.open(MODEL_PATH).use { it.readBytes() }
                 val buffer = ByteBuffer.allocateDirect(modelBytes.size)
                 buffer.order(ByteOrder.nativeOrder())
@@ -42,7 +43,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                 interpreter = Interpreter(buffer)
                 loaded = true
             } catch (e: Exception) {
-                flogDebug { "TFLite: failed to load model: ${e.message}" }
+                flogDebug { "TFLite: failed to init: ${e.message}" }
             }
         }
     }
@@ -57,91 +58,46 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         maxCandidateCount: Int,
         allowPossiblyOffensive: Boolean,
         isPrivateSession: Boolean,
-    ): List<SuggestionCandidate> = withContext(Dispatchers.IO) {
-        try {
-            val interp = interpreter ?: return@withContext emptyList()
-            if (!loaded) return@withContext emptyList()
-            val textBefore = content.textBeforeSelection
-            val prefix = getCurrentWord(content) ?: return@withContext emptyList()
-            if (prefix.isBlank()) return@withContext emptyList()
-
-            return@withContext generateCompletions(interp, textBefore, prefix, maxCandidateCount)
-        } catch (e: Exception) {
-            flogDebug { "TFLite:suggest failed: ${e.message}" }
-            emptyList()
-        }
-    }
-
-    private fun generateCompletions(
-        interpreter: Interpreter,
-        textBefore: String,
-        prefix: String,
-        maxCount: Int,
     ): List<SuggestionCandidate> {
-        val seen = mutableSetOf<String>()
-        val candidates = mutableListOf<SuggestionCandidate>()
+        if (!loaded) return emptyList()
+        val interp = interpreter ?: return emptyList()
+        return withContext(Dispatchers.IO) {
+            try {
+                val textBefore = content.textBeforeSelection
+                val prefix = getCurrentWord(content) ?: return@withContext emptyList()
+                if (prefix.isBlank()) return@withContext emptyList()
 
-        // Beam search: take top beamWidth chars, extend each greedily
-        val contextEnd = buildContextTail(textBefore, prefix)
-        val baseProbs = predictNext(interpreter, contextEnd)
-        val topChars = topKChars(baseProbs, BEAM_WIDTH)
+                val matches = dictionary.filterKeys { it.startsWith(prefix, ignoreCase = true) }
+                    .entries.sortedByDescending { it.value }
+                    .take(maxCandidateCount * 5)
 
-        for ((firstChar, _) in topChars) {
-            val word = greedyExtend(interpreter, contextEnd, firstChar)
-            if (word.isNotEmpty() && word !in seen && word != prefix) {
-                seen.add(word)
-                candidates.add(
+                val fullContext = textBefore + prefix
+                val contextEnd = fullContext.takeLast(CONTEXT_LEN).let { s ->
+                    if (s.length < CONTEXT_LEN) "\u0000".repeat(CONTEXT_LEN - s.length) + s else s
+                }
+                val nextCharProbs = predictNext(interp, contextEnd)
+
+                val scored = matches.map { (word, freq) ->
+                    val nextChar = word.getOrNull(prefix.length) ?: ' '
+                    val modelScore = if (nextChar.code in 2 until VOCAB_SIZE) {
+                        nextCharProbs[nextChar.code].toDouble().coerceAtLeast(0.0)
+                    } else 0.0
+                    word to freq * (1.5 + modelScore * 5.0)
+                }.sortedByDescending { it.second }
+
+                scored.take(maxCandidateCount).map { (word, score) ->
                     WordSuggestionCandidate(
                         text = adjustCase(prefix, word),
-                        confidence = 0.9,
+                        confidence = score.toFloat(),
                         isEligibleForAutoCommit = false,
-                        sourceProvider = this,
-                    )
-                )
-            }
-        }
-
-        // If not enough candidates, add more from top beam
-        if (candidates.size < maxCount && topChars.size > BEAM_WIDTH) {
-            for ((char, _) in topChars.drop(BEAM_WIDTH)) {
-                if (candidates.size >= maxCount) break
-                val word = prefix + char
-                if (word !in seen) {
-                    seen.add(word)
-                    candidates.add(
-                        WordSuggestionCandidate(
-                            text = adjustCase(prefix, word),
-                            confidence = 0.7,
-                            isEligibleForAutoCommit = false,
-                            sourceProvider = this,
-                        )
+                        sourceProvider = this@TfLiteSuggestionProvider,
                     )
                 }
+            } catch (e: Exception) {
+                flogDebug { "TFLite:suggest failed: ${e.message}" }
+                emptyList()
             }
         }
-
-        return candidates.take(maxCount)
-    }
-
-    private fun greedyExtend(
-        interpreter: Interpreter,
-        contextEnd: String,
-        firstChar: Char,
-    ): String {
-        val sb = StringBuilder()
-        sb.append(firstChar)
-        var input = contextEnd + firstChar
-
-        for (step in 0 until MAX_GEN_LEN) {
-            val probs = predictNext(interpreter, input)
-            val next = argMaxChar(probs) ?: break
-            if (next == ' ' || next == '\n') break
-            if (next.code !in 32 until VOCAB_SIZE) break
-            sb.append(next)
-            input += next
-        }
-
-        return sb.toString()
     }
 
     private fun predictNext(interpreter: Interpreter, text: String): FloatArray {
@@ -149,53 +105,61 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         val chars = text.takeLast(CONTEXT_LEN)
         val offset = CONTEXT_LEN - chars.length
         for (i in chars.indices) {
-            inputIds[offset + i] = charToId(chars[i])
+            val cp = chars[i].code
+            inputIds[offset + i] = if (cp in 32 until VOCAB_SIZE) cp else PAD_ID
         }
-
         val input = arrayOf(inputIds)
         val output = Array(1) { Array(CONTEXT_LEN) { FloatArray(VOCAB_SIZE) } }
         interpreter.run(input, output)
         return output[0][CONTEXT_LEN - 1]
     }
 
-    private fun topKChars(probs: FloatArray, k: Int): List<Pair<Char, Float>> {
-        val result = mutableListOf<Pair<Char, Float>>()
-        for (id in 0 until VOCAB_SIZE) {
-            val c = idToChar(id)
-            if (c != '\u0000' && (c.isLetter() || c == '\'')) {
-                result.add(c to probs[id])
+    private fun loadDictionary(): Map<String, Double> {
+        val map = mutableMapOf<String, Double>()
+        try {
+            val reader = BufferedReader(InputStreamReader(context.assets.open(DICT_PATH)))
+            val sb = StringBuilder()
+            reader.forEachLine { sb.append(it) }
+            val text = sb.toString()
+            val stripped = text.trim().removePrefix("[").removeSuffix("]")
+            var depth = 0
+            var start = -1
+            var key: String? = null
+            for (i in stripped.indices) {
+                when (stripped[i]) {
+                    '{' -> { depth++; if (depth == 1) start = i }
+                    '}' -> {
+                        depth--
+                        if (depth == 0 && start >= 0) {
+                            val entry = stripped.substring(start, i + 1)
+                            val k = extractJsonString(entry, "w")
+                            val f = extractJsonDouble(entry, "f")
+                            if (k != null && f != null) map[k] = f
+                            start = -1
+                        }
+                    }
+                }
             }
+        } catch (e: Exception) {
+            flogDebug { "TFLite: dictionary load failed: ${e.message}" }
         }
-        return result.sortedByDescending { it.second }.take(k)
+        return map
     }
 
-    private fun argMaxChar(probs: FloatArray): Char? {
-        var bestId = -1
-        var bestProb = -1f
-        for (id in 0 until VOCAB_SIZE) {
-            val c = idToChar(id)
-            if (c != '\u0000' && (c.isLetter() || c == '\'') && probs[id] > bestProb) {
-                bestProb = probs[id]
-                bestId = id
-            }
-        }
-        return if (bestId >= 0) idToChar(bestId) else null
+    private fun extractJsonString(json: String, key: String): String? {
+        val search = "\"$key\":\""
+        val idx = json.indexOf(search) ?: return null
+        val start = idx + search.length
+        val end = json.indexOf('"', start)
+        return if (end > start) json.substring(start, end) else null
     }
 
-    private fun buildContextTail(textBefore: String, prefix: String): String {
-        val trimmed = textBefore.removeSuffix(prefix)
-        return trimmed + prefix
-    }
-
-    private fun charToId(c: Char): Int {
-        val cp = c.code
-        if (cp in 32 until VOCAB_SIZE) return cp
-        if (cp == '\n'.code) return ' '.code
-        return UNK_ID
-    }
-
-    private fun idToChar(id: Int): Char {
-        return if (id in 2 until VOCAB_SIZE) id.toChar() else '\u0000'
+    private fun extractJsonDouble(json: String, key: String): Double? {
+        val search = "\"$key\":"
+        val idx = json.indexOf(search) ?: return null
+        val start = idx + search.length
+        val end = json.indexOfAny(charArrayOf(',', '}'), start)
+        return if (end > start) json.substring(start, end).trim().toDoubleOrNull() else null
     }
 
     private fun adjustCase(reference: String, word: String): String {
@@ -216,20 +180,15 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
     }
 
     override suspend fun notifySuggestionAccepted(subtype: Subtype, candidate: SuggestionCandidate) {}
-
     override suspend fun notifySuggestionReverted(subtype: Subtype, candidate: SuggestionCandidate) {
         flogDebug { candidate.toString() }
     }
-
     override suspend fun removeSuggestion(subtype: Subtype, candidate: SuggestionCandidate): Boolean {
         flogDebug { candidate.toString() }
         return false
     }
-
     override suspend fun getListOfWords(subtype: Subtype): List<String> = emptyList()
-
     override suspend fun getFrequencyForWord(subtype: Subtype, word: String): Double = 0.0
-
     override suspend fun destroy() {
         interpreter?.close()
         interpreter = null
