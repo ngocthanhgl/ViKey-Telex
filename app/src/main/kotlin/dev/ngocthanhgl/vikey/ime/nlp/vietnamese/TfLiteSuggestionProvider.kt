@@ -75,12 +75,15 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         return withContext(Dispatchers.Default) {
             try {
                 val textBefore = content.textBeforeSelection
-                val isNewWord = textBefore.lastOrNull()
-                    ?.let { it == ' ' || it == '\n' || it == '\t' } ?: true
+                if (textBefore.isBlank()) return@withContext emptyList()
+                val lastChar = textBefore.last()
+                if (lastChar == '.' || lastChar == '?' || lastChar == '!' || lastChar == '\n')
+                    return@withContext emptyList()
 
-                if (isNewWord) {
+                if (lastChar == ' ' || lastChar == '\t') {
                     val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
+                    if (lastWord.isBlank()) return@withContext emptyList()
                     val ctx = (lastWord + " ").takeLast(CONTEXT_LEN)
                     val probs = getOrPredict(interp, ctx)
                     suggestNextWord(probs, maxCandidateCount)
