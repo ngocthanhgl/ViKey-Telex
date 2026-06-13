@@ -84,40 +84,96 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
     ): List<SuggestionCandidate> = withContext(Dispatchers.IO) {
         try {
             val textBefore = content.textBeforeSelection
-
             val prefix = getCurrentWord(content) ?: return@withContext emptyList()
             if (prefix.isBlank()) return@withContext emptyList()
 
-            suggestFromDict(textBefore, prefix, maxCandidateCount)
+            suggestCompletions(textBefore, prefix, maxCandidateCount)
         } catch (e: Exception) {
             flogDebug { "TFLite:suggest failed: ${e.message}" }
             emptyList()
         }
     }
 
-    private fun suggestFromDict(
+    private fun suggestCompletions(
         textBefore: String,
         prefix: String,
         maxCount: Int,
     ): List<SuggestionCandidate> {
         if (!dictLoaded) return emptyList()
-
         val lower = prefix.lowercase(Locale.ROOT)
+
         val matches = dict.entries
-            .filter { (k, _) -> k.startsWith(lower) }
+            .filter { (k, _) -> k.startsWith(lower) && k.length > lower.length }
             .sortedByDescending { it.value }
-            .take(maxCount)
+            .take(maxCount * 2)
 
         if (matches.isEmpty()) return emptyList()
+        if (!modelLoaded) return buildDictSuggestions(matches, lower, maxCount)
 
-        return matches.mapIndexed { index, (word, _) ->
+        val probs = predictNextCharProbs(textBefore)
+
+        val scored = matches.map { (word, freq) ->
+            val suffix = word.removePrefix(lower)
+            val modelScore = suffix.firstOrNull()?.let { c ->
+                val id = charToId(c)
+                if (id in probs.indices) probs[id].toDouble() else 0.0
+            } ?: 0.0
+            word to (freq.toDouble() * (1.0 + modelScore))
+        }
+
+        return scored
+            .sortedByDescending { it.second }
+            .take(maxCount)
+            .mapIndexed { index, (word, _) ->
+                WordSuggestionCandidate(
+                    text = adjustCase(prefix, word),
+                    confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
+                    isEligibleForAutoCommit = word == lower && index == 0,
+                    sourceProvider = this,
+                )
+            }
+    }
+
+    private fun buildDictSuggestions(
+        matches: List<Map.Entry<String, Int>>,
+        lower: String,
+        maxCount: Int,
+    ): List<SuggestionCandidate> {
+        return matches.take(maxCount).mapIndexed { index, (word, _) ->
             WordSuggestionCandidate(
-                text = adjustCase(prefix, word),
+                text = adjustCase(lower, word),
                 confidence = (1.0 - index * 0.08).coerceAtLeast(0.1),
                 isEligibleForAutoCommit = word == lower && index == 0,
                 sourceProvider = this,
             )
         }
+    }
+
+    private fun predictNextCharProbs(textBefore: String): FloatArray {
+        val interpreter = interpreter ?: return FloatArray(VOCAB_SIZE)
+        return try {
+            val contextText = textBefore.takeLast(CONTEXT_LEN)
+            val inputIds = IntArray(CONTEXT_LEN) { PAD_ID }
+            val offset = CONTEXT_LEN - contextText.length
+            for (i in contextText.indices) {
+                inputIds[offset + i] = charToId(contextText[i])
+            }
+
+            val input = arrayOf(inputIds)
+            val output = Array(1) { Array(CONTEXT_LEN) { FloatArray(VOCAB_SIZE) } }
+            interpreter.run(input, output)
+            output[0][CONTEXT_LEN - 1]
+        } catch (e: Exception) {
+            flogDebug { "TFLite: inference failed: ${e.message}" }
+            FloatArray(VOCAB_SIZE)
+        }
+    }
+
+    private fun charToId(c: Char): Int {
+        val cp = c.code
+        if (cp in 32 until VOCAB_SIZE) return cp
+        if (cp == '\n'.code) return ' '.code
+        return UNK_ID
     }
 
     private fun adjustCase(reference: String, word: String): String {
