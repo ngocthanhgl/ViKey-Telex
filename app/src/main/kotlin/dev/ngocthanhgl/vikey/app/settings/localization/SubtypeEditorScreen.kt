@@ -74,7 +74,7 @@ import dev.ngocthanhgl.vikey.ime.keyboard.LayoutType
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePopupMapping
 import dev.ngocthanhgl.vikey.ime.nlp.FallbackNlpProvider
 import dev.ngocthanhgl.vikey.ime.nlp.latin.LatinLanguageProvider
-import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.VietnameseLlmSuggestionProvider
+import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.TfLiteSuggestionProvider
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
@@ -400,7 +400,7 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                 val nlpProviderMappings = mapOf(
                     FallbackNlpProvider.providerId to "None",
                     LatinLanguageProvider.ProviderId to "Latin",
-                    VietnameseLlmSuggestionProvider.ProviderId to "Vietnamese (n-gram)"
+                    TfLiteSuggestionProvider.ProviderId to "Vietnamese (TFLite)"
                 )
 
                 val nlpProviderMappingIds = remember(nlpProviderMappings) {

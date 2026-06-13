@@ -29,7 +29,8 @@ import dev.ngocthanhgl.vikey.ime.editor.EditorContent
 import dev.ngocthanhgl.vikey.ime.editor.EditorRange
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSuggestionProvider
 import dev.ngocthanhgl.vikey.ime.nlp.latin.LatinLanguageProvider
-import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.VietnameseLlmSuggestionProvider
+import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.TfLiteSuggestionProvider
+import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.VietnameseLanguageProvider
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.util.NetworkUtils
 import dev.ngocthanhgl.vikey.subtypeManager
@@ -65,7 +66,8 @@ class NlpManager(context: Context) {
     private val providers = guardedByLock {
         mapOf(
             LatinLanguageProvider.ProviderId to ProviderInstanceWrapper(LatinLanguageProvider(context)),
-            VietnameseLlmSuggestionProvider.ProviderId to ProviderInstanceWrapper(VietnameseLlmSuggestionProvider(context)),
+            TfLiteSuggestionProvider.ProviderId to ProviderInstanceWrapper(TfLiteSuggestionProvider(context)),
+            VietnameseLanguageProvider.ProviderId to ProviderInstanceWrapper(VietnameseLanguageProvider(context)),
         )
     }
     // lock unnecessary because values constant

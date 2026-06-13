@@ -17,6 +17,7 @@ cache4k = "0.14.0"
 coil = "3.4.0"
 kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
+tensorflow-lite = "2.18.0"
 kotlinx-serialization-json = "1.11.0"
 ksp = "2.3.5"
 material = "1.13.0"
@@ -84,6 +85,8 @@ kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest"
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflow-lite" }
+tensorflow-lite-select-tf-ops = { module = "org.tensorflow:tensorflow-lite-select-tf-ops", version.ref = "tensorflow-lite" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 
