@@ -92,9 +92,7 @@ import dev.ngocthanhgl.vikey.ime.text.keyboard.TextKeyData
 import dev.ngocthanhgl.vikey.ime.theme.FlorisImeUi
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.florisboard.lib.android.AndroidKeyguardManager
 import org.florisboard.lib.android.showShortToast
 import org.florisboard.lib.android.systemService
@@ -168,16 +166,7 @@ fun EmojiPaletteView(
     val emojiHistoryEnabled by prefs.emoji.historyEnabled.collectAsState()
     val emojiFont by prefs.emoji.emojiFont.collectAsState()
 
-    var emojiFontReady by remember { mutableStateOf(false) }
-
-    LaunchedEffect(emojiFont) {
-        if (emojiFont == EmojiFont.APPLE && !EmojiFontManager.isAppleEmojiAvailable(context)) {
-            withContext(Dispatchers.IO) { EmojiFontManager.downloadAppleEmoji(context) }
-        }
-        emojiFontReady = true
-    }
-
-    val emojiTypeface = remember(emojiFont, emojiFontReady) {
+    val emojiTypeface = remember(emojiFont) {
         if (emojiFont == EmojiFont.APPLE) {
             EmojiFontManager.loadAppleEmojiTypeface(context)
         } else null
