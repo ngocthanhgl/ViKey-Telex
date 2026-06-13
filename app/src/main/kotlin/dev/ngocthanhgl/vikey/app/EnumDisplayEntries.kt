@@ -281,8 +281,8 @@ private val ENUM_DISPLAY_ENTRIES = mapOf<Pair<KClass<*>, String>, @Composable ()
                 label = stringRes(R.string.enum__emoji_font__system),
             )
             entry(
-                key = EmojiFont.APPLE,
-                label = stringRes(R.string.enum__emoji_font__apple),
+                key = EmojiFont.JOYPIXELS,
+                label = stringRes(R.string.enum__emoji_font__joypixels),
             )
         }
     },

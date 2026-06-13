@@ -73,7 +73,7 @@ import dev.ngocthanhgl.vikey.ime.keyboard.LayoutArrangementComponent
 import dev.ngocthanhgl.vikey.ime.keyboard.LayoutType
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePopupMapping
 import dev.ngocthanhgl.vikey.ime.nlp.FallbackNlpProvider
-import dev.ngocthanhgl.vikey.ime.nlp.latin.LatinLanguageProvider
+
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.TfLiteSuggestionProvider
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
@@ -399,15 +399,14 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                 //  optionally use a string resource below
                 val nlpProviderMappings = mapOf(
                     FallbackNlpProvider.providerId to "None",
-                    LatinLanguageProvider.ProviderId to "Latin",
                     TfLiteSuggestionProvider.ProviderId to "Vietnamese (TFLite)"
                 )
 
                 val nlpProviderMappingIds = remember(nlpProviderMappings) {
-                    listOf(SelectNlpProviderId) + nlpProviderMappings.keys
+                    nlpProviderMappings.keys.toList()
                 }
                 val nlpProviderMappingLabels = remember(nlpProviderMappings) {
-                    selectListValues + nlpProviderMappings.values.map { it }
+                    nlpProviderMappings.values.toList()
                 }
                 val expanded = remember { mutableStateOf(false) }
                 val selectedIndex = nlpProviderMappingIds.indexOf(nlpProviders.suggestion).coerceAtLeast(0)
@@ -415,7 +414,6 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     options = nlpProviderMappingLabels,
                     expanded = expanded,
                     selectedOptionIndex = selectedIndex,
-                    isError = showSelectAsError && selectedIndex == 0,
                     onSelectOption = { nlpProviders = SubtypeNlpProviderMap(
                         suggestion = nlpProviderMappingIds[it],
                         spelling = nlpProviderMappingIds[it]

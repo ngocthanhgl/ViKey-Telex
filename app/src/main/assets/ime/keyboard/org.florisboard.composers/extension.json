@@ -16,12 +16,6 @@
       "$": "appender"
     },
     {
-      "$": "hangul-unicode"
-    },
-    {
-      "$": "kana-unicode"
-    },
-    {
       "$": "telex-algorithm",
       "id": "telex",
       "label": "Telex"

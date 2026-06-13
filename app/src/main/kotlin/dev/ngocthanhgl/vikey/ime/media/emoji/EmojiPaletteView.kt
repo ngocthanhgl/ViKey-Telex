@@ -167,8 +167,8 @@ fun EmojiPaletteView(
     val emojiFont by prefs.emoji.emojiFont.collectAsState()
 
     val emojiTypeface = remember(emojiFont) {
-        if (emojiFont == EmojiFont.APPLE) {
-            EmojiFontManager.loadAppleEmojiTypeface(context)
+        if (emojiFont == EmojiFont.JOYPIXELS) {
+            EmojiFontManager.loadJoyPixelsTypeface(context)
         } else null
     }
 

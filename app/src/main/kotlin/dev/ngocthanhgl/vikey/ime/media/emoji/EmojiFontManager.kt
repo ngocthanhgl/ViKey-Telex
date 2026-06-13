@@ -7,7 +7,7 @@ object EmojiFontManager {
     private const val FONT_ASSET = "fonts/AppleColorEmoji.ttf"
     private var cachedTypeface: Typeface? = null
 
-    fun loadAppleEmojiTypeface(context: Context): Typeface? {
+    fun loadJoyPixelsTypeface(context: Context): Typeface? {
         cachedTypeface?.let { return it }
         return try {
             Typeface.createFromAsset(context.assets, FONT_ASSET).also { cachedTypeface = it }
