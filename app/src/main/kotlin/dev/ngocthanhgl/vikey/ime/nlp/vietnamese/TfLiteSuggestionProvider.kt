@@ -79,7 +79,7 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
                     ?.let { it == ' ' || it == '\n' || it == '\t' } ?: true
 
                 if (isNewWord) {
-                    val ctx = textBefore.trimEnd().takeLast(CONTEXT_LEN)
+                    val ctx = textBefore.takeLast(CONTEXT_LEN)
                     val probs = getOrPredict(interp, ctx)
                     suggestNextWord(interp, ctx, probs, maxCandidateCount)
                 } else {
