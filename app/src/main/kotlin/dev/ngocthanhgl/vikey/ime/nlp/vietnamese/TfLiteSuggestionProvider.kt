@@ -10,12 +10,10 @@ import dev.ngocthanhgl.vikey.lib.devtools.flogDebug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.tensorflow.lite.Interpreter
-import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.channels.FileChannel
 
-class TfLiteSuggestionProvider(context: Context) : SuggestionProvider {
+class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvider {
     companion object {
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.tflite"
         private const val MODEL_PATH = "ime/dict/vikey_cifg_int8.tflite"
