@@ -1,7 +1,3 @@
-# ViKey CIFG Training - Optimized v2
-# EN + VI | Kaggle GPU T4 | 1M sentences | fp16 export
-# Expected: ~2h training time
-
 # CELL1: SETUP
 import os, json, re, time, gc
 from collections import Counter
@@ -17,9 +13,9 @@ from tqdm.notebook import tqdm
 import numpy as np
 
 # Enable mixed precision (2x faster on T4)
-tf.keras.mixed_precision.set_global_policy("mixed_float16")
-# Fallback to float32 for softmax stability
-import keras; keras.config.set_dtype_policy("float32", layer_name="output")
+try:
+    tf.keras.mixed_precision.set_global_policy("mixed_float16")
+except: pass
 
 print(f"GPU: {tf.config.list_physical_devices('GPU')}")
 print(f"TF: {tf.__version__}")
