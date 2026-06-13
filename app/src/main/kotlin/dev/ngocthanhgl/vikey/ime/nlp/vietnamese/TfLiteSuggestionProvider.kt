@@ -66,14 +66,25 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
         return withContext(Dispatchers.IO) {
             try {
                 val textBefore = content.textBeforeSelection
-                val prefix = getCurrentWord(content) ?: return@withContext emptyList()
+                val isNewWord = textBefore.endsWith(" ") || textBefore.endsWith("\n") || textBefore.endsWith("\t")
 
-                val words = tokenize(textBefore.removeSuffix(prefix))
-                val probs = predictRaw(interp, words)
+                val prefix: String
+                val contextWords: List<String>
+                if (isNewWord) {
+                    prefix = ""
+                    contextWords = tokenize(textBefore)
+                } else {
+                    val cur = getCurrentWord(content)
+                    if (cur.isNullOrBlank()) return@withContext emptyList()
+                    prefix = cur
+                    contextWords = tokenize(textBefore.removeSuffix(cur))
+                }
+
+                val probs = predictRaw(interp, contextWords)
 
                 val result = if (prefix.isNotBlank()) {
                     i2w.values.filter { w -> w.startsWith(prefix, ignoreCase = true) && !w.startsWith("<") }
-                        .map { w -> w to (probs[w2i[w] ?: OOV_ID].toDouble().coerceAtLeast(0.0)) }
+                        .map { w -> w to probs[w2i[w] ?: OOV_ID].toDouble().coerceAtLeast(0.0) }
                         .sortedByDescending { it.second }
                         .take(maxCandidateCount)
                 } else {
@@ -150,11 +161,6 @@ class TfLiteSuggestionProvider(private val context: Context) : SuggestionProvide
     private fun getCurrentWord(content: EditorContent): String? {
         content.composingText.let { if (it.isNotBlank()) return it.toString() }
         content.currentWordText.let { if (it.isNotBlank()) return it.toString() }
-        val textBefore = content.textBeforeSelection
-        if (textBefore.isNotBlank()) {
-            val words = textBefore.split(Regex("[\\s\\p{Punct}]+"))
-            return words.lastOrNull { it.isNotBlank() }
-        }
         return null
     }
 
