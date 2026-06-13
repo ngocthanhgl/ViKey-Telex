@@ -40,7 +40,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.icons.Icons
@@ -649,7 +649,7 @@ private fun EmojiHistoryPopup(
     }
 }
 
-val LocalEmojiTypeface = staticCompositionLocalOf<Typeface?> { null }
+val LocalEmojiTypeface = compositionLocalOf<Typeface?> { null }
 
 @Composable
 fun EmojiText(
