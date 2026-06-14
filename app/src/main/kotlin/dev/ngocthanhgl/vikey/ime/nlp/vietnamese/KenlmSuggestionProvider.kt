@@ -76,11 +76,12 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                     line?.trim()?.let { if (it.isNotBlank()) lines.add(it) }
                 }
             }
-            vocabList = lines
-            vocabSet = lines.toSet()
-            commonWords = lines.take(NEXT_WORD_POOL)
+            val clean = lines.filter { it.last() !in ",.!?;:" }
+            vocabList = clean
+            vocabSet = clean.toSet()
+            commonWords = clean.take(NEXT_WORD_POOL)
             val idx = mutableMapOf<Char, MutableList<String>>()
-            for (word in lines) {
+            for (word in clean) {
                 val c = word.firstOrNull()?.lowercaseChar() ?: continue
                 idx.getOrPut(c) { mutableListOf() }.add(word)
             }
@@ -392,12 +393,6 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
 
         val baseCandidates = prefixIndex[firstChar]
             ?.filter { it.startsWith(prefix, ignoreCase = true) }
-            ?.filter { candidate ->
-                if (candidate.length > prefix.length && candidate.startsWith(prefix, ignoreCase = true)) {
-                    val suffix = candidate.drop(prefix.length)
-                    !(suffix.all { it in ",.!?;:" } && prefix.length >= 2)
-                } else true
-            }
             ?: emptyList()
 
         val topBase = if (baseCandidates.isNotEmpty()) {
@@ -417,7 +412,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         }
 
         val oovCandidates = personalDict.keys
-            .filter { it.startsWith(prefix, ignoreCase = true) && it !in vocabSet }
+            .filter { it.startsWith(prefix, ignoreCase = true) && it !in vocabSet && it.last() !in ",.!?;:" }
             .map { it to 0.0 }
 
         val merged = (oovCandidates + topBase).distinctBy { it.first.lowercase() }
