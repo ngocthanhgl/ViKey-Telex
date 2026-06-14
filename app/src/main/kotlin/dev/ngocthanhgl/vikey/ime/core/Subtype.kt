@@ -65,7 +65,7 @@ data class Subtype(
             secondaryLocales = emptyList(),
             nlpProviders = SubtypeNlpProviderMap(
                 spelling = "org.florisboard.nlp.providers.vietnamese",
-                suggestion = "org.florisboard.nlp.providers.vietnamese.tflite",
+                suggestion = "org.florisboard.nlp.providers.vietnamese.kenlm",
             ),
             composer = extCoreComposer("telex"),
             currencySet = extCoreCurrencySet("vietnamese_dong"),
