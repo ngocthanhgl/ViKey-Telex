@@ -392,6 +392,12 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
 
         val baseCandidates = prefixIndex[firstChar]
             ?.filter { it.startsWith(prefix, ignoreCase = true) }
+            ?.filter { candidate ->
+                if (candidate.length > prefix.length && candidate.startsWith(prefix, ignoreCase = true)) {
+                    val suffix = candidate.drop(prefix.length)
+                    !(suffix.all { it in ",.!?;:" } && prefix.length >= 2)
+                } else true
+            }
             ?: emptyList()
 
         val topBase = if (baseCandidates.isNotEmpty()) {
