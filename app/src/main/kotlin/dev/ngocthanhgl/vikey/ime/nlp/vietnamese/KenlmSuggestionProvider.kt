@@ -2,6 +2,8 @@ package dev.ngocthanhgl.vikey.ime.nlp.vietnamese
 
 import android.content.Context
 import dev.ngocthanhgl.vikey.ime.core.Subtype
+import dev.ngocthanhgl.vikey.ime.dictionary.DictionaryManager
+import dev.ngocthanhgl.vikey.ime.dictionary.UserDictionaryEntry
 import dev.ngocthanhgl.vikey.ime.editor.EditorContent
 import dev.ngocthanhgl.vikey.ime.nlp.SuggestionCandidate
 import dev.ngocthanhgl.vikey.ime.nlp.SuggestionProvider
@@ -59,6 +61,8 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
             loadVocab()
             loadPersonalDict()
             loadNgrams()
+            try { DictionaryManager.default().loadUserDictionariesIfNecessary() }
+            catch (_: Exception) {}
             loadModelBg()
         }
     }
@@ -116,10 +120,28 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                 json.put(word, obj)
             }
             File(context.filesDir, PERSONAL_DICT).writeText(json.toString())
+            syncRoomDb()
             personalDirty = false
         } catch (e: Exception) {
             flogDebug { "KenLM: personal dict save: ${e.message}" }
         }
+    }
+
+    private fun syncRoomDb() {
+        try {
+            val dm = DictionaryManager.default()
+            dm.loadUserDictionariesIfNecessary()
+            val dao = dm.florisUserDictionaryDao() ?: return
+            for ((word, pw) in personalDict) {
+                val existing = dao.queryExact(word)
+                val freq = pw.count.coerceIn(1, 255)
+                if (existing.isNotEmpty()) {
+                    dao.update(existing[0].copy(freq = freq))
+                } else {
+                    dao.insert(UserDictionaryEntry(0, word, freq, null, null))
+                }
+            }
+        } catch (_: Exception) {}
     }
 
     private fun loadNgrams() {
