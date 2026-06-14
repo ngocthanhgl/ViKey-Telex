@@ -287,10 +287,10 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         if (personalDirty && learnCounter % 30 == 0) savePersonalDict()
     }
 
-    private fun computeAlpha(count: Int): Double = when {
-        count < 3 -> 0.10
-        count < 10 -> 0.25
-        count < 30 -> 0.40
+    private fun computeAlpha(decayedCount: Double): Double = when {
+        decayedCount < 3.0 -> 0.10
+        decayedCount < 10.0 -> 0.25
+        decayedCount < 30.0 -> 0.40
         else -> 0.50
     }
 
@@ -307,7 +307,8 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         return candidates.map { (word, baseScore) ->
             val pw = personalDict[word.lowercase()]
             if (pw != null) {
-                val alpha = computeAlpha(pw.count)
+                val dc = decayedCount(pw)
+                val alpha = computeAlpha(dc)
                 val ps = personalScore(pw)
                 word to (alpha * ps + (1.0 - alpha) * baseScore)
             } else {
@@ -424,12 +425,15 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         val word = candidate.text.toString().lowercase().trim()
         if (word.length < 2) return
         val existing = personalDict[word]
+        val newCount = (existing?.count ?: 0) + 1
         personalDict[word] = PersonalWord(
-            count = (existing?.count ?: 0) + 1,
+            count = newCount,
             lastUsedTs = System.currentTimeMillis(),
         )
-        personalDirty = true
-        bgScope.launch { savePersonalDict() }
+        if (existing != null || newCount >= 3) {
+            personalDirty = true
+            bgScope.launch { savePersonalDict() }
+        }
     }
 
     override suspend fun notifySuggestionReverted(subtype: Subtype, candidate: SuggestionCandidate) {
