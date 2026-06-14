@@ -299,10 +299,10 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
 
         val now = System.currentTimeMillis()
         for (w in recent) {
-            if (w !in vocabSet && w !in personalDict) {
-                personalDict[w] = PersonalWord(count = 1, lastUsedTs = now)
-                personalDirty = true
-            }
+            val existing = personalDict[w]
+            val newCount = (existing?.count ?: 0) + 1
+            personalDict[w] = PersonalWord(count = newCount, lastUsedTs = now)
+            if (existing != null || newCount >= 3) personalDirty = true
         }
 
         if (ngramDirty && learnCounter % 30 == 0) saveNgrams()
