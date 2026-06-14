@@ -163,7 +163,14 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                     completeCurrentWord(cur, maxCandidateCount)
                 }
 
-                boostLearned(pairs)
+                boostLearned(pairs).map { (word, _) ->
+                    WordSuggestionCandidate(
+                        text = word,
+                        confidence = 1.0,
+                        isEligibleForAutoCommit = false,
+                        sourceProvider = this@KenlmSuggestionProvider,
+                    )
+                }
             } catch (e: Exception) {
                 flogDebug { "KenLM:suggest failed: ${e.message}" }
                 emptyList()
