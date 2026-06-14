@@ -2,6 +2,8 @@ package dev.ngocthanhgl.vikey.ime.nlp.vietnamese
 
 import android.content.Context
 import dev.ngocthanhgl.vikey.ime.core.Subtype
+import dev.ngocthanhgl.vikey.ime.dictionary.DictionaryManager
+import dev.ngocthanhgl.vikey.ime.dictionary.UserDictionaryEntry
 import dev.ngocthanhgl.vikey.ime.editor.EditorContent
 import dev.ngocthanhgl.vikey.ime.nlp.SuggestionCandidate
 import dev.ngocthanhgl.vikey.ime.nlp.SuggestionProvider
@@ -22,9 +24,11 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.kenlm"
         private const val VOCAB_PATH = "ime/dict/vocab.txt"
         private const val MODEL_PATH = "ime/dict/ime_lm.klm"
-        private const val USER_DICT = "user_words.json"
+        private const val NGRAM_PATH = "ngrams.json"
         private const val NEXT_WORD_POOL = 500
         private const val LEARN_BOOST = 50.0
+        private const val BIGRAM_BOOST = 30.0
+        private const val TRIGRAM_BOOST = 50.0
     }
 
     private var vocabList = listOf<String>()
@@ -38,6 +42,10 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
     private var userDirty = false
     private var learnCounter = 0
 
+    private var bigrams = mutableMapOf<String, MutableMap<String, Int>>()
+    private var trigrams = mutableMapOf<String, MutableMap<String, Int>>()
+    private var ngramDirty = false
+
     private val bgScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override val providerId = ProviderId
@@ -47,6 +55,9 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         withContext(Dispatchers.IO) {
             loadVocab()
             loadUserDict()
+            loadNgrams()
+            try { DictionaryManager.default().loadUserDictionariesIfNecessary() }
+            catch (_: Exception) {}
             loadModelBg()
         }
     }
@@ -76,14 +87,27 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
 
     private fun loadUserDict() {
         try {
-            val f = File(context.filesDir, USER_DICT)
+            val dm = DictionaryManager.default()
+            dm.loadUserDictionariesIfNecessary()
+            val dao = dm.florisUserDictionaryDao()
+            if (dao != null) {
+                val entries = dao.queryAll()
+                for (e in entries) {
+                    if (e.word.isNotBlank()) userWords[e.word.lowercase()] = e.freq.coerceIn(1, 255)
+                }
+                flogDebug { "KenLM: loaded ${userWords.size} learned words from Room DB" }
+                return
+            }
+        } catch (_: Exception) {}
+        try {
+            val f = File(context.filesDir, "user_words.json")
             if (f.exists()) {
                 val raw = f.readText()
                 val json = JSONObject(raw)
                 for (key in json.keys()) {
                     userWords[key] = json.getInt(key)
                 }
-                flogDebug { "KenLM: loaded ${userWords.size} learned words" }
+                flogDebug { "KenLM: loaded ${userWords.size} learned words from JSON fallback" }
             }
         } catch (e: Exception) {
             flogDebug { "KenLM: user dict load: ${e.message}" }
@@ -93,11 +117,83 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
     private fun saveUserDict() {
         if (!userDirty) return
         try {
+            val dm = DictionaryManager.default()
+            dm.loadUserDictionariesIfNecessary()
+            val dao = dm.florisUserDictionaryDao()
+            if (dao != null) {
+                for ((word, freq) in userWords) {
+                    val existing = dao.queryExact(word)
+                    if (existing.isNotEmpty()) {
+                        dao.update(existing[0].copy(freq = freq))
+                    } else {
+                        dao.insert(UserDictionaryEntry(0, word, freq, null, null))
+                    }
+                }
+                userDirty = false
+                flogDebug { "KenLM: saved ${userWords.size} words to Room DB" }
+                return
+            }
+        } catch (_: Exception) {}
+        try {
             val json = JSONObject(userWords).toString()
-            File(context.filesDir, USER_DICT).writeText(json)
+            File(context.filesDir, "user_words.json").writeText(json)
             userDirty = false
         } catch (e: Exception) {
             flogDebug { "KenLM: user dict save: ${e.message}" }
+        }
+    }
+
+    private fun loadNgrams() {
+        try {
+            val f = File(context.filesDir, NGRAM_PATH)
+            if (!f.exists()) return
+            val json = JSONObject(f.readText())
+            val bi = json.optJSONObject("bigrams")
+            if (bi != null) {
+                for (k1 in bi.keys()) {
+                    val inner = bi.getJSONObject(k1)
+                    val map = mutableMapOf<String, Int>()
+                    for (k2 in inner.keys()) map[k2] = inner.getInt(k2)
+                    bigrams[k1] = map
+                }
+            }
+            val tri = json.optJSONObject("trigrams")
+            if (tri != null) {
+                for (k1 in tri.keys()) {
+                    val inner = tri.getJSONObject(k1)
+                    val map = mutableMapOf<String, Int>()
+                    for (k2 in inner.keys()) map[k2] = inner.getInt(k2)
+                    trigrams[k1] = map
+                }
+            }
+            flogDebug { "KenLM: loaded ${bigrams.size} bigrams, ${trigrams.size} trigrams" }
+        } catch (e: Exception) {
+            flogDebug { "KenLM: load ngrams: ${e.message}" }
+        }
+    }
+
+    private fun saveNgrams() {
+        if (!ngramDirty) return
+        try {
+            val bi = JSONObject()
+            for ((k1, inner) in bigrams) {
+                val jo = JSONObject()
+                for ((k2, v) in inner) jo.put(k2, v)
+                bi.put(k1, jo)
+            }
+            val tri = JSONObject()
+            for ((k1, inner) in trigrams) {
+                val jo = JSONObject()
+                for ((k2, v) in inner) jo.put(k2, v)
+                tri.put(k1, jo)
+            }
+            val root = JSONObject()
+            root.put("bigrams", bi)
+            root.put("trigrams", tri)
+            File(context.filesDir, NGRAM_PATH).writeText(root.toString())
+            ngramDirty = false
+        } catch (e: Exception) {
+            flogDebug { "KenLM: save ngrams: ${e.message}" }
         }
     }
 
@@ -156,7 +252,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                     val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
                     if (lastWord.isBlank()) return@withContext emptyList()
-                    suggestNextWord(lastWord, maxCandidateCount)
+                    suggestNextWord(textBefore.trimEnd(), maxCandidateCount)
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
                     if (cur.isBlank()) return@withContext emptyList()
@@ -181,15 +277,34 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
     private fun learnFromText(text: CharSequence) {
         learnCounter++
         if (learnCounter % 3 != 0) return
-        val words = text.split(Regex("[\\s\\p{Punct}]+")).filter { it.length >= 3 }
-        for (w in words.takeLast(10)) {
-            val lc = w.lowercase()
-            if (lc !in userWords && lc in vocabList) continue
-            val prev = userWords[lc] ?: 0
-            userWords[lc] = (prev + 1).coerceAtMost(255)
+        val words = text.trimEnd().split(Regex("\\s+"))
+            .map { it.lowercase().trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>') }
+            .filter { it.length >= 2 }
+        if (words.size < 2) return
+        val recent = words.takeLast(8)
+
+        for (i in 0 until recent.size - 1) {
+            val w1 = recent[i]
+            val w2 = recent[i + 1]
+            val bi = bigrams.getOrPut(w1) { mutableMapOf() }
+            bi[w2] = (bi[w2] ?: 0).coerceAtMost(254) + 1
+            if (i + 2 < recent.size) {
+                val w3 = recent[i + 2]
+                val tri = trigrams.getOrPut("$w1|$w2") { mutableMapOf() }
+                tri[w3] = (tri[w3] ?: 0).coerceAtMost(254) + 1
+            }
+        }
+        ngramDirty = true
+
+        for (w in recent) {
+            if (w !in userWords && w !in vocabList) continue
+            val prev = userWords[w] ?: 0
+            userWords[w] = (prev + 1).coerceAtMost(255)
             userDirty = true
         }
+
         if (userDirty && learnCounter % 30 == 0) saveUserDict()
+        if (ngramDirty && learnCounter % 30 == 0) saveNgrams()
     }
 
     private fun boostLearned(pairs: List<Pair<String, Double>>): List<Pair<String, Double>> {
@@ -200,18 +315,49 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         }.sortedByDescending { it.second }
     }
 
-    private fun suggestNextWord(prevWord: String, k: Int): List<Pair<String, Double>> {
+    private fun suggestNextWord(textBefore: String, k: Int): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
-        val pool = commonWords
+        val words = textBefore.split(Regex("\\s+")).filter { it.isNotBlank() }
+        val w2 = if (words.isNotEmpty()) words.last().lowercase() else ""
+        val w1 = if (words.size >= 2) words[words.size - 2].lowercase() else null
 
-        if (!natLoading && natLoaded && modelPtr != 0L) {
-            val scores = KenlmNatives.scoreCandidates(modelPtr, prevWord, pool.toTypedArray())
-            if (scores != null && scores.size == pool.size) {
-                return pool.indices.map { pool[it] to scores[it].toDouble() }
-                    .sortedByDescending { it.second }.take(limit)
+        val scored = mutableMapOf<String, Double>()
+
+        if (w1 != null) {
+            trigrams["$w1|$w2"]?.forEach { (w3, freq) ->
+                scored[w3] = (scored[w3] ?: 0.0) + freq * TRIGRAM_BOOST
             }
         }
-        return pool.take(limit).map { it to 1.0 }
+
+        bigrams[w2]?.forEach { (next, freq) ->
+            if (next !in scored) {
+                scored[next] = (scored[next] ?: 0.0) + freq * BIGRAM_BOOST
+            }
+        }
+
+        val pool = commonWords
+        if (!natLoading && natLoaded && modelPtr != 0L) {
+            val scores = KenlmNatives.scoreCandidates(modelPtr, w2, pool.toTypedArray())
+            if (scores != null && scores.size == pool.size) {
+                for (i in pool.indices) {
+                    val word = pool[i]
+                    if (word !in scored) {
+                        scored[word] = (scored[word] ?: 0.0) + scores[i].toDouble()
+                    }
+                }
+            } else {
+                for (word in pool) {
+                    if (word !in scored) scored[word] = (scored[word] ?: 0.0) + freqScore(word)
+                }
+            }
+        } else {
+            for (word in pool) {
+                if (word !in scored) scored[word] = (scored[word] ?: 0.0) + freqScore(word)
+            }
+        }
+
+        return scored.entries.sortedByDescending { it.value }.take(limit)
+            .map { it.key to it.value }
     }
 
     private fun completeCurrentWord(prefix: String, k: Int): List<Pair<String, Double>> {
@@ -284,6 +430,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
 
     override suspend fun destroy() {
         if (userDirty) saveUserDict()
+        if (ngramDirty) saveNgrams()
         if (modelPtr != 0L) KenlmNatives.unloadModel(modelPtr)
         modelPtr = 0L
         natLoaded = false
