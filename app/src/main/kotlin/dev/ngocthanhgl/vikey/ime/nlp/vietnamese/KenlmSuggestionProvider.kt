@@ -10,6 +10,7 @@ import dev.ngocthanhgl.vikey.lib.devtools.flogDebug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 
 class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider {
@@ -48,7 +49,6 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                     idx.getOrPut(c) { mutableListOf() }.add(word)
                 }
                 prefixIndex = idx
-
                 flogDebug { "KenLM: loaded ${lines.size} words" }
             } catch (e: Exception) {
                 flogDebug { "KenLM: vocab load failed: ${e.message}" }
@@ -56,18 +56,25 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
 
             if (KenlmNatives.isAvailable) {
                 try {
-                    val file = java.io.File(context.filesDir, "ime_lm.klm")
+                    val file = File(context.filesDir, "ime_lm.klm")
                     if (!file.exists()) {
+                        val start = System.currentTimeMillis()
                         context.assets.open(MODEL_PATH).use { input ->
                             file.outputStream().use { output -> input.copyTo(output) }
                         }
+                        flogDebug { "KenLM: KLM copy took ${System.currentTimeMillis() - start}ms" }
                     }
-                    modelPtr = KenlmNatives.loadModel(file.absolutePath)
-                    natLoaded = modelPtr != 0L
-                    flogDebug { "KenLM: model loaded, ptr=$modelPtr" }
+                    if (file.exists() && file.length() > 0) {
+                        val start = System.currentTimeMillis()
+                        modelPtr = KenlmNatives.loadModel(file.absolutePath)
+                        natLoaded = modelPtr != 0L
+                        flogDebug { "KenLM: model loaded ptr=$modelPtr took ${System.currentTimeMillis() - start}ms" }
+                    }
                 } catch (e: Exception) {
                     flogDebug { "KenLM: model load failed: ${e.message}" }
                 }
+            } else {
+                flogDebug { "KenLM: native lib not available" }
             }
         }
     }
@@ -92,7 +99,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                 if (lastChar == '.' || lastChar == '?' || lastChar == '!' || lastChar == '\n')
                     return@withContext emptyList()
 
-                val candidates = if (lastChar == ' ' || lastChar == '\t') {
+                val pairs = if (lastChar == ' ' || lastChar == '\t') {
                     val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
                     if (lastWord.isBlank()) return@withContext emptyList()
@@ -103,7 +110,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                     completeCurrentWord(cur, maxCandidateCount)
                 }
 
-                candidates.map { (word, _) ->
+                pairs.map { (word, _) ->
                     WordSuggestionCandidate(
                         text = word,
                         confidence = 1.0,
@@ -118,13 +125,13 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         }
     }
 
-    private suspend fun suggestNextWord(prevWord: String, k: Int): List<Pair<String, Double>> {
+    private fun suggestNextWord(prevWord: String, k: Int): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
-        val pool = commonWords.take((limit * 3).coerceAtMost(commonWords.size))
+        val pool = commonWords
 
         if (natLoaded && modelPtr != 0L) {
             val scores = KenlmNatives.scoreCandidates(modelPtr, prevWord, pool.toTypedArray())
-            if (scores != null) {
+            if (scores != null && scores.size == pool.size) {
                 val indexed = pool.indices.map { pool[it] to scores[it].toDouble() }
                 return indexed.sortedByDescending { it.second }.take(limit)
             }
@@ -143,16 +150,31 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
 
         val scored = if (natLoaded && modelPtr != 0L && candidates.size <= 200) {
             val scores = KenlmNatives.scoreCandidates(modelPtr, null, candidates.toTypedArray())
-            if (scores != null) {
+            if (scores != null && scores.size == candidates.size) {
                 candidates.indices.map { candidates[it] to scores[it].toDouble() }
             } else {
-                candidates.map { it to (vocabList.size - vocabList.indexOf(it)).toDouble() }
+                candidates.map { it to freqScore(it) }
             }
         } else {
-            candidates.map { it to (vocabList.size - vocabList.indexOf(it)).toDouble() }
+            candidates.map { it to freqScore(it) }
         }
 
-        return scored.sortedByDescending { it.second }.take(limit)
+        val useTitle = prefix[0].isUpperCase()
+        val useUpper = !useTitle && prefix.all { it.isUpperCase() }
+
+        return scored.sortedByDescending { it.second }.take(limit).map { (word, score) ->
+            val cased = when {
+                useUpper -> word.uppercase()
+                useTitle -> word.replaceFirstChar { it.uppercase() }
+                else -> word
+            }
+            cased to score
+        }
+    }
+
+    private fun freqScore(word: String): Double {
+        val idx = vocabList.indexOf(word)
+        return if (idx >= 0) (vocabList.size - idx).toDouble() else 0.0
     }
 
     private fun getCurrentWord(content: EditorContent): String? {
