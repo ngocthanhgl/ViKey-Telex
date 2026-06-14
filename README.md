@@ -5,8 +5,8 @@
 <h1 align="center">ViKey</h1>
 
 <p align="center">
-  <strong>Vietnamese Telex Keyboard for Android</strong><br>
-  The only FOSS Telex IME with a fully algorithmic syllable engine.
+  <strong>Bàn phím Tiếng Việt Telex cho Android</strong><br>
+  IME Telex mã nguồn mở duy nhất với engine xử lý âm tiết hoàn toàn bằng thuật toán.
 </p>
 
 <p align="center">
@@ -15,102 +15,94 @@
   <img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="License">
 </p>
 
-## Why ViKey
+## Tại Sao Chọn ViKey
 
-ViKey replaces FlorisBoard Telex with a **syllable-based recomposition engine** written in pure Kotlin. It understands Vietnamese phonology — not just character mappings. Each keystroke triggers a full parse of the current syllable, applies Vietnamese orthographic rules, and recomposes the correct output from first principles. No JSON. No lookup tables. No accumulated drift.
+ViKey thay thế engine Telex của FlorisBoard bằng một **engine tái tổ hợp âm tiết** viết thuần Kotlin. Thay vì tra bảng ký tự, ViKey hiểu ngữ âm học tiếng Việt — mỗi lần gõ phím sẽ phân tích lại toàn bộ âm tiết, áp dụng quy tắc chính tả và tái tạo kết quả từ đầu.
 
 ```kotlin
 // FlorisBoard (mutation-based): "chaof" → "chào"
-//   requires table entry for "ào" or cascading replacements
+//   cần entry trong bảng cho "ào" hoặc thay thế theo chuỗi
 // ViKey (recomposition-based): parse("chao") + applyTone('f') → "chào"
-//   algorithmic — any valid Vietnamese sequence works
+//   thuật toán — mọi tổ hợp Tiếng Việt hợp lệ đều hoạt động
 ```
 
-### Pure-Function Composer
+### Composer Thuần Hàm
 
-The `Composer` interface is a stateless, deterministic function — given the same preceding text and the same input character, it always produces the same output. There is no internal buffer, no mutable state, no hidden accumulator. This eliminates entire classes of bugs that plague traditional IMEs:
+`Composer` là một hàm thuần túy, không trạng thái — cùng đầu vào luôn cho cùng đầu ra. Không có buffer ẩn, không có trạng thái có thể thay đổi. Điều này loại bỏ hoàn toàn các lỗi phổ biến của IME truyền thống:
 
-- No composing buffer desync after cursor moves
-- No corruption from external text changes (paste, auto-correct)
-- No drift on long typing sessions
-- Trivially testable and fuzzable
+- Không bị lệch buffer khi di chuyển con trỏ
+- Không bị hỏng khi paste hoặc autocorrect từ bên ngoài
+- Không bị trôi lỗi sau phiên gõ dài
+- Dễ dàng kiểm thử
 
-### Syllable Recomposition (Not Mutation)
+### Tái Tổ Hợp Âm Tiết
 
-Every keystroke triggers a full recomposition cycle:
+Mỗi lần gõ phím kích hoạt một chu trình tái tổ hợp đầy đủ:
 
 ```
-Keypress → Decompose → Parse Syllable → Apply Rules → Rebuild → Output
-                ↑                                            ↓
-          precedingText                              (deleteCount, replacement)
+Gõ phím → Phân rã → Phân tích âm tiết → Áp dụng quy tắc → Tái tạo → Xuất ra
 ```
 
-**Tone placement is recalculated from scratch each time**, not applied as a transformation on a previous state. This means errors never compound — every keypress produces the correct output for the current syllable state.
+**Vị trí dấu thanh được tính lại từ đầu mỗi lần gõ**, không phải biến đổi từ trạng thái trước. Lỗi không bao giờ tích lũy.
 
-### Flicker-Free Composing
+### Không Nhấp Nháy Khi Gõ
 
-ViKey uses Android's native `setComposingText()` for atomic in-place updates, wrapped in a `beginBatchEdit()/endBatchEdit()` pair. The `ExpectedContentQueue` optimistically predicts editor state after each commit and verifies it asynchronously — far more robust than synchronized `InputConnection` calls.
+ViKey dùng `setComposingText()` của Android để cập nhật tại chỗ, kết hợp `beginBatchEdit()/endBatchEdit()`. `ExpectedContentQueue` dự đoán trạng thái editor sau mỗi lần commit và xác minh bất đồng bộ — đáng tin cậy hơn nhiều so với gọi `InputConnection` đồng bộ.
 
 ---
 
-## Vietnamese Linguistics
+## Ngữ Âm Học Tiếng Việt
 
-### Syllable Parser
+### Bộ Phân Tích Âm Tiết
 
-Decomposes any Vietnamese string into standard phonological components using longest-first greedy matching:
+Phân rã chuỗi Tiếng Việt thành các thành phần ngữ âm chuẩn:
 
 ```
   n g u y ễ n
   ↑↑   ↑↑  ↑
-onset nucleus coda + tone
+âm đầu  âm chính  âm cuối + thanh điệu
 ```
 
-Handles all Vietnamese onset clusters (`ngh`, `ng`, `ch`, `gh`, `gi`, `kh`, `nh`, `ph`, `th`, `tr`, `qu`) with a **disambiguation guard** that prevents false onset matching on vowel-ending digraphs like `qu`.
+Xử lý đầy đủ các tổ hợp phụ âm đầu (`ngh`, `ng`, `ch`, `gh`, `gi`, `kh`, `nh`, `ph`, `th`, `tr`, `qu`) với cơ chế phòng tránh nhận nhầm.
 
-### Orthographic Tone Placement
+### Đặt Dấu Thanh Theo Chính Tả
 
-Tone marks are placed following the official 1984 Quốc Ngữ rules via a 4-level cascade:
+Dấu thanh được đặt theo quy tắc Quốc Ngữ 1984 qua 4 cấp ưu tiên:
 
-1. **Explicit diphthong/triphthong rules** — 30+ vowel clusters mapped to their correct tone target: `oa→a`, `oe→e`, `uy→y`, `iê→ê`, `yê→ê`, `uô→ô`, `ươ→ơ`, `uôi→ô`, `ươi→ơ`, `oai→a`, `iêu→ê`, `yêu→ê`, ...
-2. **Horn vowel priority** — `ê`, `ơ` take tone before other vowels
-3. **Circumflex/breve priority** — `â`, `ă`, `ô` take tone next
-4. **Last vowel** — default Vietnamese rule for simple diphthongs
+1. **Quy tắc đôi/ba nguyên âm** — 30+ cụm nguyên âm được ánh xạ đến đúng vị trí đặt dấu
+2. **Ưu tiên nguyên âm có móc** — `ê`, `ơ` được ưu tiên
+3. **Ưu tiên nguyên âm có mũ/breve** — `â`, `ă`, `ô`
+4. **Nguyên âm cuối** — quy tắc mặc định cho đôi nguyên âm đơn giản
 
-### `gi`/`qu` Exceptions
+### Ngoại Lệ `gi`/`qu`
 
-In Vietnamese, `gi` and `qu` are complex initials — the `i` in `gi` and the `u` in `qu` are part of the consonant, not the vowel nucleus. `findVowelPositions()` explicitly skips them:
+Trong Tiếng Việt, `gi` và `qu` là phụ âm ghép — `i` trong `gi` và `u` trong `qu` thuộc về phụ âm, không phải nguyên âm:
 
 ```
-Type "gias"  →  ViKey: "giá"    Everywhere else: "gía"
-Type "quas"  →  ViKey: "quá"    Everywhere else: "qúa"
+Gõ "gias"  →  ViKey: "giá"    Nơi khác: "gía"
+Gõ "quas"  →  ViKey: "quá"    Nơi khác: "qúa"
 ```
-
-Only skipped when a real vowel exists elsewhere in the syllable.
-
-### Semivowel Coda Detection
-
-Distinguishes true consonant codas from semivowel offglides. Vietnamese diphthongs like `oai`, `iêu`, `ươu` have vowel nuclei followed by a semivowel (`i`, `u`, `y`, `o`). The parser correctly separates these from the nucleus so that tone placement targets the correct vowel.
 
 ---
 
-## UX Features
+## Tính Năng
 
-### `z` Undo
+### Hoàn Tác Bằng `z`
 
-Type `z` at the end of any word to strip all tones:
+Gõ `z` ở cuối từ để xóa toàn bộ dấu thanh:
 
-| Type | See |
+| Gõ | Kết quả |
 |------|-----|
 | `ƯỚz` | `ươ` |
 | `chàoz` | `chao` |
 
-If no tones exist, `z` is literal text.
+Nếu không có dấu, `z` là ký tự thường.
 
-### Shortcut Undo
+### Hoàn Tác Phím Tắt
 
-Press the second shortcut key again to undo it:
+Nhấn phím tắt lần hai để hoàn tác:
 
-| Type | See |
+| Gõ | Kết quả |
 |------|-----|
 | `aa` | `â` |
 | `âa` | `aa` |
@@ -119,80 +111,74 @@ Press the second shortcut key again to undo it:
 | `uow` | `ươ` |
 | `ươw` | `uow` |
 
-Works for all 7 shortcuts: `aw(ă)` `aa(â)` `ee(ê)` `oo(ô)` `ow(ơ)` `uw(ư)` `dd(đ)`.
+Hoạt động với cả 7 phím tắt: `aw(ă)` `aa(â)` `ee(ê)` `oo(ô)` `ow(ơ)` `uw(ư)` `dd(đ)`.
 
-### `w` Lifecycle
+### Vòng Đời Phím `w`
 
-`w` plays multiple Telex roles — shortcut partner for `ă`, `ơ`, `ư`, standalone `ư` producer, and composition toggler:
-
-| Type | See | Path |
+| Gõ | Kết quả | Giải thích |
 |------|-----|------|
-| `w` | `w` | First character → `w` |
-| `kw` | `kư` | Consonant + `w` → `kư` |
-| `kưw` | `kw` | Undo: `ư` → `w` |
-| `aw` | `ă` | Shortcut: `aw` → `ă` |
-| `uw` | `ư` | Shortcut: `uw` → `ư` |
+| `w` | `w` | Ký tự đầu tiên → `w` |
+| `kw` | `kư` | Phụ âm + `w` → `kư` |
+| `kưw` | `kw` | Hoàn tác |
+| `aw` | `ă` | Phím tắt |
+| `uw` | `ư` | Phím tắt |
 
-### 3-Letter Shortcut
+### Phím Tắt 3 Ký Tự
 
-`uow` produces `ươ` in a single shortcut — a unique efficiency feature not found in standard Telex.
+`uow` → `ươ` trong một thao tác — tính năng hiệu quả không có trong Telex chuẩn.
 
-### English Fallback Detection
+### Tự Nhận Diện Tiếng Anh
 
-Three heuristics prevent false Telex transforms when typing English:
+Ba heuristic ngăn biến đổi Telex khi gõ tiếng Anh:
 
-1. **English patterns** — `tion`, `ness`, `ship`, `str`, `ight`, `ould`, `ough`, `sch`, `scr`, `dge`, ...
-2. **Coda validation** — checks if the word's final consonant cluster is possible in Vietnamese: only `c`, `m`, `n`, `p`, `t` (single) or `ch`, `ng`, `nh` (double) or `ngh` (triple) are valid Vietnamese codas
-3. **Vowel density** — consonant runs exceeding 3 without intervening vowels flag the word as English (Vietnamese max is 3)
+1. **Pattern tiếng Anh** — `tion`, `ness`, `ship`, `str`, `ight`...
+2. **Kiểm tra âm cuối** — chỉ `c`, `m`, `n`, `p`, `t` hoặc `ch`, `ng`, `nh`, `ngh` là âm cuối hợp lệ trong Tiếng Việt
+3. **Mật độ nguyên âm** — chuỗi phụ âm quá 3 ký tự liên tiếp → nhận diện là tiếng Anh
 
-No manual mode switch needed — `process` types as English, `phở` types as Vietnamese.
+Không cần chuyển chế độ thủ công.
 
-### Case Preservation
+### Giữ Nguyên Kiểu Chữ
 
-Three-case mode system threaded through every transform path:
-
-| Mode | Input | Output |
+| Chế độ | Gõ | Kết quả |
 |------|-------|--------|
-| UPPER | `AA` | `Â` |
-| UPPER | `UOWS` | `ƯỚ` |
-| Capitalized | `Aa` | `â` |
-| Capitalized | `Uow` | `Ươ` |
-| lower | `aa` | `â` |
-| lower | `uows` | `ướ` |
+| IN HOA | `AA` | `Â` |
+| IN HOA | `UOWS` | `ƯỚ` |
+| Viết hoa đầu | `Aa` | `â` |
+| Viết hoa đầu | `Uow` | `Ươ` |
+| thường | `aa` | `â` |
+| thường | `uows` | `ướ` |
 
 ---
 
-## Theme
+## Giao Diện
 
-| Dark | Light |
+| Tối | Sáng |
 |:---:|:---:|
 | <img src=".github/theme-dark.jpg" width="300" alt="Dark theme"> | <img src=".github/theme-light.jpg" width="300" alt="Light theme"> |
 
-And 12+ more custom themes built-in.
+Và hơn 12 theme tùy chỉnh có sẵn.
 
 ---
 
-## Technical Highlights
+## Điểm Nổi Bật
 
-- **Zero dictionary dependency** — no word list, no ML, no network. Pure algorithmic Vietnamese phonology.
-- **No JSON lookup tables** — 100% Kotlin.
-- **30+ orthographic tone rules** — covers all Vietnamese diphthongs and triphthongs.
-- **3-layer English detection** — patterns, coda validation, vowel density heuristics.
-- **Stateless composer** — pure function, no mutation, no drift. Trivially testable.
-- **Fork of FlorisBoard** — inherits all features (themes, layouts, glide typing, clipboard, emoji, spell check, extension system) while replacing only the Telex engine with a ground-up rewrite.
-- **Compatible with all FlorisBoard features** — every FlorisBoard layout, theme, and plugin works with ViKey.
+- **Không phụ thuộc từ điển** — không word list, không ML, không mạng. Thuần thuật toán ngữ âm học.
+- **30+ quy tắc đặt dấu thanh** — bao phủ toàn bộ đôi và ba nguyên âm Tiếng Việt.
+- **3 lớp nhận diện tiếng Anh** — pattern, kiểm tra âm cuối, mật độ nguyên âm.
+- **Composer không trạng thái** — hàm thuần túy, không mutation, không drift.
+- **Fork của FlorisBoard** — kế thừa toàn bộ tính năng (theme, layout, glide typing, clipboard, emoji, spell check) trong khi thay thế hoàn toàn engine Telex.
 
 ---
 
-## Privacy
+## Quyền Riêng Tư
 
-ViKey follows FlorisBoard's privacy-first design: **no network access, no tracking, no analytics**. Every keystroke stays on your device. The Telex engine is entirely local — no internet connection required.
+ViKey theo triết lý privacy-first của FlorisBoard: **không truy cập mạng, không theo dõi, không analytics**. Mọi thao tác gõ phím đều ở lại trên thiết bị của bạn.
 
 ---
 
-## License
+## Giấy Phép
 
-Apache 2.0. See [LICENSE](LICENSE).
+Apache 2.0. Xem [LICENSE](LICENSE).
 
-Original copyright © 2020-2026 The FlorisBoard Contributors.  
+Bản quyền gốc © 2020-2026 The FlorisBoard Contributors.  
 Algorithmic Telex engine © 2026 NgocThanhGL.
