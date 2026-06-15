@@ -17,13 +17,21 @@
 package dev.ngocthanhgl.vikey.app.settings.dictionary
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
+import dev.ngocthanhgl.vikey.ime.dictionary.DictionaryManager
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.patrickgold.jetpref.datastore.ui.Preference
 import dev.patrickgold.jetpref.datastore.ui.SwitchPreference
+import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
 import org.florisboard.lib.compose.stringRes
+import java.io.File
 
 @Composable
 fun DictionaryScreen() = FlorisScreen {
@@ -31,6 +39,8 @@ fun DictionaryScreen() = FlorisScreen {
     previewFieldVisible = true
 
     val navController = LocalNavController.current
+    val context = LocalContext.current
+    var showClearDialog by remember { mutableStateOf(false) }
 
     content {
         SwitchPreference(
@@ -54,6 +64,27 @@ fun DictionaryScreen() = FlorisScreen {
             summary = stringRes(R.string.pref__dictionary__manage_floris_user_dictionary__summary),
             onClick = { navController.navigate(Routes.Settings.UserDictionary(UserDictionaryType.FLORIS)) },
             enabledIf = { prefs.dictionary.enableFlorisUserDictionary isEqualTo true },
+        )
+        Preference(
+            title = stringRes(R.string.pref__dictionary__clear_learned_words__label),
+            summary = stringRes(R.string.pref__dictionary__clear_learned_words__summary),
+            onClick = { showClearDialog = true },
+        )
+    }
+
+    if (showClearDialog) {
+        JetPrefAlertDialog(
+            title = stringRes(R.string.pref__dictionary__clear_learned_words__confirm_title),
+            confirmLabel = stringRes(R.string.action__delete),
+            onConfirm = {
+                showClearDialog = false
+                File(context.filesDir, "personal_dict.json").delete()
+                try {
+                    DictionaryManager.default().florisUserDictionaryDao()?.deleteAll()
+                } catch (_: Exception) {}
+            },
+            dismissLabel = stringRes(R.string.action__cancel),
+            onDismiss = { showClearDialog = false },
         )
     }
 }

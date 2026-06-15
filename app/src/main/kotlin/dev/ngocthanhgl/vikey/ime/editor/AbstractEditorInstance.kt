@@ -301,9 +301,7 @@ abstract class AbstractEditorInstance(context: Context) {
     }
 
     private fun InputConnection.setComposingRegion(composing: EditorRange) {
-        if (composing.isValid) {
-            this.setComposingRegion(composing.start, composing.end)
-        } else {
+        if (composing.isNotValid) {
             this.finishComposingText()
         }
     }

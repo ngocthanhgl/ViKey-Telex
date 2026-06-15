@@ -50,7 +50,8 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
     private var bigrams = mutableMapOf<String, MutableMap<String, Int>>()
     private var trigrams = mutableMapOf<String, MutableMap<String, Int>>()
     private var ngramDirty = false
-    private var prevTextLen = 0
+    private var lastTextLen = 0
+    private var pasteUntil = 0L
 
     private val bgScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -77,7 +78,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                     line?.trim()?.let { if (it.isNotBlank()) lines.add(it) }
                 }
             }
-            val clean = lines.filter { it.last() !in ",.!?;:" }
+            val clean = lines.filter { w -> w.all { it.isLetter() || it == '\'' } }
             vocabList = clean
             vocabSet = clean.toSet()
             commonWords = clean.take(NEXT_WORD_POOL)
@@ -135,6 +136,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
             dm.loadUserDictionariesIfNecessary()
             val dao = dm.florisUserDictionaryDao() ?: return
             for ((word, pw) in personalDict) {
+                if (pw.count < 3) continue
                 val existing = dao.queryExact(word)
                 val freq = pw.count.coerceIn(1, 255)
                 if (existing.isNotEmpty()) {
@@ -143,6 +145,15 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                     dao.insert(UserDictionaryEntry(0, word, freq, null, null))
                 }
             }
+        } catch (_: Exception) {}
+    }
+
+    fun clearAll() {
+        personalDict.clear()
+        personalDirty = false
+        File(context.filesDir, PERSONAL_DICT).delete()
+        try {
+            DictionaryManager.default().florisUserDictionaryDao()?.deleteAll()
         } catch (_: Exception) {}
     }
 
@@ -245,6 +256,9 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
             try {
                 val textBefore = content.textBeforeSelection
                 if (textBefore.isBlank()) return@withContext emptyList()
+                val now = System.currentTimeMillis()
+                if (textBefore.length > lastTextLen + 1) pasteUntil = now + 500
+                lastTextLen = textBefore.length
                 val lastChar = textBefore.last()
                 if (lastChar == '.' || lastChar == '?' || lastChar == '!' || lastChar == '\n')
                     return@withContext emptyList()
@@ -255,7 +269,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                     val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
                     if (lastWord.isBlank()) return@withContext emptyList()
-                    recordWord(lastWord)
+                    if (now >= pasteUntil) recordWord(lastWord)
                     suggestNextWord(textBefore.trimEnd(), maxCandidateCount)
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
@@ -279,8 +293,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
     }
 
     private fun learnFromText(text: CharSequence) {
-        if (text.length > prevTextLen + 15) { prevTextLen = text.length; return }
-        prevTextLen = text.length
+        if (System.currentTimeMillis() < pasteUntil) return
         learnCounter++
         if (learnCounter % 3 != 0) return
         val words = text.trimEnd().split(Regex("\\s+"))
@@ -304,9 +317,18 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         if (ngramDirty && learnCounter % 30 == 0) saveNgrams()
     }
 
+    private fun isNoise(w: String): Boolean {
+        if (w.length < 2 || w.length > 30) return true
+        if (w.contains("@")) return true
+        if (w.contains("://") || w.startsWith("www")) return true
+        if (w.count { it.isDigit() } > w.length / 2) return true
+        if (!w.all { it.isLetter() || it == '\'' }) return true
+        return false
+    }
+
     private fun recordWord(raw: String) {
         val lc = raw.lowercase().trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>')
-        if (lc.length < 2) return
+        if (isNoise(lc)) return
         val existing = personalDict[lc]
         val newCount = (existing?.count ?: 0) + 1
         personalDict[lc] = PersonalWord(count = newCount, lastUsedTs = System.currentTimeMillis())
@@ -337,7 +359,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         return candidates.map { (word, baseScore) ->
             val normBase = if (range > 0.0) (baseScore - minScore) / range else 0.5
             val pw = personalDict[word.lowercase()]
-            if (pw != null) {
+            if (pw != null && pw.count >= 3) {
                 val dc = decayedCount(pw)
                 val alpha = computeAlpha(dc)
                 val ps = personalScore(pw)
@@ -420,7 +442,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         }
 
         val oovCandidates = personalDict.keys
-            .filter { it.startsWith(prefix, ignoreCase = true) && it !in vocabSet && it.last() !in ",.!?;:" }
+            .filter { it.startsWith(prefix, ignoreCase = true) && it !in vocabSet && !isNoise(it) }
             .map { it to 0.0 }
 
         val merged = (oovCandidates + topBase).distinctBy { it.first.lowercase() }
