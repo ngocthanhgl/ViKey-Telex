@@ -50,6 +50,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
     private var bigrams = mutableMapOf<String, MutableMap<String, Int>>()
     private var trigrams = mutableMapOf<String, MutableMap<String, Int>>()
     private var ngramDirty = false
+    private var prevTextLen = 0
 
     private val bgScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -254,6 +255,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
                     val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
                     if (lastWord.isBlank()) return@withContext emptyList()
+                    recordWord(lastWord)
                     suggestNextWord(textBefore.trimEnd(), maxCandidateCount)
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
@@ -277,6 +279,8 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
     }
 
     private fun learnFromText(text: CharSequence) {
+        if (text.length > prevTextLen + 15) { prevTextLen = text.length; return }
+        prevTextLen = text.length
         learnCounter++
         if (learnCounter % 3 != 0) return
         val words = text.trimEnd().split(Regex("\\s+"))
@@ -297,17 +301,16 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
             }
         }
         ngramDirty = true
-
-        val now = System.currentTimeMillis()
-        for (w in recent) {
-            val existing = personalDict[w]
-            val newCount = (existing?.count ?: 0) + 1
-            personalDict[w] = PersonalWord(count = newCount, lastUsedTs = now)
-            if (existing != null || newCount >= 3) personalDirty = true
-        }
-
         if (ngramDirty && learnCounter % 30 == 0) saveNgrams()
-        if (personalDirty && learnCounter % 30 == 0) savePersonalDict()
+    }
+
+    private fun recordWord(raw: String) {
+        val lc = raw.lowercase().trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>')
+        if (lc.length < 2) return
+        val existing = personalDict[lc]
+        val newCount = (existing?.count ?: 0) + 1
+        personalDict[lc] = PersonalWord(count = newCount, lastUsedTs = System.currentTimeMillis())
+        if (existing != null || newCount >= 3) personalDirty = true
     }
 
     private fun computeAlpha(decayedCount: Double): Double = when {
@@ -327,15 +330,20 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
 
     private fun rerankWithPersonal(candidates: List<Pair<String, Double>>): List<Pair<String, Double>> {
         if (personalDict.isEmpty()) return candidates
+        val rawScores = candidates.map { it.second }
+        val minScore = rawScores.min()
+        val maxScore = rawScores.max()
+        val range = maxScore - minScore
         return candidates.map { (word, baseScore) ->
+            val normBase = if (range > 0.0) (baseScore - minScore) / range else 0.5
             val pw = personalDict[word.lowercase()]
             if (pw != null) {
                 val dc = decayedCount(pw)
                 val alpha = computeAlpha(dc)
                 val ps = personalScore(pw)
-                word to (alpha * ps + (1.0 - alpha) * baseScore)
+                word to (alpha * ps + (1.0 - alpha) * normBase)
             } else {
-                word to baseScore
+                word to normBase
             }
         }.sortedByDescending { it.second }
     }
@@ -447,16 +455,8 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
     override suspend fun notifySuggestionAccepted(subtype: Subtype, candidate: SuggestionCandidate) {
         val word = candidate.text.toString().lowercase().trim()
         if (word.length < 2) return
-        val existing = personalDict[word]
-        val newCount = (existing?.count ?: 0) + 1
-        personalDict[word] = PersonalWord(
-            count = newCount,
-            lastUsedTs = System.currentTimeMillis(),
-        )
-        if (existing != null || newCount >= 3) {
-            personalDirty = true
-            bgScope.launch { savePersonalDict() }
-        }
+        recordWord(word)
+        bgScope.launch { savePersonalDict() }
     }
 
     override suspend fun notifySuggestionReverted(subtype: Subtype, candidate: SuggestionCandidate) {
