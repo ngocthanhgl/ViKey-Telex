@@ -85,6 +85,10 @@ fun DictionaryScreen() = FlorisScreen {
             },
             dismissLabel = stringRes(R.string.action__cancel),
             onDismiss = { showClearDialog = false },
-        )
+        ) {
+            androidx.compose.material3.Text(
+                text = "This will remove all KenLM learned words. This action cannot be undone."
+            )
+        }
     }
 }
