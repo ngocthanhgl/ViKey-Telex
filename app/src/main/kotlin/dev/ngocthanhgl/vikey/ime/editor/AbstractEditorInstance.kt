@@ -371,11 +371,8 @@ abstract class AbstractEditorInstance(context: Context) {
                 selectedText = "",
             )
             expectedContentQueue.push(newContent)
-            // Utilize composing region to replace previous chars without using delete. This avoids flickering in the
-            // target editor and improves the UX
             ic.setComposingRegion(content.selection.start - rm, content.selection.start)
-            ic.setComposingText(finalText, 1)
-            // Now set the proper composing region we expect
+            ic.commitText(finalText, 1)
             ic.setComposingRegion(newContent.composing)
             ic.endBatchEdit()
         }
@@ -430,8 +427,7 @@ abstract class AbstractEditorInstance(context: Context) {
                 selectedText = "",
             )
             expectedContentQueue.push(newContent)
-            ic.setComposingText(text, 1)
-            ic.finishComposingText()
+            ic.commitText(text, 1)
             _lastCommitPosition.handleCommit(newContent.selection)
         }
         ic.endBatchEdit()

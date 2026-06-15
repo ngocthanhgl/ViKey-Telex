@@ -78,6 +78,7 @@ fun DictionaryScreen() = FlorisScreen {
             confirmLabel = stringRes(R.string.action__delete),
             onConfirm = {
                 showClearDialog = false
+                File(context.filesDir, ".cleared").writeText("1")
                 File(context.filesDir, "personal_dict.json").delete()
                 try {
                     DictionaryManager.default().florisUserDictionaryDao()?.deleteAll()

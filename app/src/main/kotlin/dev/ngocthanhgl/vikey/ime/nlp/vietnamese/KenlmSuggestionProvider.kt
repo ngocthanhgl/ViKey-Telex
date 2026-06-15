@@ -27,6 +27,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         private const val MODEL_PATH = "ime/dict/ime_lm.klm"
         private const val NGRAM_PATH = "ngrams.json"
         private const val PERSONAL_DICT = "personal_dict.json"
+        private const val CLEARED_MARKER = ".cleared"
         private const val NEXT_WORD_POOL = 500
         private const val RERANK_CAP = 10
         private const val BIGRAM_BOOST = 30.0
@@ -113,6 +114,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
     }
 
     private fun savePersonalDict() {
+        checkClearedMarker()
         if (!personalDirty) return
         try {
             val json = JSONObject()
@@ -244,6 +246,18 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         if (vocabList.isEmpty()) create()
     }
 
+    private fun checkClearedMarker() {
+        val f = File(context.filesDir, CLEARED_MARKER)
+        if (!f.exists()) return
+        f.delete()
+        personalDict.clear()
+        personalDirty = false
+        File(context.filesDir, PERSONAL_DICT).delete()
+        try { DictionaryManager.default().florisUserDictionaryDao()?.deleteAll() }
+        catch (_: Exception) {}
+        flogDebug { "KenLM: processed .cleared marker" }
+    }
+
     override suspend fun suggest(
         subtype: Subtype,
         content: EditorContent,
@@ -252,6 +266,7 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
         isPrivateSession: Boolean,
     ): List<SuggestionCandidate> {
         if (vocabList.isEmpty()) return emptyList()
+        checkClearedMarker()
         return withContext(Dispatchers.Default) {
             try {
                 val textBefore = content.textBeforeSelection
