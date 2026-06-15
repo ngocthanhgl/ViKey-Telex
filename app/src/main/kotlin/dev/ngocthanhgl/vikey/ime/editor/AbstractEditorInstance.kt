@@ -300,11 +300,7 @@ abstract class AbstractEditorInstance(context: Context) {
         return nlpManager.determineLocalComposing(textBeforeSelection, breakIterators, localLastCommitPosition)
     }
 
-    private fun InputConnection.setComposingRegion(composing: EditorRange) {
-        if (composing.isNotValid) {
-            this.finishComposingText()
-        }
-    }
+    private fun InputConnection.setComposingRegion(composing: EditorRange) {}
 
     protected fun setSelection(selection: EditorRange): Boolean {
         if (activeInfo.isRawInputEditor) return false
@@ -371,9 +367,8 @@ abstract class AbstractEditorInstance(context: Context) {
                 selectedText = "",
             )
             expectedContentQueue.push(newContent)
-            ic.setComposingRegion(content.selection.start - rm, content.selection.start)
+            ic.deleteSurroundingText(rm, 0)
             ic.commitText(finalText, 1)
-            ic.setComposingRegion(newContent.composing)
             ic.endBatchEdit()
         }
         return true
@@ -403,7 +398,6 @@ abstract class AbstractEditorInstance(context: Context) {
             )
             expectedContentQueue.push(newContent)
             ic.commitText(text, 1)
-            ic.setComposingRegion(newContent.composing)
         }
         ic.endBatchEdit()
         return true
@@ -427,6 +421,7 @@ abstract class AbstractEditorInstance(context: Context) {
                 selectedText = "",
             )
             expectedContentQueue.push(newContent)
+            ic.deleteSurroundingText(content.composingText.length, 0)
             ic.commitText(text, 1)
             _lastCommitPosition.handleCommit(newContent.selection)
         }
