@@ -120,7 +120,7 @@ Không cần chuyển chế độ thủ công.
 
 ## Giao Diện
 
-| Tối | Sáng |
+| Sakura Dark | Valentine Light |
 |:---:|:---:|
 | <img src=".github/theme-dark.jpg" width="300" alt="Dark theme"> | <img src=".github/theme-light.jpg" width="300" alt="Light theme"> |
 
