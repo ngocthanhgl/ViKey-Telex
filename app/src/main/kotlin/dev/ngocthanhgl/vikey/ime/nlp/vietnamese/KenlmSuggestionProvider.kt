@@ -456,7 +456,8 @@ class KenlmSuggestionProvider(private val context: Context) : SuggestionProvider
             emptyList()
         }
 
-        val oovCandidates = personalDict.keys
+        val oovCandidates = personalDict.filter { it.value.count >= 3 }
+            .keys
             .filter { it.startsWith(prefix, ignoreCase = true) && it !in vocabSet && !isNoise(it) }
             .map { it to 0.0 }
 
