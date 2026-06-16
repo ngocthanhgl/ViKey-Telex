@@ -38,7 +38,7 @@ jobs:
             echo "No KEYSTORE_BASE64 secret; will use debug signing"
           fi
 
-      - name: Build with Gradle
+      - name: Build full version with KenLM
         env:
           KS_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -52,15 +52,40 @@ jobs:
           ./gradlew clean assembleRelease $EXTRA -Pandroid.isReproducibleBuild=true
         shell: bash
 
-      - name: Rename APKs
+      - name: Stash full APKs
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          for apk in app/build/outputs/apk/release/*.apk; do
+          mkdir -p /tmp/apks
+          for apk in app/build/outputs/apk/release/app-*-release.apk; do
             base=$(basename "$apk")
-            if [[ "$base" == app-*-*.apk ]]; then
-              abi=$(echo "$base" | sed 's/app-\(.*\)-release\.apk/\1/')
-              mv "$apk" "app/build/outputs/apk/release/ViKey-${GITHUB_REF_NAME}-${abi}.apk"
-            fi
+            abi=$(echo "$base" | sed 's/app-\(.*\)-release\.apk/\1/')
+            cp "$apk" "/tmp/apks/ViKey-${GITHUB_REF_NAME}-${abi}.apk"
+          done
+
+      - name: Strip KenLM for lite build
+        run: |
+          rm -rf app/src/main/jniLibs/
+          rm -f app/src/main/assets/ime/dict/ime_lm.klm
+
+      - name: Build lite version (without KenLM)
+        env:
+          KS_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          KS="${{ runner.temp }}/vikey-release.jks"
+          EXTRA=""
+          if [ -f "$KS" ]; then
+            EXTRA="-PreleaseKeystore=$KS -PreleaseKeystorePassword=$KS_PASS -PreleaseKeyAlias=$KEY_ALIAS -PreleaseKeyPassword=$KEY_PASS"
+          fi
+          ./gradlew assembleRelease $EXTRA -Pandroid.isReproducibleBuild=true
+        shell: bash
+
+      - name: Rename and stash lite APKs
+        run: |
+          for apk in app/build/outputs/apk/release/app-*-release.apk; do
+            base=$(basename "$apk")
+            abi=$(echo "$base" | sed 's/app-\(.*\)-release\.apk/\1/')
+            cp "$apk" "/tmp/apks/ViKey-${GITHUB_REF_NAME}-lite-${abi}.apk"
           done
 
       - name: Create Release
@@ -72,12 +97,12 @@ jobs:
           PRERELEASE=""
           if echo "$GITHUB_REF_NAME" | grep -qi "beta\|alpha\|rc"; then PRERELEASE="--prerelease"; fi
           gh release delete "$GITHUB_REF_NAME" --repo ${{ github.repository }} --yes 2>/dev/null || true
-          APKS=$(ls app/build/outputs/apk/release/ViKey-*.apk 2>/dev/null || true)
+          APKS=$(ls /tmp/apks/ViKey-*.apk 2>/dev/null || true)
           if [ -n "$APKS" ]; then
             gh release create "$GITHUB_REF_NAME" \
               --repo ${{ github.repository }} \
               --title "ViKey $GITHUB_REF_NAME" \
               $PRERELEASE \
-              --notes "" \
+              --notes "Full variants include KenLM language model (87MB).\nLite variants exclude KenLM (~109MB smaller) and fall back to frequency-based suggestions." \
               $APKS
           fi
