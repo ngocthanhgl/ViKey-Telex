@@ -27,8 +27,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     companion object {
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.qwen"
+        const val MODEL_FILENAME = "qwen-pruned-50k-q5_0.gguf"
         private const val VOCAB_PATH = "ime/dict/vocab.txt"
-        private const val MODEL_PATH = "ime/dict/qwen-pruned-50k-q5_0.gguf"
         private const val NGRAM_PATH = "qwen_ngrams.json"
         private const val PERSONAL_DICT = "qwen_personal_dict.json"
         private const val CLEARED_MARKER = ".qwen_cleared"
@@ -39,13 +39,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
         private var currentInstance: QwenSuggestionProvider? = null
 
-        fun setupDownload(context: Context) {
-            QwenModelManager.init(context)
-            val instance = currentInstance
-            QwenModelManager.setOnModelReadyListener {
-                instance?.reloadModel()
-            }
-        }
+        fun getInstance(): QwenSuggestionProvider? = currentInstance
     }
 
     private var vocabList = listOf<String>()
@@ -232,17 +226,11 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             flogDebug { "Qwen: native lib not available" }
             return
         }
+        if (natLoading || natLoaded) return
         natLoading = true
         bgScope.launch {
             try {
-                val file = File(context.filesDir, "qwen-pruned-50k-q5_0.gguf")
-                if (!file.exists()) {
-                    val t0 = System.currentTimeMillis()
-                    context.assets.open(MODEL_PATH).use { input ->
-                        file.outputStream().use { output -> input.copyTo(output) }
-                    }
-                    flogDebug { "Qwen: GGUF copy ${System.currentTimeMillis() - t0}ms" }
-                }
+                val file = File(context.filesDir, MODEL_FILENAME)
                 if (file.exists() && file.length() > 0) {
                     val t0 = System.currentTimeMillis()
                     modelPtr = QwenNatives.open(file.absolutePath)
@@ -261,8 +249,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     }
 
     fun reloadModel() {
-        if (modelPtr != 0L) return
-        if (natLoading) return
+        if (natLoading || natLoaded) return
         if (!QwenNatives.isAvailable) return
         loadModelBg()
     }

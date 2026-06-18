@@ -15,21 +15,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Download Qwen GGUF model
-        run: |
-          MODEL_DIR="app/src/main/assets/ime/dict"
-          MODEL_FILE="$MODEL_DIR/qwen-pruned-50k-q5_0.gguf"
-          if [ -f "$MODEL_FILE" ]; then
-            echo "GGUF already present ($(du -h "$MODEL_FILE" | cut -f1))"
-          else
-            echo "Downloading GGUF from release assets..."
-            mkdir -p "$MODEL_DIR"
-            curl -L -o "$MODEL_FILE" "https://github.com/ngocthanhgl/ViKey-Telex/releases/download/Model/qwen-pruned-50k-q5_0.gguf"
-            echo "Downloaded: $(du -h "$MODEL_FILE" | cut -f1))"
-          fi
 
       - uses: gradle/actions/wrapper-validation@v4
       - name: Set up JDK 21
@@ -37,8 +22,6 @@ jobs:
         with:
           java-version: 21
           distribution: temurin
-      - name: Set up CMake and Ninja
-        uses: lukka/get-cmake@v4.0.2
 
       - name: Write release keystore
         env:
@@ -51,7 +34,7 @@ jobs:
             echo "No KEYSTORE_BASE64 secret; will use debug signing"
           fi
 
-      - name: Build full version with Qwen GGUF
+      - name: Build full version (with Qwen .so)
         env:
           KS_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -74,10 +57,9 @@ jobs:
             cp "$apk" "/tmp/apks/ViKey-${GITHUB_REF_NAME}-${abi}.apk"
           done
 
-      - name: Strip Qwen for lite build
+      - name: Strip Qwen .so for lite build
         run: |
           rm -rf app/src/main/jniLibs/
-          rm -f app/src/main/assets/ime/dict/qwen-pruned-50k-q5_0.gguf
 
       - name: Build lite version (without Qwen)
         env:
@@ -128,6 +110,6 @@ jobs:
               --repo ${{ github.repository }} \
               --title "ViKey $GITHUB_REF_NAME" \
               $PRERELEASE \
-              --notes "Full variants include Qwen GGUF language model.\nLite variants exclude GGUF and fall back to frequency-based suggestions." \
+              --notes "Full variants include Qwen .so for language model (user provides GGUF).\nLite variants exclude Qwen and fall back to frequency-based suggestions." \
               $APKS
           fi
