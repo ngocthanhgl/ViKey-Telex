@@ -26,6 +26,7 @@ import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
 import dev.ngocthanhgl.vikey.ime.dictionary.DictionaryManager
+import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.patrickgold.jetpref.datastore.ui.Preference
 import dev.patrickgold.jetpref.datastore.ui.SwitchPreference
@@ -80,6 +81,9 @@ fun DictionaryScreen() = FlorisScreen {
                 showClearDialog = false
                 File(context.filesDir, ".cleared").writeText("1")
                 File(context.filesDir, "personal_dict.json").delete()
+                File(context.filesDir, ".qwen_cleared").writeText("1")
+                File(context.filesDir, "qwen_personal_dict.json").delete()
+                QwenSuggestionProvider.getInstance()?.clearAll()
                 try {
                     DictionaryManager.default().florisUserDictionaryDao()?.deleteAll()
                 } catch (_: Exception) {}
@@ -88,7 +92,7 @@ fun DictionaryScreen() = FlorisScreen {
             onDismiss = { showClearDialog = false },
         ) {
             androidx.compose.material3.Text(
-                text = "This will remove all KenLM learned words. This action cannot be undone."
+                text = stringRes(R.string.pref__dictionary__clear_learned_words__confirm_body)
             )
         }
     }

@@ -32,7 +32,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         private const val NGRAM_PATH = "qwen_ngrams.json"
         private const val PERSONAL_DICT = "qwen_personal_dict.json"
         private const val CLEARED_MARKER = ".qwen_cleared"
-        private const val NEXT_WORD_POOL = 500
+        private const val NEXT_WORD_POOL = 2000
         private const val RERANK_CAP = 10
         private const val BIGRAM_BOOST = 30.0
         private const val TRIGRAM_BOOST = 50.0
@@ -297,7 +297,9 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
                     if (cur.isBlank()) return@withContext emptyList()
-                    completeCurrentWord(cur, maxCandidateCount)
+                    val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
+                    val prevWord = if (words.size >= 2) words[words.size - 2].lowercase() else null
+                    completeCurrentWord(cur, maxCandidateCount, prevWord)
                 }
 
                 pairs.map { (word, _) ->
@@ -355,7 +357,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val existing = personalDict[lc]
         val newCount = (existing?.count ?: 0) + 1
         personalDict[lc] = PersonalWord(count = newCount, lastUsedTs = System.currentTimeMillis())
-        if (existing != null || newCount >= 3) personalDirty = true
+        personalDirty = true
     }
 
     private fun computeAlpha(decayedCount: Double): Double = when {
@@ -440,7 +442,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         return rerankWithPersonal(topBase).take(limit)
     }
 
-    private fun completeCurrentWord(prefix: String, k: Int): List<Pair<String, Double>> {
+    private fun completeCurrentWord(prefix: String, k: Int, prevWord: String?): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
         val firstChar = prefix.first().lowercaseChar()
 
@@ -450,7 +452,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
         val topBase = if (baseCandidates.isNotEmpty()) {
             val scored = if (!natLoading && natLoaded && modelPtr != 0L) {
-                val scores = QwenNatives.scoreCandidates(modelPtr, null, baseCandidates.toTypedArray())
+                val scores = QwenNatives.scoreCandidates(modelPtr, prevWord, baseCandidates.toTypedArray())
                 if (scores != null && scores.size == baseCandidates.size) {
                     baseCandidates.indices.map { baseCandidates[it] to scores[it].toDouble() }
                 } else {

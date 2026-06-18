@@ -164,13 +164,8 @@ fun EmojiPaletteView(
 
     val preferredSkinTone by prefs.emoji.preferredSkinTone.collectAsState()
     val emojiHistoryEnabled by prefs.emoji.historyEnabled.collectAsState()
-    val emojiFont by prefs.emoji.emojiFont.collectAsState()
 
-    val emojiTypeface = remember(emojiFont) {
-        if (emojiFont == EmojiFont.TWEMOJI) {
-            EmojiFontManager.loadTwemojiTypeface(context)
-        } else null
-    }
+    val emojiTypeface = null
 
     CompositionLocalProvider(LocalEmojiTypeface provides emojiTypeface) {
     var activeCategory by remember(emojiHistoryEnabled) {

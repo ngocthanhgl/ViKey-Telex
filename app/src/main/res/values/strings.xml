@@ -517,7 +517,7 @@
     <string name="pref__dictionary__manage_floris_user_dictionary__label" comment="Preference title">Manage internal user dictionary</string>
     <string name="pref__dictionary__manage_floris_user_dictionary__summary" comment="Preference summary">Add, view, and remove entries for the internal user dictionary</string>
     <string name="pref__dictionary__clear_learned_words__label" comment="Preference title">Clear learned words</string>
-    <string name="pref__dictionary__clear_learned_words__summary" comment="Preference summary">Remove all KenLM personal learned words</string>
+    <string name="pref__dictionary__clear_learned_words__summary" comment="Preference summary">Remove all personal learned words</string>
     <string name="pref__dictionary__clear_learned_words__confirm_title" comment="Confirm dialog title">Clear all learned words?</string>
     <string name="settings__udm__title_floris" comment="Title of the User Dictionary Manager activity for internal">Internal User Dictionary</string>
     <string name="settings__udm__title_system" comment="Title of the User Dictionary Manager activity for system">System User Dictionary</string>
@@ -1004,7 +1004,6 @@
     <string name="enum__emoji_hair_style__bald" comment="Enum value label">{emoji} Bald</string>
 
     <string name="enum__emoji_font__system">System emoji</string>
-    <string name="enum__emoji_font__twemoji">Twemoji</string>
 
     <string name="enum__emoji_suggestion_type__leading_colon">Leading colon</string>
     <string name="enum__emoji_suggestion_type__leading_colon__description" comment="Keep the :emoji_name while translating, this is a syntax guide">Suggest emojis using the :emoji_name syntax</string>
@@ -1168,5 +1167,7 @@
         <item quantity="one">{v} candidate</item>
         <item quantity="other">{v} candidates</item>
     </plurals>
+
+    <string name="pref__dictionary__clear_learned_words__confirm_body" comment="Confirm dialog body">This will remove all personal learned words. This action cannot be undone.</string>
 
 </resources>

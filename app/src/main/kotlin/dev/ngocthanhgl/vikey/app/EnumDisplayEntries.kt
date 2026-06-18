@@ -280,10 +280,6 @@ private val ENUM_DISPLAY_ENTRIES = mapOf<Pair<KClass<*>, String>, @Composable ()
                 key = EmojiFont.SYSTEM,
                 label = stringRes(R.string.enum__emoji_font__system),
             )
-            entry(
-                key = EmojiFont.TWEMOJI,
-                label = stringRes(R.string.enum__emoji_font__twemoji),
-            )
         }
     },
     ExtendedActionsPlacement::class to DEFAULT to {
