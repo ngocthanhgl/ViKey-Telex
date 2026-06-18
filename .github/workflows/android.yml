@@ -27,14 +27,9 @@ jobs:
           else
             echo "Downloading GGUF from release assets..."
             mkdir -p "$MODEL_DIR"
-            gh release download v2.3.4 \
-              --repo ngocthanhgl/ViKey-Telex \
-              --pattern "qwen-pruned-50k-q5_0.gguf" \
-              --dir "$MODEL_DIR"
+            curl -L -o "$MODEL_FILE" "https://github.com/ngocthanhgl/ViKey-Telex/releases/download/v2.3.4/qwen-pruned-50k-q5_0.gguf"
             echo "Downloaded: $(du -h "$MODEL_FILE" | cut -f1))"
           fi
-        env:
-          GH_TOKEN: ${{ github.token }}
 
       - uses: gradle/actions/wrapper-validation@v4
       - name: Set up JDK 21
