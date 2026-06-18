@@ -43,7 +43,7 @@ configure<LibraryExtension> {
 
     externalNativeBuild {
         cmake {
-            path("src/main/rust/CMakeLists.txt")
+            path("src/main/cpp/CMakeLists.txt")
         }
     }
 }

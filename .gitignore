@@ -68,3 +68,6 @@ debug/
 target/
 **/*.rs.bk
 *.pdb
+
+# GGUF model files (download separately)
+*.gguf
