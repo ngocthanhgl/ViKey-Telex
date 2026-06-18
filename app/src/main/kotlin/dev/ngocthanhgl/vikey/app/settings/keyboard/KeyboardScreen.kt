@@ -120,6 +120,18 @@ fun KeyboardScreen() = FlorisScreen {
                 max = 150,
                 stepIncrement = 5,
             )
+            DialogSliderPreference(
+                primaryPref = prefs.keyboard.bottomPaddingPortrait,
+                secondaryPref = prefs.keyboard.bottomPaddingLandscape,
+                title = stringRes(R.string.pref__keyboard__bottom_padding__label),
+                summary = stringRes(R.string.pref__keyboard__bottom_padding__summary),
+                primaryLabel = stringRes(R.string.screen_orientation__portrait),
+                secondaryLabel = stringRes(R.string.screen_orientation__landscape),
+                valueLabel = { stringRes(R.string.unit__display_pixel__symbol, "v" to it) },
+                min = 0,
+                max = 200,
+                stepIncrement = 5,
+            )
         }
 
         PreferenceGroup(title = stringRes(R.string.pref__keyboard__group_keypress__label)) {

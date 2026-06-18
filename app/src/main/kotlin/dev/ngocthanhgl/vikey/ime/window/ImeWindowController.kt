@@ -120,7 +120,9 @@ class ImeWindowController(
             prefs.keyboard.keySpacingVertical.asFlow(),
             prefs.keyboard.fontSizeMultiplierPortrait.asFlow(),
             prefs.keyboard.fontSizeMultiplierLandscape.asFlow(),
-        ) { rootInsets, keySpacingFactorH, keySpacingFactorV, multiplierP, multiplierL ->
+            prefs.keyboard.bottomPaddingPortrait.asFlow(),
+            prefs.keyboard.bottomPaddingLandscape.asFlow(),
+        ) { rootInsets, keySpacingFactorH, keySpacingFactorV, multiplierP, multiplierL, padP, padL ->
             // TODO: this should adhere to form factor
             // TODO: font scale needs a rework anyways, change this in font scale rework PR!
             val rootBounds = rootInsets.boundsDp
@@ -130,6 +132,10 @@ class ImeWindowController(
                 fontScale = when {
                     rootBounds.width <= rootBounds.height -> multiplierP / 100f
                     else -> multiplierL / 100f
+                },
+                bottomPaddingDp = when {
+                    rootBounds.width <= rootBounds.height -> padP.toFloat()
+                    else -> padL.toFloat()
                 },
             )
         }

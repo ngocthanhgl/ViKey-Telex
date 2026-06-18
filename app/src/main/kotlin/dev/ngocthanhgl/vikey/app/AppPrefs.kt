@@ -538,6 +538,14 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
             key = "keyboard__key_spacing_horizontal",
             default = 100,
         )
+        val bottomPaddingPortrait = int(
+            key = "keyboard__bottom_padding_portrait",
+            default = 0,
+        )
+        val bottomPaddingLandscape = int(
+            key = "keyboard__bottom_padding_landscape",
+            default = 0,
+        )
         val popupEnabled = boolean(
             key = "keyboard__popup_enabled",
             default = true,

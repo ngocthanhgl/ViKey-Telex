@@ -289,6 +289,7 @@ sealed class ImeWindowSpec {
         val keySpacingFactorH: Float,
         val keySpacingFactorV: Float,
         val fontScale: Float,
+        val bottomPaddingDp: Float = 0f,
     )
 
     companion object {
@@ -309,6 +310,7 @@ sealed class ImeWindowSpec {
                 keySpacingFactorH = 1f,
                 keySpacingFactorV = 1f,
                 fontScale = 1f,
+                bottomPaddingDp = 0f,
             ),
             constraints = ImeWindowConstraints.Fixed.Normal(ImeInsets.Root.Zero),
         )
