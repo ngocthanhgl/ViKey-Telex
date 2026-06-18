@@ -19,15 +19,20 @@ package dev.ngocthanhgl.vikey.app.settings.localization
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -35,15 +40,18 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,12 +82,16 @@ import dev.ngocthanhgl.vikey.ime.keyboard.LayoutType
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePopupMapping
 import dev.ngocthanhgl.vikey.ime.nlp.FallbackNlpProvider
 
+import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenDownloadState
+import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenModelManager
+import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenNatives
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
 import dev.ngocthanhgl.vikey.subtypeManager
+import kotlinx.coroutines.launch
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
 import dev.patrickgold.jetpref.material.ui.JetPrefDropdown
@@ -420,6 +432,95 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     ) },
                     appearance = JetPrefDropdownMenuDefaults.outlined(shape = ShapeDefaults.Small),
                 )
+            }
+
+            if (nlpProviders.suggestion == QwenSuggestionProvider.ProviderId && QwenNatives.isAvailable) {
+                val downloadState by QwenModelManager.downloadState.collectAsState()
+                val scope = rememberCoroutineScope()
+
+                LaunchedEffect(Unit) {
+                    QwenModelManager.init(context)
+                    QwenSuggestionProvider.setupDownload(context)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                when (val state = downloadState) {
+                    is QwenDownloadState.Idle -> {
+                        if (QwenModelManager.isModelAvailable()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    text = "Model ready",
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        } else {
+                            Button(onClick = { scope.launch { QwenModelManager.download() } }) {
+                                Icon(
+                                    Icons.Default.FileDownload,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text("Download (278 MB)")
+                            }
+                        }
+                    }
+                    is QwenDownloadState.Downloading -> {
+                        Text(
+                            text = "Downloading model...",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    }
+                    is QwenDownloadState.Progress -> {
+                        val p = state
+                        val pct = if (p.totalBytes > 0L) (p.bytesDownloaded * 100L / p.totalBytes).toInt() else 0
+                        Text(
+                            text = "Downloading... $pct%",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        LinearProgressIndicator(
+                            progress = if (p.totalBytes > 0L) p.bytesDownloaded.toFloat() / p.totalBytes else 0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    is QwenDownloadState.Success -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                text = "Model ready",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+                    is QwenDownloadState.Error -> {
+                        Text(
+                            text = state.message,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Button(onClick = { scope.launch { QwenModelManager.download() } }) {
+                            Text("Retry")
+                        }
+                    }
+                }
             }
 
             SubtypeGroupSpacer()

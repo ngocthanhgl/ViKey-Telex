@@ -21,6 +21,10 @@ import java.io.InputStreamReader
 import kotlin.math.pow
 
 class QwenSuggestionProvider(private val context: Context) : SuggestionProvider {
+    init {
+        Companion.currentInstance = this
+    }
+
     companion object {
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.qwen"
         private const val VOCAB_PATH = "ime/dict/vocab.txt"
@@ -32,6 +36,16 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         private const val RERANK_CAP = 10
         private const val BIGRAM_BOOST = 30.0
         private const val TRIGRAM_BOOST = 50.0
+
+        private var currentInstance: QwenSuggestionProvider? = null
+
+        fun setupDownload(context: Context) {
+            QwenModelManager.init(context)
+            val instance = currentInstance
+            QwenModelManager.setOnModelReadyListener {
+                instance?.reloadModel()
+            }
+        }
     }
 
     private var vocabList = listOf<String>()
@@ -244,6 +258,13 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     override suspend fun preload(subtype: Subtype) {
         if (vocabList.isEmpty()) create()
+    }
+
+    fun reloadModel() {
+        if (modelPtr != 0L) return
+        if (natLoading) return
+        if (!QwenNatives.isAvailable) return
+        loadModelBg()
     }
 
     private fun checkClearedMarker() {
