@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
 FetchContent_Declare(llama
     GIT_REPOSITORY https://github.com/ggml-org/llama.cpp.git
-    GIT_TAG b4999
+    GIT_TAG b4796
     GIT_SHALLOW TRUE
 )
 
