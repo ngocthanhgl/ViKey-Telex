@@ -323,7 +323,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         if (learnCounter % 3 != 0) return
         val words = text.trimEnd().split(Regex("\\s+"))
             .map { it.lowercase().trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>') }
-            .filter { it.length >= 2 }
+            .filter { it.length >= 2 && !isNoise(it) }
         if (words.size < 2) return
         val recent = words.takeLast(8)
 
@@ -348,6 +348,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         if (w.contains("://") || w.startsWith("www")) return true
         if (w.count { it.isDigit() } > w.length / 2) return true
         if (!w.all { it.isLetter() || it == '\'' }) return true
+        if (w.toSet().size == 1) return true
+        if (w.any { c -> w.count { it == c } > w.length * 0.6 }) return true
         return false
     }
 
