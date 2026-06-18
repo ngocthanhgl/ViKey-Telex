@@ -70,4 +70,4 @@ target/
 *.pdb
 
 # GGUF model files (download separately)
-*.gguf
+*.gguftools/vocab_removed.txt

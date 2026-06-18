@@ -27,7 +27,7 @@ jobs:
           else
             echo "Downloading GGUF from release assets..."
             mkdir -p "$MODEL_DIR"
-            curl -L -o "$MODEL_FILE" "https://github.com/ngocthanhgl/ViKey-Telex/releases/download/v2.3.4/qwen-pruned-50k-q5_0.gguf"
+            curl -L -o "$MODEL_FILE" "https://github.com/ngocthanhgl/ViKey-Telex/releases/download/Model/qwen-pruned-50k-q5_0.gguf"
             echo "Downloaded: $(du -h "$MODEL_FILE" | cut -f1))"
           fi
 
@@ -112,3 +112,22 @@ jobs:
         with:
           name: ViKey-${{ github.ref_name }}-lite
           path: /tmp/apks/ViKey-${{ github.ref_name }}-lite-*.apk
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          PRERELEASE=""
+          if echo "$GITHUB_REF_NAME" | grep -qi "beta\|alpha\|rc"; then PRERELEASE="--prerelease"; fi
+          gh release delete "$GITHUB_REF_NAME" --repo ${{ github.repository }} --yes 2>/dev/null || true
+          APKS=$(ls /tmp/apks/ViKey-*.apk 2>/dev/null || true)
+          if [ -n "$APKS" ]; then
+            gh release create "$GITHUB_REF_NAME" \
+              --repo ${{ github.repository }} \
+              --title "ViKey $GITHUB_REF_NAME" \
+              $PRERELEASE \
+              --notes "Full variants include Qwen GGUF language model.\nLite variants exclude GGUF and fall back to frequency-based suggestions." \
+              $APKS
+          fi
