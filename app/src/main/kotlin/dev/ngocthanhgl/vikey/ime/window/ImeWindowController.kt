@@ -114,15 +114,13 @@ class ImeWindowController(
             activeWindowConfig.value = windowConfig
         }
 
-        val userPreferredOptions = combine(
+        val basePreferredOptions = combine(
             activeRootInsets,
             prefs.keyboard.keySpacingHorizontal.asFlow(),
             prefs.keyboard.keySpacingVertical.asFlow(),
             prefs.keyboard.fontSizeMultiplierPortrait.asFlow(),
             prefs.keyboard.fontSizeMultiplierLandscape.asFlow(),
-            prefs.keyboard.bottomPaddingPortrait.asFlow(),
-            prefs.keyboard.bottomPaddingLandscape.asFlow(),
-        ) { rootInsets, keySpacingFactorH, keySpacingFactorV, multiplierP, multiplierL, padP, padL ->
+        ) { rootInsets: ImeInsets.Root, keySpacingFactorH: Int, keySpacingFactorV: Int, multiplierP: Int, multiplierL: Int ->
             // TODO: this should adhere to form factor
             // TODO: font scale needs a rework anyways, change this in font scale rework PR!
             val rootBounds = rootInsets.boundsDp
@@ -133,6 +131,18 @@ class ImeWindowController(
                     rootBounds.width <= rootBounds.height -> multiplierP / 100f
                     else -> multiplierL / 100f
                 },
+                bottomPaddingDp = 0f,
+            )
+        }
+
+        val userPreferredOptions = combine(
+            basePreferredOptions,
+            prefs.keyboard.bottomPaddingPortrait.asFlow(),
+            prefs.keyboard.bottomPaddingLandscape.asFlow(),
+            activeRootInsets,
+        ) { base: ImeWindowSpec.UserPreferredOptions, padP: Int, padL: Int, rootInsets: ImeInsets.Root ->
+            val rootBounds = rootInsets.boundsDp
+            base.copy(
                 bottomPaddingDp = when {
                     rootBounds.width <= rootBounds.height -> padP.toFloat()
                     else -> padL.toFloat()

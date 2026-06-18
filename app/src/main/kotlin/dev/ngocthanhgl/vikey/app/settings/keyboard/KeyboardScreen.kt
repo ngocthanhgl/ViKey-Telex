@@ -124,7 +124,6 @@ fun KeyboardScreen() = FlorisScreen {
                 primaryPref = prefs.keyboard.bottomPaddingPortrait,
                 secondaryPref = prefs.keyboard.bottomPaddingLandscape,
                 title = stringRes(R.string.pref__keyboard__bottom_padding__label),
-                summary = stringRes(R.string.pref__keyboard__bottom_padding__summary),
                 primaryLabel = stringRes(R.string.screen_orientation__portrait),
                 secondaryLabel = stringRes(R.string.screen_orientation__landscape),
                 valueLabel = { v: Int -> "$v px" },
