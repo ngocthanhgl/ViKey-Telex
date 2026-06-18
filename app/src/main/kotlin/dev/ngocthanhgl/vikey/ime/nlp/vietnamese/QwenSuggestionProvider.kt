@@ -34,8 +34,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         private const val CLEARED_MARKER = ".qwen_cleared"
         private const val NEXT_WORD_POOL = 2000
         private const val RERANK_CAP = 10
-        private const val BIGRAM_BOOST = 30.0
-        private const val TRIGRAM_BOOST = 50.0
+        private const val BIGRAM_BOOST = 5.0
+        private const val TRIGRAM_BOOST = 3.0
 
         private var currentInstance: QwenSuggestionProvider? = null
 
@@ -405,19 +405,6 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
         val scored = mutableMapOf<String, Double>()
 
-        if (w1 != null) {
-            trigrams["$w1|$w2"]?.forEach { (w3, freq) ->
-                scored[w3] = (scored[w3] ?: 0.0) + freq * TRIGRAM_BOOST
-            }
-        }
-
-        bigrams[w2]?.forEach { (next, freq) ->
-            if (next !in scored) {
-                scored[next] = (scored[next] ?: 0.0) + freq * BIGRAM_BOOST
-            }
-        }
-
-        val pool = commonWords
         if (!natLoading && natLoaded && modelPtr != 0L) {
             val predictions = QwenNatives.predictNext(modelPtr, textBefore, limit * 3)
             if (predictions != null) {
@@ -425,16 +412,37 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 val startScore = firstBatch.size.toDouble()
                 for ((idx, word) in firstBatch.withIndex()) {
                     val lc = word.lowercase()
-                    if (lc in vocabSet && lc !in scored) {
-                        scored[lc] = (scored[lc] ?: 0.0) + (startScore - idx) * 2.0
+                    if (lc in vocabSet || lc in personalDict) {
+                        var s = (startScore - idx) * 2.0
+                        if (w1 != null) {
+                            trigrams["$w1|$w2"]?.let { tri ->
+                                s += (tri[lc] ?: 0) * TRIGRAM_BOOST
+                            }
+                        }
+                        bigrams[w2]?.let { bi ->
+                            s += (bi[lc] ?: 0) * BIGRAM_BOOST
+                        }
+                        scored[lc] = s
                     }
                 }
             }
         }
 
-        for (word in pool) {
-            if (word !in scored) {
-                scored[word] = (scored[word] ?: 0.0) + freqScore(word)
+        if (scored.isEmpty()) {
+            if (w1 != null) {
+                trigrams["$w1|$w2"]?.forEach { (w3, freq) ->
+                    scored[w3] = (scored[w3] ?: 0.0) + freq * TRIGRAM_BOOST
+                }
+            }
+            bigrams[w2]?.forEach { (next, freq) ->
+                if (next !in scored) {
+                    scored[next] = (scored[next] ?: 0.0) + freq * BIGRAM_BOOST
+                }
+            }
+            for (word in commonWords) {
+                if (word !in scored) {
+                    scored[word] = (scored[word] ?: 0.0) + freqScore(word)
+                }
             }
         }
 
