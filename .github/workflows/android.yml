@@ -19,21 +19,22 @@ jobs:
           submodules: recursive
 
       - name: Download Qwen GGUF model
-        env:
-          GGUF_URL: ${{ secrets.GGUF_DOWNLOAD_URL }}
         run: |
           MODEL_DIR="app/src/main/assets/ime/dict"
           MODEL_FILE="$MODEL_DIR/qwen-pruned-50k-q5_0.gguf"
           if [ -f "$MODEL_FILE" ]; then
             echo "GGUF already present ($(du -h "$MODEL_FILE" | cut -f1))"
-          elif [ -n "$GGUF_URL" ]; then
-            echo "Downloading GGUF from $GGUF_URL ..."
-            mkdir -p "$MODEL_DIR"
-            curl -L -o "$MODEL_FILE" "$GGUF_URL"
-            echo "Downloaded: $(du -h "$MODEL_FILE" | cut -f1)"
           else
-            echo "No GGUF_URL secret set; full build will be skipped"
+            echo "Downloading GGUF from release assets..."
+            mkdir -p "$MODEL_DIR"
+            gh release download v2.3.4 \
+              --repo ngocthanhgl/ViKey-Telex \
+              --pattern "qwen-pruned-50k-q5_0.gguf" \
+              --dir "$MODEL_DIR"
+            echo "Downloaded: $(du -h "$MODEL_FILE" | cut -f1))"
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - uses: gradle/actions/wrapper-validation@v4
       - name: Set up JDK 21
