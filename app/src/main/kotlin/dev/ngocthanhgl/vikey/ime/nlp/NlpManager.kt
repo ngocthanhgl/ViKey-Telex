@@ -47,7 +47,6 @@ import kotlinx.coroutines.sync.withLock
 import org.florisboard.lib.kotlin.guardedByLock
 import org.florisboard.lib.kotlin.collectLatestIn
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.properties.Delegates
 
 private const val BLANK_STR_PATTERN = "^\\s*$"
@@ -73,12 +72,16 @@ class NlpManager(context: Context) {
     // lock unnecessary because values constant
     private val providersForceSuggestionOn = mutableMapOf<String, Boolean>()
 
-    private val suggestionToken = AtomicInteger(0)
     private var hasPendingComposition = false
     private var lastPrefix: String? = null
     private var lastShiftSeen: dev.ngocthanhgl.vikey.ime.input.InputShiftState? = null
 
     fun hasPendingCompositionSuggestion(): Boolean = hasPendingComposition
+
+    fun clearCompositionState() {
+        lastPrefix = null
+        lastShiftSeen = null
+    }
 
     private val internalSuggestionsGuard = Mutex()
     private var internalSuggestions by Delegates.observable(SystemClock.uptimeMillis() to listOf<SuggestionCandidate>()) { _, _, _ ->
@@ -219,7 +222,6 @@ class NlpManager(context: Context) {
         lastPrefix = prefix
         lastShiftSeen = shiftState
         val reqTime = SystemClock.uptimeMillis()
-        val token = suggestionToken.incrementAndGet()
         hasPendingComposition = true
         scope.launch {
             val subtype = subtypeManager.activeSubtype
@@ -237,10 +239,7 @@ class NlpManager(context: Context) {
                     internalSuggestions = reqTime to suggestions
                 }
             }
-            delay(100L)
-            if (suggestionToken.get() == token) {
-                hasPendingComposition = false
-            }
+            hasPendingComposition = false
         }
     }
 

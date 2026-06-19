@@ -354,9 +354,13 @@ abstract class AbstractEditorInstance(context: Context) {
             if (insertSpaceAfterChar) append(' ')
         }
 
-        if (composer.id == "telex" && !char.any { it.isWhitespace() } && nlpManager.isSuggestionOn()) {
-            val fullWord = previous.dropLast(rm.coerceAtMost(previous.length)) + tempText
-            nlpManager.suggestComposition(fullWord, keyboardManager.activeState.inputShiftState)
+        if (composer.id == "telex" && nlpManager.isSuggestionOn()) {
+            if (char.any { it.isWhitespace() }) {
+                nlpManager.clearCompositionState()
+            } else {
+                val fullWord = previous.dropLast(rm.coerceAtMost(previous.length)) + tempText
+                nlpManager.suggestComposition(fullWord, keyboardManager.activeState.inputShiftState)
+            }
         }
 
         if (rm <= 0) {
