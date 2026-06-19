@@ -256,7 +256,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
                     if (lastWord.isBlank()) return@withContext emptyList()
                     if (now >= pasteUntil) recordWord(lastWord)
-                    suggestNextWord(textBefore.trimEnd(), maxCandidateCount)
+                    suggestNextWord(textBefore, maxCandidateCount)
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
                     if (cur.isBlank()) return@withContext emptyList()
