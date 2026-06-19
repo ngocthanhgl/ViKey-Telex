@@ -31,6 +31,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         private const val CLEARED_MARKER = ".qwen_cleared"
         private const val BIGRAM_BOOST = 5.0
         private const val TRIGRAM_BOOST = 3.0
+        private const val SEED_WORDS = "ime/dict/vi_words_2k.txt"
 
         private var currentInstance: QwenSuggestionProvider? = null
 
@@ -47,6 +48,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private var personalDirty = false
     private var learnCounter = 0
 
+    private val seedWords = mutableSetOf<String>()
     private var bigrams = mutableMapOf<String, MutableMap<String, Int>>()
     private var trigrams = mutableMapOf<String, MutableMap<String, Int>>()
     private var ngramDirty = false
@@ -59,6 +61,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     override suspend fun create() {
         withContext(Dispatchers.IO) {
+            loadSeedWords()
             loadPersonalDict()
             loadNgrams()
             try { DictionaryManager.default().loadUserDictionariesIfNecessary() }
@@ -82,6 +85,22 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             flogDebug { "Qwen: loaded ${personalDict.size} personal words" }
         } catch (e: Exception) {
             flogDebug { "Qwen: personal dict load: ${e.message}" }
+        }
+    }
+
+    private fun loadSeedWords() {
+        try {
+            context.assets.open(SEED_WORDS).bufferedReader().useLines { lines ->
+                for (line in lines) {
+                    val w = line.trim().lowercase()
+                    if (w.isNotEmpty() && w.all { it.isLetter() || it == '\'' }) {
+                        seedWords.add(w)
+                    }
+                }
+            }
+            flogDebug { "Qwen: loaded ${seedWords.size} seed words" }
+        } catch (e: Exception) {
+            flogDebug { "Qwen: seed words load: ${e.message}" }
         }
     }
 
@@ -417,6 +436,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     private fun completeCurrentWord(prefix: String, k: Int, textBefore: String): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
+        val lcPrefix = prefix.lowercase()
 
         val context = buildString {
             val ctx = textBefore.dropLast(prefix.length).trimEnd()
@@ -424,59 +444,44 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             if (ctx.isNotEmpty()) append(' ')
         }
 
-        val contextWords = context.trimEnd().split(Regex("\\s+"))
-            .map { it.trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>') }
-            .filter { it.isNotBlank() }
-        val w2 = if (contextWords.isNotEmpty()) contextWords.last().lowercase() else ""
-        val w1 = if (contextWords.size >= 2) contextWords[contextWords.size - 2].lowercase() else null
+        val pool = seedWords
+            .union(ngramWords())
+            .union(personalDict.keys)
+            .filter { it.startsWith(lcPrefix) && it.length > lcPrefix.length && !isNoise(it) }
+            .take(200)
+            .toTypedArray()
 
         val candidates = mutableListOf<Pair<String, Double>>()
 
-        // Source A: Qwen predictNext with Vietnamese context + large pool
-        if (!natLoading && natLoaded && modelPtr != 0L) {
-            val predictions = QwenNatives.predictNext(modelPtr, context, 300)
-            if (predictions != null) {
-                val startScore = predictions.size.toDouble()
-                for ((idx, word) in predictions.withIndex()) {
-                    val lc = word.lowercase()
-                    if (lc.startsWith(prefix.lowercase()) && lc.length > prefix.length) {
-                        var s = (startScore - idx) * 2.0
-                        if (w1 != null) {
-                            trigrams["$w1|$w2"]?.let { tri ->
-                                s += (tri[lc] ?: 0) * TRIGRAM_BOOST
-                            }
-                        }
-                        bigrams[w2]?.let { bi ->
-                            s += (bi[lc] ?: 0) * BIGRAM_BOOST
-                        }
-                        candidates.add(lc to s)
-                    }
-                }
-            }
-        }
-
-        // Source B: Personal dict + ngram words, scored by scoreCandidates
-        val pool = ngramWords()
-            .union(personalDict.keys)
-            .filter { it.startsWith(prefix, ignoreCase = true) && !isNoise(it) }
-            .filter { w -> candidates.none { it.first == w } }
-            .take(limit * 3)
-            .toTypedArray()
         if (pool.isNotEmpty() && !natLoading && natLoaded && modelPtr != 0L) {
             val scores = QwenNatives.scoreCandidates(modelPtr, context, pool)
             if (scores != null && scores.size == pool.size) {
                 for (i in pool.indices) {
-                    candidates.add(pool[i].lowercase() to scores[i].toDouble())
+                    candidates.add(pool[i] to scores[i].toDouble())
                 }
             }
         }
 
-        val merged = candidates.take(limit + limit)
+        if (candidates.isEmpty()) {
+            val contextWords = context.trimEnd().split(Regex("\\s+"))
+                .map { it.trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>') }
+                .filter { it.isNotBlank() }
+            val w2 = if (contextWords.isNotEmpty()) contextWords.last().lowercase() else ""
+            val w1 = if (contextWords.size >= 2) contextWords[contextWords.size - 2].lowercase() else null
+            for (word in pool) {
+                var s = 0.5
+                if (w1 != null) {
+                    trigrams["$w1|$w2"]?.let { tri -> s += (tri[word]?.toDouble() ?: 0.0) * TRIGRAM_BOOST }
+                }
+                bigrams[w2]?.let { bi -> s += (bi[word]?.toDouble() ?: 0.0) * BIGRAM_BOOST }
+                candidates.add(word to s)
+            }
+        }
 
-        val reranked = rerankWithPersonal(merged)
+        val reranked = rerankWithPersonal(candidates)
 
         val useUpper = prefix.length > 1 && prefix.all { it.isUpperCase() }
-        val useTitle = !useUpper && prefix[0].isUpperCase()
+        val useTitle = prefix[0].isUpperCase()
 
         return reranked.take(limit).map { (word, score) ->
             val cased = when {
