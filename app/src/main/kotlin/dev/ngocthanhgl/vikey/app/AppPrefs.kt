@@ -701,7 +701,7 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
         )
         val displayMode = enum(
             key = "suggestion__display_mode",
-            default = CandidatesDisplayMode.DYNAMIC_SCROLLABLE,
+            default = CandidatesDisplayMode.CLASSIC,
         )
         val blockPossiblyOffensive = boolean(
             key = "suggestion__block_possibly_offensive",

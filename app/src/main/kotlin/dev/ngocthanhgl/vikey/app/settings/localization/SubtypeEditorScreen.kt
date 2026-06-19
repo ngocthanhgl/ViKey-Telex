@@ -467,40 +467,40 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                if (modelExists.value) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = "Model ready",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                } else {
-                    Column {
-                        Button(onClick = { importLauncher.launch("application/octet-stream") }) {
-                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(4.dp))
-                            Text("Select GGUF file")
-                        }
-                        Spacer(Modifier.height(4.dp))
-                        OutlinedButton(onClick = {
-                            val intent = android.content.Intent(
-                                android.content.Intent.ACTION_VIEW,
-                                android.net.Uri.parse("https://github.com/ngocthanhgl/ViKey-Telex/releases/tag/Model")
+                SubtypeProperty("Model") {
+                    if (modelExists.value) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp),
                             )
-                            context.startActivity(intent)
-                        }) {
-                            Icon(Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Download from GitHub")
+                            Text(
+                                text = "Model ready",
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    } else {
+                        Column {
+                            Button(onClick = { importLauncher.launch("application/octet-stream") }) {
+                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(4.dp))
+                                Text("Select GGUF file")
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            OutlinedButton(onClick = {
+                                val intent = android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse("https://huggingface.co/models?other=gguf")
+                                )
+                                context.startActivity(intent)
+                            }) {
+                                Icon(Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(4.dp))
+                                Text("Browse HuggingFace")
+                            }
                         }
                     }
                 }

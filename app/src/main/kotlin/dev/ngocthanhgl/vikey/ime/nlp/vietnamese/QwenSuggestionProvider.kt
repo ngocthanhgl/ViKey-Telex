@@ -31,7 +31,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         private const val CLEARED_MARKER = ".qwen_cleared"
         private const val BIGRAM_BOOST = 5.0
         private const val TRIGRAM_BOOST = 3.0
-        private const val SEED_WORDS = "ime/dict/vi_words_2k.txt"
+        private const val SEED_WORDS = "ime/dict/vi_50k.txt"
 
         private var currentInstance: QwenSuggestionProvider? = null
 
