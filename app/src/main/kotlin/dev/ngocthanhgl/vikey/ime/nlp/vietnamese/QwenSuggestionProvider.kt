@@ -260,9 +260,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
                     if (cur.isBlank()) return@withContext emptyList()
-                    val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
-                    val prevWord = if (words.size >= 2) words[words.size - 2].lowercase() else null
-                    completeCurrentWord(cur, maxCandidateCount, prevWord)
+                    completeCurrentWord(cur, maxCandidateCount, textBefore)
                 }
 
                 pairs.map { (word, _) ->
@@ -408,21 +406,47 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         return rerankWithPersonal(topBase).take(limit)
     }
 
-    private fun completeCurrentWord(prefix: String, k: Int, prevWord: String?): List<Pair<String, Double>> {
+    private fun ngramWords(): Set<String> {
+        val words = mutableSetOf<String>()
+        words.addAll(bigrams.keys)
+        bigrams.values.forEach { words.addAll(it.keys) }
+        trigrams.keys.forEach { key -> key.split("|").forEach { words.add(it) } }
+        trigrams.values.forEach { words.addAll(it.keys) }
+        return words
+    }
+
+    private fun completeCurrentWord(prefix: String, k: Int, textBefore: String): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
+
+        val context = buildString {
+            val ctx = textBefore.dropLast(prefix.length).trimEnd()
+            append(ctx)
+            if (ctx.isNotEmpty()) append(' ')
+        }
+
+        val contextWords = context.trimEnd().split(Regex("\\s+"))
+            .map { it.trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>') }
+            .filter { it.isNotBlank() }
+        val w2 = if (contextWords.isNotEmpty()) contextWords.last().lowercase() else ""
+        val w1 = if (contextWords.size >= 2) contextWords[contextWords.size - 2].lowercase() else null
 
         val candidates = mutableListOf<Pair<String, Double>>()
 
+        // Source A: Qwen predictNext with Vietnamese context + large pool
         if (!natLoading && natLoaded && modelPtr != 0L) {
-            val context = if (prevWord != null) "$prevWord " else ""
-            val predictions = QwenNatives.predictNext(modelPtr, context, limit * 5)
+            val predictions = QwenNatives.predictNext(modelPtr, context, 300)
             if (predictions != null) {
-                var startScore = predictions.size.toDouble()
+                val startScore = predictions.size.toDouble()
                 for ((idx, word) in predictions.withIndex()) {
                     val lc = word.lowercase()
-                    if (lc.startsWith(prefix, ignoreCase = true)) {
+                    if (lc.startsWith(prefix.lowercase()) && lc.length > prefix.length) {
                         var s = (startScore - idx) * 2.0
-                        bigrams[prevWord ?: ""]?.let { bi ->
+                        if (w1 != null) {
+                            trigrams["$w1|$w2"]?.let { tri ->
+                                s += (tri[lc] ?: 0) * TRIGRAM_BOOST
+                            }
+                        }
+                        bigrams[w2]?.let { bi ->
                             s += (bi[lc] ?: 0) * BIGRAM_BOOST
                         }
                         candidates.add(lc to s)
@@ -431,13 +455,23 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             }
         }
 
-        val oovCandidates = personalDict.filter { it.value.count >= 3 }
-            .keys
+        // Source B: Personal dict + ngram words, scored by scoreCandidates
+        val pool = ngramWords()
+            .union(personalDict.keys)
             .filter { it.startsWith(prefix, ignoreCase = true) && !isNoise(it) }
-            .filter { c -> candidates.none { it.first == c } }
-            .map { it to 0.0 }
+            .filter { w -> candidates.none { it.first == w } }
+            .take(limit * 3)
+            .toTypedArray()
+        if (pool.isNotEmpty() && !natLoading && natLoaded && modelPtr != 0L) {
+            val scores = QwenNatives.scoreCandidates(modelPtr, context, pool)
+            if (scores != null && scores.size == pool.size) {
+                for (i in pool.indices) {
+                    candidates.add(pool[i].lowercase() to scores[i].toDouble())
+                }
+            }
+        }
 
-        val merged = (candidates + oovCandidates).take(limit + oovCandidates.size)
+        val merged = candidates.take(limit + limit)
 
         val reranked = rerankWithPersonal(merged)
 
