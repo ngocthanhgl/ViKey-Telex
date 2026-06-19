@@ -36,6 +36,7 @@ import dev.ngocthanhgl.vikey.subtypeManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -46,6 +47,7 @@ import kotlinx.coroutines.sync.withLock
 import org.florisboard.lib.kotlin.guardedByLock
 import org.florisboard.lib.kotlin.collectLatestIn
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.properties.Delegates
 
 private const val BLANK_STR_PATTERN = "^\\s*$"
@@ -70,6 +72,11 @@ class NlpManager(context: Context) {
     }
     // lock unnecessary because values constant
     private val providersForceSuggestionOn = mutableMapOf<String, Boolean>()
+
+    private val suggestionToken = AtomicInteger(0)
+    private var hasPendingComposition = false
+
+    fun hasPendingCompositionSuggestion(): Boolean = hasPendingComposition
 
     private val internalSuggestionsGuard = Mutex()
     private var internalSuggestions by Delegates.observable(SystemClock.uptimeMillis() to listOf<SuggestionCandidate>()) { _, _, _ ->
@@ -192,6 +199,37 @@ class NlpManager(context: Context) {
         prefs.suggestion.enabled.get()
             || prefs.emoji.suggestionEnabled.get()
             || providerForcesSuggestionOn(subtypeManager.activeSubtype)
+
+    fun liveSuggestionsEnabled(): Boolean {
+        if (!isSuggestionOn()) return false
+        return subtypeManager.activeSubtype.nlpProviders.suggestion == QwenSuggestionProvider.ProviderId
+    }
+
+    fun suggestComposition(prefix: String) {
+        if (!liveSuggestionsEnabled()) return
+        val reqTime = SystemClock.uptimeMillis()
+        val token = suggestionToken.incrementAndGet()
+        hasPendingComposition = true
+        scope.launch {
+            val subtype = subtypeManager.activeSubtype
+            val suggestions = getSuggestionProvider(subtype).suggest(
+                subtype = subtype,
+                content = EditorContent.compositionPrefix(prefix),
+                maxCandidateCount = 8,
+                allowPossiblyOffensive = !prefs.suggestion.blockPossiblyOffensive.get(),
+                isPrivateSession = keyboardManager.activeState.isIncognitoMode,
+            )
+            internalSuggestionsGuard.withLock {
+                if (internalSuggestions.first < reqTime) {
+                    internalSuggestions = reqTime to suggestions
+                }
+            }
+            delay(100L)
+            if (suggestionToken.get() == token) {
+                hasPendingComposition = false
+            }
+        }
+    }
 
     fun suggest(subtype: Subtype, content: EditorContent) {
         val reqTime = SystemClock.uptimeMillis()

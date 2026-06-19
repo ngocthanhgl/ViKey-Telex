@@ -48,6 +48,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private var learnCounter = 0
 
     private val seedWords = mutableSetOf<String>()
+    private var prefixTrie: Map<String, List<String>> = mapOf()
+    private var useTrie = false
     private var bigrams = mutableMapOf<String, MutableMap<String, Int>>()
     private var trigrams = mutableMapOf<String, MutableMap<String, Int>>()
     private var ngramDirty = false
@@ -98,6 +100,15 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 }
             }
             flogDebug { "Qwen: loaded ${seedWords.size} seed words" }
+            val trie = mutableMapOf<String, MutableList<String>>()
+            for (word in seedWords) {
+                for (i in 1..word.length.coerceAtMost(6)) {
+                    val p = word.take(i)
+                    trie.getOrPut(p) { mutableListOf() }.add(word)
+                }
+            }
+            prefixTrie = trie
+            useTrie = true
         } catch (e: Exception) {
             flogDebug { "Qwen: seed words load: ${e.message}" }
         }
@@ -462,10 +473,11 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             if (ctx.isNotEmpty()) append(' ')
         }
 
-        val pool = seedWords
-            .union(ngramWords())
-            .union(personalDict.keys)
-            .filter { it.startsWith(lcPrefix) && it.length > lcPrefix.length && !isNoise(it) }
+        val pool = (
+            if (useTrie) prefixTrie[lcPrefix]?.filter { it.length > lcPrefix.length } ?: emptyList()
+            else seedWords.filter { it.startsWith(lcPrefix) && it.length > lcPrefix.length }
+        ).union(ngramWords()).union(personalDict.keys)
+            .filter { !isNoise(it) }
             .take(200)
             .toTypedArray()
 

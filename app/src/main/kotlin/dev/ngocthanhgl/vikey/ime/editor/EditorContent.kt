@@ -107,5 +107,21 @@ data class EditorContent(
          */
         fun selectionOnly(selection: EditorRange) =
             EditorContent("", -1, selection, EditorRange.Unspecified, EditorRange.Unspecified)
+
+        /**
+         * Creates an EditorContent from a live Telex composition prefix (no editor IPC needed).
+         * Extracts only the last word for correct midword completion.
+         */
+        fun compositionPrefix(fullText: String): EditorContent {
+            val wordStart = fullText.indexOfLast { it == ' ' } + 1
+            val lastWord = fullText.substring(wordStart)
+            return EditorContent(
+                text = lastWord,
+                offset = 0,
+                localSelection = EditorRange(lastWord.length, lastWord.length),
+                localComposing = EditorRange(0, lastWord.length),
+                localCurrentWord = EditorRange(0, lastWord.length),
+            )
+        }
     }
 }

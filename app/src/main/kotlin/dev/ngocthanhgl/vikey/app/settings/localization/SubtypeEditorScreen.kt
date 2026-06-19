@@ -440,9 +440,13 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
 
             if (nlpProviders.suggestion == QwenSuggestionProvider.ProviderId && QwenNatives.isAvailable) {
                 val scope = rememberCoroutineScope()
-                val providerRef = QwenSuggestionProvider.getInstance()
-                val modelName = remember { mutableStateOf(providerRef?.getModelName()) }
-                val modelExists = remember { mutableStateOf(modelName.value != null) }
+                val dir = context.filesDir
+
+                fun scanModel(): File? = dir.listFiles { f -> f.extension == "gguf" && f.length() > 0 }
+                    ?.maxByOrNull { it.length() }
+
+                val modelFile = remember { mutableStateOf(scanModel()) }
+                val modelExists = modelFile.value != null
 
                 val importLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.GetContent()
@@ -450,8 +454,7 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     if (uri != null) {
                         scope.launch {
                             try {
-                                providerRef?.removeModel()
-                                val dir = context.filesDir
+                                QwenSuggestionProvider.getInstance()?.removeModel()
                                 dir.listFiles { f -> f.extension == "gguf" }?.forEach { it.delete() }
                                 context.contentResolver.openInputStream(uri)?.use { input ->
                                     val name = uri.lastPathSegment ?: "model.gguf"
@@ -459,11 +462,9 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                                         input.copyTo(output)
                                     }
                                 }
-                                val newName = providerRef?.getModelName()
-                                modelName.value = newName
-                                modelExists.value = newName != null
-                                if (modelExists.value) {
-                                    providerRef?.reloadModel()
+                                modelFile.value = scanModel()
+                                if (modelFile.value != null) {
+                                    QwenSuggestionProvider.getInstance()?.reloadModel()
                                 }
                             } catch (e: Exception) {
                                 flogDebug { "Import model failed: ${e.message}" }
@@ -473,7 +474,7 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                 }
 
                 SubtypeProperty("Model") {
-                    if (modelExists.value) {
+                    if (modelExists) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
@@ -483,15 +484,14 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                             )
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                text = "Model: ${modelName.value ?: "unknown"}",
+                                text = "Model: ${modelFile.value?.name ?: "unknown"}",
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.weight(1f),
                             )
                             IconButton(onClick = {
                                 scope.launch {
-                                    providerRef?.removeModel()
-                                    modelName.value = null
-                                    modelExists.value = false
+                                    QwenSuggestionProvider.getInstance()?.removeModel()
+                                    modelFile.value = null
                                 }
                             }) {
                                 Icon(

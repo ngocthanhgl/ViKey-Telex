@@ -353,6 +353,12 @@ abstract class AbstractEditorInstance(context: Context) {
             append(tempText)
             if (insertSpaceAfterChar) append(' ')
         }
+
+        if (composer.id == "telex" && !char.any { it.isWhitespace() } && nlpManager.isSuggestionOn()) {
+            val fullWord = previous.dropLast(rm.coerceAtMost(previous.length)) + tempText
+            nlpManager.suggestComposition(fullWord)
+        }
+
         if (rm <= 0) {
             commitTextInternal(finalText)
         } else runBlocking {

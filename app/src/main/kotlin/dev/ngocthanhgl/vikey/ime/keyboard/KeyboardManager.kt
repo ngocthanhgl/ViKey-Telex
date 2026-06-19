@@ -163,7 +163,8 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
                 updateActiveEvaluators()
             }
             editorInstance.activeContentFlow.collectIn(scope) { content ->
-                if (FlorisImeService.windowControllerOrNull()?.isWindowShown?.value == true) {
+                if (FlorisImeService.windowControllerOrNull()?.isWindowShown?.value == true
+                    && !nlpManager.hasPendingCompositionSuggestion()) {
                     resetSuggestions(content)
                 }
             }
