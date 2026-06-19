@@ -25,7 +25,6 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     companion object {
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.qwen"
-        const val MODEL_FILENAME = "qwen-pruned-50k-q5_0.gguf"
         private const val NGRAM_PATH = "qwen_ngrams.json"
         private const val PERSONAL_DICT = "qwen_personal_dict.json"
         private const val CLEARED_MARKER = ".qwen_cleared"
@@ -204,6 +203,14 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         }
     }
 
+    private fun modelFile(): File? {
+        val dir = context.filesDir
+        return dir.listFiles { f -> f.extension == "gguf" && f.length() > 0 }
+            ?.maxByOrNull { it.length() }
+    }
+
+    fun getModelName(): String? = modelFile()?.name
+
     private fun loadModelBg() {
         if (!QwenNatives.isAvailable) {
             flogDebug { "Qwen: native lib not available" }
@@ -213,8 +220,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         natLoading = true
         bgScope.launch {
             try {
-                val file = File(context.filesDir, MODEL_FILENAME)
-                if (file.exists() && file.length() > 0) {
+                val file = modelFile()
+                if (file != null) {
                     val t0 = System.currentTimeMillis()
                     modelPtr = QwenNatives.open(file.absolutePath)
                     natLoaded = modelPtr != 0L
@@ -235,6 +242,17 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         if (natLoading || natLoaded) return
         if (!QwenNatives.isAvailable) return
         loadModelBg()
+    }
+
+    fun removeModel() {
+        if (modelPtr != 0L) {
+            QwenNatives.close(modelPtr)
+            modelPtr = 0L
+        }
+        natLoaded = false
+        natLoading = false
+        modelFile()?.delete()
+        flogDebug { "Qwen: model removed" }
     }
 
     private fun checkClearedMarker() {
