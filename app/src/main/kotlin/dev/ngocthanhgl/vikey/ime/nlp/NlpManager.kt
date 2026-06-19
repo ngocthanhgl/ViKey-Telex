@@ -205,13 +205,14 @@ class NlpManager(context: Context) {
         return subtypeManager.activeSubtype.nlpProviders.suggestion == QwenSuggestionProvider.ProviderId
     }
 
-    fun suggestComposition(prefix: String) {
+    fun suggestComposition(prefix: String, shiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState) {
         if (!liveSuggestionsEnabled()) return
         val reqTime = SystemClock.uptimeMillis()
         val token = suggestionToken.incrementAndGet()
         hasPendingComposition = true
         scope.launch {
             val subtype = subtypeManager.activeSubtype
+            QwenSuggestionProvider.pendingShiftState = shiftState
             val suggestions = getSuggestionProvider(subtype).suggest(
                 subtype = subtype,
                 content = EditorContent.compositionPrefix(prefix),
@@ -219,6 +220,7 @@ class NlpManager(context: Context) {
                 allowPossiblyOffensive = !prefs.suggestion.blockPossiblyOffensive.get(),
                 isPrivateSession = keyboardManager.activeState.isIncognitoMode,
             )
+            QwenSuggestionProvider.pendingShiftState = null
             internalSuggestionsGuard.withLock {
                 if (internalSuggestions.first < reqTime) {
                     internalSuggestions = reqTime to suggestions

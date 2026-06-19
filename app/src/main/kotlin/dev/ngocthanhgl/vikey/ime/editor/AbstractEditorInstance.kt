@@ -356,7 +356,7 @@ abstract class AbstractEditorInstance(context: Context) {
 
         if (composer.id == "telex" && !char.any { it.isWhitespace() } && nlpManager.isSuggestionOn()) {
             val fullWord = previous.dropLast(rm.coerceAtMost(previous.length)) + tempText
-            nlpManager.suggestComposition(fullWord)
+            nlpManager.suggestComposition(fullWord, keyboardManager.activeState.inputShiftState)
         }
 
         if (rm <= 0) {

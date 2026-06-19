@@ -454,11 +454,8 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     if (uri != null) {
                         scope.launch {
                             try {
-                                QwenSuggestionProvider.getInstance()?.removeModel()
-                                dir.listFiles { f -> f.extension == "gguf" }?.forEach { it.delete() }
                                 context.contentResolver.openInputStream(uri)?.use { input ->
-                                    val name = uri.lastPathSegment ?: "model.gguf"
-                                    File(dir, name).outputStream().use { output ->
+                                    File(dir, "model.gguf").outputStream().use { output ->
                                         input.copyTo(output)
                                     }
                                 }

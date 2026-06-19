@@ -34,6 +34,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
         private var currentInstance: QwenSuggestionProvider? = null
 
+        var pendingShiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState? = null
+
         fun getInstance(): QwenSuggestionProvider? = currentInstance
     }
 
@@ -371,11 +373,19 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         personalDirty = true
     }
 
-    private fun computeAlpha(decayedCount: Double): Double = when {
-        decayedCount < 3.0 -> 0.10
-        decayedCount < 10.0 -> 0.25
-        decayedCount < 30.0 -> 0.40
-        else -> 0.50
+    private fun computeAlpha(decayedCount: Double, qwenScored: Boolean): Double = when {
+        qwenScored -> when {
+            decayedCount < 3.0 -> 0.05
+            decayedCount < 10.0 -> 0.08
+            decayedCount < 30.0 -> 0.12
+            else -> 0.15
+        }
+        else -> when {
+            decayedCount < 3.0 -> 0.10
+            decayedCount < 10.0 -> 0.25
+            decayedCount < 30.0 -> 0.40
+            else -> 0.50
+        }
     }
 
     private fun decayedCount(pw: PersonalWord): Double {
@@ -386,7 +396,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private fun personalScore(pw: PersonalWord): Double =
         (decayedCount(pw) / 50.0).coerceIn(0.0, 1.0)
 
-    private fun rerankWithPersonal(candidates: List<Pair<String, Double>>): List<Pair<String, Double>> {
+    private fun rerankWithPersonal(candidates: List<Pair<String, Double>>, qwenScored: Boolean = false): List<Pair<String, Double>> {
         if (personalDict.isEmpty()) return candidates
         val rawScores = candidates.map { it.second }
         val minScore = rawScores.min()
@@ -397,7 +407,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             val pw = personalDict[word.lowercase()]
             if (pw != null && pw.count >= 3) {
                 val dc = decayedCount(pw)
-                val alpha = computeAlpha(dc)
+                val alpha = computeAlpha(dc, qwenScored)
                 val ps = personalScore(pw)
                 word to (alpha * ps + (1.0 - alpha) * normBase)
             } else {
@@ -413,10 +423,12 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val w1 = if (words.size >= 2) words[words.size - 2].lowercase() else null
 
         val scored = mutableMapOf<String, Double>()
+        var qwenScored = false
 
         if (!natLoading && natLoaded && modelPtr != 0L) {
             val predictions = QwenNatives.predictNext(modelPtr, textBefore, limit * 3)
             if (predictions != null) {
+                qwenScored = true
                 val firstBatch = predictions.take(limit * 2)
                 val startScore = firstBatch.size.toDouble()
                 for ((idx, word) in firstBatch.withIndex()) {
@@ -451,7 +463,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val topBase = scored.entries.sortedByDescending { it.value }
             .take(limit * 3).map { it.key to it.value }
 
-        return rerankWithPersonal(topBase).take(limit)
+        return rerankWithPersonal(topBase, qwenScored).take(limit)
     }
 
     private fun ngramWords(): Set<String> {
@@ -482,10 +494,12 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             .toTypedArray()
 
         val candidates = mutableListOf<Pair<String, Double>>()
+        var qwenScored = false
 
         if (pool.isNotEmpty() && !natLoading && natLoaded && modelPtr != 0L) {
             val scores = QwenNatives.scoreCandidates(modelPtr, context, pool)
             if (scores != null && scores.size == pool.size) {
+                qwenScored = true
                 for (i in pool.indices) {
                     candidates.add(pool[i] to scores[i].toDouble())
                 }
@@ -508,10 +522,14 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             }
         }
 
-        val reranked = rerankWithPersonal(candidates)
+        val reranked = rerankWithPersonal(candidates, qwenScored)
 
-        val useUpper = prefix.length > 1 && prefix.all { it.isUpperCase() }
-        val useTitle = prefix[0].isUpperCase()
+        val shiftState = pendingShiftState
+        val useUpper = shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.CAPS_LOCK
+            || (shiftState == null && prefix.length >= 1 && prefix.all { it.isUpperCase() })
+        val useTitle = !useUpper && (shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_MANUAL
+            || shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_AUTOMATIC
+            || (shiftState == null && prefix.isNotEmpty() && prefix[0].isUpperCase()))
 
         return reranked.take(limit).map { (word, score) ->
             val cased = when {
