@@ -15,9 +15,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
 import kotlin.math.pow
 
 class QwenSuggestionProvider(private val context: Context) : SuggestionProvider {
@@ -28,12 +26,9 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     companion object {
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.qwen"
         const val MODEL_FILENAME = "qwen-pruned-50k-q5_0.gguf"
-        private const val VOCAB_PATH = "ime/dict/vocab.txt"
         private const val NGRAM_PATH = "qwen_ngrams.json"
         private const val PERSONAL_DICT = "qwen_personal_dict.json"
         private const val CLEARED_MARKER = ".qwen_cleared"
-        private const val NEXT_WORD_POOL = 2000
-        private const val RERANK_CAP = 10
         private const val BIGRAM_BOOST = 5.0
         private const val TRIGRAM_BOOST = 3.0
 
@@ -42,10 +37,6 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         fun getInstance(): QwenSuggestionProvider? = currentInstance
     }
 
-    private var vocabList = listOf<String>()
-    private var vocabSet = setOf<String>()
-    private var prefixIndex = mapOf<Char, List<String>>()
-    private var commonWords = listOf<String>()
     private var modelPtr = 0L
     private var natLoaded = false
     private var natLoading = false
@@ -67,39 +58,12 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     override val providerId = ProviderId
 
     override suspend fun create() {
-        if (vocabList.isNotEmpty()) return
         withContext(Dispatchers.IO) {
-            loadVocab()
             loadPersonalDict()
             loadNgrams()
             try { DictionaryManager.default().loadUserDictionariesIfNecessary() }
             catch (_: Exception) {}
             loadModelBg()
-        }
-    }
-
-    private fun loadVocab() {
-        try {
-            val lines = mutableListOf<String>()
-            BufferedReader(InputStreamReader(context.assets.open(VOCAB_PATH))).use { reader ->
-                var line: String?
-                while (reader.readLine().also { line = it } != null) {
-                    line?.trim()?.let { if (it.isNotBlank()) lines.add(it) }
-                }
-            }
-            val clean = lines.filter { w -> w.all { it.isLetter() || it == '\'' } }
-            vocabList = clean
-            vocabSet = clean.toSet()
-            commonWords = clean.take(NEXT_WORD_POOL)
-            val idx = mutableMapOf<Char, MutableList<String>>()
-            for (word in clean) {
-                val c = word.firstOrNull()?.lowercaseChar() ?: continue
-                idx.getOrPut(c) { mutableListOf() }.add(word)
-            }
-            prefixIndex = idx
-            flogDebug { "Qwen: loaded ${lines.size} words" }
-        } catch (e: Exception) {
-            flogDebug { "Qwen: vocab load failed: ${e.message}" }
         }
     }
 
@@ -245,7 +209,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     }
 
     override suspend fun preload(subtype: Subtype) {
-        if (vocabList.isEmpty()) create()
+        create()
     }
 
     fun reloadModel() {
@@ -273,7 +237,6 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         allowPossiblyOffensive: Boolean,
         isPrivateSession: Boolean,
     ): List<SuggestionCandidate> {
-        if (vocabList.isEmpty()) return emptyList()
         checkClearedMarker()
         return withContext(Dispatchers.Default) {
             try {
@@ -412,18 +375,16 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 val startScore = firstBatch.size.toDouble()
                 for ((idx, word) in firstBatch.withIndex()) {
                     val lc = word.lowercase()
-                    if (lc in vocabSet || lc in personalDict) {
-                        var s = (startScore - idx) * 2.0
-                        if (w1 != null) {
-                            trigrams["$w1|$w2"]?.let { tri ->
-                                s += (tri[lc] ?: 0) * TRIGRAM_BOOST
-                            }
+                    var s = (startScore - idx) * 2.0
+                    if (w1 != null) {
+                        trigrams["$w1|$w2"]?.let { tri ->
+                            s += (tri[lc] ?: 0) * TRIGRAM_BOOST
                         }
-                        bigrams[w2]?.let { bi ->
-                            s += (bi[lc] ?: 0) * BIGRAM_BOOST
-                        }
-                        scored[lc] = s
                     }
+                    bigrams[w2]?.let { bi ->
+                        s += (bi[lc] ?: 0) * BIGRAM_BOOST
+                    }
+                    scored[lc] = s
                 }
             }
         }
@@ -439,50 +400,44 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     scored[next] = (scored[next] ?: 0.0) + freq * BIGRAM_BOOST
                 }
             }
-            for (word in commonWords) {
-                if (word !in scored) {
-                    scored[word] = (scored[word] ?: 0.0) + freqScore(word)
-                }
-            }
         }
 
         val topBase = scored.entries.sortedByDescending { it.value }
-            .take(RERANK_CAP).map { it.key to it.value }
+            .take(limit * 3).map { it.key to it.value }
 
         return rerankWithPersonal(topBase).take(limit)
     }
 
     private fun completeCurrentWord(prefix: String, k: Int, prevWord: String?): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
-        val firstChar = prefix.first().lowercaseChar()
 
-        val baseCandidates = prefixIndex[firstChar]
-            ?.filter { it.startsWith(prefix, ignoreCase = true) }
-            ?: emptyList()
+        val candidates = mutableListOf<Pair<String, Double>>()
 
-        val topBase = if (baseCandidates.isNotEmpty()) {
-            val scored = if (!natLoading && natLoaded && modelPtr != 0L) {
-                val scores = QwenNatives.scoreCandidates(modelPtr, prevWord, baseCandidates.toTypedArray())
-                if (scores != null && scores.size == baseCandidates.size) {
-                    baseCandidates.indices.map { baseCandidates[it] to scores[it].toDouble() }
-                } else {
-                    baseCandidates.map { it to freqScore(it) }
+        if (!natLoading && natLoaded && modelPtr != 0L) {
+            val context = if (prevWord != null) "$prevWord " else ""
+            val predictions = QwenNatives.predictNext(modelPtr, context, limit * 5)
+            if (predictions != null) {
+                var startScore = predictions.size.toDouble()
+                for ((idx, word) in predictions.withIndex()) {
+                    val lc = word.lowercase()
+                    if (lc.startsWith(prefix, ignoreCase = true)) {
+                        var s = (startScore - idx) * 2.0
+                        bigrams[prevWord ?: ""]?.let { bi ->
+                            s += (bi[lc] ?: 0) * BIGRAM_BOOST
+                        }
+                        candidates.add(lc to s)
+                    }
                 }
-            } else {
-                baseCandidates.map { it to freqScore(it) }
             }
-            scored.sortedByDescending { it.second }.take(RERANK_CAP)
-        } else {
-            emptyList()
         }
 
         val oovCandidates = personalDict.filter { it.value.count >= 3 }
             .keys
-            .filter { it.startsWith(prefix, ignoreCase = true) && it !in vocabSet && !isNoise(it) }
+            .filter { it.startsWith(prefix, ignoreCase = true) && !isNoise(it) }
+            .filter { c -> candidates.none { it.first == c } }
             .map { it to 0.0 }
 
-        val merged = (oovCandidates + topBase).distinctBy { it.first.lowercase() }
-            .take(limit + oovCandidates.size)
+        val merged = (candidates + oovCandidates).take(limit + oovCandidates.size)
 
         val reranked = rerankWithPersonal(merged)
 
@@ -497,11 +452,6 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             }
             cased to score
         }
-    }
-
-    private fun freqScore(word: String): Double {
-        val idx = vocabList.indexOf(word)
-        return if (idx >= 0) (vocabList.size - idx).toDouble() else 0.0
     }
 
     private fun getCurrentWord(content: EditorContent): String? {
@@ -526,11 +476,11 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         return false
     }
 
-    override suspend fun getListOfWords(subtype: Subtype): List<String> = vocabList
+    override suspend fun getListOfWords(subtype: Subtype): List<String> = personalDict.keys.toList()
 
     override suspend fun getFrequencyForWord(subtype: Subtype, word: String): Double {
-        val idx = vocabList.indexOf(word)
-        return if (idx >= 0) (vocabList.size - idx).toDouble() / vocabList.size else 0.0
+        val pw = personalDict[word.lowercase()]
+        return if (pw != null) (decayedCount(pw) / 50.0).coerceIn(0.0, 1.0) else 0.0
     }
 
     override suspend fun destroy() {
