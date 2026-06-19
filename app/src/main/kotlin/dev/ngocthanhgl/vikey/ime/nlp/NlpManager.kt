@@ -118,9 +118,15 @@ class NlpManager(context: Context) {
         keyboardManager.activeState.collectLatestIn(scope) { state ->
             val currentShift = state.inputShiftState
             val prefix = lastPrefix
-            if (prefix != null && currentShift != lastShiftSeen) {
+            if (currentShift == lastShiftSeen) return@collectLatestIn
+
+            if (prefix != null) {
                 suggestComposition(prefix, currentShift)
+            } else if (currentShift != dev.ngocthanhgl.vikey.ime.input.InputShiftState.UNSHIFTED) {
+                QwenSuggestionProvider.pendingShiftState = currentShift
+                suggest(subtypeManager.activeSubtype, editorInstance.activeContent)
             }
+            lastShiftSeen = currentShift
         }
     }
 

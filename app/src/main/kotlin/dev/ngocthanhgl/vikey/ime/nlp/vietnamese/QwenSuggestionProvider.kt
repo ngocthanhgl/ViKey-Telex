@@ -463,7 +463,19 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val topBase = scored.entries.sortedByDescending { it.value }
             .take(limit * 3).map { it.key to it.value }
 
-        return rerankWithPersonal(topBase, qwenScored).take(limit)
+        val reranked = rerankWithPersonal(topBase, qwenScored).take(limit)
+
+        val shiftState = pendingShiftState
+        val useUpper = shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.CAPS_LOCK
+        val useTitle = !useUpper && (shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_MANUAL
+            || shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_AUTOMATIC)
+
+        return reranked.map { (word, score) ->
+            val cased = if (useUpper) word.uppercase()
+                        else if (useTitle) word.replaceFirstChar { it.uppercase() }
+                        else word
+            cased to score
+        }
     }
 
     private fun ngramWords(): Set<String> {
