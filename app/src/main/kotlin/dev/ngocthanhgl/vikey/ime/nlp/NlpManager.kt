@@ -75,6 +75,8 @@ class NlpManager(context: Context) {
 
     private val suggestionToken = AtomicInteger(0)
     private var hasPendingComposition = false
+    private var lastPrefix: String? = null
+    private var lastShiftSeen: dev.ngocthanhgl.vikey.ime.input.InputShiftState? = null
 
     fun hasPendingCompositionSuggestion(): Boolean = hasPendingComposition
 
@@ -109,6 +111,13 @@ class NlpManager(context: Context) {
         }
         subtypeManager.activeSubtypeFlow.collectLatestIn(scope) { subtype ->
             preload(subtype)
+        }
+        keyboardManager.activeState.collectLatestIn(scope) { state ->
+            val currentShift = state.inputShiftState
+            val prefix = lastPrefix
+            if (prefix != null && currentShift != lastShiftSeen) {
+                suggestComposition(prefix, currentShift)
+            }
         }
     }
 
@@ -207,6 +216,8 @@ class NlpManager(context: Context) {
 
     fun suggestComposition(prefix: String, shiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState) {
         if (!liveSuggestionsEnabled()) return
+        lastPrefix = prefix
+        lastShiftSeen = shiftState
         val reqTime = SystemClock.uptimeMillis()
         val token = suggestionToken.incrementAndGet()
         hasPendingComposition = true
