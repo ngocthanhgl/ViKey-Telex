@@ -509,13 +509,13 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                             OutlinedButton(onClick = {
                                 val intent = android.content.Intent(
                                     android.content.Intent.ACTION_VIEW,
-                                    android.net.Uri.parse("https://huggingface.co/models?other=gguf")
+                                    android.net.Uri.parse("https://github.com/ngocthanhgl/ViKey-Telex/releases/tag/Model")
                                 )
                                 context.startActivity(intent)
                             }) {
                                 Icon(Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("Browse HuggingFace")
+                                Text("Download from GitHub")
                             }
                         }
                     }
