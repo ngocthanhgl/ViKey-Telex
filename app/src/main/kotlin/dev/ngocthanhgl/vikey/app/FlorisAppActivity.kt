@@ -104,7 +104,7 @@ class FlorisAppActivity : ComponentActivity() {
             }
             AppVersionUtils.updateVersionOnInstallAndLastUse(this, prefs)
             setContent {
-                ProvideLocalizedResources(appName = R.string.app_name) {
+                ProvideLocalizedResources(resourcesContext = this, appName = R.string.app_name) {
                     FlorisAppTheme(theme = appTheme) {
                         Surface(color = MaterialTheme.colorScheme.background) {
                             AppContent()
