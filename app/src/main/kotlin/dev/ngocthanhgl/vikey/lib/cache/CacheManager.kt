@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import dev.ngocthanhgl.vikey.app.ext.EditorAction
-import dev.ngocthanhgl.vikey.app.settings.advanced.Backup
 import dev.ngocthanhgl.vikey.appContext
 import dev.ngocthanhgl.vikey.ime.theme.ThemeExtensionEditor
 import dev.ngocthanhgl.vikey.lib.NATIVE_NULLPTR
@@ -62,7 +61,6 @@ class CacheManager(context: Context) {
         private const val ImporterDirName = "importer"
         private const val ExporterDirName = "exporter"
         private const val EditorDirName = "editor"
-        private const val BackupAndRestoreDirName = "backup-and-restore"
 
         const val LoadedDirName = "loaded"
     }
@@ -73,7 +71,6 @@ class CacheManager(context: Context) {
     val importer = WorkspacesContainer(ImporterDirName) { ImporterWorkspace(it) }
     val exporter = WorkspacesContainer(ExporterDirName) { ExporterWorkspace(it) }
     val themeExtEditor = WorkspacesContainer(EditorDirName) { ExtEditorWorkspace<ThemeExtensionEditor>(it) }
-    val backupAndRestore = WorkspacesContainer(BackupAndRestoreDirName) { BackupAndRestoreWorkspace(it) }
 
     fun readFromUriIntoCache(uri: Uri) = readFromUriIntoCache(listOf(uri))
 
@@ -206,29 +203,6 @@ class CacheManager(context: Context) {
             val ret = block(editor!!)
             version++
             return ret
-        }
-    }
-
-    inner class BackupAndRestoreWorkspace(uuid: String) : Workspace(uuid) {
-        override val dir: FsDir = backupAndRestore.dir.subDir(uuid)
-
-        val inputDir: FsDir = dir.subDir(InputDirName)
-        val outputDir: FsDir = dir.subDir(OutputDirName)
-
-        lateinit var zipFile: FsFile
-        lateinit var metadata: Backup.Metadata
-        var restoreWarningId: Int? = null
-        var restoreErrorId: Int? = null
-
-        override fun mkdirs() {
-            super.mkdirs()
-            inputDir.mkdirs()
-            outputDir.mkdirs()
-        }
-
-        override fun close() {
-            super.close()
-            backupAndRestore.remove(this)
         }
     }
 

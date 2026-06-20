@@ -4,12 +4,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Adb
-import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Preview
-import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
