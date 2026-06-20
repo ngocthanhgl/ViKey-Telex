@@ -1,7 +1,5 @@
 package dev.ngocthanhgl.vikey.app.settings.localization
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -52,7 +50,6 @@ internal val SubtypeSaver = Saver<MutableState<Subtype?>, String>(
     },
 )
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LocalizationScreen() = FlorisScreen {
     title = stringRes(R.string.settings__localization__title)
@@ -132,14 +129,12 @@ fun LocalizationScreen() = FlorisScreen {
                         DisplayLanguageNamesIn.NATIVE_LOCALE -> subtype.primaryLocale.displayName(subtype.primaryLocale)
                     },
                     summary = summary,
-                    modifier = Modifier.combinedClickable(
-                        onClick = {
-                            navController.navigate(Routes.Settings.SubtypeEdit(subtype.id))
-                        },
-                        onLongClick = {
-                            chosenSubtypeToDelete = subtype
-                        },
-                    ),
+                    onClick = {
+                        navController.navigate(Routes.Settings.SubtypeEdit(subtype.id))
+                    },
+                    onLongClick = {
+                        chosenSubtypeToDelete = subtype
+                    },
                 )
             }
         }

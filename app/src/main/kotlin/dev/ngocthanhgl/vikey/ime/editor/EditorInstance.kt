@@ -42,6 +42,7 @@ import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
 import dev.ngocthanhgl.vikey.nlpManager
 import dev.ngocthanhgl.vikey.subtypeManager
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.florisboard.lib.android.showShortToastSync
 
