@@ -25,7 +25,7 @@ fun LiquidGlassEffect(
         return
     }
 
-    val layer = rememberLayerBackdrop()
+    val backdrop = rememberLayerBackdrop()
     val density = LocalDensity.current
     val blurPx = with(density) { 16.dp.toPx() }
     val refractionHeightPx = with(density) { 10.dp.toPx() }
@@ -36,7 +36,7 @@ fun LiquidGlassEffect(
             modifier = Modifier
                 .fillMaxSize()
                 .drawBackdrop(
-                    layerBackdrop = layer,
+                    backdrop = backdrop,
                     shape = { RoundedCornerShape(28.dp) },
                     effects = {
                         blur(radius = blurPx)
@@ -53,7 +53,7 @@ fun LiquidGlassEffect(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .layerBackdrop(layer)
+                    .layerBackdrop(backdrop)
             ) {
                 content()
             }
