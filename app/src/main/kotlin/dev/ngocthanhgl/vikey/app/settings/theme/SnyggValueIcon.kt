@@ -26,10 +26,10 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.FormatAlignCenter
-import androidx.compose.material.icons.automirrored.filled.FormatAlignJustify
 import androidx.compose.material.icons.automirrored.filled.FormatAlignLeft
 import androidx.compose.material.icons.automirrored.filled.FormatAlignRight
+import androidx.compose.material.icons.filled.FormatAlignCenter
+import androidx.compose.material.icons.filled.FormatAlignJustify
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.FormatBold
@@ -196,8 +196,8 @@ internal fun SnyggValueIcon(
                 imageVector = when (value.textAlign) {
                     TextAlign.Left, TextAlign.Start -> Icons.AutoMirrored.Filled.FormatAlignLeft
                     TextAlign.Right, TextAlign.End -> Icons.AutoMirrored.Filled.FormatAlignRight
-                    TextAlign.Justify -> Icons.AutoMirrored.Filled.FormatAlignJustify
-                    else -> Icons.AutoMirrored.Filled.FormatAlignCenter
+                    TextAlign.Justify -> Icons.Default.FormatAlignJustify
+                    else -> Icons.Default.FormatAlignCenter
                 },
                 contentDescription = null,
             )

@@ -191,6 +191,7 @@ fun BoxScope.ImeWindow() {
             ImeWindowResizeHandlesFloating()
         }
     }
+}
 
 @Composable
 private fun ImeInnerWindow() {

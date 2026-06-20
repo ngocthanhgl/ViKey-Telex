@@ -8,12 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.drawBackdrop
-import com.kyant.backdrop.rememberLayerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
-import com.kyant.backdrop.layerBackdrop
 
 @Composable
 fun LiquidGlassEffect(
@@ -25,7 +25,7 @@ fun LiquidGlassEffect(
         return
     }
 
-    val backdrop = rememberLayerBackdrop()
+    val layer = rememberLayerBackdrop()
     val density = LocalDensity.current
     val blurPx = with(density) { 16.dp.toPx() }
     val refractionHeightPx = with(density) { 10.dp.toPx() }
@@ -36,7 +36,7 @@ fun LiquidGlassEffect(
             modifier = Modifier
                 .fillMaxSize()
                 .drawBackdrop(
-                    backdrop = backdrop,
+                    layerBackdrop = layer,
                     shape = { RoundedCornerShape(28.dp) },
                     effects = {
                         blur(radius = blurPx)
@@ -53,7 +53,7 @@ fun LiquidGlassEffect(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .layerBackdrop(backdrop)
+                    .layerBackdrop(layer)
             ) {
                 content()
             }
