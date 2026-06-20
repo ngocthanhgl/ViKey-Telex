@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import com.composables.lucide.Lucide
+import com.composables.icons.lucide.Lucide
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -124,7 +124,7 @@ internal fun SnyggValueIcon(
         is SnyggGenericFontFamilyValue, is SnyggCustomFontFamilyValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.Text,
+                imageVector = Lucide.ALargeSmall,
                 contentDescription = null,
             )
         }
@@ -178,10 +178,10 @@ internal fun SnyggValueIcon(
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
                 imageVector = when (value.textAlign) {
-                    TextAlign.Left, TextAlign.Start -> Lucide.AlignLeft
-                    TextAlign.Right, TextAlign.End -> Lucide.AlignRight
-                    TextAlign.Justify -> Lucide.AlignJustify
-                    else -> Lucide.AlignCenter
+                    TextAlign.Left, TextAlign.Start -> Lucide.TextAlignStart
+                    TextAlign.Right, TextAlign.End -> Lucide.TextAlignEnd
+                    TextAlign.Justify -> Lucide.TextAlignJustify
+                    else -> Lucide.TextAlignCenter
                 },
                 contentDescription = null,
             )
@@ -199,7 +199,7 @@ internal fun SnyggValueIcon(
         is SnyggTextOverflowValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.WrapText,
+                imageVector = Lucide.TextWrap,
                 contentDescription = null,
             )
         }

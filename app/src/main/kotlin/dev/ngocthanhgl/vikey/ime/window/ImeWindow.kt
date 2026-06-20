@@ -66,6 +66,7 @@ import dev.ngocthanhgl.vikey.ime.keyboard.ProvideKeyboardRowBaseHeight
 import dev.ngocthanhgl.vikey.ime.media.MediaInputLayout
 import dev.ngocthanhgl.vikey.ime.sheet.BottomSheetWindow
 import dev.ngocthanhgl.vikey.ime.text.TextInputLayout
+import dev.ngocthanhgl.vikey.ime.theme.FlorisImeUi
 import dev.ngocthanhgl.vikey.ime.theme.LocalLiquidGlassEnabled
 import dev.ngocthanhgl.vikey.ime.theme.LiquidGlassEffect
 import dev.ngocthanhgl.vikey.keyboardManager

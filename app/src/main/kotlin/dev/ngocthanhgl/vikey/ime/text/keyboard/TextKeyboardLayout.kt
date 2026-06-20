@@ -24,6 +24,7 @@ import android.view.animation.AccelerateInterpolator
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -373,7 +374,7 @@ private fun TextKeyButton(
                                 0.6f to Color.White.copy(alpha = glowAlpha * 0.10f),
                                 1.0f to Color.Transparent,
                             ),
-                            radius = size.minDimension * 0.65f,
+                            radius = this.size.minDimension * 0.65f,
                         )
                     },
             )

@@ -2,7 +2,7 @@ package dev.ngocthanhgl.vikey.app.settings.advanced
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 
-import com.composables.lucide.Lucide
+import com.composables.icons.lucide.Lucide
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
