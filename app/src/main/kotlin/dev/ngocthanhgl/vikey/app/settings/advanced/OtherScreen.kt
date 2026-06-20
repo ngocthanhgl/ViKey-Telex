@@ -9,7 +9,9 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -126,6 +128,7 @@ fun OtherScreen() = FlorisScreen {
                         entry(locale.languageTag(), when (displayLanguageNamesIn) {
                             DisplayLanguageNamesIn.SYSTEM_LOCALE -> locale.displayName()
                             DisplayLanguageNamesIn.NATIVE_LOCALE -> locale.displayName(locale)
+                            else -> locale.displayName()
                         })
                     }
                 }
