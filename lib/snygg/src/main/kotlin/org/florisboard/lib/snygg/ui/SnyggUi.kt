@@ -95,6 +95,9 @@ internal val LocalSnyggPreloadedCustomFontFamilies: ProvidableCompositionLocal<C
         error("ProvideSnyggTheme not called.")
     }
 
+val LocalSnyggDefaultFontFamily: ProvidableCompositionLocal<FontFamily?> =
+    compositionLocalOf { null }
+
 internal val LocalSnyggParentStyle: ProvidableCompositionLocal<SnyggSinglePropertySet> =
     compositionLocalOf {
         error("ProvideSnyggTheme not called.")

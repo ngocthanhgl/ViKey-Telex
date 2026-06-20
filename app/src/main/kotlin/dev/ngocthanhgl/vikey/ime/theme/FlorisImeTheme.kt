@@ -26,11 +26,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
+import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.ime.window.LocalWindowController
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.themeManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
+import org.florisboard.lib.snygg.ui.LocalSnyggDefaultFontFamily
 import org.florisboard.lib.snygg.ui.ProvideSnyggTheme
 import org.florisboard.lib.snygg.ui.rememberSnyggTheme
 
@@ -60,6 +64,10 @@ fun FlorisImeTheme(content: @Composable () -> Unit) {
         FlorisImeUi.Attr.ShiftState to state.inputShiftState.toString(),
     )
 
+    val googleSansFamily = remember {
+        FontFamily(Font(R.font.google_sans_regular))
+    }
+
     MaterialTheme {
         CompositionLocalProvider(
             LocalTextStyle provides TextStyle.Default,
@@ -70,7 +78,12 @@ fun FlorisImeTheme(content: @Composable () -> Unit) {
                 fontSizeMultiplier = fontScale,
                 assetResolver = assetResolver,
                 rootAttributes = attributes,
-                content = content,
+                content = {
+                    CompositionLocalProvider(
+                        LocalSnyggDefaultFontFamily provides googleSansFamily,
+                        content = content,
+                    )
+                },
                 materialYouFlags = activeThemeInfo.config.materialYouFlags
             )
         }
