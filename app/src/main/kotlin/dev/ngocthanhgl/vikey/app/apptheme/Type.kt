@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import dev.ngocthanhgl.vikey.R
 
-private val GoogleSans = FontFamily(Font(R.font.GoogleSans_Regular))
+private val GoogleSans = FontFamily(Font(R.font.google_sans_regular))
 
 val Typography = Typography(
     displayLarge = TextStyle(fontFamily = GoogleSans, fontWeight = FontWeight.Normal, fontSize = 57.sp, lineHeight = 64.sp, letterSpacing = (-0.25).sp),
