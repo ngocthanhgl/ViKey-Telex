@@ -2,7 +2,9 @@ package dev.ngocthanhgl.vikey.app.settings.advanced
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 
-import com.composables.icons.lucide.Lucide
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
@@ -31,7 +33,7 @@ fun OtherScreen() = FlorisScreen {
         M3ListPreference(
             value = settingsTheme,
             onSelect = { scope.launch { prefs.other.settingsTheme.set(AppTheme.valueOf(it)) } },
-            icon = Lucide.Palette,
+            icon = Icons.Default.Palette,
             title = stringRes(R.string.pref__other__settings_theme__label),
             entries = enumDisplayEntriesOf(AppTheme::class).map { it.key.toString() to it.label },
         )
@@ -39,7 +41,7 @@ fun OtherScreen() = FlorisScreen {
             pref = prefs.other.accentColor,
             title = stringRes(R.string.pref__other__settings_accent_color__label),
             defaultValueLabel = stringRes(R.string.action__default),
-            icon = Lucide.Droplets,
+            icon = Icons.Default.WaterDrop,
             defaultColors = ColorMappings.colors,
             showAlphaSlider = false,
             enableAdvancedLayout = true,

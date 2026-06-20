@@ -19,7 +19,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.composables.icons.lucide.Lucide
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.FormatListBulleted
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.PanTool
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Spellcheck
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
@@ -77,7 +88,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.Languages,
+                    icon = Icons.Default.Language,
                     title = stringRes(R.string.settings__localization__title),
                     onClick = { navController.navigate(Routes.Settings.Localization) },
                 )
@@ -90,7 +101,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.Palette,
+                    icon = Icons.Default.Palette,
                     title = stringRes(R.string.settings__theme__title),
                     onClick = { navController.navigate(Routes.Settings.Theme) },
                 )
@@ -103,7 +114,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.Keyboard,
+                    icon = Icons.Default.Keyboard,
                     title = stringRes(R.string.settings__keyboard__title),
                     onClick = { navController.navigate(Routes.Settings.Keyboard) },
                 )
@@ -116,7 +127,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.SquareDot,
+                    icon = Icons.Default.Circle,
                     title = stringRes(R.string.settings__smartbar__title),
                     onClick = { navController.navigate(Routes.Settings.Smartbar) },
                 )
@@ -129,7 +140,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.SpellCheck,
+                    icon = Icons.Outlined.Spellcheck,
                     title = stringRes(R.string.settings__typing__title),
                     onClick = { navController.navigate(Routes.Settings.Typing) },
                 )
@@ -142,7 +153,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.Hand,
+                    icon = Icons.Default.PanTool,
                     title = stringRes(R.string.settings__gestures__title),
                     onClick = { navController.navigate(Routes.Settings.Gestures) },
                 )
@@ -155,7 +166,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.ClipboardList,
+                    icon = Icons.Default.FormatListBulleted,
                     title = stringRes(R.string.settings__clipboard__title),
                     onClick = { navController.navigate(Routes.Settings.Clipboard) },
                 )
@@ -168,7 +179,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.SmilePlus,
+                    icon = Icons.Default.EmojiEmotions,
                     title = stringRes(R.string.settings__media__title),
                     onClick = { navController.navigate(Routes.Settings.Media) },
                 )
@@ -181,7 +192,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.Puzzle,
+                    icon = Icons.Default.Extension,
                     title = stringRes(R.string.ext__home__title),
                     onClick = { navController.navigate(Routes.Ext.Home) },
                 )
@@ -194,7 +205,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.Settings2,
+                    icon = Icons.Default.Settings,
                     title = stringRes(R.string.settings__other__title),
                     onClick = { navController.navigate(Routes.Settings.Other) },
                 )
@@ -207,7 +218,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.Info,
+                    icon = Icons.Default.Info,
                     title = stringRes(R.string.about__title),
                     onClick = { navController.navigate(Routes.Settings.About) },
                 )

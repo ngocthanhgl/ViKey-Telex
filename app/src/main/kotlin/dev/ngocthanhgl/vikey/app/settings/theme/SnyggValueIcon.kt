@@ -25,7 +25,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import com.composables.icons.lucide.Lucide
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FormatAlignCenter
+import androidx.compose.material.icons.automirrored.filled.FormatAlignJustify
+import androidx.compose.material.icons.automirrored.filled.FormatAlignLeft
+import androidx.compose.material.icons.automirrored.filled.FormatAlignRight
+import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.CloseFullscreen
+import androidx.compose.material.icons.filled.FormatBold
+import androidx.compose.material.icons.filled.FormatItalic
+import androidx.compose.material.icons.filled.FormatStrikethrough
+import androidx.compose.material.icons.filled.FormatUnderlined
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.OpenInFull
+import androidx.compose.material.icons.filled.Straighten
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.filled.WrapText
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -124,21 +140,21 @@ internal fun SnyggValueIcon(
         is SnyggGenericFontFamilyValue, is SnyggCustomFontFamilyValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.ALargeSmall,
+                imageVector = Icons.Default.TextFields,
                 contentDescription = null,
             )
         }
         is SnyggFontStyleValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.Italic,
+                imageVector = Icons.Default.FormatItalic,
                 contentDescription = null,
             )
         }
         is SnyggFontWeightValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.Bold,
+                imageVector = Icons.Default.FormatBold,
                 contentDescription = null,
             )
         }
@@ -146,7 +162,7 @@ internal fun SnyggValueIcon(
         is SnyggPaddingValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.Shrink,
+                imageVector = Icons.Default.CloseFullscreen,
                 contentDescription = null,
             )
         }
@@ -162,14 +178,14 @@ internal fun SnyggValueIcon(
         is SnyggDpSizeValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.Ruler,
+                imageVector = Icons.Default.Straighten,
                 contentDescription = null,
             )
         }
         is SnyggSpSizeValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.Type,
+                imageVector = Icons.Default.TextFields,
                 contentDescription = null,
             )
         }
@@ -178,10 +194,10 @@ internal fun SnyggValueIcon(
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
                 imageVector = when (value.textAlign) {
-                    TextAlign.Left, TextAlign.Start -> Lucide.TextAlignStart
-                    TextAlign.Right, TextAlign.End -> Lucide.TextAlignEnd
-                    TextAlign.Justify -> Lucide.TextAlignJustify
-                    else -> Lucide.TextAlignCenter
+                    TextAlign.Left, TextAlign.Start -> Icons.AutoMirrored.Filled.FormatAlignLeft
+                    TextAlign.Right, TextAlign.End -> Icons.AutoMirrored.Filled.FormatAlignRight
+                    TextAlign.Justify -> Icons.AutoMirrored.Filled.FormatAlignJustify
+                    else -> Icons.AutoMirrored.Filled.FormatAlignCenter
                 },
                 contentDescription = null,
             )
@@ -190,8 +206,8 @@ internal fun SnyggValueIcon(
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
                 imageVector = when (value.textDecoration) {
-                    TextDecoration.LineThrough -> Lucide.Strikethrough
-                    else -> Lucide.Underline
+                    TextDecoration.LineThrough -> Icons.Default.FormatStrikethrough
+                    else -> Icons.Default.FormatUnderlined
                 },
                 contentDescription = null,
             )
@@ -199,7 +215,7 @@ internal fun SnyggValueIcon(
         is SnyggTextOverflowValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.TextWrap,
+                imageVector = Icons.Default.WrapText,
                 contentDescription = null,
             )
         }
@@ -209,7 +225,7 @@ internal fun SnyggValueIcon(
             if (realValue == null) {
                 Icon(
                     modifier = modifier.requiredSize(spec.iconSize),
-                    imageVector = Lucide.Link2,
+                    imageVector = Icons.Default.Link,
                     contentDescription = null,
                 )
             } else {
@@ -232,7 +248,7 @@ internal fun SnyggValueIcon(
                     )
                     Icon(
                         modifier = Modifier.requiredSize(smallSpec.iconSize),
-                        imageVector = Lucide.Link2,
+                        imageVector = Icons.Default.Link,
                         contentDescription = null,
                     )
                 }
@@ -242,14 +258,14 @@ internal fun SnyggValueIcon(
         is SnyggUriValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.Paperclip,
+                imageVector = Icons.Default.AttachFile,
                 contentDescription = null,
             )
         }
         is SnyggContentScaleValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.Expand,
+                imageVector = Icons.Default.OpenInFull,
                 contentDescription = null,
             )
         }
@@ -257,14 +273,14 @@ internal fun SnyggValueIcon(
         is SnyggYesValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.Bold,
+                imageVector = Icons.Default.FormatBold,
                 contentDescription = null,
             )
         }
         is SnyggNoValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Lucide.Square,
+                imageVector = Icons.Default.Stop,
                 contentDescription = null,
             )
         }
