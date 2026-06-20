@@ -605,9 +605,13 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
      * Handles a [KeyCode.TOGGLE_AUTOCORRECT] event.
      */
     private fun handleToggleAutocorrect() {
+        val current = prefs.correction.autoCorrect.get()
+        prefs.correction.autoCorrect.set(!current)
         lastToastReference.get()?.cancel()
         lastToastReference = WeakReference(
-            appContext.showLongToastSync("Autocorrect toggle is a placeholder and not yet implemented")
+            appContext.showLongToastSync(
+                if (current) "Auto-correct: OFF" else "Auto-correct: ON"
+            )
         )
     }
 
