@@ -129,8 +129,8 @@ fun FlorisErrorCard(
 ) {
     FlorisSimpleCard(
         modifier = modifier,
-        backgroundColor = Color.Red,
-        contentColor = Color.White,
+        backgroundColor = MaterialTheme.colorScheme.errorContainer,
+        contentColor = MaterialTheme.colorScheme.onErrorContainer,
         onClick = onClick,
         icon = if (showIcon) ({ Icon(
             modifier = Modifier
@@ -138,6 +138,7 @@ fun FlorisErrorCard(
                 .requiredSize(FlorisCardDefaults.IconRequiredSize),
             imageVector = Icons.Default.ErrorOutline,
             contentDescription = null,
+            tint = MaterialTheme.colorScheme.onErrorContainer,
         ) }) else null,
         text = text,
         contentPadding = contentPadding,
@@ -154,8 +155,8 @@ fun FlorisWarningCard(
 ) {
     FlorisSimpleCard(
         modifier = modifier,
-        backgroundColor = Color.Yellow,
-        contentColor = Color.Black,
+        backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
         onClick = onClick,
         icon = if (showIcon) ({ Icon(
             modifier = Modifier
@@ -163,6 +164,7 @@ fun FlorisWarningCard(
                 .requiredSize(FlorisCardDefaults.IconRequiredSize),
             imageVector = Icons.Outlined.Warning,
             contentDescription = null,
+            tint = MaterialTheme.colorScheme.onTertiaryContainer,
         ) }) else null,
         text = text,
         contentPadding = contentPadding,
@@ -179,6 +181,8 @@ fun FlorisInfoCard(
 ) {
     FlorisSimpleCard(
         modifier = modifier,
+        backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         onClick = onClick,
         icon = if (showIcon) ({ Icon(
             modifier = Modifier
@@ -186,6 +190,7 @@ fun FlorisInfoCard(
                 .requiredSize(FlorisCardDefaults.IconRequiredSize),
             imageVector = Icons.Default.Info,
             contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSecondaryContainer,
         ) }) else null,
         text = text,
         contentPadding = contentPadding,

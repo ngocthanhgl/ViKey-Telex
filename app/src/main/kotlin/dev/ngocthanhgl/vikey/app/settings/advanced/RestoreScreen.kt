@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2021-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.advanced
 
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -58,7 +43,6 @@ import dev.ngocthanhgl.vikey.lib.io.ZipUtils
 import dev.patrickgold.jetpref.datastore.runtime.AndroidAppDataStorage
 import dev.patrickgold.jetpref.datastore.runtime.FileBasedStorage
 import dev.patrickgold.jetpref.datastore.runtime.ImportStrategy
-import dev.patrickgold.jetpref.datastore.ui.Preference
 import java.io.FileNotFoundException
 import java.text.DateFormat
 import java.util.*
@@ -96,8 +80,6 @@ fun RestoreScreen() = FlorisScreen {
 
     val restoreFilesSelector = remember { Backup.FilesSelector() }
     var importStrategy by remember { mutableStateOf(ImportStrategy.Merge) }
-    // TODO: rememberCoroutineScope() is unusable because it provides the scope in a cancelled state, which does
-    //  not make sense at all. I suspect that this is a bug and once it is resolved we can use it here again.
     val restoreScope = remember { CoroutineScope(Dispatchers.Main) }
     var restoreWorkspace by remember {
         mutableStateOf<CacheManager.BackupAndRestoreWorkspace?>(null)
@@ -202,9 +184,7 @@ fun RestoreScreen() = FlorisScreen {
                             context,
                             clipboardFilesDir.subFile(
                                 relPath = "${ClipboardFileStorage.CLIPBOARD_FILES_PATH}/${
-                                    item.uri!!.path!!.split(
-                                        '/'
-                                    ).last()
+                                    item.uri!!.path!!.split('/').last()
                                 }"
                             )
                         )
@@ -221,9 +201,7 @@ fun RestoreScreen() = FlorisScreen {
                             context,
                             clipboardFilesDir.subFile(
                                 relPath = "${ClipboardFileStorage.CLIPBOARD_FILES_PATH}/${
-                                    item.uri!!.path!!.split(
-                                        '/'
-                                    ).last()
+                                    item.uri!!.path!!.split('/').last()
                                 }"
                             )
                         )
@@ -271,17 +249,13 @@ fun RestoreScreen() = FlorisScreen {
             modifier = Modifier.defaultFlorisOutlinedBox(),
             title = stringRes(R.string.backup_and_restore__restore__mode),
         ) {
-            RadioListItem(
-                onClick = {
-                    importStrategy = ImportStrategy.Merge
-                },
+            M3RadioListItem(
+                onClick = { importStrategy = ImportStrategy.Merge },
                 selected = importStrategy == ImportStrategy.Merge,
                 text = stringRes(R.string.backup_and_restore__restore__mode_merge),
             )
-            RadioListItem(
-                onClick = {
-                    importStrategy = ImportStrategy.Erase
-                },
+            M3RadioListItem(
+                onClick = { importStrategy = ImportStrategy.Erase },
                 selected = importStrategy == ImportStrategy.Erase,
                 text = stringRes(R.string.backup_and_restore__restore__mode_erase_and_overwrite),
             )
@@ -316,17 +290,17 @@ fun RestoreScreen() = FlorisScreen {
                 modifier = Modifier.defaultFlorisOutlinedBox(),
                 title = stringRes(R.string.backup_and_restore__restore__metadata),
             ) {
-                Preference(
+                M3InfoListItem(
                     icon = Icons.Default.Code,
-                    title = workspace.metadata.packageName,
+                    text = workspace.metadata.packageName,
                 )
-                Preference(
+                M3InfoListItem(
                     icon = Icons.Outlined.Info,
-                    title = "${workspace.metadata.versionName} (${workspace.metadata.versionCode})",
+                    text = "${workspace.metadata.versionName} (${workspace.metadata.versionCode})",
                 )
-                Preference(
+                M3InfoListItem(
                     icon = Icons.Default.Schedule,
-                    title = remember(workspace.metadata.timestamp) {
+                    text = remember(workspace.metadata.timestamp) {
                         val formatter = DateFormat.getDateTimeInstance()
                         val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
                         calendar.timeInMillis = workspace.metadata.timestamp
@@ -335,13 +309,7 @@ fun RestoreScreen() = FlorisScreen {
                 )
                 if (workspace.restoreErrorId != null) {
                     Column(modifier = Modifier.padding(FlorisCardDefaults.ContentPadding)) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(9.dp)
-                                .padding(bottom = 8.dp)
-                                .background(MaterialTheme.colorScheme.error.copy(alpha = 0.56f))
-                        )
+                        HorizontalDivider()
                         Text(
                             text = stringRes(workspace.restoreErrorId!!),
                             style = MaterialTheme.typography.bodyMedium,
@@ -351,13 +319,7 @@ fun RestoreScreen() = FlorisScreen {
                     }
                 } else if (workspace.restoreWarningId != null) {
                     Column(modifier = Modifier.padding(FlorisCardDefaults.ContentPadding)) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(9.dp)
-                                .padding(bottom = 8.dp)
-                                .background(LocalContentColor.current)
-                        )
+                        HorizontalDivider()
                         Text(
                             text = stringRes(workspace.restoreWarningId!!),
                             style = MaterialTheme.typography.bodyMedium,
@@ -368,11 +330,23 @@ fun RestoreScreen() = FlorisScreen {
                 }
             }
             if (workspace.restoreErrorId == null) {
-                BackupFilesSelector(
+                M3BackupFilesSelector(
                     filesSelector = restoreFilesSelector,
                     title = stringRes(R.string.backup_and_restore__restore__files),
                 )
             }
         }
     }
+}
+
+@Composable
+internal fun M3InfoListItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    text: String,
+) {
+    androidx.compose.material3.ListItem(
+        headlineContent = { Text(text) },
+        leadingContent = { Icon(icon, contentDescription = null) },
+        colors = androidx.compose.material3.ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+    )
 }

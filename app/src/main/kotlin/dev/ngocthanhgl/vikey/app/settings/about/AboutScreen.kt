@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2021-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.about
 
 import android.widget.Toast
@@ -27,7 +11,6 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,10 +23,10 @@ import dev.ngocthanhgl.vikey.BuildConfig
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
+import dev.ngocthanhgl.vikey.app.settings.components.M3ClickablePreference
 import dev.ngocthanhgl.vikey.clipboardManager
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.ngocthanhgl.vikey.lib.util.launchUrl
-import dev.patrickgold.jetpref.datastore.ui.Preference
 import org.florisboard.lib.android.stringRes
 import org.florisboard.lib.compose.FlorisCanvasIcon
 import org.florisboard.lib.compose.stringRes
@@ -78,7 +61,7 @@ fun AboutScreen() = FlorisScreen {
                 modifier = Modifier.padding(top = 16.dp),
             )
         }
-        Preference(
+        M3ClickablePreference(
             icon = Icons.Outlined.Info,
             title = stringRes(R.string.about__version__title),
             summary = appVersion,
@@ -95,25 +78,25 @@ fun AboutScreen() = FlorisScreen {
                 }
             },
         )
-        Preference(
+        M3ClickablePreference(
             icon = Icons.Default.History,
             title = stringRes(R.string.about__changelog__title),
             summary = stringRes(R.string.about__changelog__summary),
             onClick = { context.launchUrl(R.string.florisboard__changelog_url, "version" to BuildConfig.VERSION_NAME) },
         )
-        Preference(
+        M3ClickablePreference(
             icon = Icons.Default.Code,
             title = stringRes(R.string.about__repository__title),
             summary = stringRes(R.string.about__repository__summary),
             onClick = { context.launchUrl(R.string.florisboard__repo_url) },
         )
-        Preference(
+        M3ClickablePreference(
             icon = Icons.Outlined.Description,
             title = stringRes(R.string.about__project_license__title),
             summary = stringRes(R.string.about__project_license__summary, "license_name" to "Apache 2.0"),
             onClick = { navController.navigate(Routes.Settings.ProjectLicense) },
         )
-        Preference(
+        M3ClickablePreference(
             icon = Icons.Outlined.Description,
             title = stringRes(id = R.string.about__third_party_licenses__title),
             summary = stringRes(id = R.string.about__third_party_licenses__summary),

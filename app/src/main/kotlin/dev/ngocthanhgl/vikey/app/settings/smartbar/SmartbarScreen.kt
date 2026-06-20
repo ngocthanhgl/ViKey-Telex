@@ -1,32 +1,22 @@
-/*
- * Copyright (C) 2021-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.smartbar
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.enumDisplayEntriesOf
+import dev.ngocthanhgl.vikey.app.settings.components.M3ListPreference
+import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchListPreference
+import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchPreference
 import dev.ngocthanhgl.vikey.ime.smartbar.CandidatesDisplayMode
 import dev.ngocthanhgl.vikey.ime.smartbar.ExtendedActionsPlacement
 import dev.ngocthanhgl.vikey.ime.smartbar.SmartbarLayout
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
-import dev.patrickgold.jetpref.datastore.ui.ListPreference
-import dev.patrickgold.jetpref.datastore.ui.PreferenceGroup
-import dev.patrickgold.jetpref.datastore.ui.SwitchPreference
+import dev.patrickgold.jetpref.datastore.model.collectAsState
 import org.florisboard.lib.compose.stringRes
 
 @Composable
@@ -35,54 +25,54 @@ fun SmartbarScreen() = FlorisScreen {
     previewFieldVisible = true
 
     content {
-        SwitchPreference(
-            prefs.smartbar.enabled,
+        val enabled by prefs.smartbar.enabled.collectAsState()
+        val layout by prefs.smartbar.layout.collectAsState()
+
+        M3SwitchPreference(
+            pref = prefs.smartbar.enabled,
             title = stringRes(R.string.pref__smartbar__enabled__label),
             summary = stringRes(R.string.pref__smartbar__enabled__summary),
         )
-        ListPreference(
-            listPref = prefs.smartbar.layout,
+        M3ListPreference(
+            pref = prefs.smartbar.layout,
             title = stringRes(R.string.pref__smartbar__layout__label),
             entries = enumDisplayEntriesOf(SmartbarLayout::class),
-            enabledIf = { prefs.smartbar.enabled isEqualTo true },
+            enabled = enabled,
         )
 
-        PreferenceGroup(title = stringRes(R.string.pref__smartbar__group_layout_specific__label)) {
-            ListPreference(
-                prefs.suggestion.displayMode,
+        Text(
+            text = stringRes(R.string.pref__smartbar__group_layout_specific__label),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
+        )
+        if (layout != SmartbarLayout.ACTIONS_ONLY) {
+            M3ListPreference(
+                pref = prefs.suggestion.displayMode,
                 title = stringRes(R.string.pref__suggestion__display_mode__label),
                 entries = enumDisplayEntriesOf(CandidatesDisplayMode::class),
-                enabledIf = { prefs.smartbar.enabled isEqualTo true },
-                visibleIf = { prefs.smartbar.layout isNotEqualTo SmartbarLayout.ACTIONS_ONLY },
+                enabled = enabled,
             )
-            SwitchPreference(
-                prefs.smartbar.flipToggles,
+        }
+        if (layout == SmartbarLayout.SUGGESTIONS_ACTIONS_SHARED || layout == SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED) {
+            M3SwitchPreference(
+                pref = prefs.smartbar.flipToggles,
                 title = stringRes(R.string.pref__smartbar__flip_toggles__label),
                 summary = stringRes(R.string.pref__smartbar__flip_toggles__summary),
-                enabledIf = { prefs.smartbar.enabled isEqualTo true },
-                visibleIf = {
-                    prefs.smartbar.layout isEqualTo SmartbarLayout.SUGGESTIONS_ACTIONS_SHARED ||
-                        prefs.smartbar.layout isEqualTo SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED
-                },
+                enabled = enabled,
             )
-            // TODO: schedule to remove this preference in the future, but keep it for now so users
-            //  know why the setting is not available anymore. Also force enable it for UI display.
-            SideEffect {
-                // prefs.smartbar.sharedActionsAutoExpandCollapse.set(true)
-            }
-            SwitchPreference(
-                prefs.smartbar.sharedActionsAutoExpandCollapse,
-                title = stringRes(R.string.pref__smartbar__shared_actions_auto_expand_collapse__label),
-                summary = "[Since v0.4.1] Always enabled due to UX issues",
-                enabledIf = { false },
-                visibleIf = { prefs.smartbar.layout isEqualTo SmartbarLayout.SUGGESTIONS_ACTIONS_SHARED },
-            )
-            ListPreference(
-                listPref = prefs.smartbar.extendedActionsPlacement,
+        }
+        M3SwitchPreference(
+            pref = prefs.smartbar.sharedActionsAutoExpandCollapse,
+            title = stringRes(R.string.pref__smartbar__shared_actions_auto_expand_collapse__label),
+            summary = "[Since v0.4.1] Always enabled due to UX issues",
+            enabled = false,
+        )
+        if (layout == SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED) {
+            M3ListPreference(
+                pref = prefs.smartbar.extendedActionsPlacement,
                 title = stringRes(R.string.pref__smartbar__extended_actions_placement__label),
                 entries = enumDisplayEntriesOf(ExtendedActionsPlacement::class),
-                enabledIf = { prefs.smartbar.enabled isEqualTo true },
-                visibleIf = { prefs.smartbar.layout isEqualTo SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED },
+                enabled = enabled,
             )
         }
     }

@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2021-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.advanced
 
 import android.content.ContentUris
@@ -24,6 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
@@ -34,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.state.ToggleableState
@@ -57,7 +44,6 @@ import dev.ngocthanhgl.vikey.lib.io.FileRegistry
 import dev.ngocthanhgl.vikey.lib.io.ZipUtils
 import dev.patrickgold.jetpref.datastore.runtime.AndroidAppDataStorage
 import dev.patrickgold.jetpref.datastore.runtime.FileBasedStorage
-import dev.patrickgold.jetpref.material.ui.JetPrefListItem
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -152,8 +138,6 @@ fun BackupScreen() = FlorisScreen {
         contract = ActivityResultContracts.CreateDocument("application/zip"),
         onResult = { uri ->
             if (uri == null) {
-                // User can modify checkboxes between cancellation and second
-                // trigger, so we make sure to clear out the previous workspace
                 backupWorkspace?.close()
                 backupWorkspace = null
                 return@rememberLauncherForActivityResult
@@ -244,7 +228,6 @@ fun BackupScreen() = FlorisScreen {
                 Backup.Destination.FILE_SYS -> {
                     backUpToFileSystemLauncher.launch(backupWorkspace!!.zipFile.name)
                 }
-
                 Backup.Destination.SHARE_INTENT -> {
                     val uri =
                         FileProvider.getUriForFile(context, Backup.FILE_PROVIDER_AUTHORITY, backupWorkspace!!.zipFile)
@@ -288,22 +271,18 @@ fun BackupScreen() = FlorisScreen {
             modifier = Modifier.defaultFlorisOutlinedBox(),
             title = stringRes(R.string.backup_and_restore__back_up__destination),
         ) {
-            RadioListItem(
-                onClick = {
-                    backupDestination = Backup.Destination.FILE_SYS
-                },
+            M3RadioListItem(
+                onClick = { backupDestination = Backup.Destination.FILE_SYS },
                 selected = backupDestination == Backup.Destination.FILE_SYS,
                 text = stringRes(R.string.backup_and_restore__back_up__destination_file_sys),
             )
-            RadioListItem(
-                onClick = {
-                    backupDestination = Backup.Destination.SHARE_INTENT
-                },
+            M3RadioListItem(
+                onClick = { backupDestination = Backup.Destination.SHARE_INTENT },
                 selected = backupDestination == Backup.Destination.SHARE_INTENT,
                 text = stringRes(R.string.backup_and_restore__back_up__destination_share_intent),
             )
         }
-        BackupFilesSelector(
+        M3BackupFilesSelector(
             filesSelector = backupFilesSelector,
             title = stringRes(R.string.backup_and_restore__back_up__files),
         )
@@ -311,7 +290,7 @@ fun BackupScreen() = FlorisScreen {
 }
 
 @Composable
-internal fun BackupFilesSelector(
+internal fun M3BackupFilesSelector(
     modifier: Modifier = Modifier,
     filesSelector: Backup.FilesSelector,
     title: String,
@@ -320,23 +299,22 @@ internal fun BackupFilesSelector(
         modifier = modifier.defaultFlorisOutlinedBox(),
         title = title,
     ) {
-        CheckboxListItem(
+        M3CheckboxListItem(
             onClick = { filesSelector.jetprefDatastore = !filesSelector.jetprefDatastore },
             checked = filesSelector.jetprefDatastore,
             text = stringRes(R.string.backup_and_restore__back_up__files_jetpref_datastore),
         )
-        CheckboxListItem(
+        M3CheckboxListItem(
             onClick = { filesSelector.imeKeyboard = !filesSelector.imeKeyboard },
             checked = filesSelector.imeKeyboard,
             text = stringRes(R.string.backup_and_restore__back_up__files_ime_keyboard),
         )
-        CheckboxListItem(
+        M3CheckboxListItem(
             onClick = { filesSelector.imeTheme = !filesSelector.imeTheme },
             checked = filesSelector.imeTheme,
             text = stringRes(R.string.backup_and_restore__back_up__files_ime_theme),
         )
-
-        TriStateCheckboxListItem(
+        M3TriStateCheckboxListItem(
             onClick = {
                 if (
                     filesSelector.clipboardData.value == ToggleableState.Off ||
@@ -355,103 +333,84 @@ internal fun BackupFilesSelector(
             state = filesSelector.clipboardData.value,
             text = stringRes(R.string.backup_and_restore__back_up__files_clipboard_history),
         )
-
-
-        CheckboxListItem(
+        M3CheckboxListItem(
             onClick = {
                 filesSelector.clipboardTextItems = !filesSelector.clipboardTextItems
                 filesSelector.updateCheckboxState()
             },
             checked = filesSelector.clipboardTextItems,
             text = stringRes(R.string.backup_and_restore__back_up__files_clipboard_history__clipboard_text_items),
-            isSecondaryListItem = true,
+            isSecondary = true,
         )
-        CheckboxListItem(
+        M3CheckboxListItem(
             onClick = {
                 filesSelector.clipboardImageItems = !filesSelector.clipboardImageItems
                 filesSelector.updateCheckboxState()
             },
             checked = filesSelector.clipboardImageItems,
             text = stringRes(R.string.backup_and_restore__back_up__files_clipboard_history__clipboard_image_items),
-            isSecondaryListItem = true,
+            isSecondary = true,
         )
-        CheckboxListItem(
+        M3CheckboxListItem(
             onClick = {
                 filesSelector.clipboardVideoItems = !filesSelector.clipboardVideoItems
                 filesSelector.updateCheckboxState()
             },
             checked = filesSelector.clipboardVideoItems,
             text = stringRes(R.string.backup_and_restore__back_up__files_clipboard_history__clipboard_video_items),
-            isSecondaryListItem = true,
+            isSecondary = true,
         )
-
     }
 }
 
 @Composable
-internal fun CheckboxListItem(
+internal fun M3CheckboxListItem(
     onClick: () -> Unit,
     checked: Boolean,
     text: String,
-    isSecondaryListItem: Boolean = false
+    isSecondary: Boolean = false,
 ) {
-    JetPrefListItem(
-        modifier = Modifier.rippleClickable(onClick = onClick),
-        icon = {
+    ListItem(
+        headlineContent = { Text(text) },
+        leadingContent = {
             Row {
-                if (isSecondaryListItem) {
-                    Spacer(modifier = Modifier.width(40.dp))
-                }
-                Checkbox(
-                    checked = checked,
-                    onCheckedChange = null,
-                )
+                if (isSecondary) Spacer(Modifier.width(40.dp))
+                Checkbox(checked = checked, onCheckedChange = null)
             }
         },
-        text = text,
+        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+        modifier = Modifier.rippleClickable(onClick = onClick),
     )
 }
 
 @Composable
-internal fun TriStateCheckboxListItem(
+internal fun M3TriStateCheckboxListItem(
     onClick: () -> Unit,
     state: ToggleableState,
     text: String,
-    isSecondaryListItem: Boolean = false,
 ) {
-    JetPrefListItem(
-        modifier = Modifier.rippleClickable(onClick = onClick),
-        icon = {
-            Row {
-                if (isSecondaryListItem) {
-                    Spacer(modifier = Modifier.width(40.dp))
-                }
-                TriStateCheckbox(
-                    state = state,
-                    onClick = null,
-                )
-            }
+    ListItem(
+        headlineContent = { Text(text) },
+        leadingContent = {
+            TriStateCheckbox(state = state, onClick = null)
         },
-        text = text,
+        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+        modifier = Modifier.rippleClickable(onClick = onClick),
     )
 }
 
 @Composable
-internal fun RadioListItem(
+internal fun M3RadioListItem(
     onClick: () -> Unit,
     selected: Boolean,
     text: String,
-    secondaryText: String? = null,
 ) {
-    JetPrefListItem(
-        modifier = Modifier.rippleClickable(onClick = onClick),
-        icon = {
-            RadioButton(
-                selected = selected,
-                onClick = null,
-            )
+    ListItem(
+        headlineContent = { Text(text) },
+        leadingContent = {
+            RadioButton(selected = selected, onClick = null)
         },
-        text = text,
-        secondaryText = secondaryText,
+        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+        modifier = Modifier.rippleClickable(onClick = onClick),
     )
 }

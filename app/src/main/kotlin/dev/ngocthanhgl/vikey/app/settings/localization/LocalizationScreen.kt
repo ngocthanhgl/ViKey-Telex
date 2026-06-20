@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2021-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.localization
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -21,10 +5,14 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -37,9 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
+import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
 import dev.ngocthanhgl.vikey.app.enumDisplayEntriesOf
+import dev.ngocthanhgl.vikey.app.settings.components.M3ClickablePreference
+import dev.ngocthanhgl.vikey.app.settings.components.M3ListPreference
+import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchPreference
 import dev.ngocthanhgl.vikey.ime.core.DisplayLanguageNamesIn
 import dev.ngocthanhgl.vikey.ime.core.Subtype
 import dev.ngocthanhgl.vikey.ime.keyboard.LayoutType
@@ -47,11 +39,6 @@ import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.ngocthanhgl.vikey.subtypeManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
-import dev.patrickgold.jetpref.datastore.ui.ListPreference
-import dev.patrickgold.jetpref.datastore.ui.Preference
-import dev.patrickgold.jetpref.datastore.ui.PreferenceGroup
-import dev.patrickgold.jetpref.datastore.ui.SwitchPreference
-import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
 import kotlinx.serialization.json.Json
 import org.florisboard.lib.compose.FlorisWarningCard
 import org.florisboard.lib.compose.stringRes
@@ -97,93 +84,94 @@ fun LocalizationScreen() = FlorisScreen {
     }
 
     content {
-        ListPreference(
-            prefs.localization.displayLanguageNamesIn,
+        M3ListPreference(
+            pref = prefs.localization.displayLanguageNamesIn,
             title = stringRes(R.string.settings__localization__display_language_names_in__label),
             entries = enumDisplayEntriesOf(DisplayLanguageNamesIn::class),
         )
-        SwitchPreference(
-            prefs.localization.displayKeyboardLabelsInSubtypeLanguage,
+        M3SwitchPreference(
+            pref = prefs.localization.displayKeyboardLabelsInSubtypeLanguage,
             title = stringRes(R.string.settings__localization__display_keyboard_labels_in_subtype_language),
         )
-        Preference(
+        M3ClickablePreference(
             title = stringRes(R.string.settings__localization__language_pack_title),
             summary = stringRes(R.string.settings__localization__language_pack_summary),
             onClick = {
                 navController.navigate(Routes.Settings.LanguagePackManager(LanguagePackManagerScreenAction.MANAGE))
             },
         )
-        PreferenceGroup(title = stringRes(R.string.settings__localization__group_subtypes__label)) {
-            val subtypes by subtypeManager.subtypesFlow.collectAsState()
-            if (subtypes.isEmpty()) {
-                FlorisWarningCard(
-                    modifier = Modifier.padding(all = 8.dp),
-                    text = stringRes(R.string.settings__localization__subtype_no_subtypes_configured_warning),
+
+        Text(
+            text = stringRes(R.string.settings__localization__group_subtypes__label),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
+        )
+        val subtypes by subtypeManager.subtypesFlow.collectAsState()
+        if (subtypes.isEmpty()) {
+            FlorisWarningCard(
+                modifier = Modifier.padding(all = 8.dp),
+                text = stringRes(R.string.settings__localization__subtype_no_subtypes_configured_warning),
+            )
+        } else {
+            val currencySets by keyboardManager.resources.currencySets.collectAsState()
+            val layouts by keyboardManager.resources.layouts.collectAsState()
+            val displayLanguageNamesIn by prefs.localization.displayLanguageNamesIn.collectAsState()
+            for (subtype in subtypes) {
+                val cMeta = layouts[LayoutType.CHARACTERS]?.get(subtype.layoutMap.characters)
+                val sMeta = layouts[LayoutType.SYMBOLS]?.get(subtype.layoutMap.symbols)
+                val currMeta = currencySets[subtype.currencySet]
+                val summary = stringRes(
+                    id = R.string.settings__localization__subtype_summary,
+                    "characters_name" to (cMeta?.label ?: "null"),
+                    "symbols_name" to (sMeta?.label ?: "null"),
+                    "currency_set_name" to (currMeta?.label ?: "null"),
                 )
-            } else {
-                val currencySets by keyboardManager.resources.currencySets.collectAsState()
-                val layouts by keyboardManager.resources.layouts.collectAsState()
-                val displayLanguageNamesIn by prefs.localization.displayLanguageNamesIn.collectAsState()
-                for (subtype in subtypes) {
-                    val cMeta = layouts[LayoutType.CHARACTERS]?.get(subtype.layoutMap.characters)
-                    val sMeta = layouts[LayoutType.SYMBOLS]?.get(subtype.layoutMap.symbols)
-                    val currMeta = currencySets[subtype.currencySet]
-                    val summary = stringRes(
-                        id = R.string.settings__localization__subtype_summary,
-                        "characters_name" to (cMeta?.label ?: "null"),
-                        "symbols_name" to (sMeta?.label ?: "null"),
-                        "currency_set_name" to (currMeta?.label ?: "null"),
-                    )
-                    Preference(
-                        title = when (displayLanguageNamesIn) {
-                            DisplayLanguageNamesIn.SYSTEM_LOCALE -> subtype.primaryLocale.displayName()
-                            DisplayLanguageNamesIn.NATIVE_LOCALE -> subtype.primaryLocale.displayName(subtype.primaryLocale)
+                M3ClickablePreference(
+                    title = when (displayLanguageNamesIn) {
+                        DisplayLanguageNamesIn.SYSTEM_LOCALE -> subtype.primaryLocale.displayName()
+                        DisplayLanguageNamesIn.NATIVE_LOCALE -> subtype.primaryLocale.displayName(subtype.primaryLocale)
+                    },
+                    summary = summary,
+                    modifier = Modifier.combinedClickable(
+                        onClick = {
+                            navController.navigate(Routes.Settings.SubtypeEdit(subtype.id))
                         },
-                        summary = summary,
-                        modifier = Modifier.combinedClickable(
-                            onClick = {
-                                navController.navigate(
-                                    Routes.Settings.SubtypeEdit(subtype.id)
-                                )
-                            },
-                            onLongClick = {
-                                chosenSubtypeToDelete = subtype
-                            },
-                        )
-                    )
-                }
+                        onLongClick = {
+                            chosenSubtypeToDelete = subtype
+                        },
+                    ),
+                )
             }
         }
     }
 
     DeleteSubtypeConfirmationDialog(
         subtypeToDelete = chosenSubtypeToDelete,
-        onDismiss = {
-            chosenSubtypeToDelete = null
-        },
+        onDismiss = { chosenSubtypeToDelete = null },
         onConfirm = {
             chosenSubtypeToDelete?.let { subtypeManager.removeSubtype(subtypeToRemove = it) }
             chosenSubtypeToDelete = null
-        }
+        },
     )
-
 }
 
 @Composable
-fun DeleteSubtypeConfirmationDialog(
+private fun DeleteSubtypeConfirmationDialog(
     subtypeToDelete: Subtype?,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-)   {
+) {
     subtypeToDelete?.let {
-        JetPrefAlertDialog(
-            title = stringRes(R.string.settings__localization__subtype_delete_confirmation_title),
-            confirmLabel = stringRes(R.string.action__yes),
-            dismissLabel = stringRes(R.string.action__no),
-            onDismiss = onDismiss,
-            onConfirm = onConfirm,
-            ) {
-                Text(stringRes(R.string.settings__localization__subtype_delete_confirmation_warning))
-            }
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringRes(R.string.settings__localization__subtype_delete_confirmation_title)) },
+            text = { Text(stringRes(R.string.settings__localization__subtype_delete_confirmation_warning)) },
+            confirmButton = {
+                Button(onClick = onConfirm) { Text(stringRes(R.string.action__yes)) }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) { Text(stringRes(R.string.action__no)) }
+            },
+        )
     }
 }

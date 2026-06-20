@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2021-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.advanced
 
 import androidx.compose.material.icons.Icons
@@ -24,8 +8,11 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.SettingsBackupRestore
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -35,21 +22,19 @@ import dev.ngocthanhgl.vikey.app.AppTheme
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
 import dev.ngocthanhgl.vikey.app.enumDisplayEntriesOf
+import dev.ngocthanhgl.vikey.app.settings.components.M3ClickablePreference
+import dev.ngocthanhgl.vikey.app.settings.components.M3ListPreference
+import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchPreference
 import dev.ngocthanhgl.vikey.ime.core.DisplayLanguageNamesIn
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.patrickgold.jetpref.datastore.ui.ColorPickerPreference
-import dev.patrickgold.jetpref.datastore.ui.ListPreference
-import dev.patrickgold.jetpref.datastore.ui.Preference
-import dev.patrickgold.jetpref.datastore.ui.PreferenceGroup
-import dev.patrickgold.jetpref.datastore.ui.SwitchPreference
 import dev.patrickgold.jetpref.datastore.ui.isMaterialYou
 import dev.patrickgold.jetpref.datastore.ui.listPrefEntries
 import org.florisboard.lib.android.AndroidVersion
 import org.florisboard.lib.color.ColorMappings
 import org.florisboard.lib.compose.stringRes
-
 
 @Composable
 fun OtherScreen() = FlorisScreen {
@@ -60,8 +45,8 @@ fun OtherScreen() = FlorisScreen {
     val context = LocalContext.current
 
     content {
-        ListPreference(
-            prefs.other.settingsTheme,
+        M3ListPreference(
+            pref = prefs.other.settingsTheme,
             icon = Icons.Default.Palette,
             title = stringRes(R.string.pref__other__settings_theme__label),
             entries = enumDisplayEntriesOf(AppTheme::class),
@@ -82,8 +67,8 @@ fun OtherScreen() = FlorisScreen {
                 }
             }
         )
-        ListPreference(
-            prefs.other.settingsLanguage,
+        M3ListPreference(
+            pref = prefs.other.settingsLanguage,
             icon = Icons.Default.Language,
             title = stringRes(R.string.pref__other__settings_language__label),
             entries = listPrefEntries {
@@ -146,40 +131,43 @@ fun OtherScreen() = FlorisScreen {
                 }
             }
         )
-        SwitchPreference(
-            prefs.other.showAppIcon,
+        M3SwitchPreference(
+            pref = prefs.other.showAppIcon,
             icon = Icons.Default.Preview,
             title = stringRes(R.string.pref__other__show_app_icon__label),
             summary = when {
                 AndroidVersion.ATLEAST_API29_Q -> stringRes(R.string.pref__other__show_app_icon__summary_atleast_q)
                 else -> null
             },
-            enabledIf = { AndroidVersion.ATMOST_API28_P },
+            enabled = AndroidVersion.ATMOST_API28_P,
         )
-        Preference(
+        M3ClickablePreference(
             icon = ImageVector.vectorResource(R.drawable.ic_keyboard_keys),
             title = stringRes(R.string.physical_keyboard__title),
             onClick = { navController.navigate(Routes.Settings.PhysicalKeyboard) },
         )
-        Preference(
+        M3ClickablePreference(
             icon = Icons.Default.Adb,
             title = stringRes(R.string.devtools__title),
             onClick = { navController.navigate(Routes.Devtools.Home) },
         )
 
-        PreferenceGroup(title = stringRes(R.string.backup_and_restore__title)) {
-            Preference(
-                onClick = { navController.navigate(Routes.Settings.Backup) },
-                icon = Icons.Default.Archive,
-                title = stringRes(R.string.backup_and_restore__back_up__title),
-                summary = stringRes(R.string.backup_and_restore__back_up__summary),
-            )
-            Preference(
-                onClick = { navController.navigate(Routes.Settings.Restore) },
-                icon = Icons.Default.SettingsBackupRestore,
-                title = stringRes(R.string.backup_and_restore__restore__title),
-                summary = stringRes(R.string.backup_and_restore__restore__summary),
-            )
-        }
+        Text(
+            text = stringRes(R.string.backup_and_restore__title),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
+        )
+        M3ClickablePreference(
+            icon = Icons.Default.Archive,
+            title = stringRes(R.string.backup_and_restore__back_up__title),
+            summary = stringRes(R.string.backup_and_restore__back_up__summary),
+            onClick = { navController.navigate(Routes.Settings.Backup) },
+        )
+        M3ClickablePreference(
+            icon = Icons.Default.SettingsBackupRestore,
+            title = stringRes(R.string.backup_and_restore__restore__title),
+            summary = stringRes(R.string.backup_and_restore__restore__summary),
+            onClick = { navController.navigate(Routes.Settings.Restore) },
+        )
     }
 }

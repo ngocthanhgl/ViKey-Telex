@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2021-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.theme
 
 import androidx.compose.material.icons.Icons
@@ -34,6 +18,8 @@ import dev.ngocthanhgl.vikey.app.Routes
 import dev.ngocthanhgl.vikey.app.enumDisplayEntriesOf
 import dev.ngocthanhgl.vikey.app.ext.AddonManagementReferenceBox
 import dev.ngocthanhgl.vikey.app.ext.ExtensionListScreenType
+import dev.ngocthanhgl.vikey.app.settings.components.M3ClickablePreference
+import dev.ngocthanhgl.vikey.app.settings.components.M3ListPreference
 import dev.ngocthanhgl.vikey.ime.theme.ThemeManager
 import dev.ngocthanhgl.vikey.ime.theme.ThemeMode
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
@@ -41,9 +27,7 @@ import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
 import dev.ngocthanhgl.vikey.themeManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.patrickgold.jetpref.datastore.ui.ColorPickerPreference
-import dev.patrickgold.jetpref.datastore.ui.ListPreference
 import dev.patrickgold.jetpref.datastore.ui.LocalTimePickerPreference
-import dev.patrickgold.jetpref.datastore.ui.Preference
 import dev.patrickgold.jetpref.datastore.ui.isMaterialYou
 import org.florisboard.lib.color.ColorMappings
 import org.florisboard.lib.compose.stringRes
@@ -67,27 +51,28 @@ fun ThemeScreen() = FlorisScreen {
     content {
         val dayThemeId by prefs.theme.dayThemeId.collectAsState()
         val nightThemeId by prefs.theme.nightThemeId.collectAsState()
+        val themeMode by prefs.theme.mode.collectAsState()
 
-        ListPreference(
-            prefs.theme.mode,
+        M3ListPreference(
+            pref = prefs.theme.mode,
             icon = Icons.Default.BrightnessAuto,
             title = stringRes(R.string.pref__theme__mode__label),
             entries = enumDisplayEntriesOf(ThemeMode::class),
         )
-        Preference(
+        M3ClickablePreference(
             icon = Icons.Default.LightMode,
             title = stringRes(R.string.pref__theme__day),
             summary = themeManager.getThemeLabel(dayThemeId),
-            enabledIf = { prefs.theme.mode isNotEqualTo ThemeMode.ALWAYS_NIGHT },
+            enabled = themeMode != ThemeMode.ALWAYS_NIGHT,
             onClick = {
                 navController.navigate(Routes.Settings.ThemeManager(ThemeManagerScreenAction.SELECT_DAY))
             },
         )
-        Preference(
+        M3ClickablePreference(
             icon = Icons.Default.DarkMode,
             title = stringRes(R.string.pref__theme__night),
             summary = themeManager.getThemeLabel(nightThemeId),
-            enabledIf = { prefs.theme.mode isNotEqualTo ThemeMode.ALWAYS_DAY },
+            enabled = themeMode != ThemeMode.ALWAYS_DAY,
             onClick = {
                 navController.navigate(Routes.Settings.ThemeManager(ThemeManagerScreenAction.SELECT_NIGHT))
             },
@@ -96,13 +81,13 @@ fun ThemeScreen() = FlorisScreen {
             pref = prefs.theme.sunriseTime,
             title = stringRes(R.string.pref__theme__sunrise_time__label),
             icon = Icons.Default.WbTwilight,
-            enabledIf = { prefs.theme.mode isEqualTo ThemeMode.FOLLOW_TIME },
+            enabled = themeMode == ThemeMode.FOLLOW_TIME,
         )
         LocalTimePickerPreference(
             pref = prefs.theme.sunsetTime,
             title = stringRes(R.string.pref__theme__sunset_time__label),
             icon = Icons.Default.Brightness2,
-            enabledIf = { prefs.theme.mode isEqualTo ThemeMode.FOLLOW_TIME },
+            enabled = themeMode == ThemeMode.FOLLOW_TIME,
         )
         ColorPickerPreference(
             pref = prefs.theme.accentColor,

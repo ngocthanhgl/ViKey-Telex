@@ -18,16 +18,14 @@ package dev.ngocthanhgl.vikey.app
 
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
@@ -260,17 +258,16 @@ object Routes {
             navController = navController,
             startDestination = startDestination,
             enterTransition = {
-                slideIn { IntOffset(it.width, 0) } + fadeIn()
+                slideIn { IntOffset(it.width, 0) } + fadeIn(tween(300))
             },
             exitTransition = {
-                slideOut { IntOffset(-it.width, 0) } + fadeOut()
+                slideOut { IntOffset(-it.width / 3, 0) } + fadeOut(tween(200))
             },
-            popEnterTransition = { EnterTransition.None },
+            popEnterTransition = {
+                slideIn { IntOffset(-it.width / 3, 0) } + fadeIn(tween(200))
+            },
             popExitTransition = {
-                scaleOut(
-                    targetScale = 0.85F,
-                    transformOrigin = TransformOrigin(pivotFractionX = 0.8f, pivotFractionY = 0.5f)
-                ) + fadeOut(spring(stiffness = Spring.StiffnessMedium))
+                slideOut { IntOffset(it.width, 0) } + fadeOut(tween(300))
             },
         ) {
             composable<Setup.Screen> { SetupScreen() }
