@@ -48,7 +48,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
-import dev.ngocthanhgl.vikey.app.settings.advanced.RadioListItem
+import dev.patrickgold.jetpref.datastore.ui.RadioListItem
 import dev.ngocthanhgl.vikey.app.settings.theme.DialogProperty
 import dev.ngocthanhgl.vikey.app.settings.theme.PrettyPrintConfig
 import dev.ngocthanhgl.vikey.app.settings.theme.ThemeEditorScreen

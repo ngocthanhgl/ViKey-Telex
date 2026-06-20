@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Menu
-import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Assignment
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Gesture
 import androidx.compose.material.icons.filled.Language
@@ -78,7 +78,7 @@ fun HomeScreen() {
                     title = { Text(stringRes(R.string.settings__home__title)) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.AutoMirrored.Filled.Menu, contentDescription = null)
+                            Icon(Icons.Filled.Menu, contentDescription = null)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -149,7 +149,7 @@ fun HomeScreen() {
                         onClick = { navController.navigate(Routes.Settings.Gestures) },
                     )
                     M3ClickablePreference(
-                        icon = Icons.AutoMirrored.Outlined.Assignment,
+                        icon = Icons.Outlined.Assignment,
                         title = stringRes(R.string.settings__clipboard__title),
                         onClick = { navController.navigate(Routes.Settings.Clipboard) },
                     )
