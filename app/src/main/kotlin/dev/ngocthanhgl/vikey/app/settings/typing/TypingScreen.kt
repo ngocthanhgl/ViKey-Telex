@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
-import androidx.compose.material.icons.automirrored.filled.RateReview
+import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Contacts
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.SpaceBar
@@ -112,7 +112,7 @@ fun TypingScreen() = FlorisScreen {
             )
             SwitchPreference(
                 prefs.correction.autoCorrect,
-                icon = Icons.AutoMirrored.Filled.RateReview,
+                icon = Icons.Default.RateReview,
                 title = stringRes(R.string.pref__correction__auto_correct__label),
                 summary = stringRes(R.string.pref__correction__auto_correct__summary),
             )

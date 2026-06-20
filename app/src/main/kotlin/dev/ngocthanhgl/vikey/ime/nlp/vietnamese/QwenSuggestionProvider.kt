@@ -361,8 +361,9 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     if (lastWord.isBlank()) return@withContext emptyList()
                     if (now >= pasteUntil) {
                         recordWord(lastWord)
-                        if (lastTopSuggestion != null && lastWord.lowercase() != lastTopSuggestion) {
-                            dampWord(lastTopSuggestion)
+                        val lastTop = lastTopSuggestion
+                        if (lastTop != null && lastWord.lowercase() != lastTop) {
+                            dampWord(lastTop)
                         }
                     }
                     suggestNextWord(textBefore, maxCandidateCount)

@@ -245,8 +245,9 @@ class NlpManager(context: Context) {
                 allowPossiblyOffensive = !prefs.suggestion.blockPossiblyOffensive.get(),
                 isPrivateSession = keyboardManager.activeState.isIncognitoMode,
             )
-            internalSuggestions.update { (prevTime, _) ->
-                if (prevTime < reqTime) reqTime to suggestions else prevTime to suggestions
+            internalSuggestions.update {
+                val prev = it.first
+                if (prev < reqTime) reqTime to suggestions else it
             }
             scope.launch { assembleCandidates() }
             hasPendingComposition = false
@@ -285,11 +286,12 @@ class NlpManager(context: Context) {
                     )
                 }
             }
-            internalSuggestions.update { (prevTime, prevList) ->
-                if (prevTime < reqTime) reqTime to buildList {
+            internalSuggestions.update {
+                val prev = it.first
+                if (prev < reqTime) reqTime to buildList<SuggestionCandidate> {
                     addAll(emojiSuggestions)
                     addAll(suggestions)
-                } else prevTime to prevList
+                } else it
             }
             scope.launch { assembleCandidates() }
         }
