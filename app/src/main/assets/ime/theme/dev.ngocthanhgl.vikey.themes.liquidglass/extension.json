@@ -1,0 +1,38 @@
+{
+  "$": "ime.extension.theme",
+  "meta": {
+    "id": "dev.ngocthanhgl.vikey.themes.liquidglass",
+    "version": "1.0.0",
+    "title": "ViKey Liquid Glass Themes",
+    "homepage": "https://github.com/ngocthanhgl/vikey-themes",
+    "issueTracker": "https://github.com/ngocthanhgl/vikey-themes/issues",
+    "maintainers": [
+      "NgocThanhGL <ngocthanhgl@proton.me>"
+    ],
+    "license": "MIT"
+  },
+  "themes": [
+    {
+      "id": "liquid_glass",
+      "label": "🍸 Liquid Glass",
+      "authors": [ "NgocThanhGL" ],
+      "isNight": true,
+      "materialYouFlags": {
+        "paletteStyle": "Spritz",
+        "contrastLevel": "Default",
+        "specVersion": "SPEC_2021"
+      }
+    },
+    {
+      "id": "liquid_glass_light",
+      "label": "🍸 Liquid Glass Light",
+      "authors": [ "NgocThanhGL" ],
+      "isNight": false,
+      "materialYouFlags": {
+        "paletteStyle": "Spritz",
+        "contrastLevel": "Default",
+        "specVersion": "SPEC_2021"
+      }
+    }
+  ]
+}

@@ -68,24 +68,28 @@ fun FlorisImeTheme(content: @Composable () -> Unit) {
         FontFamily(Font(R.font.google_sans_regular))
     }
 
+    val activeThemeName = activeThemeInfo.name
+
     MaterialTheme {
         CompositionLocalProvider(
             LocalTextStyle provides TextStyle.Default,
         ) {
-            ProvideSnyggTheme(
-                snyggTheme = snyggTheme,
-                dynamicAccentColor = accentColor,
-                fontSizeMultiplier = fontScale,
-                assetResolver = assetResolver,
-                rootAttributes = attributes,
-                content = {
-                    CompositionLocalProvider(
-                        LocalSnyggDefaultFontFamily provides googleSansFamily,
-                        content = content,
-                    )
-                },
-                materialYouFlags = activeThemeInfo.config.materialYouFlags
-            )
+            ProvideLiquidGlassEnabled(activeThemeName) {
+                ProvideSnyggTheme(
+                    snyggTheme = snyggTheme,
+                    dynamicAccentColor = accentColor,
+                    fontSizeMultiplier = fontScale,
+                    assetResolver = assetResolver,
+                    rootAttributes = attributes,
+                    content = {
+                        CompositionLocalProvider(
+                            LocalSnyggDefaultFontFamily provides googleSansFamily,
+                            content = content,
+                        )
+                    },
+                    materialYouFlags = activeThemeInfo.config.materialYouFlags
+                )
+            }
         }
     }
 }
