@@ -60,8 +60,6 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) = FlorisScreen {
         ThemeManagerScreenAction.SELECT_NIGHT -> R.string.settings__theme_manager__title_night
         else -> error("Theme manager screen action must not be null")
     })
-    previewFieldVisible = true
-
     val prefs by FlorisPreferenceStore
     val context = LocalContext.current
     val extensionManager by context.extensionManager()

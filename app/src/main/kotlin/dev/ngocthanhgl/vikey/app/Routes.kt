@@ -34,10 +34,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
-import dev.ngocthanhgl.vikey.app.devtools.AndroidLocalesScreen
-import dev.ngocthanhgl.vikey.app.devtools.AndroidSettingsScreen
-import dev.ngocthanhgl.vikey.app.devtools.DevtoolsScreen
-import dev.ngocthanhgl.vikey.app.devtools.ExportDebugLogScreen
 import dev.ngocthanhgl.vikey.app.ext.CheckUpdatesScreen
 import dev.ngocthanhgl.vikey.app.ext.ExtensionEditScreen
 import dev.ngocthanhgl.vikey.app.ext.ExtensionExportScreen
@@ -52,7 +48,6 @@ import dev.ngocthanhgl.vikey.app.settings.about.AboutScreen
 import dev.ngocthanhgl.vikey.app.settings.about.ProjectLicenseScreen
 import dev.ngocthanhgl.vikey.app.settings.about.ThirdPartyLicensesScreen
 import dev.ngocthanhgl.vikey.app.settings.advanced.OtherScreen
-import dev.ngocthanhgl.vikey.app.settings.advanced.PhysicalKeyboardScreen
 import dev.ngocthanhgl.vikey.app.settings.clipboard.ClipboardScreen
 import dev.ngocthanhgl.vikey.app.settings.dictionary.DictionaryScreen
 import dev.ngocthanhgl.vikey.app.settings.dictionary.UserDictionaryScreen
@@ -173,10 +168,6 @@ object Routes {
         object Other
 
         @Serializable
-        @Deeplink("settings/other/physical-keyboard")
-        object PhysicalKeyboard
-
-        @Serializable
         @Deeplink("settings/about")
         object About
 
@@ -187,24 +178,6 @@ object Routes {
         @Serializable
         @Deeplink("settings/about/third-party-licenses")
         object ThirdPartyLicenses
-    }
-
-    object Devtools {
-        @Serializable
-        @Deeplink("devtools")
-        object Home
-
-        @Serializable
-        @Deeplink("devtools/android/locales")
-        object AndroidLocales
-
-        @Serializable
-        @Deeplink("devtools/android/settings")
-        data class AndroidSettings(val name: String)
-
-        @Serializable
-        @Deeplink("export-debug-log")
-        object ExportDebugLog
     }
 
     object Ext {
@@ -302,19 +275,10 @@ object Routes {
             composableWithDeepLink(Settings.Media::class) { MediaScreen() }
 
             composableWithDeepLink(Settings.Other::class) { OtherScreen() }
-            composableWithDeepLink(Settings.PhysicalKeyboard::class) { PhysicalKeyboardScreen() }
 
             composableWithDeepLink(Settings.About::class) { AboutScreen() }
             composableWithDeepLink(Settings.ProjectLicense::class) { ProjectLicenseScreen() }
             composableWithDeepLink(Settings.ThirdPartyLicenses::class) { ThirdPartyLicensesScreen() }
-
-            composableWithDeepLink(Devtools.Home::class) { DevtoolsScreen() }
-            composableWithDeepLink(Devtools.AndroidLocales::class) { AndroidLocalesScreen() }
-            composableWithDeepLink(Devtools.AndroidSettings::class) { navBackStack ->
-                val payload = navBackStack.toRoute<Devtools.AndroidSettings>()
-                AndroidSettingsScreen(payload.name)
-            }
-            composableWithDeepLink(Devtools.ExportDebugLog::class) { ExportDebugLogScreen() }
 
             composableWithDeepLink(Ext.Home::class) { ExtensionHomeScreen() }
             composableWithDeepLink(Ext.List::class) { navBackStack ->

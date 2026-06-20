@@ -23,8 +23,6 @@ import org.florisboard.lib.compose.stringRes
 @Composable
 fun SmartbarScreen() = FlorisScreen {
     title = stringRes(R.string.settings__smartbar__title)
-    previewFieldVisible = true
-
     content {
         val scope = rememberCoroutineScope()
         val enabled by prefs.smartbar.enabled.collectAsState()

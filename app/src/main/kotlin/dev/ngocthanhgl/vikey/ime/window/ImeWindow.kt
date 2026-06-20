@@ -59,7 +59,6 @@ import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
 import dev.ngocthanhgl.vikey.R
-import dev.ngocthanhgl.vikey.app.devtools.DevtoolsOverlay
 import dev.ngocthanhgl.vikey.ime.ImeUiMode
 import dev.ngocthanhgl.vikey.ime.clipboard.ClipboardInputLayout
 import dev.ngocthanhgl.vikey.ime.input.LocalInputFeedbackController
@@ -82,7 +81,7 @@ import org.florisboard.lib.snygg.ui.SnyggIconButton
 import org.florisboard.lib.snygg.ui.rememberSnyggThemeQuery
 
 /**
- * The main entry point of the IME user interface. This includes the keyboard itself, devtools overlays,
+ * The main entry point of the IME user interface. This includes the keyboard itself,
  * bottom sheets, and system bars management.
  *
  * Typically, the root window corresponds to the screen bounds, however this is not guaranteed. For
@@ -92,8 +91,7 @@ import org.florisboard.lib.snygg.ui.rememberSnyggThemeQuery
  *
  * @see ImeWindow
  * @see BottomSheetWindow
- * @see DevtoolsOverlay
- */
+ * @see BottomSheetWindow
 @Composable
 fun ImeRootWindow() {
     val density = LocalDensity.current
@@ -125,7 +123,6 @@ fun ImeRootWindow() {
                 windowController.updateRootInsets(newInsets)
             },
     ) {
-        DevtoolsOverlay()
         ImeWindow()
         BottomSheetWindow()
         ImeSystemUi()

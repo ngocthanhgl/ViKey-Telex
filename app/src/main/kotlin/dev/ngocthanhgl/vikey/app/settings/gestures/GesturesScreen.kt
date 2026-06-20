@@ -22,8 +22,6 @@ import org.florisboard.lib.compose.stringRes
 @Composable
 fun GesturesScreen() = FlorisScreen {
     title = stringRes(R.string.settings__gestures__title)
-    previewFieldVisible = true
-
     content {
         val scope = rememberCoroutineScope()
         val swipeUp by prefs.gestures.swipeUp.collectAsState()

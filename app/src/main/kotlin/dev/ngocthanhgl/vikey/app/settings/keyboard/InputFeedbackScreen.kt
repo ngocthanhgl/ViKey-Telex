@@ -27,7 +27,6 @@ import org.florisboard.lib.compose.stringRes
 @Composable
 fun InputFeedbackScreen() = FlorisScreen {
     title = stringRes(R.string.settings__input_feedback__title)
-    previewFieldVisible = true
     iconSpaceReserved = false
 
     val context = LocalContext.current

@@ -16,10 +16,9 @@
 
 package dev.ngocthanhgl.vikey.app
 
-import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
+import android.content.res.Configuration
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -48,17 +47,14 @@ import dev.ngocthanhgl.vikey.app.ext.ExtensionImportScreenType
 import dev.ngocthanhgl.vikey.app.setup.NotificationPermissionState
 import dev.ngocthanhgl.vikey.appContext
 import dev.ngocthanhgl.vikey.cacheManager
-import dev.ngocthanhgl.vikey.lib.FlorisLocale
 import dev.ngocthanhgl.vikey.lib.compose.LocalPreviewFieldController
-import dev.ngocthanhgl.vikey.lib.compose.PreviewKeyboardField
+import dev.ngocthanhgl.vikey.lib.compose.PreviewKeyboardPill
 import dev.ngocthanhgl.vikey.lib.compose.rememberPreviewFieldController
 import dev.ngocthanhgl.vikey.lib.util.AppVersionUtils
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.patrickgold.jetpref.datastore.ui.ProvideDefaultDialogPrefStrings
 import java.util.concurrent.atomic.AtomicBoolean
 import org.florisboard.lib.android.AndroidVersion
-import org.florisboard.lib.android.hideAppIcon
-import org.florisboard.lib.android.showAppIcon
 import org.florisboard.lib.compose.ProvideLocalizedResources
 import org.florisboard.lib.compose.conditional
 import org.florisboard.lib.compose.stringRes
@@ -81,8 +77,6 @@ class FlorisAppActivity : ComponentActivity() {
     private val appContext by appContext()
     private val cacheManager by cacheManager()
     private var appTheme by mutableStateOf(AppTheme.AUTO)
-    private var showAppIcon = true
-    private var resourcesContext by mutableStateOf(this as Context)
     private var intentToBeHandled by mutableStateOf<Intent?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,17 +89,6 @@ class FlorisAppActivity : ComponentActivity() {
 
         prefs.other.settingsTheme.asFlow().collectIn(lifecycleScope) {
             appTheme = it
-        }
-        prefs.other.settingsLanguage.asFlow().collectIn(lifecycleScope) {
-            val config = Configuration(resources.configuration)
-            val locale = if (it == "auto") FlorisLocale.default() else FlorisLocale.fromTag(it)
-            config.setLocale(locale.base)
-            resourcesContext = createConfigurationContext(config)
-        }
-        if (AndroidVersion.ATMOST_API28_P) {
-            prefs.other.showAppIcon.asFlow().collectIn(lifecycleScope) {
-                showAppIcon = it
-            }
         }
 
         // We defer the setContent call until the datastore model is loaded, until then the splash screen stays drawn
@@ -121,10 +104,7 @@ class FlorisAppActivity : ComponentActivity() {
             }
             AppVersionUtils.updateVersionOnInstallAndLastUse(this, prefs)
             setContent {
-                ProvideLocalizedResources(
-                    resourcesContext,
-                    appName = R.string.app_name,
-                ) {
+                ProvideLocalizedResources(appName = R.string.app_name) {
                     FlorisAppTheme(theme = appTheme) {
                         Surface(color = MaterialTheme.colorScheme.background) {
                             AppContent()
@@ -138,16 +118,6 @@ class FlorisAppActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-
-        // App icon visibility control was restricted in Android 10.
-        // See https://developer.android.com/reference/android/content/pm/LauncherApps#getActivityList(java.lang.String,%20android.os.UserHandle)
-        if (AndroidVersion.ATMOST_API28_P) {
-            if (showAppIcon) {
-                this.showAppIcon()
-            } else {
-                this.hideAppIcon()
-            }
-        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -199,7 +169,7 @@ class FlorisAppActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = if (isImeSetUp) Routes.Settings.Home::class else Routes.Setup.Screen::class,
                     )
-                    PreviewKeyboardField(previewFieldController)
+                    PreviewKeyboardPill(previewFieldController)
                 }
             }
         }

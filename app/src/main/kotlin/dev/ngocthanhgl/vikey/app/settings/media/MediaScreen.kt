@@ -37,7 +37,6 @@ import org.florisboard.lib.compose.stringRes
 @Composable
 fun MediaScreen() = FlorisScreen {
     title = stringRes(R.string.settings__media__title)
-    previewFieldVisible = true
     iconSpaceReserved = true
 
     val prefs by FlorisPreferenceStore

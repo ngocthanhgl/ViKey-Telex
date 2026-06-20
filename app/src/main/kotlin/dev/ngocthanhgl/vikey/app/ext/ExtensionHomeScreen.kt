@@ -35,7 +35,6 @@ import org.florisboard.lib.compose.stringRes
 @Composable
 fun ExtensionHomeScreen() = FlorisScreen {
     title = stringRes(R.string.ext__home__title)
-    previewFieldVisible = false
 
     val context = LocalContext.current
     val navController = LocalNavController.current

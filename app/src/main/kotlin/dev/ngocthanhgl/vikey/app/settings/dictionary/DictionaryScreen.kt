@@ -27,8 +27,6 @@ import java.io.File
 @Composable
 fun DictionaryScreen() = FlorisScreen {
     title = stringRes(R.string.settings__dictionary__title)
-    previewFieldVisible = true
-
     val navController = LocalNavController.current
     val context = LocalContext.current
     var showClearDialog by remember { mutableStateOf(false) }

@@ -55,7 +55,6 @@ internal val SubtypeSaver = Saver<MutableState<Subtype?>, String>(
 @Composable
 fun LocalizationScreen() = FlorisScreen {
     title = stringRes(R.string.settings__localization__title)
-    previewFieldVisible = true
     iconSpaceReserved = false
 
     val navController = LocalNavController.current

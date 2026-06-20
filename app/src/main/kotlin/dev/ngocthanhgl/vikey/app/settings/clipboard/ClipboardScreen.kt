@@ -25,8 +25,6 @@ import org.florisboard.lib.compose.stringRes
 @Composable
 fun ClipboardScreen() = FlorisScreen {
     title = stringRes(R.string.settings__clipboard__title)
-    previewFieldVisible = true
-
     content {
         val scope = rememberCoroutineScope()
         val useInternalClipboard by prefs.clipboard.useInternalClipboard.collectAsState()

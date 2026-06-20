@@ -3,12 +3,12 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Brightness2
-import androidx.compose.material.icons.filled.BrightnessAuto
-import androidx.compose.material.icons.filled.ColorLens
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.WbTwilight
+import androidx.compose.material.icons.outlined.Brightness2
+import androidx.compose.material.icons.outlined.BrightnessAuto
+import androidx.compose.material.icons.outlined.ColorLens
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.outlined.WbTwilight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,7 +37,6 @@ import org.florisboard.lib.compose.stringRes
 @Composable
 fun ThemeScreen() = FlorisScreen {
     title = stringRes(R.string.settings__theme__title)
-    previewFieldVisible = true
 
     val context = LocalContext.current
     val navController = LocalNavController.current
@@ -59,12 +58,12 @@ fun ThemeScreen() = FlorisScreen {
         M3ListPreference(
             value = themeMode,
             onSelect = { scope.launch { prefs.theme.mode.set(ThemeMode.valueOf(it)) } },
-            icon = Icons.Default.BrightnessAuto,
+            icon = Icons.Outlined.BrightnessAuto,
             title = stringRes(R.string.pref__theme__mode__label),
             entries = enumDisplayEntriesOf(ThemeMode::class).map { it.key.toString() to it.label },
         )
         M3ClickablePreference(
-            icon = Icons.Default.LightMode,
+            icon = Icons.Outlined.LightMode,
             title = stringRes(R.string.pref__theme__day),
             summary = themeManager.getThemeLabel(dayThemeId),
             enabled = themeMode != ThemeMode.ALWAYS_NIGHT,
@@ -73,7 +72,7 @@ fun ThemeScreen() = FlorisScreen {
             },
         )
         M3ClickablePreference(
-            icon = Icons.Default.DarkMode,
+            icon = Icons.Outlined.DarkMode,
             title = stringRes(R.string.pref__theme__night),
             summary = themeManager.getThemeLabel(nightThemeId),
             enabled = themeMode != ThemeMode.ALWAYS_DAY,
@@ -84,18 +83,18 @@ fun ThemeScreen() = FlorisScreen {
         LocalTimePickerPreference(
             pref = prefs.theme.sunriseTime,
             title = stringRes(R.string.pref__theme__sunrise_time__label),
-            icon = Icons.Default.WbTwilight,
+            icon = Icons.Outlined.WbTwilight,
         )
         LocalTimePickerPreference(
             pref = prefs.theme.sunsetTime,
             title = stringRes(R.string.pref__theme__sunset_time__label),
-            icon = Icons.Default.Brightness2,
+            icon = Icons.Outlined.Brightness2,
         )
         ColorPickerPreference(
             pref = prefs.theme.accentColor,
             title = stringRes(R.string.pref__theme__theme_accent_color__label),
             defaultValueLabel = stringRes(R.string.action__default),
-            icon = Icons.Default.ColorLens,
+            icon = Icons.Outlined.ColorLens,
             defaultColors = ColorMappings.colors,
             showAlphaSlider = false,
             enableAdvancedLayout = true,

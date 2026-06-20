@@ -38,10 +38,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -85,7 +85,7 @@ import dev.ngocthanhgl.vikey.ime.theme.ThemeManager
 import dev.ngocthanhgl.vikey.ime.theme.extPreviewTheme
 import dev.ngocthanhgl.vikey.lib.cache.CacheManager
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
-import dev.ngocthanhgl.vikey.lib.compose.PreviewKeyboardField
+import dev.ngocthanhgl.vikey.lib.compose.PreviewKeyboardPill
 import dev.ngocthanhgl.vikey.lib.compose.Validation
 import dev.ngocthanhgl.vikey.lib.compose.rememberPreviewFieldController
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionValidation
@@ -234,7 +234,7 @@ fun ThemeEditorScreen(
     actions {
         FlorisIconButton(
             onClick = { showFineTuneDialog = true },
-            icon = Icons.Default.Tune,
+            icon = Icons.Outlined.Tune,
         )
     }
 
@@ -252,7 +252,7 @@ fun ThemeEditorScreen(
     }
 
     bottomBar {
-        PreviewKeyboardField(previewFieldController)
+        PreviewKeyboardPill(previewFieldController)
     }
 
     content {
@@ -844,7 +844,7 @@ private fun SnyggRuleRow(
         if (showEditBtn) {
             FlorisIconButton(
                 onClick = onEditRuleBtnClick,
-                icon = Icons.Default.Edit,
+                icon = Icons.Outlined.Edit,
                 iconColor = MaterialTheme.colorScheme.primary,
                 iconModifier = Modifier.size(ButtonDefaults.IconSize),
             )

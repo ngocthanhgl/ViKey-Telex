@@ -86,7 +86,6 @@ fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
         UserDictionaryType.FLORIS -> R.string.settings__udm__title_floris
         UserDictionaryType.SYSTEM -> R.string.settings__udm__title_system
     })
-    previewFieldVisible = false
     scrollable = false
 
     val navController = LocalNavController.current

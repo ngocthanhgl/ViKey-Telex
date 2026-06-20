@@ -90,7 +90,6 @@ enum class ExtensionListScreenType(
 @Composable
 fun ExtensionListScreen(type: ExtensionListScreenType, showUpdate: Boolean) = FlorisScreen {
     title = stringRes(type.titleResId)
-    previewFieldVisible = false
     scrollable = false
 
     val context = LocalContext.current
