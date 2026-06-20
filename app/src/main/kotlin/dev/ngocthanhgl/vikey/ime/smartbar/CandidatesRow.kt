@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
@@ -69,6 +70,7 @@ fun CandidatesRow(modifier: Modifier = Modifier) {
 
     val displayMode by prefs.suggestion.displayMode.collectAsState()
     val candidates by nlpManager.activeCandidatesFlow.collectAsState()
+    val isIncognito by keyboardManager.activeState.collectAsState()
 
     if (candidates.isEmpty()) return
 
@@ -78,7 +80,8 @@ fun CandidatesRow(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .conditional(displayMode == CandidatesDisplayMode.DYNAMIC_SCROLLABLE && candidates.size > 1) {
                 florisHorizontalScroll(scrollbarHeight = CandidatesRowScrollbarHeight)
-            },
+            }
+            .conditional(isIncognito.isIncognitoMode) { alpha(0.5f) },
         horizontalArrangement = if (candidates.size > 1) {
             Arrangement.Start
         } else {

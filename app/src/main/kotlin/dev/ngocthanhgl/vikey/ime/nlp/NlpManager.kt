@@ -69,6 +69,7 @@ class NlpManager(context: Context) {
             VietnameseLanguageProvider.ProviderId to ProviderInstanceWrapper(VietnameseLanguageProvider(context)),
         )
     }
+    private var currentShiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState = dev.ngocthanhgl.vikey.ime.input.InputShiftState.UNSHIFTED
     private var hasPendingComposition = false
     private var lastPrefix: String? = null
     private var lastShiftSeen: dev.ngocthanhgl.vikey.ime.input.InputShiftState? = null
@@ -76,6 +77,7 @@ class NlpManager(context: Context) {
     fun hasPendingCompositionSuggestion(): Boolean = hasPendingComposition
 
     private var suggestJob: Job? = null
+    private var compositionJob: Job? = null
 
     fun onStartInput() {
         clearCompositionState()
@@ -123,12 +125,20 @@ class NlpManager(context: Context) {
         subtypeManager.activeSubtypeFlow.collectLatestIn(scope) { subtype ->
             preload(subtype)
         }
+        prefs.correction.autoCorrect.asFlow().collectLatestIn(scope) {
+            val prefix = lastPrefix
+            if (prefix != null) {
+                suggestComposition(prefix, keyboardManager.activeState.inputShiftState)
+            } else {
+                suggest(subtypeManager.activeSubtype, editorInstance.activeContent)
+            }
+        }
         keyboardManager.activeState.collectLatestIn(scope) { state ->
             val currentShift = state.inputShiftState
             if (currentShift == lastShiftSeen) return@collectLatestIn
             lastShiftSeen = currentShift
 
-            QwenSuggestionProvider.pendingShiftState = currentShift
+            currentShiftState = currentShift
             recaseSuggestions(currentShift)
         }
     }
@@ -231,13 +241,14 @@ class NlpManager(context: Context) {
 
     fun suggestComposition(prefix: String, shiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState) {
         if (!liveSuggestionsEnabled()) return
+        compositionJob?.cancel()
         lastPrefix = prefix
         lastShiftSeen = shiftState
         val reqTime = SystemClock.uptimeMillis()
         hasPendingComposition = true
-        scope.launch {
+        compositionJob = scope.launch {
             val subtype = subtypeManager.activeSubtype
-            QwenSuggestionProvider.pendingShiftState = shiftState
+            currentShiftState = shiftState
             val suggestions = getSuggestionProvider(subtype).suggest(
                 subtype = subtype,
                 content = EditorContent.compositionPrefix(prefix),
@@ -304,17 +315,27 @@ class NlpManager(context: Context) {
     }
 
     fun recaseSuggestions(shiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState) {
-        QwenSuggestionProvider.pendingShiftState = shiftState
+        currentShiftState = shiftState
         val current = internalSuggestions.get()
         val recased = current.second.map { candidate ->
             if (candidate is WordSuggestionCandidate) {
-                candidate.copy(text = QwenSuggestionProvider.recase(candidate.text.toString(), shiftState))
+                candidate.copy(
+                    text = recase(candidate.text.toString(), shiftState),
+                    shiftState = shiftState,
+                )
             } else {
                 candidate
             }
         }
         internalSuggestions.set(current.first to recased)
         scope.launch { assembleCandidates() }
+    }
+
+    private fun recase(word: String, shiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState): String = when (shiftState) {
+        dev.ngocthanhgl.vikey.ime.input.InputShiftState.CAPS_LOCK -> word.uppercase()
+        dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_MANUAL,
+        dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_AUTOMATIC -> word.replaceFirstChar { it.uppercase() }
+        dev.ngocthanhgl.vikey.ime.input.InputShiftState.UNSHIFTED -> word.lowercase()
     }
 
     fun clearSuggestions() {
@@ -337,7 +358,7 @@ class NlpManager(context: Context) {
         return activeCandidates.firstOrNull { it.isEligibleForAutoCommit }
     }
 
-    fun removeSuggestion(subtype: Subtype, candidate: SuggestionCandidate) {
+    fun removeSuggestion(subtype: Subtype, candidate: SuggestionCandidate): Boolean {
         scope.launch {
             candidate.sourceProvider?.removeSuggestion(subtype, candidate)
             if (candidate is ClipboardSuggestionCandidate) {
@@ -346,6 +367,7 @@ class NlpManager(context: Context) {
                 suggest(subtypeManager.activeSubtype, editorInstance.activeContent)
             }
         }
+        return true
     }
 
     fun getListOfWords(subtype: Subtype): List<String> {
@@ -367,10 +389,12 @@ class NlpManager(context: Context) {
                     isPrivateSession = keyboardManager.activeState.isIncognitoMode,
                 ).ifEmpty {
                     internalSuggestions.get().second.map { candidate ->
-                        if (candidate is WordSuggestionCandidate && QwenSuggestionProvider.pendingShiftState != null) {
-                            candidate.copy(text = QwenSuggestionProvider.recase(
-                                candidate.text.toString(), QwenSuggestionProvider.pendingShiftState
-                            ))
+                        if (candidate is WordSuggestionCandidate) {
+                            val st = candidate.shiftState ?: currentShiftState
+                            candidate.copy(
+                                text = recase(candidate.text.toString(), st),
+                                shiftState = st,
+                            )
                         } else candidate
                     }
                 }

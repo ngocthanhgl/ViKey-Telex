@@ -45,6 +45,7 @@ class EmojiSuggestionProvider(private val context: Context) : SuggestionProvider
     private val lettersRegex = "^[A-Za-z]*$".toRegex()
 
     private val cachedEmojiMappings = Cache.Builder<FlorisLocale, EmojiDataBySkinTone>().build()
+    private val emojiUsageStats = mutableMapOf<String, MutableMap<String, Int>>()
 
     override suspend fun create() {
     }
@@ -97,7 +98,7 @@ class EmojiSuggestionProvider(private val context: Context) : SuggestionProvider
         val textBefore = content.textBeforeSelection
         if (textBefore.isBlank()) return emptyList()
         val lastWord = textBefore.trimEnd().split(Regex("\\s+")).lastOrNull {
-            it.length >= 3 && it.all { c -> c.isLetter() }
+            it.length >= 2 && it.all { c -> c.isLetter() }
         } ?: return emptyList()
         val lastWordLc = lastWord.lowercase()
         val contextualEmoji = CONTEXTUAL_MAP[lastWordLc] ?: return emptyList()
@@ -156,15 +157,47 @@ class EmojiSuggestionProvider(private val context: Context) : SuggestionProvider
             "strong" to Emoji("\uD83D\uDCAA", "muscle", emptyList()),
             "run" to Emoji("\uD83C\uDFC3", "runner", emptyList()),
             "book" to Emoji("\uD83D\uDCDA", "books", emptyList()),
+            "yêu" to Emoji("\u2764\uFE0F", "heart", emptyList()),
+            "cười" to Emoji("\uD83D\uDE02", "joy", emptyList()),
+            "buồn" to Emoji("\uD83D\uDE22", "cry", emptyList()),
+            "giận" to Emoji("\uD83D\uDE20", "angry", emptyList()),
+            "ngon" to Emoji("\uD83D\uDE0B", "yum", emptyList()),
+            "bánh" to Emoji("\uD83C\uDF70", "cake", emptyList()),
+            "cà phê" to Emoji("\u2615", "coffee", emptyList()),
+            "bia" to Emoji("\uD83C\uDF7A", "beer", emptyList()),
+            "chó" to Emoji("\uD83D\uDC36", "dog", emptyList()),
+            "mèo" to Emoji("\uD83D\uDC31", "cat", emptyList()),
+            "cảm ơn" to Emoji("\uD83D\uDE4F", "pray", emptyList()),
+            "xin lỗi" to Emoji("\uD83D\uDE25", "sorry", emptyList()),
+            "chào" to Emoji("\uD83D\uDC4B", "wave", emptyList()),
+            "tốt" to Emoji("\uD83D\uDC4D", "thumbsup", emptyList()),
+            "xấu" to Emoji("\uD83D\uDC4E", "thumbsdown", emptyList()),
+            "đẹp" to Emoji("\uD83D\uDC90", "bouquet", emptyList()),
+            "tiếc" to Emoji("\uD83D\uDE2D", "sob", emptyList()),
+            "quà" to Emoji("\uD83C\uDF81", "gift", emptyList()),
+            "tiền" to Emoji("\uD83D\uDCB0", "money", emptyList()),
+            "ngủ" to Emoji("\uD83D\uDE34", "sleep", emptyList()),
+            "mệt" to Emoji("\uD83D\uDE2B", "tired", emptyList()),
+            "khỏe" to Emoji("\uD83D\uDCAA", "muscle", emptyList()),
+            "chạy" to Emoji("\uD83C\uDFC3", "runner", emptyList()),
+            "sạch" to Emoji("\u2728", "sparkles", emptyList()),
+            "nhạc" to Emoji("\uD83C\uDFB5", "music", emptyList()),
+            "ăn" to Emoji("\uD83C\uDF54", "burger", emptyList()),
+            "uống" to Emoji("\uD83C\uDF7A", "beer", emptyList()),
         )
     }
 
     override suspend fun notifySuggestionAccepted(subtype: Subtype, candidate: SuggestionCandidate) {
         val updateHistory = prefs.emoji.suggestionUpdateHistory.get()
-        if (!updateHistory || candidate !is EmojiSuggestionCandidate) {
-            return
+        if (candidate is EmojiSuggestionCandidate) {
+            if (updateHistory) {
+                EmojiHistoryHelper.markEmojiUsed(prefs, candidate.emoji)
+            }
+            val word = candidate.secondaryText?.toString()?.lowercase() ?: return
+            val stats = emojiUsageStats.getOrPut(word) { mutableMapOf() }
+            val emojiStr = candidate.text.toString()
+            stats[emojiStr] = (stats[emojiStr] ?: 0) + 1
         }
-        EmojiHistoryHelper.markEmojiUsed(prefs, candidate.emoji)
     }
 
     override suspend fun notifySuggestionReverted(subtype: Subtype, candidate: SuggestionCandidate) {

@@ -45,10 +45,19 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.runBlocking
 import org.florisboard.lib.android.showShortToastSync
 
+private data class AutocorrectUndo(
+    val originalTyped: String,
+    val correctedWord: String,
+    val cursorPosition: Int,
+)
+
 class EditorInstance(context: Context) : AbstractEditorInstance(context) {
     companion object {
         private const val SPACE = " "
     }
+
+    private var lastAutocorrectUndo: AutocorrectUndo? = null
+    private var lastCommitWasSuggestion = false
 
     private val prefs by FlorisPreferenceStore
     private val appContext by context.appContext()
@@ -194,6 +203,22 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
     }
 
     override fun commitChar(char: String): Boolean {
+        if (lastCommitWasSuggestion && char.length == 1 && char[0] in ",.;:?!") {
+            val content = activeContent
+            val textBefore = content.textBeforeSelection
+            if (textBefore.lastOrNull() == ' ') {
+                scope.launch {
+                    val ic = currentInputConnection() ?: return@launch
+                    ic.beginBatchEdit()
+                    ic.deleteSurroundingText(1, 0)
+                    ic.commitText(char, 1)
+                    ic.endBatchEdit()
+                }
+                lastCommitWasSuggestion = false
+                return true
+            }
+        }
+        lastCommitWasSuggestion = false
         val isInsertAutoSpaceBeforeChar = shouldInsertAutoSpaceBefore(char)
         val isInsertAutoSpaceAfterChar = shouldInsertAutoSpaceAfter(char)
         val isDeletePreviousSpace = isInsertAutoSpaceAfterChar && autoSpace.isActive
@@ -250,6 +275,17 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
         val text = candidate.text.toString()
         if (text.isEmpty() || activeInfo.isRawInputEditor) return false
         val content = activeContent
+        val currentWord = content.currentWordText?.toString()
+        if (currentWord != null && currentWord.lowercase() != text.lowercase()) {
+            lastAutocorrectUndo = AutocorrectUndo(
+                originalTyped = currentWord,
+                correctedWord = text,
+                cursorPosition = content.selection.start + text.length,
+            )
+        } else {
+            lastAutocorrectUndo = null
+        }
+        lastCommitWasSuggestion = true
         val committedText = "$text "
         val result = if (content.composing.isValid) {
             super.finalizeComposingText(committedText)
@@ -339,6 +375,20 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
      */
     fun deleteBackwards(unit: OperationUnit): Boolean {
         val content = activeContent
+        val undo = lastAutocorrectUndo
+        if (undo != null) {
+            val cursorPos = content.selection.start
+            if (cursorPos == undo.cursorPosition) {
+                val ic = currentInputConnection() ?: return false
+                ic.beginBatchEdit()
+                ic.setSelection(undo.cursorPosition - undo.correctedWord.length - 1, undo.cursorPosition - 1)
+                ic.commitText(undo.originalTyped, 1)
+                ic.endBatchEdit()
+                lastAutocorrectUndo = null
+                return true
+            }
+            lastAutocorrectUndo = null
+        }
         if (unit == OperationUnit.CHARACTERS) {
             if (phantomSpace.isActive && content.currentWord.isValid && prefs.glide.immediateBackspaceDeletesWord.get()) {
                 return deleteBackwards(OperationUnit.WORDS)

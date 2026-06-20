@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.ngocthanhgl.vikey.ime.clipboard.provider.ClipboardItem
+import dev.ngocthanhgl.vikey.ime.input.InputShiftState
 import dev.ngocthanhgl.vikey.ime.clipboard.provider.ItemType
 import dev.ngocthanhgl.vikey.ime.media.emoji.Emoji
 import dev.ngocthanhgl.vikey.lib.util.NetworkUtils
@@ -110,6 +111,7 @@ data class WordSuggestionCandidate(
     override val confidence: Double = 0.0,
     override val isEligibleForAutoCommit: Boolean = false,
     override val isEligibleForUserRemoval: Boolean = true,
+    val shiftState: InputShiftState? = null,
     override val sourceProvider: SuggestionProvider? = null,
 ) : SuggestionCandidate {
     override val icon: ImageVector? = null

@@ -36,6 +36,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.runBlocking
 import org.florisboard.lib.kotlin.guardedByLock
 import kotlin.math.max
@@ -318,8 +320,10 @@ abstract class AbstractEditorInstance(context: Context) {
                 .copy(localSelection = selection.translatedBy(-content.offset))
                 .generateCopy(selection = selection)
             expectedContentQueue.push(newContent)
-            ic.setSelection(selection.start, selection.end)
-            ic.setComposingRegion(newContent.composing)
+            InputConnectionDispatcher.fire {
+                ic.setSelection(selection.start, selection.end)
+                ic.setComposingRegion(newContent.composing)
+            }
         }
         ic.endBatchEdit()
         return true
@@ -370,21 +374,28 @@ abstract class AbstractEditorInstance(context: Context) {
 
         if (rm <= 0) {
             commitTextInternal(finalText)
-        } else runBlocking {
-            ic.beginBatchEdit()
-            val newSelection = EditorRange.cursor(selection.start - rm + finalText.length)
-            val newContent = content.generateCopy(
-                selection = newSelection,
-                textBeforeSelection = buildString {
-                    append(content.textBeforeSelection.dropLast(rm))
-                    append(finalText)
-                },
-                selectedText = "",
-            )
-            expectedContentQueue.push(newContent)
-            ic.deleteSurroundingText(rm, 0)
-            ic.commitText(finalText, 1)
-            ic.endBatchEdit()
+        } else {
+            runBlocking {
+                val newSelection = EditorRange.cursor(selection.start - rm + finalText.length)
+                val newContent = content.generateCopy(
+                    selection = newSelection,
+                    textBeforeSelection = buildString {
+                        append(content.textBeforeSelection.dropLast(rm))
+                        append(finalText)
+                    },
+                    selectedText = "",
+                )
+                expectedContentQueue.push(newContent)
+            }
+            scope.launch {
+                val ic = currentInputConnection() ?: return@launch
+                InputConnectionDispatcher.fire {
+                    ic.beginBatchEdit()
+                    ic.deleteSurroundingText(rm, 0)
+                    ic.commitText(finalText, 1)
+                    ic.endBatchEdit()
+                }
+            }
         }
         return true
     }
@@ -392,16 +403,18 @@ abstract class AbstractEditorInstance(context: Context) {
     open fun commitText(text: String): Boolean = commitTextInternal(text)
 
     private fun commitTextInternal(text: String): Boolean {
-        val ic = currentInputConnection() ?: return false
         val content = activeContent
         val selection = content.selection
-        ic.beginBatchEdit()
-        if (content.composingText.isNotEmpty()) {
-            ic.finishComposingText()
-        }
         if (activeInfo.isRawInputEditor) {
-            ic.commitText(text, 1)
-        } else runBlocking {
+            val ic = currentInputConnection() ?: return false
+            scope.launch {
+                InputConnectionDispatcher.fire {
+                    ic.commitText(text, 1)
+                }
+            }
+            return true
+        }
+        runBlocking {
             val newSelection = EditorRange.cursor(selection.start + text.length)
             val newContent = content.generateCopy(
                 selection = newSelection,
@@ -412,20 +425,28 @@ abstract class AbstractEditorInstance(context: Context) {
                 selectedText = "",
             )
             expectedContentQueue.push(newContent)
-            ic.commitText(text, 1)
         }
-        ic.endBatchEdit()
+        scope.launch {
+            val ic = currentInputConnection() ?: return@launch
+            InputConnectionDispatcher.fire {
+                ic.beginBatchEdit()
+                if (content.composingText.isNotEmpty()) {
+                    ic.finishComposingText()
+                }
+                ic.commitText(text, 1)
+                ic.endBatchEdit()
+            }
+        }
         return true
     }
 
     open fun finalizeComposingText(text: String): Boolean {
-        val ic = currentInputConnection() ?: return false
         val content = activeContent
         val composing = content.composing
-        ic.beginBatchEdit()
         if (activeInfo.isRawInputEditor || composing.isNotValid) {
             return false
-        } else runBlocking {
+        }
+        runBlocking {
             val newSelection = EditorRange.cursor(composing.end + (text.length - content.composingText.length))
             val newContent = content.generateCopy(
                 selection = newSelection,
@@ -436,11 +457,17 @@ abstract class AbstractEditorInstance(context: Context) {
                 selectedText = "",
             )
             expectedContentQueue.push(newContent)
-            ic.deleteSurroundingText(content.composingText.length, 0)
-            ic.commitText(text, 1)
             _lastCommitPosition.handleCommit(newContent.selection)
         }
-        ic.endBatchEdit()
+        scope.launch {
+            val ic = currentInputConnection() ?: return@launch
+            InputConnectionDispatcher.fire {
+                ic.beginBatchEdit()
+                ic.deleteSurroundingText(content.composingText.length, 0)
+                ic.commitText(text, 1)
+                ic.endBatchEdit()
+            }
+        }
         return true
     }
 
@@ -514,12 +541,20 @@ abstract class AbstractEditorInstance(context: Context) {
 
     fun refreshComposing() {
         val content = activeContent
-        val ic = currentInputConnection()
-        if (activeInfo.isRawInputEditor || ic == null) return
+        if (activeInfo.isRawInputEditor) return
+        var shouldSet = false
         runBlocking {
             val newContent = content.generateCopy()
             if (newContent.composing != content.composing) {
                 expectedContentQueue.push(newContent)
+                shouldSet = true
+            }
+        }
+        if (!shouldSet) return
+        scope.launch {
+            val ic = currentInputConnection() ?: return@launch
+            val newContent = content.generateCopy()
+            InputConnectionDispatcher.fire {
                 ic.setComposingRegion(newContent.composing)
             }
         }

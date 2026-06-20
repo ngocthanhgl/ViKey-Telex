@@ -106,9 +106,14 @@ class AutocorrectEngine(private val seedWords: Set<String>) {
             'i' to setOf('u', 'o', 'k', 'j'),
             'o' to setOf('i', 'p', 'l', 'k'),
             'p' to setOf('o', 'l'),
-            'a' to setOf('q', 'w', 's', 'z'),
+            'a' to setOf('q', 'w', 's', 'z', 'a', 'ă', 'â'),
+            'ă' to setOf('a'),
+            'â' to setOf('a'),
             's' to setOf('a', 'w', 'e', 'd', 'x', 'z'),
-            'd' to setOf('s', 'e', 'r', 'f', 'c', 'x'),
+            'd' to setOf('s', 'e', 'r', 'f', 'c', 'x', 'đ'),
+            'đ' to setOf('d'),
+            'e' to setOf('w', 'r', 'd', 's', 'ê'),
+            'ê' to setOf('e'),
             'f' to setOf('d', 'r', 't', 'g', 'v', 'c'),
             'g' to setOf('f', 't', 'y', 'h', 'b', 'v'),
             'h' to setOf('g', 'y', 'u', 'j', 'n', 'b'),
@@ -122,6 +127,11 @@ class AutocorrectEngine(private val seedWords: Set<String>) {
             'b' to setOf('v', 'g', 'h', 'n'),
             'n' to setOf('b', 'h', 'j', 'm'),
             'm' to setOf('n', 'j', 'k'),
+            'o' to setOf('i', 'p', 'l', 'k', 'ô', 'ơ'),
+            'ô' to setOf('o'),
+            'ơ' to setOf('o'),
+            'u' to setOf('y', 'i', 'j', 'h', 'ư'),
+            'ư' to setOf('u'),
         )
     }
 }

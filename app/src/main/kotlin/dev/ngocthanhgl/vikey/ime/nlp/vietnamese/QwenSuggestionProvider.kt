@@ -35,14 +35,13 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         const val ProviderId = "org.florisboard.nlp.providers.vietnamese.qwen"
         private const val NGRAM_PATH = "qwen_ngrams.json"
         private const val PERSONAL_DICT = "qwen_personal_dict.json"
+        private const val DISCOURSE_PATH = "qwen_discourse.json"
         private const val CLEARED_MARKER = ".qwen_cleared"
         private const val BIGRAM_BOOST = 5.0
         private const val TRIGRAM_BOOST = 3.0
         private const val SEED_WORDS = "ime/dict/vi_50k.txt"
 
         private var currentInstance: QwenSuggestionProvider? = null
-
-        var pendingShiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState? = null
 
         fun recase(word: String, shiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState?): String {
             return when (shiftState) {
@@ -90,6 +89,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             loadSeedWords()
             loadPersonalDict()
             loadNgrams()
+            loadDiscourseBuffer()
             try { DictionaryManager.default().loadUserDictionariesIfNecessary() }
             catch (_: Exception) {}
             loadModelBg()
@@ -261,6 +261,34 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             ngramDirty = false
         } catch (e: Exception) {
             flogDebug { "Qwen: save ngrams: ${e.message}" }
+        }
+    }
+
+    private fun loadDiscourseBuffer() {
+        try {
+            val f = File(context.filesDir, DISCOURSE_PATH)
+            if (!f.exists()) return
+            val json = JSONObject(f.readText())
+            val words = json.optJSONArray("words")
+            if (words != null) {
+                discourseBuffer.clear()
+                for (i in 0 until words.length()) {
+                    discourseBuffer.add(words.getString(i))
+                }
+            }
+        } catch (e: Exception) {
+            flogDebug { "Qwen: discourse load: ${e.message}" }
+        }
+    }
+
+    private fun saveDiscourseBuffer() {
+        try {
+            val json = JSONObject()
+            val arr = org.json.JSONArray(discourseBuffer)
+            json.put("words", arr)
+            File(context.filesDir, DISCOURSE_PATH).writeText(json.toString())
+        } catch (e: Exception) {
+            flogDebug { "Qwen: discourse save: ${e.message}" }
         }
     }
 
@@ -574,30 +602,40 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             if (ctx.isNotEmpty()) append(' ')
         }
 
-        val pool = (
+        val basePool = (
             if (useTrie) prefixTrie[lcPrefix]?.filter { it.length > lcPrefix.length } ?: emptyList()
             else seedWords.filter { it.startsWith(lcPrefix) && it.length > lcPrefix.length }
         ).union(ngramWords()).union(personalDict.keys)
             .filter { !isNoise(it) }
             .take(200)
-            .toTypedArray()
+            .toSet()
+
+        val autoCorrectOn = prefs.correction.autoCorrect.get()
+
+        val mergedPool = if (autoCorrectOn && lcPrefix.length >= 2) {
+            val corrections = autocorrectEngine?.correct(lcPrefix, limit * 2) ?: emptyList()
+            val typoCorrections = typoDetector?.detectAndScore(lcPrefix) ?: emptyList()
+            (basePool + corrections.map { it.word } + typoCorrections.map { it.first })
+                .take(250)
+                .toTypedArray()
+        } else {
+            basePool.toTypedArray()
+        }
 
         val candidates = mutableListOf<Pair<String, Double>>()
         var qwenScored = false
 
-        val autoCorrectOn = prefs.correction.autoCorrect.get()
-
-        if (pool.isNotEmpty() && !natLoading && natLoaded && modelPtr != 0L) {
-            val scores = QwenNatives.scoreCandidates(modelPtr, context, pool)
-            if (scores != null && scores.size == pool.size) {
+        if (mergedPool.isNotEmpty() && !natLoading && natLoaded && modelPtr != 0L) {
+            val scores = QwenNatives.scoreCandidates(modelPtr, context, mergedPool)
+            if (scores != null && scores.size == mergedPool.size) {
                 qwenScored = true
-                for (i in pool.indices) {
+                for (i in mergedPool.indices) {
                     val base = if (autoCorrectOn) {
-                        autocorrectEngine?.score(lcPrefix, pool[i], scores[i].toDouble()) ?: scores[i].toDouble()
+                        autocorrectEngine?.score(lcPrefix, mergedPool[i], scores[i].toDouble()) ?: scores[i].toDouble()
                     } else {
                         scores[i].toDouble()
                     }
-                    candidates.add(pool[i] to base)
+                    candidates.add(mergedPool[i] to base)
                 }
             }
         }
@@ -608,7 +646,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 .filter { it.isNotBlank() }
             val w2 = if (contextWords.isNotEmpty()) contextWords.last().lowercase() else ""
             val w1 = if (contextWords.size >= 2) contextWords[contextWords.size - 2].lowercase() else null
-            for (word in pool) {
+            for (word in mergedPool) {
                 var s = 0.5
                 if (w1 != null) {
                     trigrams["$w1|$w2"]?.let { tri -> s += (tri[word]?.toDouble() ?: 0.0) * TRIGRAM_BOOST }
@@ -620,23 +658,6 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     s
                 }
                 candidates.add(word to base)
-            }
-        }
-
-        if (autoCorrectOn && lcPrefix.length >= 2) {
-            val corrections = autocorrectEngine?.correct(lcPrefix, limit * 2) ?: emptyList()
-            val existingWords = candidates.map { it.first }.toSet()
-            for (corr in corrections) {
-                if (corr.word !in existingWords && corr.word !in pool.toSet()) {
-                    val blended = autocorrectEngine?.score(lcPrefix, corr.word, null) ?: continue
-                    candidates.add(corr.word to blended)
-                }
-            }
-            val typoCorrections = typoDetector?.detectAndScore(lcPrefix) ?: emptyList()
-            for ((word, score) in typoCorrections) {
-                if (word !in existingWords && word !in pool.toSet()) {
-                    candidates.add(word to score * 0.5)
-                }
             }
         }
 
@@ -676,6 +697,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         bgScope.cancel()
         if (personalDirty) savePersonalDict()
         if (ngramDirty) saveNgrams()
+        saveDiscourseBuffer()
         if (modelPtr != 0L) QwenNatives.close(modelPtr)
         modelPtr = 0L
         natLoaded = false
