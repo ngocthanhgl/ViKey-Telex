@@ -35,6 +35,21 @@ fun InputFeedbackScreen() = FlorisScreen {
         val audioEnabled by prefs.inputFeedback.audioEnabled.collectAsState()
         val hapticEnabled by prefs.inputFeedback.hapticEnabled.collectAsState()
         val hapticVibrationMode by prefs.inputFeedback.hapticVibrationMode.collectAsState()
+        val audioActivationMode by prefs.inputFeedback.audioActivationMode.collectAsState()
+        val audioVolume by prefs.inputFeedback.audioVolume.collectAsState()
+        val audioFeatKeyPress by prefs.inputFeedback.audioFeatKeyPress.collectAsState()
+        val audioFeatKeyLongPress by prefs.inputFeedback.audioFeatKeyLongPress.collectAsState()
+        val audioFeatKeyRepeatedAction by prefs.inputFeedback.audioFeatKeyRepeatedAction.collectAsState()
+        val audioFeatGestureSwipe by prefs.inputFeedback.audioFeatGestureSwipe.collectAsState()
+        val audioFeatGestureMovingSwipe by prefs.inputFeedback.audioFeatGestureMovingSwipe.collectAsState()
+        val hapticActivationMode by prefs.inputFeedback.hapticActivationMode.collectAsState()
+        val hapticVibrationDuration by prefs.inputFeedback.hapticVibrationDuration.collectAsState()
+        val hapticVibrationStrength by prefs.inputFeedback.hapticVibrationStrength.collectAsState()
+        val hapticFeatKeyPress by prefs.inputFeedback.hapticFeatKeyPress.collectAsState()
+        val hapticFeatKeyLongPress by prefs.inputFeedback.hapticFeatKeyLongPress.collectAsState()
+        val hapticFeatKeyRepeatedAction by prefs.inputFeedback.hapticFeatKeyRepeatedAction.collectAsState()
+        val hapticFeatGestureSwipe by prefs.inputFeedback.hapticFeatGestureSwipe.collectAsState()
+        val hapticFeatGestureMovingSwipe by prefs.inputFeedback.hapticFeatGestureMovingSwipe.collectAsState()
         val hasVibrator = vibrator != null && vibrator.hasVibrator()
         val hasAmplitudeControl = vibrator != null && vibrator.hasAmplitudeControl()
 
@@ -44,45 +59,53 @@ fun InputFeedbackScreen() = FlorisScreen {
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
         )
         M3SwitchListPreference(
-            switchPref = prefs.inputFeedback.audioEnabled,
-            listPref = prefs.inputFeedback.audioActivationMode,
+            switchChecked = audioEnabled,
+            onSwitchChange = { prefs.inputFeedback.audioEnabled.set(it) },
+            listValue = audioActivationMode,
+            onListSelect = { prefs.inputFeedback.audioActivationMode.set(it) },
             title = stringRes(R.string.pref__input_feedback__audio_enabled__label),
             summarySwitchDisabled = stringRes(R.string.pref__input_feedback__audio_enabled__summary_disabled),
-            entries = enumDisplayEntriesOf(InputFeedbackActivationMode::class, "audio"),
+            entries = enumDisplayEntriesOf(InputFeedbackActivationMode::class, "audio").map { it.key.toString() to it.label },
         )
         M3DialogSliderPreference(
-            pref = prefs.inputFeedback.audioVolume,
+            value = audioVolume,
+            onChange = { prefs.inputFeedback.audioVolume.set(it) },
             title = stringRes(R.string.pref__input_feedback__audio_volume__label),
             valueLabel = { stringRes(R.string.unit__percent__symbol, "v" to it) },
             min = 1, max = 100, stepIncrement = 1,
             enabled = audioEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.inputFeedback.audioFeatKeyPress,
+            checked = audioFeatKeyPress,
+            onCheckedChange = { prefs.inputFeedback.audioFeatKeyPress.set(it) },
             title = stringRes(R.string.pref__input_feedback__audio_feat_key_press__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_press__summary),
             enabled = audioEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.inputFeedback.audioFeatKeyLongPress,
+            checked = audioFeatKeyLongPress,
+            onCheckedChange = { prefs.inputFeedback.audioFeatKeyLongPress.set(it) },
             title = stringRes(R.string.pref__input_feedback__audio_feat_key_long_press__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_long_press__summary),
             enabled = audioEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.inputFeedback.audioFeatKeyRepeatedAction,
+            checked = audioFeatKeyRepeatedAction,
+            onCheckedChange = { prefs.inputFeedback.audioFeatKeyRepeatedAction.set(it) },
             title = stringRes(R.string.pref__input_feedback__audio_feat_key_repeated_action__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_repeated_action__summary),
             enabled = audioEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.inputFeedback.audioFeatGestureSwipe,
+            checked = audioFeatGestureSwipe,
+            onCheckedChange = { prefs.inputFeedback.audioFeatGestureSwipe.set(it) },
             title = stringRes(R.string.pref__input_feedback__audio_feat_gesture_swipe__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_gesture_swipe__summary),
             enabled = audioEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.inputFeedback.audioFeatGestureMovingSwipe,
+            checked = audioFeatGestureMovingSwipe,
+            onCheckedChange = { prefs.inputFeedback.audioFeatGestureMovingSwipe.set(it) },
             title = stringRes(R.string.pref__input_feedback__audio_feat_gesture_moving_swipe__label),
             summary = stringRes(R.string.pref__input_feedback__audio_feat_gesture_moving_swipe__label),
             enabled = audioEnabled,
@@ -94,58 +117,68 @@ fun InputFeedbackScreen() = FlorisScreen {
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
         )
         M3SwitchListPreference(
-            switchPref = prefs.inputFeedback.hapticEnabled,
-            listPref = prefs.inputFeedback.hapticActivationMode,
+            switchChecked = hapticEnabled,
+            onSwitchChange = { prefs.inputFeedback.hapticEnabled.set(it) },
+            listValue = hapticActivationMode,
+            onListSelect = { prefs.inputFeedback.hapticActivationMode.set(it) },
             title = stringRes(R.string.pref__input_feedback__haptic_enabled__label),
             summarySwitchDisabled = stringRes(R.string.pref__input_feedback__haptic_enabled__summary_disabled),
-            entries = enumDisplayEntriesOf(InputFeedbackActivationMode::class, "haptic"),
+            entries = enumDisplayEntriesOf(InputFeedbackActivationMode::class, "haptic").map { it.key.toString() to it.label },
         )
         M3ListPreference(
-            pref = prefs.inputFeedback.hapticVibrationMode,
+            value = hapticVibrationMode,
+            onSelect = { prefs.inputFeedback.hapticVibrationMode.set(it) },
             title = stringRes(R.string.pref__input_feedback__haptic_vibration_mode__label),
-            entries = enumDisplayEntriesOf(HapticVibrationMode::class),
+            entries = enumDisplayEntriesOf(HapticVibrationMode::class).map { it.key.toString() to it.label },
             enabled = hapticEnabled,
         )
         M3DialogSliderPreference(
-            pref = prefs.inputFeedback.hapticVibrationDuration,
+            value = hapticVibrationDuration,
+            onChange = { prefs.inputFeedback.hapticVibrationDuration.set(it) },
             title = stringRes(R.string.pref__input_feedback__haptic_vibration_duration__label),
             valueLabel = { stringRes(R.string.unit__milliseconds__symbol, "v" to it) },
             min = 1, max = 100, stepIncrement = 1,
             enabled = hapticEnabled && hapticVibrationMode == HapticVibrationMode.USE_VIBRATOR_DIRECTLY && hasVibrator,
         )
         M3DialogSliderPreference(
-            pref = prefs.inputFeedback.hapticVibrationStrength,
+            value = hapticVibrationStrength,
+            onChange = { prefs.inputFeedback.hapticVibrationStrength.set(it) },
             title = stringRes(R.string.pref__input_feedback__haptic_vibration_strength__label),
             valueLabel = { stringRes(R.string.unit__percent__symbol, "v" to it) },
             min = 1, max = 100, stepIncrement = 1,
             enabled = hapticEnabled && hapticVibrationMode == HapticVibrationMode.USE_VIBRATOR_DIRECTLY && hasVibrator && hasAmplitudeControl,
         )
         M3SwitchPreference(
-            pref = prefs.inputFeedback.hapticFeatKeyPress,
+            checked = hapticFeatKeyPress,
+            onCheckedChange = { prefs.inputFeedback.hapticFeatKeyPress.set(it) },
             title = stringRes(R.string.pref__input_feedback__haptic_feat_key_press__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_press__summary),
             enabled = hapticEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.inputFeedback.hapticFeatKeyLongPress,
+            checked = hapticFeatKeyLongPress,
+            onCheckedChange = { prefs.inputFeedback.hapticFeatKeyLongPress.set(it) },
             title = stringRes(R.string.pref__input_feedback__haptic_feat_key_long_press__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_long_press__summary),
             enabled = hapticEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.inputFeedback.hapticFeatKeyRepeatedAction,
+            checked = hapticFeatKeyRepeatedAction,
+            onCheckedChange = { prefs.inputFeedback.hapticFeatKeyRepeatedAction.set(it) },
             title = stringRes(R.string.pref__input_feedback__haptic_feat_key_repeated_action__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_repeated_action__summary),
             enabled = hapticEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.inputFeedback.hapticFeatGestureSwipe,
+            checked = hapticFeatGestureSwipe,
+            onCheckedChange = { prefs.inputFeedback.hapticFeatGestureSwipe.set(it) },
             title = stringRes(R.string.pref__input_feedback__haptic_feat_gesture_swipe__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_gesture_swipe__summary),
             enabled = hapticEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.inputFeedback.hapticFeatGestureMovingSwipe,
+            checked = hapticFeatGestureMovingSwipe,
+            onCheckedChange = { prefs.inputFeedback.hapticFeatGestureMovingSwipe.set(it) },
             title = stringRes(R.string.pref__input_feedback__haptic_feat_gesture_moving_swipe__label),
             summary = stringRes(R.string.pref__input_feedback__audio_feat_gesture_moving_swipe__label),
             enabled = hapticEnabled,

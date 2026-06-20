@@ -32,22 +32,36 @@ fun ClipboardScreen() = FlorisScreen {
         val historySizeLimitEnabled by prefs.clipboard.historySizeLimitEnabled.collectAsState()
         val historyAutoCleanSensitiveEnabled by prefs.clipboard.historyAutoCleanSensitiveEnabled.collectAsState()
         val suggestionEnabled by prefs.clipboard.suggestionEnabled.collectAsState()
+        val syncToFloris by prefs.clipboard.syncToFloris.collectAsState()
+        val syncToSystem by prefs.clipboard.syncToSystem.collectAsState()
+        val suggestionTimeout by prefs.clipboard.suggestionTimeout.collectAsState()
+        val historyNumGridColumnsPortrait by prefs.clipboard.historyNumGridColumnsPortrait.collectAsState()
+        val historyNumGridColumnsLandscape by prefs.clipboard.historyNumGridColumnsLandscape.collectAsState()
+        val historyAutoCleanOldAfter by prefs.clipboard.historyAutoCleanOldAfter.collectAsState()
+        val historyAutoCleanSensitiveAfter by prefs.clipboard.historyAutoCleanSensitiveAfter.collectAsState()
+        val historySizeLimit by prefs.clipboard.historySizeLimit.collectAsState()
+        val historyHideOnPaste by prefs.clipboard.historyHideOnPaste.collectAsState()
+        val historyHideOnNextTextField by prefs.clipboard.historyHideOnNextTextField.collectAsState()
+        val clearPrimaryClipAffectsHistoryIfUnpinned by prefs.clipboard.clearPrimaryClipAffectsHistoryIfUnpinned.collectAsState()
 
         M3SwitchPreference(
-            pref = prefs.clipboard.useInternalClipboard,
+            checked = useInternalClipboard,
+            onCheckedChange = { prefs.clipboard.useInternalClipboard.set(it) },
             title = stringRes(R.string.pref__clipboard__use_internal_clipboard__label),
             summary = stringRes(R.string.pref__clipboard__use_internal_clipboard__summary),
         )
         M3ListPreference(
-            pref = prefs.clipboard.syncToFloris,
+            value = syncToFloris,
+            onSelect = { prefs.clipboard.syncToFloris.set(it) },
             title = stringRes(R.string.pref__clipboard__sync_from_system_clipboard__label),
-            entries = enumDisplayEntriesOf(ClipboardSyncBehavior::class),
+            entries = enumDisplayEntriesOf(ClipboardSyncBehavior::class).map { it.key.toString() to it.label },
             enabled = useInternalClipboard,
         )
         M3ListPreference(
-            pref = prefs.clipboard.syncToSystem,
+            value = syncToSystem,
+            onSelect = { prefs.clipboard.syncToSystem.set(it) },
             title = stringRes(R.string.pref__clipboard__sync_to_system_clipboard__label),
-            entries = enumDisplayEntriesOf(ClipboardSyncBehavior::class),
+            entries = enumDisplayEntriesOf(ClipboardSyncBehavior::class).map { it.key.toString() to it.label },
             enabled = useInternalClipboard,
         )
 
@@ -57,12 +71,14 @@ fun ClipboardScreen() = FlorisScreen {
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
         )
         M3SwitchPreference(
-            pref = prefs.clipboard.suggestionEnabled,
+            checked = suggestionEnabled,
+            onCheckedChange = { prefs.clipboard.suggestionEnabled.set(it) },
             title = stringRes(R.string.pref__clipboard__suggestion_enabled__label),
             summary = stringRes(R.string.pref__clipboard__suggestion_enabled__summary),
         )
         M3DialogSliderPreference(
-            pref = prefs.clipboard.suggestionTimeout,
+            value = suggestionTimeout,
+            onChange = { prefs.clipboard.suggestionTimeout.set(it) },
             title = stringRes(R.string.pref__clipboard__suggestion_timeout__label),
             valueLabel = { stringRes(R.string.pref__clipboard__suggestion_timeout__summary, "v" to it) },
             min = 30, max = 300, stepIncrement = 5,
@@ -75,13 +91,16 @@ fun ClipboardScreen() = FlorisScreen {
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
         )
         M3SwitchPreference(
-            pref = prefs.clipboard.historyEnabled,
+            checked = historyEnabled,
+            onCheckedChange = { prefs.clipboard.historyEnabled.set(it) },
             title = stringRes(R.string.pref__clipboard__enable_clipboard_history__label),
             summary = stringRes(R.string.pref__clipboard__enable_clipboard_history__summary),
         )
         M3DialogSliderPreference(
-            primaryPref = prefs.clipboard.historyNumGridColumnsPortrait,
-            secondaryPref = prefs.clipboard.historyNumGridColumnsLandscape,
+            primaryValue = historyNumGridColumnsPortrait,
+            onPrimaryChange = { prefs.clipboard.historyNumGridColumnsPortrait.set(it) },
+            secondaryValue = historyNumGridColumnsLandscape,
+            onSecondaryChange = { prefs.clipboard.historyNumGridColumnsLandscape.set(it) },
             title = stringRes(R.string.pref__clipboard__num_history_grid_columns__label),
             primaryLabel = stringRes(R.string.screen_orientation__portrait),
             secondaryLabel = stringRes(R.string.screen_orientation__landscape),
@@ -96,12 +115,14 @@ fun ClipboardScreen() = FlorisScreen {
             enabled = historyEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.clipboard.historyAutoCleanOldEnabled,
+            checked = historyAutoCleanOldEnabled,
+            onCheckedChange = { prefs.clipboard.historyAutoCleanOldEnabled.set(it) },
             title = stringRes(R.string.pref__clipboard__clean_up_old__label),
             enabled = historyEnabled,
         )
         M3DialogSliderPreference(
-            pref = prefs.clipboard.historyAutoCleanOldAfter,
+            value = historyAutoCleanOldAfter,
+            onChange = { prefs.clipboard.historyAutoCleanOldAfter.set(it) },
             title = stringRes(R.string.pref__clipboard__clean_up_after__label),
             valueLabel = { pluralsRes(R.plurals.unit__minutes__written, it, "v" to it) },
             min = 0, max = 120, stepIncrement = 5,
@@ -109,12 +130,14 @@ fun ClipboardScreen() = FlorisScreen {
         )
         if (AndroidVersion.ATLEAST_API33_T) {
             M3SwitchPreference(
-                pref = prefs.clipboard.historyAutoCleanSensitiveEnabled,
+                checked = historyAutoCleanSensitiveEnabled,
+                onCheckedChange = { prefs.clipboard.historyAutoCleanSensitiveEnabled.set(it) },
                 title = stringRes(R.string.pref__clipboard__auto_clean_sensitive__label),
                 enabled = historyEnabled,
             )
             M3DialogSliderPreference(
-                pref = prefs.clipboard.historyAutoCleanSensitiveAfter,
+                value = historyAutoCleanSensitiveAfter,
+                onChange = { prefs.clipboard.historyAutoCleanSensitiveAfter.set(it) },
                 title = stringRes(R.string.pref__clipboard__auto_clean_sensitive_after__label),
                 valueLabel = { pluralsRes(R.plurals.unit__seconds__written, it, "v" to it) },
                 min = 0, max = 300, stepIncrement = 10,
@@ -122,29 +145,34 @@ fun ClipboardScreen() = FlorisScreen {
             )
         }
         M3SwitchPreference(
-            pref = prefs.clipboard.historySizeLimitEnabled,
+            checked = historySizeLimitEnabled,
+            onCheckedChange = { prefs.clipboard.historySizeLimitEnabled.set(it) },
             title = stringRes(R.string.pref__clipboard__limit_history_size__label),
             enabled = historyEnabled,
         )
         M3DialogSliderPreference(
-            pref = prefs.clipboard.historySizeLimit,
+            value = historySizeLimit,
+            onChange = { prefs.clipboard.historySizeLimit.set(it) },
             title = stringRes(R.string.pref__clipboard__max_history_size__label),
             valueLabel = { pluralsRes(R.plurals.unit__items__written, it, "v" to it) },
             min = 5, max = 100, stepIncrement = 5,
             enabled = historyEnabled && historySizeLimitEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.clipboard.historyHideOnPaste,
+            checked = historyHideOnPaste,
+            onCheckedChange = { prefs.clipboard.historyHideOnPaste.set(it) },
             title = stringRes(R.string.pref__clipboard__history_hide_on_paste__label),
             enabled = historyEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.clipboard.historyHideOnNextTextField,
+            checked = historyHideOnNextTextField,
+            onCheckedChange = { prefs.clipboard.historyHideOnNextTextField.set(it) },
             title = stringRes(R.string.pref__clipboard__history_hide_on_next_text_field__label),
             enabled = historyEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.clipboard.clearPrimaryClipAffectsHistoryIfUnpinned,
+            checked = clearPrimaryClipAffectsHistoryIfUnpinned,
+            onCheckedChange = { prefs.clipboard.clearPrimaryClipAffectsHistoryIfUnpinned.set(it) },
             title = stringRes(R.string.pref__clipboard__clear_primary_clip_affects_history_if_unpinned__label),
             summary = stringRes(R.string.pref__clipboard__clear_primary_clip_affects_history_if_unpinned__summary),
             enabled = historyEnabled,

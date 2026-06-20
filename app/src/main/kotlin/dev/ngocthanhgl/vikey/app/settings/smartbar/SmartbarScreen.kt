@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.enumDisplayEntriesOf
 import dev.ngocthanhgl.vikey.app.settings.components.M3ListPreference
-import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchListPreference
 import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchPreference
 import dev.ngocthanhgl.vikey.ime.smartbar.CandidatesDisplayMode
 import dev.ngocthanhgl.vikey.ime.smartbar.ExtendedActionsPlacement
@@ -27,16 +26,22 @@ fun SmartbarScreen() = FlorisScreen {
     content {
         val enabled by prefs.smartbar.enabled.collectAsState()
         val layout by prefs.smartbar.layout.collectAsState()
+        val displayMode by prefs.suggestion.displayMode.collectAsState()
+        val flipToggles by prefs.smartbar.flipToggles.collectAsState()
+        val sharedActionsAutoExpandCollapse by prefs.smartbar.sharedActionsAutoExpandCollapse.collectAsState()
+        val extendedActionsPlacement by prefs.smartbar.extendedActionsPlacement.collectAsState()
 
         M3SwitchPreference(
-            pref = prefs.smartbar.enabled,
+            checked = enabled,
+            onCheckedChange = { prefs.smartbar.enabled.set(it) },
             title = stringRes(R.string.pref__smartbar__enabled__label),
             summary = stringRes(R.string.pref__smartbar__enabled__summary),
         )
         M3ListPreference(
-            pref = prefs.smartbar.layout,
+            value = layout,
+            onSelect = { prefs.smartbar.layout.set(it) },
             title = stringRes(R.string.pref__smartbar__layout__label),
-            entries = enumDisplayEntriesOf(SmartbarLayout::class),
+            entries = enumDisplayEntriesOf(SmartbarLayout::class).map { it.key.toString() to it.label },
             enabled = enabled,
         )
 
@@ -47,31 +52,35 @@ fun SmartbarScreen() = FlorisScreen {
         )
         if (layout != SmartbarLayout.ACTIONS_ONLY) {
             M3ListPreference(
-                pref = prefs.suggestion.displayMode,
+                value = displayMode,
+                onSelect = { prefs.suggestion.displayMode.set(it) },
                 title = stringRes(R.string.pref__suggestion__display_mode__label),
-                entries = enumDisplayEntriesOf(CandidatesDisplayMode::class),
+                entries = enumDisplayEntriesOf(CandidatesDisplayMode::class).map { it.key.toString() to it.label },
                 enabled = enabled,
             )
         }
         if (layout == SmartbarLayout.SUGGESTIONS_ACTIONS_SHARED || layout == SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED) {
             M3SwitchPreference(
-                pref = prefs.smartbar.flipToggles,
+                checked = flipToggles,
+                onCheckedChange = { prefs.smartbar.flipToggles.set(it) },
                 title = stringRes(R.string.pref__smartbar__flip_toggles__label),
                 summary = stringRes(R.string.pref__smartbar__flip_toggles__summary),
                 enabled = enabled,
             )
         }
         M3SwitchPreference(
-            pref = prefs.smartbar.sharedActionsAutoExpandCollapse,
+            checked = sharedActionsAutoExpandCollapse,
+            onCheckedChange = { prefs.smartbar.sharedActionsAutoExpandCollapse.set(it) },
             title = stringRes(R.string.pref__smartbar__shared_actions_auto_expand_collapse__label),
             summary = "[Since v0.4.1] Always enabled due to UX issues",
             enabled = false,
         )
         if (layout == SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED) {
             M3ListPreference(
-                pref = prefs.smartbar.extendedActionsPlacement,
+                value = extendedActionsPlacement,
+                onSelect = { prefs.smartbar.extendedActionsPlacement.set(it) },
                 title = stringRes(R.string.pref__smartbar__extended_actions_placement__label),
-                entries = enumDisplayEntriesOf(ExtendedActionsPlacement::class),
+                entries = enumDisplayEntriesOf(ExtendedActionsPlacement::class).map { it.key.toString() to it.label },
                 enabled = enabled,
             )
         }

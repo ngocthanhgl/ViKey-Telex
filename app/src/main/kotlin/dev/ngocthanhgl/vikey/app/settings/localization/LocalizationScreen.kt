@@ -81,13 +81,18 @@ fun LocalizationScreen() = FlorisScreen {
     }
 
     content {
+        val displayLanguageNamesIn by prefs.localization.displayLanguageNamesIn.collectAsState()
+        val displayKeyboardLabelsInSubtypeLanguage by prefs.localization.displayKeyboardLabelsInSubtypeLanguage.collectAsState()
+
         M3ListPreference(
-            pref = prefs.localization.displayLanguageNamesIn,
+            value = displayLanguageNamesIn,
+            onSelect = { prefs.localization.displayLanguageNamesIn.set(it) },
             title = stringRes(R.string.settings__localization__display_language_names_in__label),
-            entries = enumDisplayEntriesOf(DisplayLanguageNamesIn::class),
+            entries = enumDisplayEntriesOf(DisplayLanguageNamesIn::class).map { it.key.toString() to it.label },
         )
         M3SwitchPreference(
-            pref = prefs.localization.displayKeyboardLabelsInSubtypeLanguage,
+            checked = displayKeyboardLabelsInSubtypeLanguage,
+            onCheckedChange = { prefs.localization.displayKeyboardLabelsInSubtypeLanguage.set(it) },
             title = stringRes(R.string.settings__localization__display_keyboard_labels_in_subtype_language),
         )
         M3ClickablePreference(

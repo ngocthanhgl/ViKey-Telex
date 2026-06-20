@@ -54,10 +54,11 @@ fun ThemeScreen() = FlorisScreen {
         val themeMode by prefs.theme.mode.collectAsState()
 
         M3ListPreference(
-            pref = prefs.theme.mode,
+            value = themeMode,
+            onSelect = { prefs.theme.mode.set(it) },
             icon = Icons.Default.BrightnessAuto,
             title = stringRes(R.string.pref__theme__mode__label),
-            entries = enumDisplayEntriesOf(ThemeMode::class),
+            entries = enumDisplayEntriesOf(ThemeMode::class).map { it.key.toString() to it.label },
         )
         M3ClickablePreference(
             icon = Icons.Default.LightMode,

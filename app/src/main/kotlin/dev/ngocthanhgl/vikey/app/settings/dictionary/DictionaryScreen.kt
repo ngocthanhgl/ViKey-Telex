@@ -19,7 +19,6 @@ import dev.ngocthanhgl.vikey.ime.dictionary.DictionaryManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
 import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
-import dev.patrickgold.jetpref.datastore.model.collectAsState
 import org.florisboard.lib.compose.stringRes
 import java.io.File
 
@@ -37,7 +36,8 @@ fun DictionaryScreen() = FlorisScreen {
         val enableFlorisUserDictionary by prefs.dictionary.enableFlorisUserDictionary.collectAsState()
 
         M3SwitchPreference(
-            pref = prefs.dictionary.enableSystemUserDictionary,
+            checked = enableSystemUserDictionary,
+            onCheckedChange = { prefs.dictionary.enableSystemUserDictionary.set(it) },
             title = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__label),
             summary = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__summary),
         )
@@ -48,7 +48,8 @@ fun DictionaryScreen() = FlorisScreen {
             enabled = enableSystemUserDictionary,
         )
         M3SwitchPreference(
-            pref = prefs.dictionary.enableFlorisUserDictionary,
+            checked = enableFlorisUserDictionary,
+            onCheckedChange = { prefs.dictionary.enableFlorisUserDictionary.set(it) },
             title = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__label),
             summary = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__summary),
         )

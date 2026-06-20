@@ -45,10 +45,22 @@ fun MediaScreen() = FlorisScreen {
     val scope = rememberCoroutineScope()
 
     content {
+        val preferredSkinTone by prefs.emoji.preferredSkinTone.collectAsState()
+        val historyPinnedUpdateStrategy by prefs.emoji.historyPinnedUpdateStrategy.collectAsState()
+        val historyRecentUpdateStrategy by prefs.emoji.historyRecentUpdateStrategy.collectAsState()
+        val historyPinnedMaxSize by prefs.emoji.historyPinnedMaxSize.collectAsState()
+        val historyRecentMaxSize by prefs.emoji.historyRecentMaxSize.collectAsState()
+        val suggestionType by prefs.emoji.suggestionType.collectAsState()
+        val suggestionUpdateHistory by prefs.emoji.suggestionUpdateHistory.collectAsState()
+        val suggestionCandidateShowName by prefs.emoji.suggestionCandidateShowName.collectAsState()
+        val suggestionQueryMinLength by prefs.emoji.suggestionQueryMinLength.collectAsState()
+        val suggestionCandidateMaxCount by prefs.emoji.suggestionCandidateMaxCount.collectAsState()
+
         M3ListPreference(
-            pref = prefs.emoji.preferredSkinTone,
+            value = preferredSkinTone,
+            onSelect = { prefs.emoji.preferredSkinTone.set(it) },
             title = stringRes(R.string.prefs__media__emoji_preferred_skin_tone),
-            entries = enumDisplayEntriesOf(EmojiSkinTone::class),
+            entries = enumDisplayEntriesOf(EmojiSkinTone::class).map { it.key.toString() to it.label },
         )
 
         Text(
@@ -58,25 +70,30 @@ fun MediaScreen() = FlorisScreen {
         )
         val historyEnabled by prefs.emoji.historyEnabled.collectAsState()
         M3SwitchPreference(
-            pref = prefs.emoji.historyEnabled,
+            checked = historyEnabled,
+            onCheckedChange = { prefs.emoji.historyEnabled.set(it) },
             title = stringRes(R.string.prefs__media__emoji_history_enabled),
             summary = stringRes(R.string.prefs__media__emoji_history_enabled__summary),
         )
         M3ListPreference(
-            pref = prefs.emoji.historyPinnedUpdateStrategy,
+            value = historyPinnedUpdateStrategy,
+            onSelect = { prefs.emoji.historyPinnedUpdateStrategy.set(it) },
             title = stringRes(R.string.prefs__media__emoji_history_pinned_update_strategy),
-            entries = enumDisplayEntriesOf(EmojiHistory.UpdateStrategy::class),
+            entries = enumDisplayEntriesOf(EmojiHistory.UpdateStrategy::class).map { it.key.toString() to it.label },
             enabled = historyEnabled,
         )
         M3ListPreference(
-            pref = prefs.emoji.historyRecentUpdateStrategy,
+            value = historyRecentUpdateStrategy,
+            onSelect = { prefs.emoji.historyRecentUpdateStrategy.set(it) },
             title = stringRes(R.string.prefs__media__emoji_history_recent_update_strategy),
-            entries = enumDisplayEntriesOf(EmojiHistory.UpdateStrategy::class),
+            entries = enumDisplayEntriesOf(EmojiHistory.UpdateStrategy::class).map { it.key.toString() to it.label },
             enabled = historyEnabled,
         )
         M3DialogSliderPreference(
-            primaryPref = prefs.emoji.historyPinnedMaxSize,
-            secondaryPref = prefs.emoji.historyRecentMaxSize,
+            primaryValue = historyPinnedMaxSize,
+            onPrimaryChange = { prefs.emoji.historyPinnedMaxSize.set(it) },
+            secondaryValue = historyRecentMaxSize,
+            onSecondaryChange = { prefs.emoji.historyRecentMaxSize.set(it) },
             title = stringRes(R.string.prefs__media__emoji_history_max_size),
             primaryLabel = stringRes(R.string.emoji__history__pinned),
             secondaryLabel = stringRes(R.string.emoji__history__recent),
@@ -108,37 +125,43 @@ fun MediaScreen() = FlorisScreen {
         )
         val suggestionEnabled by prefs.emoji.suggestionEnabled.collectAsState()
         M3SwitchPreference(
-            pref = prefs.emoji.suggestionEnabled,
+            checked = suggestionEnabled,
+            onCheckedChange = { prefs.emoji.suggestionEnabled.set(it) },
             title = stringRes(R.string.prefs__media__emoji_suggestion_enabled),
             summary = stringRes(R.string.prefs__media__emoji_suggestion_enabled__summary),
         )
         M3ListPreference(
-            pref = prefs.emoji.suggestionType,
+            value = suggestionType,
+            onSelect = { prefs.emoji.suggestionType.set(it) },
             title = stringRes(R.string.prefs__media__emoji_suggestion_type),
-            entries = enumDisplayEntriesOf(EmojiSuggestionType::class),
+            entries = enumDisplayEntriesOf(EmojiSuggestionType::class).map { it.key.toString() to it.label },
             enabled = suggestionEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.emoji.suggestionUpdateHistory,
+            checked = suggestionUpdateHistory,
+            onCheckedChange = { prefs.emoji.suggestionUpdateHistory.set(it) },
             title = stringRes(R.string.prefs__media__emoji_suggestion_update_history),
             summary = stringRes(R.string.prefs__media__emoji_suggestion_update_history__summary),
             enabled = suggestionEnabled && historyEnabled,
         )
         M3SwitchPreference(
-            pref = prefs.emoji.suggestionCandidateShowName,
+            checked = suggestionCandidateShowName,
+            onCheckedChange = { prefs.emoji.suggestionCandidateShowName.set(it) },
             title = stringRes(R.string.prefs__media__emoji_suggestion_candidate_show_name),
             summary = stringRes(R.string.prefs__media__emoji_suggestion_candidate_show_name__summary),
             enabled = suggestionEnabled,
         )
         M3DialogSliderPreference(
-            pref = prefs.emoji.suggestionQueryMinLength,
+            value = suggestionQueryMinLength,
+            onChange = { prefs.emoji.suggestionQueryMinLength.set(it) },
             title = stringRes(R.string.prefs__media__emoji_suggestion_query_min_length),
             valueLabel = { length -> pluralsRes(R.plurals.unit__characters__written, length, "v" to length) },
             min = 1, max = 5, stepIncrement = 1,
             enabled = suggestionEnabled,
         )
         M3DialogSliderPreference(
-            pref = prefs.emoji.suggestionCandidateMaxCount,
+            value = suggestionCandidateMaxCount,
+            onChange = { prefs.emoji.suggestionCandidateMaxCount.set(it) },
             title = stringRes(R.string.prefs__media__emoji_suggestion_candidate_max_count),
             valueLabel = { count -> pluralsRes(R.plurals.unit__candidates__written, count, "v" to count) },
             min = 1, max = 10, stepIncrement = 1,

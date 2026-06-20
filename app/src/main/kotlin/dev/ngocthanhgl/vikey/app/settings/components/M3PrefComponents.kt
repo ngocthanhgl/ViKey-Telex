@@ -1,8 +1,8 @@
 package dev.ngocthanhgl.vikey.app.settings.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,24 +34,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import dev.patrickgold.jetpref.datastore.model.JetPref
-import dev.patrickgold.jetpref.datastore.model.collectAsState
-import dev.patrickgold.jetpref.datastore.ui.ListPreferenceEntry
 
 @Composable
 fun M3SwitchPreference(
-    pref: JetPref<Boolean>,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
     icon: ImageVector? = null,
     title: String,
     summary: String? = null,
     enabled: Boolean = true,
 ) {
-    val value = pref.collectAsState().value
     ListItem(
         headlineContent = { Text(title, style = MaterialTheme.typography.bodyLarge) },
         supportingContent = summary?.let { { Text(it, style = MaterialTheme.typography.bodySmall) } },
         leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
-        trailingContent = { Switch(checked = value, onCheckedChange = { pref.set(it) }, enabled = enabled) },
+        trailingContent = { Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled) },
         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
     )
 }
@@ -86,14 +83,14 @@ fun M3ClickablePreference(
 
 @Composable
 fun M3ListPreference(
-    pref: JetPref<String>,
+    value: String,
+    onSelect: (String) -> Unit,
     icon: ImageVector? = null,
     title: String,
-    entries: List<ListPreferenceEntry<*>>,
+    entries: List<Pair<String, String>>,
     enabled: Boolean = true,
 ) {
-    val value = pref.collectAsState().value
-    val selectedLabel = entries.find { it.key.toString() == value }?.label ?: value
+    val selectedLabel = entries.find { it.first == value }?.second ?: value
     var showDialog by remember { mutableStateOf(false) }
 
     ListItem(
@@ -111,20 +108,20 @@ fun M3ListPreference(
             title = { Text(title) },
             text = {
                 Column {
-                    entries.forEach { entry ->
+                    entries.forEach { (key, label) ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { pref.set(entry.key.toString()); showDialog = false }
+                                .clickable { onSelect(key); showDialog = false }
                                 .padding(vertical = 8.dp),
                         ) {
                             RadioButton(
-                                selected = value == entry.key.toString(),
-                                onClick = { pref.set(entry.key.toString()); showDialog = false },
+                                selected = value == key,
+                                onClick = { onSelect(key); showDialog = false },
                             )
                             Spacer(Modifier.width(8.dp))
-                            Text(entry.label, style = MaterialTheme.typography.bodyLarge)
+                            Text(label, style = MaterialTheme.typography.bodyLarge)
                         }
                     }
                 }
@@ -140,37 +137,37 @@ fun M3ListPreference(
 
 @Composable
 fun M3SwitchListPreference(
-    switchPref: JetPref<Boolean>,
-    listPref: JetPref<String>,
+    switchChecked: Boolean,
+    onSwitchChange: (Boolean) -> Unit,
+    listValue: String,
+    onListSelect: (String) -> Unit,
     icon: ImageVector? = null,
     title: String,
     summarySwitchDisabled: String,
-    entries: List<ListPreferenceEntry<*>>,
+    entries: List<Pair<String, String>>,
     enabled: Boolean = true,
 ) {
-    val switchValue = switchPref.collectAsState().value
-    val listValue = listPref.collectAsState().value
-    val selectedLabel = entries.find { it.key.toString() == listValue }?.label ?: listValue
+    val selectedLabel = entries.find { it.first == listValue }?.second ?: listValue
     var showDialog by remember { mutableStateOf(false) }
 
     ListItem(
         headlineContent = { Text(title, style = MaterialTheme.typography.bodyLarge) },
         supportingContent = {
             Text(
-                if (switchValue) selectedLabel else summarySwitchDisabled,
+                if (switchChecked) selectedLabel else summarySwitchDisabled,
                 style = MaterialTheme.typography.bodySmall,
             )
         },
         leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
         trailingContent = {
             Switch(
-                checked = switchValue,
-                onCheckedChange = { switchPref.set(it) },
+                checked = switchChecked,
+                onCheckedChange = onSwitchChange,
                 enabled = enabled,
             )
         },
         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
-        modifier = Modifier.clickable(enabled = enabled && switchValue, onClick = { showDialog = true }),
+        modifier = Modifier.clickable(enabled = enabled && switchChecked, onClick = { showDialog = true }),
     )
 
     if (showDialog) {
@@ -179,20 +176,20 @@ fun M3SwitchListPreference(
             title = { Text(title) },
             text = {
                 Column {
-                    entries.forEach { entry ->
+                    entries.forEach { (key, label) ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { listPref.set(entry.key.toString()); showDialog = false }
+                                .clickable { onListSelect(key); showDialog = false }
                                 .padding(vertical = 8.dp),
                         ) {
                             RadioButton(
-                                selected = listValue == entry.key.toString(),
-                                onClick = { listPref.set(entry.key.toString()); showDialog = false },
+                                selected = listValue == key,
+                                onClick = { onListSelect(key); showDialog = false },
                             )
                             Spacer(Modifier.width(8.dp))
-                            Text(entry.label, style = MaterialTheme.typography.bodyLarge)
+                            Text(label, style = MaterialTheme.typography.bodyLarge)
                         }
                     }
                 }
@@ -208,7 +205,8 @@ fun M3SwitchListPreference(
 
 @Composable
 fun M3DialogSliderPreference(
-    pref: JetPref<Int>,
+    value: Int,
+    onChange: (Int) -> Unit,
     icon: ImageVector? = null,
     title: String,
     valueLabel: @Composable (Int) -> String,
@@ -217,7 +215,6 @@ fun M3DialogSliderPreference(
     stepIncrement: Int = 0,
     enabled: Boolean = true,
 ) {
-    val value = pref.collectAsState().value
     var showDialog by remember { mutableStateOf(false) }
     var tmpValue by remember { mutableFloatStateOf(value.toFloat()) }
 
@@ -245,7 +242,7 @@ fun M3DialogSliderPreference(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { pref.set(tmpValue.toInt()); showDialog = false }) {
+                TextButton(onClick = { onChange(tmpValue.toInt()); showDialog = false }) {
                     Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__ok))
                 }
             },
@@ -260,8 +257,10 @@ fun M3DialogSliderPreference(
 
 @Composable
 fun M3DialogSliderPreference(
-    primaryPref: JetPref<Int>,
-    secondaryPref: JetPref<Int>,
+    primaryValue: Int,
+    onPrimaryChange: (Int) -> Unit,
+    secondaryValue: Int,
+    onSecondaryChange: (Int) -> Unit,
     icon: ImageVector? = null,
     title: String,
     primaryLabel: String,
@@ -272,8 +271,6 @@ fun M3DialogSliderPreference(
     stepIncrement: Int = 0,
     enabled: Boolean = true,
 ) {
-    val primaryValue = primaryPref.collectAsState().value
-    val secondaryValue = secondaryPref.collectAsState().value
     var showDialog by remember { mutableStateOf(false) }
     var tmpPrimary by remember { mutableFloatStateOf(primaryValue.toFloat()) }
     var tmpSecondary by remember { mutableFloatStateOf(secondaryValue.toFloat()) }
@@ -322,7 +319,11 @@ fun M3DialogSliderPreference(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { primaryPref.set(tmpPrimary.toInt()); secondaryPref.set(tmpSecondary.toInt()); showDialog = false }) {
+                TextButton(onClick = {
+                    onPrimaryChange(tmpPrimary.toInt())
+                    onSecondaryChange(tmpSecondary.toInt())
+                    showDialog = false
+                }) {
                     Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__ok))
                 }
             },

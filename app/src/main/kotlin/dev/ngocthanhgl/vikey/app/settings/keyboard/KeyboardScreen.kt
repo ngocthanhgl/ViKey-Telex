@@ -36,51 +36,81 @@ fun KeyboardScreen() = FlorisScreen {
     content {
         val numberRow by prefs.keyboard.numberRow.collectAsState()
         val utilityKeyEnabled by prefs.keyboard.utilityKeyEnabled.collectAsState()
+        val hintedNumberRowEnabled by prefs.keyboard.hintedNumberRowEnabled.collectAsState()
+        val hintedNumberRowMode by prefs.keyboard.hintedNumberRowMode.collectAsState()
+        val hintedSymbolsEnabled by prefs.keyboard.hintedSymbolsEnabled.collectAsState()
+        val hintedSymbolsMode by prefs.keyboard.hintedSymbolsMode.collectAsState()
+        val utilityKeyAction by prefs.keyboard.utilityKeyAction.collectAsState()
+        val spaceBarMode by prefs.keyboard.spaceBarMode.collectAsState()
+        val capitalizationBehavior by prefs.keyboard.capitalizationBehavior.collectAsState()
+        val fontSizeMultiplierPortrait by prefs.keyboard.fontSizeMultiplierPortrait.collectAsState()
+        val fontSizeMultiplierLandscape by prefs.keyboard.fontSizeMultiplierLandscape.collectAsState()
+        val incognitoDisplayMode by prefs.keyboard.incognitoDisplayMode.collectAsState()
+        val landscapeInputUiMode by prefs.keyboard.landscapeInputUiMode.collectAsState()
+        val keySpacingVertical by prefs.keyboard.keySpacingVertical.collectAsState()
+        val keySpacingHorizontal by prefs.keyboard.keySpacingHorizontal.collectAsState()
+        val bottomPaddingPortrait by prefs.keyboard.bottomPaddingPortrait.collectAsState()
+        val bottomPaddingLandscape by prefs.keyboard.bottomPaddingLandscape.collectAsState()
+        val popupEnabled by prefs.keyboard.popupEnabled.collectAsState()
+        val mergeHintPopupsEnabled by prefs.keyboard.mergeHintPopupsEnabled.collectAsState()
+        val longPressDelay by prefs.keyboard.longPressDelay.collectAsState()
+        val spaceBarSwitchesToCharacters by prefs.keyboard.spaceBarSwitchesToCharacters.collectAsState()
 
         M3SwitchPreference(
-            pref = prefs.keyboard.numberRow,
+            checked = numberRow,
+            onCheckedChange = { prefs.keyboard.numberRow.set(it) },
             title = stringRes(R.string.pref__keyboard__number_row__label),
             summary = stringRes(R.string.pref__keyboard__number_row__summary),
         )
         M3SwitchListPreference(
-            switchPref = prefs.keyboard.hintedNumberRowEnabled,
-            listPref = prefs.keyboard.hintedNumberRowMode,
+            switchChecked = hintedNumberRowEnabled,
+            onSwitchChange = { prefs.keyboard.hintedNumberRowEnabled.set(it) },
+            listValue = hintedNumberRowMode,
+            onListSelect = { prefs.keyboard.hintedNumberRowMode.set(it) },
             title = stringRes(R.string.pref__keyboard__hinted_number_row_mode__label),
             summarySwitchDisabled = stringRes(R.string.state__disabled),
-            entries = enumDisplayEntriesOf(KeyHintMode::class),
+            entries = enumDisplayEntriesOf(KeyHintMode::class).map { it.key.toString() to it.label },
             enabled = !numberRow,
         )
         M3SwitchListPreference(
-            switchPref = prefs.keyboard.hintedSymbolsEnabled,
-            listPref = prefs.keyboard.hintedSymbolsMode,
+            switchChecked = hintedSymbolsEnabled,
+            onSwitchChange = { prefs.keyboard.hintedSymbolsEnabled.set(it) },
+            listValue = hintedSymbolsMode,
+            onListSelect = { prefs.keyboard.hintedSymbolsMode.set(it) },
             title = stringRes(R.string.pref__keyboard__hinted_symbols_mode__label),
             summarySwitchDisabled = stringRes(R.string.state__disabled),
-            entries = enumDisplayEntriesOf(KeyHintMode::class),
+            entries = enumDisplayEntriesOf(KeyHintMode::class).map { it.key.toString() to it.label },
         )
         M3SwitchPreference(
-            pref = prefs.keyboard.utilityKeyEnabled,
+            checked = utilityKeyEnabled,
+            onCheckedChange = { prefs.keyboard.utilityKeyEnabled.set(it) },
             title = stringRes(R.string.pref__keyboard__utility_key_enabled__label),
             summary = stringRes(R.string.pref__keyboard__utility_key_enabled__summary),
         )
         M3ListPreference(
-            pref = prefs.keyboard.utilityKeyAction,
+            value = utilityKeyAction,
+            onSelect = { prefs.keyboard.utilityKeyAction.set(it) },
             title = stringRes(R.string.pref__keyboard__utility_key_action__label),
-            entries = enumDisplayEntriesOf(UtilityKeyAction::class),
+            entries = enumDisplayEntriesOf(UtilityKeyAction::class).map { it.key.toString() to it.label },
             enabled = utilityKeyEnabled,
         )
         M3ListPreference(
-            pref = prefs.keyboard.spaceBarMode,
+            value = spaceBarMode,
+            onSelect = { prefs.keyboard.spaceBarMode.set(it) },
             title = stringRes(R.string.pref__keyboard__space_bar_mode__label),
-            entries = enumDisplayEntriesOf(SpaceBarMode::class),
+            entries = enumDisplayEntriesOf(SpaceBarMode::class).map { it.key.toString() to it.label },
         )
         M3ListPreference(
-            pref = prefs.keyboard.capitalizationBehavior,
+            value = capitalizationBehavior,
+            onSelect = { prefs.keyboard.capitalizationBehavior.set(it) },
             title = stringRes(R.string.pref__keyboard__capitalization_behavior__label),
-            entries = enumDisplayEntriesOf(CapitalizationBehavior::class),
+            entries = enumDisplayEntriesOf(CapitalizationBehavior::class).map { it.key.toString() to it.label },
         )
         M3DialogSliderPreference(
-            primaryPref = prefs.keyboard.fontSizeMultiplierPortrait,
-            secondaryPref = prefs.keyboard.fontSizeMultiplierLandscape,
+            primaryValue = fontSizeMultiplierPortrait,
+            onPrimaryChange = { prefs.keyboard.fontSizeMultiplierPortrait.set(it) },
+            secondaryValue = fontSizeMultiplierLandscape,
+            onSecondaryChange = { prefs.keyboard.fontSizeMultiplierLandscape.set(it) },
             title = stringRes(R.string.pref__keyboard__font_size_multiplier__label),
             primaryLabel = stringRes(R.string.screen_orientation__portrait),
             secondaryLabel = stringRes(R.string.screen_orientation__landscape),
@@ -88,9 +118,10 @@ fun KeyboardScreen() = FlorisScreen {
             min = 50, max = 150, stepIncrement = 5,
         )
         M3ListPreference(
-            pref = prefs.keyboard.incognitoDisplayMode,
+            value = incognitoDisplayMode,
+            onSelect = { prefs.keyboard.incognitoDisplayMode.set(it) },
             title = stringRes(R.string.pref__keyboard__incognito_indicator__label),
-            entries = enumDisplayEntriesOf(IncognitoDisplayMode::class),
+            entries = enumDisplayEntriesOf(IncognitoDisplayMode::class).map { it.key.toString() to it.label },
         )
 
         Text(
@@ -99,13 +130,16 @@ fun KeyboardScreen() = FlorisScreen {
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
         )
         M3ListPreference(
-            pref = prefs.keyboard.landscapeInputUiMode,
+            value = landscapeInputUiMode,
+            onSelect = { prefs.keyboard.landscapeInputUiMode.set(it) },
             title = stringRes(R.string.pref__keyboard__landscape_input_ui_mode__label),
-            entries = enumDisplayEntriesOf(LandscapeInputUiMode::class),
+            entries = enumDisplayEntriesOf(LandscapeInputUiMode::class).map { it.key.toString() to it.label },
         )
         M3DialogSliderPreference(
-            primaryPref = prefs.keyboard.keySpacingVertical,
-            secondaryPref = prefs.keyboard.keySpacingHorizontal,
+            primaryValue = keySpacingVertical,
+            onPrimaryChange = { prefs.keyboard.keySpacingVertical.set(it) },
+            secondaryValue = keySpacingHorizontal,
+            onSecondaryChange = { prefs.keyboard.keySpacingHorizontal.set(it) },
             title = stringRes(R.string.pref__keyboard__key_spacing__label),
             primaryLabel = stringRes(R.string.screen_orientation__vertical),
             secondaryLabel = stringRes(R.string.screen_orientation__horizontal),
@@ -113,8 +147,10 @@ fun KeyboardScreen() = FlorisScreen {
             min = 50, max = 150, stepIncrement = 5,
         )
         M3DialogSliderPreference(
-            primaryPref = prefs.keyboard.bottomPaddingPortrait,
-            secondaryPref = prefs.keyboard.bottomPaddingLandscape,
+            primaryValue = bottomPaddingPortrait,
+            onPrimaryChange = { prefs.keyboard.bottomPaddingPortrait.set(it) },
+            secondaryValue = bottomPaddingLandscape,
+            onSecondaryChange = { prefs.keyboard.bottomPaddingLandscape.set(it) },
             title = stringRes(R.string.pref__keyboard__bottom_padding__label),
             primaryLabel = stringRes(R.string.screen_orientation__portrait),
             secondaryLabel = stringRes(R.string.screen_orientation__landscape),
@@ -132,23 +168,27 @@ fun KeyboardScreen() = FlorisScreen {
             onClick = { navController.navigate(Routes.Settings.InputFeedback) },
         )
         M3SwitchPreference(
-            pref = prefs.keyboard.popupEnabled,
+            checked = popupEnabled,
+            onCheckedChange = { prefs.keyboard.popupEnabled.set(it) },
             title = stringRes(R.string.pref__keyboard__popup_enabled__label),
             summary = stringRes(R.string.pref__keyboard__popup_enabled__summary),
         )
         M3SwitchPreference(
-            pref = prefs.keyboard.mergeHintPopupsEnabled,
+            checked = mergeHintPopupsEnabled,
+            onCheckedChange = { prefs.keyboard.mergeHintPopupsEnabled.set(it) },
             title = stringRes(R.string.pref__keyboard__merge_hint_popups_enabled__label),
             summary = stringRes(R.string.pref__keyboard__merge_hint_popups_enabled__summary),
         )
         M3DialogSliderPreference(
-            pref = prefs.keyboard.longPressDelay,
+            value = longPressDelay,
+            onChange = { prefs.keyboard.longPressDelay.set(it) },
             title = stringRes(R.string.pref__keyboard__long_press_delay__label),
             valueLabel = { stringRes(R.string.unit__milliseconds__symbol, "v" to it) },
             min = 100, max = 700, stepIncrement = 10,
         )
         M3SwitchPreference(
-            pref = prefs.keyboard.spaceBarSwitchesToCharacters,
+            checked = spaceBarSwitchesToCharacters,
+            onCheckedChange = { prefs.keyboard.spaceBarSwitchesToCharacters.set(it) },
             title = stringRes(R.string.pref__keyboard__space_bar_switches_to_characters__label),
             summary = stringRes(R.string.pref__keyboard__space_bar_switches_to_characters__summary),
         )

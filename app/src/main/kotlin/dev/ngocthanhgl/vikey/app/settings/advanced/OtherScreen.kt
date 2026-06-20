@@ -33,7 +33,6 @@ import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.patrickgold.jetpref.datastore.ui.ColorPickerPreference
 import dev.patrickgold.jetpref.datastore.ui.isMaterialYou
-import dev.patrickgold.jetpref.datastore.ui.listPrefEntries
 import org.florisboard.lib.android.AndroidVersion
 import org.florisboard.lib.color.ColorMappings
 import org.florisboard.lib.compose.stringRes
@@ -47,11 +46,16 @@ fun OtherScreen() = FlorisScreen {
     val context = LocalContext.current
 
     content {
+        val settingsTheme by prefs.other.settingsTheme.collectAsState()
+        val settingsLanguage by prefs.other.settingsLanguage.collectAsState()
+        val showAppIcon by prefs.other.showAppIcon.collectAsState()
+
         M3ListPreference(
-            pref = prefs.other.settingsTheme,
+            value = settingsTheme,
+            onSelect = { prefs.other.settingsTheme.set(it) },
             icon = Icons.Default.Palette,
             title = stringRes(R.string.pref__other__settings_theme__label),
-            entries = enumDisplayEntriesOf(AppTheme::class),
+            entries = enumDisplayEntriesOf(AppTheme::class).map { it.key.toString() to it.label },
         )
         ColorPickerPreference(
             pref = prefs.other.accentColor,
@@ -70,72 +74,69 @@ fun OtherScreen() = FlorisScreen {
             }
         )
         M3ListPreference(
-            pref = prefs.other.settingsLanguage,
+            value = settingsLanguage,
+            onSelect = { prefs.other.settingsLanguage.set(it) },
             icon = Icons.Default.Language,
             title = stringRes(R.string.pref__other__settings_language__label),
-            entries = listPrefEntries {
-                listOf(
-                    "auto",
-                    "ar",
-                    "bg",
-                    "bs",
-                    "ca",
-                    "ckb",
-                    "cs",
-                    "da",
-                    "de",
-                    "el",
-                    "en",
-                    "eo",
-                    "es",
-                    "fa",
-                    "fi",
-                    "fr",
-                    "hr",
-                    "hu",
-                    "in",
-                    "it",
-                    "iw",
-                    "ja",
-                    "ko-KR",
-                    "ku",
-                    "lv-LV",
-                    "mk",
-                    "nds-DE",
-                    "nl",
-                    "no",
-                    "pl",
-                    "pt",
-                    "pt-BR",
-                    "ru",
-                    "sk",
-                    "sl",
-                    "sr",
-                    "sv",
-                    "tr",
-                    "uk",
-                    "zgh",
-                    "zh-CN",
-                ).map { languageTag ->
-                    if (languageTag == "auto") {
-                        entry(
-                            key = "auto",
-                            label = stringRes(R.string.settings__system_default),
-                        )
-                    } else {
-                        val displayLanguageNamesIn by prefs.localization.displayLanguageNamesIn.collectAsState()
-                        val locale = FlorisLocale.fromTag(languageTag)
-                        entry(locale.languageTag(), when (displayLanguageNamesIn) {
-                            DisplayLanguageNamesIn.SYSTEM_LOCALE -> locale.displayName()
-                            DisplayLanguageNamesIn.NATIVE_LOCALE -> locale.displayName(locale)
-                            else -> locale.displayName()
-                        })
+            entries = listOf(
+                "auto",
+                "ar",
+                "bg",
+                "bs",
+                "ca",
+                "ckb",
+                "cs",
+                "da",
+                "de",
+                "el",
+                "en",
+                "eo",
+                "es",
+                "fa",
+                "fi",
+                "fr",
+                "hr",
+                "hu",
+                "in",
+                "it",
+                "iw",
+                "ja",
+                "ko-KR",
+                "ku",
+                "lv-LV",
+                "mk",
+                "nds-DE",
+                "nl",
+                "no",
+                "pl",
+                "pt",
+                "pt-BR",
+                "ru",
+                "sk",
+                "sl",
+                "sr",
+                "sv",
+                "tr",
+                "uk",
+                "zgh",
+                "zh-CN",
+            ).map { languageTag ->
+                if (languageTag == "auto") {
+                    "auto" to stringRes(R.string.settings__system_default)
+                } else {
+                    val displayLanguageNamesIn by prefs.localization.displayLanguageNamesIn.collectAsState()
+                    val locale = FlorisLocale.fromTag(languageTag)
+                    locale.languageTag() to when (displayLanguageNamesIn) {
+                        DisplayLanguageNamesIn.SYSTEM_LOCALE -> locale.displayName()
+                        DisplayLanguageNamesIn.NATIVE_LOCALE -> locale.displayName(locale)
+                        else -> locale.displayName()
                     }
                 }
             }
         )
         M3SwitchPreference(
-            pref = prefs.other.showAppIcon,
+            checked = showAppIcon,
+            onCheckedChange = { prefs.other.showAppIcon.set(it) },
             icon = Icons.Default.Preview,
             title = stringRes(R.string.pref__other__show_app_icon__label),
             summary = when {
