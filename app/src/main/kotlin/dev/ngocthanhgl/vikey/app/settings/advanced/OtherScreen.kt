@@ -1,4 +1,6 @@
 package dev.ngocthanhgl.vikey.app.settings.advanced
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Adb
@@ -46,13 +48,14 @@ fun OtherScreen() = FlorisScreen {
     val context = LocalContext.current
 
     content {
+        val scope = rememberCoroutineScope()
         val settingsTheme by prefs.other.settingsTheme.collectAsState()
         val settingsLanguage by prefs.other.settingsLanguage.collectAsState()
         val showAppIcon by prefs.other.showAppIcon.collectAsState()
 
         M3ListPreference(
             value = settingsTheme,
-            onSelect = { prefs.other.settingsTheme.set(it) },
+            onSelect = { scope.launch { prefs.other.settingsTheme.set(AppTheme.valueOf(it)) } },
             icon = Icons.Default.Palette,
             title = stringRes(R.string.pref__other__settings_theme__label),
             entries = enumDisplayEntriesOf(AppTheme::class).map { it.key.toString() to it.label },
@@ -75,7 +78,7 @@ fun OtherScreen() = FlorisScreen {
         )
         M3ListPreference(
             value = settingsLanguage,
-            onSelect = { prefs.other.settingsLanguage.set(it) },
+            onSelect = { scope.launch { prefs.other.settingsLanguage.set(it) } },
             icon = Icons.Default.Language,
             title = stringRes(R.string.pref__other__settings_language__label),
             entries = listOf(
@@ -136,7 +139,7 @@ fun OtherScreen() = FlorisScreen {
         )
         M3SwitchPreference(
             checked = showAppIcon,
-            onCheckedChange = { prefs.other.showAppIcon.set(it) },
+            onCheckedChange = { scope.launch { prefs.other.showAppIcon.set(it) } },
             icon = Icons.Default.Preview,
             title = stringRes(R.string.pref__other__show_app_icon__label),
             summary = when {
@@ -154,24 +157,6 @@ fun OtherScreen() = FlorisScreen {
             icon = Icons.Default.Adb,
             title = stringRes(R.string.devtools__title),
             onClick = { navController.navigate(Routes.Devtools.Home) },
-        )
-
-        Text(
-            text = stringRes(R.string.backup_and_restore__title),
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
-        )
-        M3ClickablePreference(
-            icon = Icons.Default.Archive,
-            title = stringRes(R.string.backup_and_restore__back_up__title),
-            summary = stringRes(R.string.backup_and_restore__back_up__summary),
-            onClick = { navController.navigate(Routes.Settings.Backup) },
-        )
-        M3ClickablePreference(
-            icon = Icons.Default.SettingsBackupRestore,
-            title = stringRes(R.string.backup_and_restore__restore__title),
-            summary = stringRes(R.string.backup_and_restore__restore__summary),
-            onClick = { navController.navigate(Routes.Settings.Restore) },
         )
     }
 }

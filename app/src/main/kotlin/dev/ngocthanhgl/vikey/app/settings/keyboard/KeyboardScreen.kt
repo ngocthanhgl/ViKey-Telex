@@ -1,4 +1,6 @@
 package dev.ngocthanhgl.vikey.app.settings.keyboard
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +36,7 @@ fun KeyboardScreen() = FlorisScreen {
     val navController = LocalNavController.current
 
     content {
+        val scope = rememberCoroutineScope()
         val numberRow by prefs.keyboard.numberRow.collectAsState()
         val utilityKeyEnabled by prefs.keyboard.utilityKeyEnabled.collectAsState()
         val hintedNumberRowEnabled by prefs.keyboard.hintedNumberRowEnabled.collectAsState()
@@ -58,15 +61,15 @@ fun KeyboardScreen() = FlorisScreen {
 
         M3SwitchPreference(
             checked = numberRow,
-            onCheckedChange = { prefs.keyboard.numberRow.set(it) },
+            onCheckedChange = { scope.launch { prefs.keyboard.numberRow.set(it) } },
             title = stringRes(R.string.pref__keyboard__number_row__label),
             summary = stringRes(R.string.pref__keyboard__number_row__summary),
         )
         M3SwitchListPreference(
             switchChecked = hintedNumberRowEnabled,
-            onSwitchChange = { prefs.keyboard.hintedNumberRowEnabled.set(it) },
+            onSwitchChange = { scope.launch { prefs.keyboard.hintedNumberRowEnabled.set(it) } },
             listValue = hintedNumberRowMode,
-            onListSelect = { prefs.keyboard.hintedNumberRowMode.set(it) },
+            onListSelect = { scope.launch { prefs.keyboard.hintedNumberRowMode.set(KeyHintMode.valueOf(it)) } },
             title = stringRes(R.string.pref__keyboard__hinted_number_row_mode__label),
             summarySwitchDisabled = stringRes(R.string.state__disabled),
             entries = enumDisplayEntriesOf(KeyHintMode::class).map { it.key.toString() to it.label },
@@ -74,43 +77,43 @@ fun KeyboardScreen() = FlorisScreen {
         )
         M3SwitchListPreference(
             switchChecked = hintedSymbolsEnabled,
-            onSwitchChange = { prefs.keyboard.hintedSymbolsEnabled.set(it) },
+            onSwitchChange = { scope.launch { prefs.keyboard.hintedSymbolsEnabled.set(it) } },
             listValue = hintedSymbolsMode,
-            onListSelect = { prefs.keyboard.hintedSymbolsMode.set(it) },
+            onListSelect = { scope.launch { prefs.keyboard.hintedSymbolsMode.set(KeyHintMode.valueOf(it)) } },
             title = stringRes(R.string.pref__keyboard__hinted_symbols_mode__label),
             summarySwitchDisabled = stringRes(R.string.state__disabled),
             entries = enumDisplayEntriesOf(KeyHintMode::class).map { it.key.toString() to it.label },
         )
         M3SwitchPreference(
             checked = utilityKeyEnabled,
-            onCheckedChange = { prefs.keyboard.utilityKeyEnabled.set(it) },
+            onCheckedChange = { scope.launch { prefs.keyboard.utilityKeyEnabled.set(it) } },
             title = stringRes(R.string.pref__keyboard__utility_key_enabled__label),
             summary = stringRes(R.string.pref__keyboard__utility_key_enabled__summary),
         )
         M3ListPreference(
             value = utilityKeyAction,
-            onSelect = { prefs.keyboard.utilityKeyAction.set(it) },
+            onSelect = { scope.launch { prefs.keyboard.utilityKeyAction.set(UtilityKeyAction.valueOf(it)) } },
             title = stringRes(R.string.pref__keyboard__utility_key_action__label),
             entries = enumDisplayEntriesOf(UtilityKeyAction::class).map { it.key.toString() to it.label },
             enabled = utilityKeyEnabled,
         )
         M3ListPreference(
             value = spaceBarMode,
-            onSelect = { prefs.keyboard.spaceBarMode.set(it) },
+            onSelect = { scope.launch { prefs.keyboard.spaceBarMode.set(SpaceBarMode.valueOf(it)) } },
             title = stringRes(R.string.pref__keyboard__space_bar_mode__label),
             entries = enumDisplayEntriesOf(SpaceBarMode::class).map { it.key.toString() to it.label },
         )
         M3ListPreference(
             value = capitalizationBehavior,
-            onSelect = { prefs.keyboard.capitalizationBehavior.set(it) },
+            onSelect = { scope.launch { prefs.keyboard.capitalizationBehavior.set(CapitalizationBehavior.valueOf(it)) } },
             title = stringRes(R.string.pref__keyboard__capitalization_behavior__label),
             entries = enumDisplayEntriesOf(CapitalizationBehavior::class).map { it.key.toString() to it.label },
         )
         M3DialogSliderPreference(
             primaryValue = fontSizeMultiplierPortrait,
-            onPrimaryChange = { prefs.keyboard.fontSizeMultiplierPortrait.set(it) },
+            onPrimaryChange = { scope.launch { prefs.keyboard.fontSizeMultiplierPortrait.set(it) } },
             secondaryValue = fontSizeMultiplierLandscape,
-            onSecondaryChange = { prefs.keyboard.fontSizeMultiplierLandscape.set(it) },
+            onSecondaryChange = { scope.launch { prefs.keyboard.fontSizeMultiplierLandscape.set(it) } },
             title = stringRes(R.string.pref__keyboard__font_size_multiplier__label),
             primaryLabel = stringRes(R.string.screen_orientation__portrait),
             secondaryLabel = stringRes(R.string.screen_orientation__landscape),
@@ -119,7 +122,7 @@ fun KeyboardScreen() = FlorisScreen {
         )
         M3ListPreference(
             value = incognitoDisplayMode,
-            onSelect = { prefs.keyboard.incognitoDisplayMode.set(it) },
+            onSelect = { scope.launch { prefs.keyboard.incognitoDisplayMode.set(IncognitoDisplayMode.valueOf(it)) } },
             title = stringRes(R.string.pref__keyboard__incognito_indicator__label),
             entries = enumDisplayEntriesOf(IncognitoDisplayMode::class).map { it.key.toString() to it.label },
         )
@@ -131,15 +134,15 @@ fun KeyboardScreen() = FlorisScreen {
         )
         M3ListPreference(
             value = landscapeInputUiMode,
-            onSelect = { prefs.keyboard.landscapeInputUiMode.set(it) },
+            onSelect = { scope.launch { prefs.keyboard.landscapeInputUiMode.set(LandscapeInputUiMode.valueOf(it)) } },
             title = stringRes(R.string.pref__keyboard__landscape_input_ui_mode__label),
             entries = enumDisplayEntriesOf(LandscapeInputUiMode::class).map { it.key.toString() to it.label },
         )
         M3DialogSliderPreference(
             primaryValue = keySpacingVertical,
-            onPrimaryChange = { prefs.keyboard.keySpacingVertical.set(it) },
+            onPrimaryChange = { scope.launch { prefs.keyboard.keySpacingVertical.set(it) } },
             secondaryValue = keySpacingHorizontal,
-            onSecondaryChange = { prefs.keyboard.keySpacingHorizontal.set(it) },
+            onSecondaryChange = { scope.launch { prefs.keyboard.keySpacingHorizontal.set(it) } },
             title = stringRes(R.string.pref__keyboard__key_spacing__label),
             primaryLabel = stringRes(R.string.screen_orientation__vertical),
             secondaryLabel = stringRes(R.string.screen_orientation__horizontal),
@@ -148,9 +151,9 @@ fun KeyboardScreen() = FlorisScreen {
         )
         M3DialogSliderPreference(
             primaryValue = bottomPaddingPortrait,
-            onPrimaryChange = { prefs.keyboard.bottomPaddingPortrait.set(it) },
+            onPrimaryChange = { scope.launch { prefs.keyboard.bottomPaddingPortrait.set(it) } },
             secondaryValue = bottomPaddingLandscape,
-            onSecondaryChange = { prefs.keyboard.bottomPaddingLandscape.set(it) },
+            onSecondaryChange = { scope.launch { prefs.keyboard.bottomPaddingLandscape.set(it) } },
             title = stringRes(R.string.pref__keyboard__bottom_padding__label),
             primaryLabel = stringRes(R.string.screen_orientation__portrait),
             secondaryLabel = stringRes(R.string.screen_orientation__landscape),
@@ -169,26 +172,26 @@ fun KeyboardScreen() = FlorisScreen {
         )
         M3SwitchPreference(
             checked = popupEnabled,
-            onCheckedChange = { prefs.keyboard.popupEnabled.set(it) },
+            onCheckedChange = { scope.launch { prefs.keyboard.popupEnabled.set(it) } },
             title = stringRes(R.string.pref__keyboard__popup_enabled__label),
             summary = stringRes(R.string.pref__keyboard__popup_enabled__summary),
         )
         M3SwitchPreference(
             checked = mergeHintPopupsEnabled,
-            onCheckedChange = { prefs.keyboard.mergeHintPopupsEnabled.set(it) },
+            onCheckedChange = { scope.launch { prefs.keyboard.mergeHintPopupsEnabled.set(it) } },
             title = stringRes(R.string.pref__keyboard__merge_hint_popups_enabled__label),
             summary = stringRes(R.string.pref__keyboard__merge_hint_popups_enabled__summary),
         )
         M3DialogSliderPreference(
             value = longPressDelay,
-            onChange = { prefs.keyboard.longPressDelay.set(it) },
+            onChange = { scope.launch { prefs.keyboard.longPressDelay.set(it) } },
             title = stringRes(R.string.pref__keyboard__long_press_delay__label),
             valueLabel = { stringRes(R.string.unit__milliseconds__symbol, "v" to it) },
             min = 100, max = 700, stepIncrement = 10,
         )
         M3SwitchPreference(
             checked = spaceBarSwitchesToCharacters,
-            onCheckedChange = { prefs.keyboard.spaceBarSwitchesToCharacters.set(it) },
+            onCheckedChange = { scope.launch { prefs.keyboard.spaceBarSwitchesToCharacters.set(it) } },
             title = stringRes(R.string.pref__keyboard__space_bar_switches_to_characters__label),
             summary = stringRes(R.string.pref__keyboard__space_bar_switches_to_characters__summary),
         )

@@ -51,10 +51,8 @@ import dev.ngocthanhgl.vikey.app.settings.HomeScreen
 import dev.ngocthanhgl.vikey.app.settings.about.AboutScreen
 import dev.ngocthanhgl.vikey.app.settings.about.ProjectLicenseScreen
 import dev.ngocthanhgl.vikey.app.settings.about.ThirdPartyLicensesScreen
-import dev.ngocthanhgl.vikey.app.settings.advanced.BackupScreen
 import dev.ngocthanhgl.vikey.app.settings.advanced.OtherScreen
 import dev.ngocthanhgl.vikey.app.settings.advanced.PhysicalKeyboardScreen
-import dev.ngocthanhgl.vikey.app.settings.advanced.RestoreScreen
 import dev.ngocthanhgl.vikey.app.settings.clipboard.ClipboardScreen
 import dev.ngocthanhgl.vikey.app.settings.dictionary.DictionaryScreen
 import dev.ngocthanhgl.vikey.app.settings.dictionary.UserDictionaryScreen
@@ -177,14 +175,6 @@ object Routes {
         @Serializable
         @Deeplink("settings/other/physical-keyboard")
         object PhysicalKeyboard
-
-        @Serializable
-        @Deeplink("settings/other/backup")
-        object Backup
-
-        @Serializable
-        @Deeplink("settings/other/restore")
-        object Restore
 
         @Serializable
         @Deeplink("settings/about")
@@ -313,8 +303,6 @@ object Routes {
 
             composableWithDeepLink(Settings.Other::class) { OtherScreen() }
             composableWithDeepLink(Settings.PhysicalKeyboard::class) { PhysicalKeyboardScreen() }
-            composableWithDeepLink(Settings.Backup::class) { BackupScreen() }
-            composableWithDeepLink(Settings.Restore::class) { RestoreScreen() }
 
             composableWithDeepLink(Settings.About::class) { AboutScreen() }
             composableWithDeepLink(Settings.ProjectLicense::class) { ProjectLicenseScreen() }

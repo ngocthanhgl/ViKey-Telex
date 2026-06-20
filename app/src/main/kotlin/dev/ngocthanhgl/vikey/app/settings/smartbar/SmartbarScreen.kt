@@ -1,4 +1,6 @@
 package dev.ngocthanhgl.vikey.app.settings.smartbar
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +26,7 @@ fun SmartbarScreen() = FlorisScreen {
     previewFieldVisible = true
 
     content {
+        val scope = rememberCoroutineScope()
         val enabled by prefs.smartbar.enabled.collectAsState()
         val layout by prefs.smartbar.layout.collectAsState()
         val displayMode by prefs.suggestion.displayMode.collectAsState()
@@ -33,13 +36,13 @@ fun SmartbarScreen() = FlorisScreen {
 
         M3SwitchPreference(
             checked = enabled,
-            onCheckedChange = { prefs.smartbar.enabled.set(it) },
+            onCheckedChange = { scope.launch { prefs.smartbar.enabled.set(it) } },
             title = stringRes(R.string.pref__smartbar__enabled__label),
             summary = stringRes(R.string.pref__smartbar__enabled__summary),
         )
         M3ListPreference(
             value = layout,
-            onSelect = { prefs.smartbar.layout.set(it) },
+            onSelect = { scope.launch { prefs.smartbar.layout.set(SmartbarLayout.valueOf(it)) } },
             title = stringRes(R.string.pref__smartbar__layout__label),
             entries = enumDisplayEntriesOf(SmartbarLayout::class).map { it.key.toString() to it.label },
             enabled = enabled,
@@ -53,7 +56,7 @@ fun SmartbarScreen() = FlorisScreen {
         if (layout != SmartbarLayout.ACTIONS_ONLY) {
             M3ListPreference(
                 value = displayMode,
-                onSelect = { prefs.suggestion.displayMode.set(it) },
+                onSelect = { scope.launch { prefs.suggestion.displayMode.set(CandidatesDisplayMode.valueOf(it)) } },
                 title = stringRes(R.string.pref__suggestion__display_mode__label),
                 entries = enumDisplayEntriesOf(CandidatesDisplayMode::class).map { it.key.toString() to it.label },
                 enabled = enabled,
@@ -62,7 +65,7 @@ fun SmartbarScreen() = FlorisScreen {
         if (layout == SmartbarLayout.SUGGESTIONS_ACTIONS_SHARED || layout == SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED) {
             M3SwitchPreference(
                 checked = flipToggles,
-                onCheckedChange = { prefs.smartbar.flipToggles.set(it) },
+                onCheckedChange = { scope.launch { prefs.smartbar.flipToggles.set(it) } },
                 title = stringRes(R.string.pref__smartbar__flip_toggles__label),
                 summary = stringRes(R.string.pref__smartbar__flip_toggles__summary),
                 enabled = enabled,
@@ -70,7 +73,7 @@ fun SmartbarScreen() = FlorisScreen {
         }
         M3SwitchPreference(
             checked = sharedActionsAutoExpandCollapse,
-            onCheckedChange = { prefs.smartbar.sharedActionsAutoExpandCollapse.set(it) },
+            onCheckedChange = { scope.launch { prefs.smartbar.sharedActionsAutoExpandCollapse.set(it) } },
             title = stringRes(R.string.pref__smartbar__shared_actions_auto_expand_collapse__label),
             summary = "[Since v0.4.1] Always enabled due to UX issues",
             enabled = false,
@@ -78,7 +81,7 @@ fun SmartbarScreen() = FlorisScreen {
         if (layout == SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED) {
             M3ListPreference(
                 value = extendedActionsPlacement,
-                onSelect = { prefs.smartbar.extendedActionsPlacement.set(it) },
+                onSelect = { scope.launch { prefs.smartbar.extendedActionsPlacement.set(ExtendedActionsPlacement.valueOf(it)) } },
                 title = stringRes(R.string.pref__smartbar__extended_actions_placement__label),
                 entries = enumDisplayEntriesOf(ExtendedActionsPlacement::class).map { it.key.toString() to it.label },
                 enabled = enabled,

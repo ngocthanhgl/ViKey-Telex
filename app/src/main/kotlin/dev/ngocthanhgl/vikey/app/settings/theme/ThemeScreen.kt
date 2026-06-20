@@ -1,4 +1,6 @@
 package dev.ngocthanhgl.vikey.app.settings.theme
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Brightness2
@@ -49,13 +51,14 @@ fun ThemeScreen() = FlorisScreen {
     }
 
     content {
+        val scope = rememberCoroutineScope()
         val dayThemeId by prefs.theme.dayThemeId.collectAsState()
         val nightThemeId by prefs.theme.nightThemeId.collectAsState()
         val themeMode by prefs.theme.mode.collectAsState()
 
         M3ListPreference(
             value = themeMode,
-            onSelect = { prefs.theme.mode.set(it) },
+            onSelect = { scope.launch { prefs.theme.mode.set(ThemeMode.valueOf(it)) } },
             icon = Icons.Default.BrightnessAuto,
             title = stringRes(R.string.pref__theme__mode__label),
             entries = enumDisplayEntriesOf(ThemeMode::class).map { it.key.toString() to it.label },

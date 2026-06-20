@@ -1,4 +1,6 @@
 package dev.ngocthanhgl.vikey.app.settings.gestures
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +25,7 @@ fun GesturesScreen() = FlorisScreen {
     previewFieldVisible = true
 
     content {
+        val scope = rememberCoroutineScope()
         val swipeUp by prefs.gestures.swipeUp.collectAsState()
         val swipeDown by prefs.gestures.swipeDown.collectAsState()
         val swipeLeft by prefs.gestures.swipeLeft.collectAsState()
@@ -50,25 +53,25 @@ fun GesturesScreen() = FlorisScreen {
         )
         M3ListPreference(
             value = swipeUp,
-            onSelect = { prefs.gestures.swipeUp.set(it) },
+            onSelect = { scope.launch { prefs.gestures.swipeUp.set(SwipeAction.valueOf(it)) } },
             title = stringRes(R.string.pref__gestures__swipe_up__label),
             entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
         )
         M3ListPreference(
             value = swipeDown,
-            onSelect = { prefs.gestures.swipeDown.set(it) },
+            onSelect = { scope.launch { prefs.gestures.swipeDown.set(SwipeAction.valueOf(it)) } },
             title = stringRes(R.string.pref__gestures__swipe_down__label),
             entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
         )
         M3ListPreference(
             value = swipeLeft,
-            onSelect = { prefs.gestures.swipeLeft.set(it) },
+            onSelect = { scope.launch { prefs.gestures.swipeLeft.set(SwipeAction.valueOf(it)) } },
             title = stringRes(R.string.pref__gestures__swipe_left__label),
             entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
         )
         M3ListPreference(
             value = swipeRight,
-            onSelect = { prefs.gestures.swipeRight.set(it) },
+            onSelect = { scope.launch { prefs.gestures.swipeRight.set(SwipeAction.valueOf(it)) } },
             title = stringRes(R.string.pref__gestures__swipe_right__label),
             entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
         )
@@ -80,25 +83,25 @@ fun GesturesScreen() = FlorisScreen {
         )
         M3ListPreference(
             value = spaceBarSwipeUp,
-            onSelect = { prefs.gestures.spaceBarSwipeUp.set(it) },
+            onSelect = { scope.launch { prefs.gestures.spaceBarSwipeUp.set(SwipeAction.valueOf(it)) } },
             title = stringRes(R.string.pref__gestures__space_bar_swipe_up__label),
             entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
         )
         M3ListPreference(
             value = spaceBarSwipeLeft,
-            onSelect = { prefs.gestures.spaceBarSwipeLeft.set(it) },
+            onSelect = { scope.launch { prefs.gestures.spaceBarSwipeLeft.set(SwipeAction.valueOf(it)) } },
             title = stringRes(R.string.pref__gestures__space_bar_swipe_left__label),
             entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
         )
         M3ListPreference(
             value = spaceBarSwipeRight,
-            onSelect = { prefs.gestures.spaceBarSwipeRight.set(it) },
+            onSelect = { scope.launch { prefs.gestures.spaceBarSwipeRight.set(SwipeAction.valueOf(it)) } },
             title = stringRes(R.string.pref__gestures__space_bar_swipe_right__label),
             entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
         )
         M3ListPreference(
             value = spaceBarLongPress,
-            onSelect = { prefs.gestures.spaceBarLongPress.set(it) },
+            onSelect = { scope.launch { prefs.gestures.spaceBarLongPress.set(SwipeAction.valueOf(it)) } },
             title = stringRes(R.string.pref__gestures__space_bar_long_press__label),
             entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
         )
@@ -110,26 +113,26 @@ fun GesturesScreen() = FlorisScreen {
         )
         M3ListPreference(
             value = deleteKeySwipeLeft,
-            onSelect = { prefs.gestures.deleteKeySwipeLeft.set(it) },
+            onSelect = { scope.launch { prefs.gestures.deleteKeySwipeLeft.set(SwipeAction.valueOf(it)) } },
             title = stringRes(R.string.pref__gestures__delete_key_swipe_left__label),
             entries = enumDisplayEntriesOf(SwipeAction::class, "deleteSwipe").map { it.key.toString() to it.label },
         )
         M3ListPreference(
             value = deleteKeyLongPress,
-            onSelect = { prefs.gestures.deleteKeyLongPress.set(it) },
+            onSelect = { scope.launch { prefs.gestures.deleteKeyLongPress.set(SwipeAction.valueOf(it)) } },
             title = stringRes(R.string.pref__gestures__delete_key_long_press__label),
             entries = enumDisplayEntriesOf(SwipeAction::class, "deleteLongPress").map { it.key.toString() to it.label },
         )
         M3DialogSliderPreference(
             value = swipeVelocityThreshold,
-            onChange = { prefs.gestures.swipeVelocityThreshold.set(it) },
+            onChange = { scope.launch { prefs.gestures.swipeVelocityThreshold.set(it) } },
             title = stringRes(R.string.pref__gestures__swipe_velocity_threshold__label),
             valueLabel = { stringRes(R.string.unit__display_pixel_per_seconds__symbol, "v" to it) },
             min = 400, max = 4000, stepIncrement = 100,
         )
         M3DialogSliderPreference(
             value = swipeDistanceThreshold,
-            onChange = { prefs.gestures.swipeDistanceThreshold.set(it) },
+            onChange = { scope.launch { prefs.gestures.swipeDistanceThreshold.set(it) } },
             title = stringRes(R.string.pref__gestures__swipe_distance_threshold__label),
             valueLabel = { stringRes(R.string.unit__display_pixel__symbol, "v" to it) },
             min = 12, max = 72, stepIncrement = 1,

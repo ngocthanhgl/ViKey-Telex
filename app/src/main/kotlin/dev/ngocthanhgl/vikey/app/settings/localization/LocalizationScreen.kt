@@ -1,4 +1,6 @@
 package dev.ngocthanhgl.vikey.app.settings.localization
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -81,18 +83,19 @@ fun LocalizationScreen() = FlorisScreen {
     }
 
     content {
+        val scope = rememberCoroutineScope()
         val displayLanguageNamesIn by prefs.localization.displayLanguageNamesIn.collectAsState()
         val displayKeyboardLabelsInSubtypeLanguage by prefs.localization.displayKeyboardLabelsInSubtypeLanguage.collectAsState()
 
         M3ListPreference(
             value = displayLanguageNamesIn,
-            onSelect = { prefs.localization.displayLanguageNamesIn.set(it) },
+            onSelect = { scope.launch { prefs.localization.displayLanguageNamesIn.set(DisplayLanguageNamesIn.valueOf(it)) } },
             title = stringRes(R.string.settings__localization__display_language_names_in__label),
             entries = enumDisplayEntriesOf(DisplayLanguageNamesIn::class).map { it.key.toString() to it.label },
         )
         M3SwitchPreference(
             checked = displayKeyboardLabelsInSubtypeLanguage,
-            onCheckedChange = { prefs.localization.displayKeyboardLabelsInSubtypeLanguage.set(it) },
+            onCheckedChange = { scope.launch { prefs.localization.displayKeyboardLabelsInSubtypeLanguage.set(it) } },
             title = stringRes(R.string.settings__localization__display_keyboard_labels_in_subtype_language),
         )
         M3ClickablePreference(

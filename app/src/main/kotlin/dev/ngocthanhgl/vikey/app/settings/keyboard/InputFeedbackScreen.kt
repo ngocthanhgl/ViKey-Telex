@@ -1,4 +1,6 @@
 package dev.ngocthanhgl.vikey.app.settings.keyboard
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +34,7 @@ fun InputFeedbackScreen() = FlorisScreen {
     val vibrator = context.systemVibratorOrNull()
 
     content {
+        val scope = rememberCoroutineScope()
         val audioEnabled by prefs.inputFeedback.audioEnabled.collectAsState()
         val hapticEnabled by prefs.inputFeedback.hapticEnabled.collectAsState()
         val hapticVibrationMode by prefs.inputFeedback.hapticVibrationMode.collectAsState()
@@ -60,16 +63,16 @@ fun InputFeedbackScreen() = FlorisScreen {
         )
         M3SwitchListPreference(
             switchChecked = audioEnabled,
-            onSwitchChange = { prefs.inputFeedback.audioEnabled.set(it) },
+            onSwitchChange = { scope.launch { prefs.inputFeedback.audioEnabled.set(it) } },
             listValue = audioActivationMode,
-            onListSelect = { prefs.inputFeedback.audioActivationMode.set(it) },
+            onListSelect = { scope.launch { prefs.inputFeedback.audioActivationMode.set(InputFeedbackActivationMode.valueOf(it)) } },
             title = stringRes(R.string.pref__input_feedback__audio_enabled__label),
             summarySwitchDisabled = stringRes(R.string.pref__input_feedback__audio_enabled__summary_disabled),
             entries = enumDisplayEntriesOf(InputFeedbackActivationMode::class, "audio").map { it.key.toString() to it.label },
         )
         M3DialogSliderPreference(
             value = audioVolume,
-            onChange = { prefs.inputFeedback.audioVolume.set(it) },
+            onChange = { scope.launch { prefs.inputFeedback.audioVolume.set(it) } },
             title = stringRes(R.string.pref__input_feedback__audio_volume__label),
             valueLabel = { stringRes(R.string.unit__percent__symbol, "v" to it) },
             min = 1, max = 100, stepIncrement = 1,
@@ -77,35 +80,35 @@ fun InputFeedbackScreen() = FlorisScreen {
         )
         M3SwitchPreference(
             checked = audioFeatKeyPress,
-            onCheckedChange = { prefs.inputFeedback.audioFeatKeyPress.set(it) },
+            onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatKeyPress.set(it) } },
             title = stringRes(R.string.pref__input_feedback__audio_feat_key_press__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_press__summary),
             enabled = audioEnabled,
         )
         M3SwitchPreference(
             checked = audioFeatKeyLongPress,
-            onCheckedChange = { prefs.inputFeedback.audioFeatKeyLongPress.set(it) },
+            onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatKeyLongPress.set(it) } },
             title = stringRes(R.string.pref__input_feedback__audio_feat_key_long_press__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_long_press__summary),
             enabled = audioEnabled,
         )
         M3SwitchPreference(
             checked = audioFeatKeyRepeatedAction,
-            onCheckedChange = { prefs.inputFeedback.audioFeatKeyRepeatedAction.set(it) },
+            onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatKeyRepeatedAction.set(it) } },
             title = stringRes(R.string.pref__input_feedback__audio_feat_key_repeated_action__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_repeated_action__summary),
             enabled = audioEnabled,
         )
         M3SwitchPreference(
             checked = audioFeatGestureSwipe,
-            onCheckedChange = { prefs.inputFeedback.audioFeatGestureSwipe.set(it) },
+            onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatGestureSwipe.set(it) } },
             title = stringRes(R.string.pref__input_feedback__audio_feat_gesture_swipe__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_gesture_swipe__summary),
             enabled = audioEnabled,
         )
         M3SwitchPreference(
             checked = audioFeatGestureMovingSwipe,
-            onCheckedChange = { prefs.inputFeedback.audioFeatGestureMovingSwipe.set(it) },
+            onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatGestureMovingSwipe.set(it) } },
             title = stringRes(R.string.pref__input_feedback__audio_feat_gesture_moving_swipe__label),
             summary = stringRes(R.string.pref__input_feedback__audio_feat_gesture_moving_swipe__label),
             enabled = audioEnabled,
@@ -118,23 +121,23 @@ fun InputFeedbackScreen() = FlorisScreen {
         )
         M3SwitchListPreference(
             switchChecked = hapticEnabled,
-            onSwitchChange = { prefs.inputFeedback.hapticEnabled.set(it) },
+            onSwitchChange = { scope.launch { prefs.inputFeedback.hapticEnabled.set(it) } },
             listValue = hapticActivationMode,
-            onListSelect = { prefs.inputFeedback.hapticActivationMode.set(it) },
+            onListSelect = { scope.launch { prefs.inputFeedback.hapticActivationMode.set(InputFeedbackActivationMode.valueOf(it)) } },
             title = stringRes(R.string.pref__input_feedback__haptic_enabled__label),
             summarySwitchDisabled = stringRes(R.string.pref__input_feedback__haptic_enabled__summary_disabled),
             entries = enumDisplayEntriesOf(InputFeedbackActivationMode::class, "haptic").map { it.key.toString() to it.label },
         )
         M3ListPreference(
             value = hapticVibrationMode,
-            onSelect = { prefs.inputFeedback.hapticVibrationMode.set(it) },
+            onSelect = { scope.launch { prefs.inputFeedback.hapticVibrationMode.set(HapticVibrationMode.valueOf(it)) } },
             title = stringRes(R.string.pref__input_feedback__haptic_vibration_mode__label),
             entries = enumDisplayEntriesOf(HapticVibrationMode::class).map { it.key.toString() to it.label },
             enabled = hapticEnabled,
         )
         M3DialogSliderPreference(
             value = hapticVibrationDuration,
-            onChange = { prefs.inputFeedback.hapticVibrationDuration.set(it) },
+            onChange = { scope.launch { prefs.inputFeedback.hapticVibrationDuration.set(it) } },
             title = stringRes(R.string.pref__input_feedback__haptic_vibration_duration__label),
             valueLabel = { stringRes(R.string.unit__milliseconds__symbol, "v" to it) },
             min = 1, max = 100, stepIncrement = 1,
@@ -142,7 +145,7 @@ fun InputFeedbackScreen() = FlorisScreen {
         )
         M3DialogSliderPreference(
             value = hapticVibrationStrength,
-            onChange = { prefs.inputFeedback.hapticVibrationStrength.set(it) },
+            onChange = { scope.launch { prefs.inputFeedback.hapticVibrationStrength.set(it) } },
             title = stringRes(R.string.pref__input_feedback__haptic_vibration_strength__label),
             valueLabel = { stringRes(R.string.unit__percent__symbol, "v" to it) },
             min = 1, max = 100, stepIncrement = 1,
@@ -150,35 +153,35 @@ fun InputFeedbackScreen() = FlorisScreen {
         )
         M3SwitchPreference(
             checked = hapticFeatKeyPress,
-            onCheckedChange = { prefs.inputFeedback.hapticFeatKeyPress.set(it) },
+            onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatKeyPress.set(it) } },
             title = stringRes(R.string.pref__input_feedback__haptic_feat_key_press__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_press__summary),
             enabled = hapticEnabled,
         )
         M3SwitchPreference(
             checked = hapticFeatKeyLongPress,
-            onCheckedChange = { prefs.inputFeedback.hapticFeatKeyLongPress.set(it) },
+            onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatKeyLongPress.set(it) } },
             title = stringRes(R.string.pref__input_feedback__haptic_feat_key_long_press__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_long_press__summary),
             enabled = hapticEnabled,
         )
         M3SwitchPreference(
             checked = hapticFeatKeyRepeatedAction,
-            onCheckedChange = { prefs.inputFeedback.hapticFeatKeyRepeatedAction.set(it) },
+            onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatKeyRepeatedAction.set(it) } },
             title = stringRes(R.string.pref__input_feedback__haptic_feat_key_repeated_action__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_key_repeated_action__summary),
             enabled = hapticEnabled,
         )
         M3SwitchPreference(
             checked = hapticFeatGestureSwipe,
-            onCheckedChange = { prefs.inputFeedback.hapticFeatGestureSwipe.set(it) },
+            onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatGestureSwipe.set(it) } },
             title = stringRes(R.string.pref__input_feedback__haptic_feat_gesture_swipe__label),
             summary = stringRes(R.string.pref__input_feedback__any_feat_gesture_swipe__summary),
             enabled = hapticEnabled,
         )
         M3SwitchPreference(
             checked = hapticFeatGestureMovingSwipe,
-            onCheckedChange = { prefs.inputFeedback.hapticFeatGestureMovingSwipe.set(it) },
+            onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatGestureMovingSwipe.set(it) } },
             title = stringRes(R.string.pref__input_feedback__haptic_feat_gesture_moving_swipe__label),
             summary = stringRes(R.string.pref__input_feedback__audio_feat_gesture_moving_swipe__label),
             enabled = hapticEnabled,

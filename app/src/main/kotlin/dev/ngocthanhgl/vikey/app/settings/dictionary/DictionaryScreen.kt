@@ -1,4 +1,6 @@
 package dev.ngocthanhgl.vikey.app.settings.dictionary
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -32,12 +34,13 @@ fun DictionaryScreen() = FlorisScreen {
     var showClearDialog by remember { mutableStateOf(false) }
 
     content {
+        val scope = rememberCoroutineScope()
         val enableSystemUserDictionary by prefs.dictionary.enableSystemUserDictionary.collectAsState()
         val enableFlorisUserDictionary by prefs.dictionary.enableFlorisUserDictionary.collectAsState()
 
         M3SwitchPreference(
             checked = enableSystemUserDictionary,
-            onCheckedChange = { prefs.dictionary.enableSystemUserDictionary.set(it) },
+            onCheckedChange = { scope.launch { prefs.dictionary.enableSystemUserDictionary.set(it) } },
             title = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__label),
             summary = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__summary),
         )
@@ -49,7 +52,7 @@ fun DictionaryScreen() = FlorisScreen {
         )
         M3SwitchPreference(
             checked = enableFlorisUserDictionary,
-            onCheckedChange = { prefs.dictionary.enableFlorisUserDictionary.set(it) },
+            onCheckedChange = { scope.launch { prefs.dictionary.enableFlorisUserDictionary.set(it) } },
             title = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__label),
             summary = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__summary),
         )

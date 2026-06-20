@@ -83,14 +83,14 @@ fun M3ClickablePreference(
 
 @Composable
 fun M3ListPreference(
-    value: String,
+    value: Any,
     onSelect: (String) -> Unit,
     icon: ImageVector? = null,
     title: String,
     entries: List<Pair<String, String>>,
     enabled: Boolean = true,
 ) {
-    val selectedLabel = entries.find { it.first == value }?.second ?: value
+    val selectedLabel = entries.find { it.first == value.toString() }?.second ?: value.toString()
     var showDialog by remember { mutableStateOf(false) }
 
     ListItem(
@@ -116,8 +116,8 @@ fun M3ListPreference(
                                 .clickable { onSelect(key); showDialog = false }
                                 .padding(vertical = 8.dp),
                         ) {
-                            RadioButton(
-                                selected = value == key,
+                                RadioButton(
+                                    selected = value.toString() == key,
                                 onClick = { onSelect(key); showDialog = false },
                             )
                             Spacer(Modifier.width(8.dp))
@@ -139,7 +139,7 @@ fun M3ListPreference(
 fun M3SwitchListPreference(
     switchChecked: Boolean,
     onSwitchChange: (Boolean) -> Unit,
-    listValue: String,
+    listValue: Any,
     onListSelect: (String) -> Unit,
     icon: ImageVector? = null,
     title: String,
@@ -147,7 +147,7 @@ fun M3SwitchListPreference(
     entries: List<Pair<String, String>>,
     enabled: Boolean = true,
 ) {
-    val selectedLabel = entries.find { it.first == listValue }?.second ?: listValue
+    val selectedLabel = entries.find { it.first == listValue.toString() }?.second ?: listValue.toString()
     var showDialog by remember { mutableStateOf(false) }
 
     ListItem(
@@ -185,7 +185,7 @@ fun M3SwitchListPreference(
                                 .padding(vertical = 8.dp),
                         ) {
                             RadioButton(
-                                selected = listValue == key,
+                                selected = listValue.toString() == key,
                                 onClick = { onListSelect(key); showDialog = false },
                             )
                             Spacer(Modifier.width(8.dp))

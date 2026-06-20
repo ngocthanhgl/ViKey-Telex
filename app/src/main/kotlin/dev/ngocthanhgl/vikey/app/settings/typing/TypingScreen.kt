@@ -1,4 +1,6 @@
 package dev.ngocthanhgl.vikey.app.settings.typing
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -34,6 +36,7 @@ fun TypingScreen() = FlorisScreen {
     val navController = LocalNavController.current
 
     content {
+        val scope = rememberCoroutineScope()
         val autoSpacePunctuationEnabled by prefs.correction.autoSpacePunctuation.collectAsState()
         val autoCapitalization by prefs.correction.autoCapitalization.collectAsState()
         val rememberCapsLockState by prefs.correction.rememberCapsLockState.collectAsState()
@@ -58,13 +61,13 @@ fun TypingScreen() = FlorisScreen {
         )
         M3SwitchPreference(
             checked = autoCapitalization,
-            onCheckedChange = { prefs.correction.autoCapitalization.set(it) },
+            onCheckedChange = { scope.launch { prefs.correction.autoCapitalization.set(it) } },
             title = stringRes(R.string.pref__correction__auto_capitalization__label),
             summary = stringRes(R.string.pref__correction__auto_capitalization__summary),
         )
         M3SwitchPreference(
             checked = autoSpacePunctuationEnabled,
-            onCheckedChange = { prefs.correction.autoSpacePunctuation.set(it) },
+            onCheckedChange = { scope.launch { prefs.correction.autoSpacePunctuation.set(it) } },
             title = stringRes(R.string.pref__correction__auto_space_punctuation__label),
             summary = stringRes(R.string.pref__correction__auto_space_punctuation__summary),
         )
@@ -87,19 +90,19 @@ fun TypingScreen() = FlorisScreen {
         }
         M3SwitchPreference(
             checked = rememberCapsLockState,
-            onCheckedChange = { prefs.correction.rememberCapsLockState.set(it) },
+            onCheckedChange = { scope.launch { prefs.correction.rememberCapsLockState.set(it) } },
             title = stringRes(R.string.pref__correction__remember_caps_lock_state__label),
             summary = stringRes(R.string.pref__correction__remember_caps_lock_state__summary),
         )
         M3SwitchPreference(
             checked = doubleSpacePeriod,
-            onCheckedChange = { prefs.correction.doubleSpacePeriod.set(it) },
+            onCheckedChange = { scope.launch { prefs.correction.doubleSpacePeriod.set(it) } },
             title = stringRes(R.string.pref__correction__double_space_period__label),
             summary = stringRes(R.string.pref__correction__double_space_period__summary),
         )
         M3SwitchPreference(
             checked = autoCorrect,
-            onCheckedChange = { prefs.correction.autoCorrect.set(it) },
+            onCheckedChange = { scope.launch { prefs.correction.autoCorrect.set(it) } },
             title = stringRes(R.string.pref__correction__auto_correct__label),
             summary = stringRes(R.string.pref__correction__auto_correct__summary),
         )
@@ -113,21 +116,21 @@ fun TypingScreen() = FlorisScreen {
         SpellCheckerServiceSelector(florisSpellCheckerEnabled)
         M3ListPreference(
             value = languageMode,
-            onSelect = { prefs.spelling.languageMode.set(it) },
+            onSelect = { scope.launch { prefs.spelling.languageMode.set(SpellingLanguageMode.valueOf(it)) } },
             title = stringRes(R.string.pref__spelling__language_mode__label),
             entries = enumDisplayEntriesOf(SpellingLanguageMode::class).map { it.key.toString() to it.label },
             enabled = florisSpellCheckerEnabled.value,
         )
         M3SwitchPreference(
             checked = useContacts,
-            onCheckedChange = { prefs.spelling.useContacts.set(it) },
+            onCheckedChange = { scope.launch { prefs.spelling.useContacts.set(it) } },
             title = stringRes(R.string.pref__spelling__use_contacts__label),
             summary = stringRes(R.string.pref__spelling__use_contacts__summary),
             enabled = florisSpellCheckerEnabled.value,
         )
         M3SwitchPreference(
             checked = useUdmEntries,
-            onCheckedChange = { prefs.spelling.useUdmEntries.set(it) },
+            onCheckedChange = { scope.launch { prefs.spelling.useUdmEntries.set(it) } },
             title = stringRes(R.string.pref__spelling__use_udm_entries__label),
             summary = stringRes(R.string.pref__spelling__use_udm_entries__summary),
             enabled = florisSpellCheckerEnabled.value,
