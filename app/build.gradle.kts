@@ -224,7 +224,9 @@ dependencies {
     implementation(libs.mikepenz.aboutlibraries.core)
     implementation(libs.mikepenz.aboutlibraries.compose)
     implementation(libs.patrickgold.compose.tooltip)
-    implementation("com.composables:icons-lucide-cmp:2.2.1")
+    implementation("com.composables:icons-lucide-cmp-android:2.2.1@aar") {
+        isTransitive = false
+    }
     implementation("io.github.kyant0:backdrop:1.0.5")
     implementation(libs.patrickgold.jetpref.datastore.model)
     ksp(libs.patrickgold.jetpref.datastore.model.processor)

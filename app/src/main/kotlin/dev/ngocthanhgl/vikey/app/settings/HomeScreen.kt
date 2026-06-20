@@ -129,7 +129,7 @@ fun HomeScreen() {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Lucide.SpellCheck2,
+                    icon = Lucide.SpellCheck,
                     title = stringRes(R.string.settings__typing__title),
                     onClick = { navController.navigate(Routes.Settings.Typing) },
                 )
