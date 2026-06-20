@@ -1,8 +1,5 @@
 package dev.ngocthanhgl.vikey.app.settings.media
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.EmojiSymbols
-import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme

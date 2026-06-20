@@ -2,13 +2,7 @@ package dev.ngocthanhgl.vikey.app.settings.theme
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Brightness2
-import androidx.compose.material.icons.outlined.BrightnessAuto
-import androidx.compose.material.icons.outlined.ColorLens
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material.icons.outlined.WbTwilight
+import com.composables.lucide.Lucide
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,12 +52,12 @@ fun ThemeScreen() = FlorisScreen {
         M3ListPreference(
             value = themeMode,
             onSelect = { scope.launch { prefs.theme.mode.set(ThemeMode.valueOf(it)) } },
-            icon = Icons.Outlined.BrightnessAuto,
+            icon = Lucide.SunMoon,
             title = stringRes(R.string.pref__theme__mode__label),
             entries = enumDisplayEntriesOf(ThemeMode::class).map { it.key.toString() to it.label },
         )
         M3ClickablePreference(
-            icon = Icons.Outlined.LightMode,
+            icon = Lucide.Sun,
             title = stringRes(R.string.pref__theme__day),
             summary = themeManager.getThemeLabel(dayThemeId),
             enabled = themeMode != ThemeMode.ALWAYS_NIGHT,
@@ -72,7 +66,7 @@ fun ThemeScreen() = FlorisScreen {
             },
         )
         M3ClickablePreference(
-            icon = Icons.Outlined.DarkMode,
+            icon = Lucide.Moon,
             title = stringRes(R.string.pref__theme__night),
             summary = themeManager.getThemeLabel(nightThemeId),
             enabled = themeMode != ThemeMode.ALWAYS_DAY,
@@ -83,18 +77,18 @@ fun ThemeScreen() = FlorisScreen {
         LocalTimePickerPreference(
             pref = prefs.theme.sunriseTime,
             title = stringRes(R.string.pref__theme__sunrise_time__label),
-            icon = Icons.Outlined.WbTwilight,
+            icon = Lucide.Sunrise,
         )
         LocalTimePickerPreference(
             pref = prefs.theme.sunsetTime,
             title = stringRes(R.string.pref__theme__sunset_time__label),
-            icon = Icons.Outlined.Brightness2,
+            icon = Lucide.Sunset,
         )
         ColorPickerPreference(
             pref = prefs.theme.accentColor,
             title = stringRes(R.string.pref__theme__theme_accent_color__label),
             defaultValueLabel = stringRes(R.string.action__default),
-            icon = Icons.Outlined.ColorLens,
+            icon = Lucide.Palette,
             defaultColors = ColorMappings.colors,
             showAlphaSlider = false,
             enableAdvancedLayout = true,

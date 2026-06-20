@@ -4,19 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Extension
-import androidx.compose.material.icons.filled.Gesture
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.SentimentSatisfiedAlt
-import androidx.compose.material.icons.filled.SmartButton
-import androidx.compose.material.icons.filled.Spellcheck
-import androidx.compose.material.icons.outlined.Assignment
-import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.composables.lucide.Lucide
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
@@ -83,61 +73,141 @@ fun HomeScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 4.dp),
-                shape = MaterialTheme.shapes.medium,
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             ) {
                 M3ClickablePreference(
-                    icon = Icons.Default.Language,
+                    icon = Lucide.Languages,
                     title = stringRes(R.string.settings__localization__title),
                     onClick = { navController.navigate(Routes.Settings.Localization) },
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 M3ClickablePreference(
-                    icon = Icons.Outlined.Palette,
+                    icon = Lucide.Palette,
                     title = stringRes(R.string.settings__theme__title),
                     onClick = { navController.navigate(Routes.Settings.Theme) },
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 M3ClickablePreference(
-                    icon = Icons.Outlined.Keyboard,
+                    icon = Lucide.Keyboard,
                     title = stringRes(R.string.settings__keyboard__title),
                     onClick = { navController.navigate(Routes.Settings.Keyboard) },
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 M3ClickablePreference(
-                    icon = Icons.Default.SmartButton,
+                    icon = Lucide.SquareDot,
                     title = stringRes(R.string.settings__smartbar__title),
                     onClick = { navController.navigate(Routes.Settings.Smartbar) },
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 M3ClickablePreference(
-                    icon = Icons.Default.Spellcheck,
+                    icon = Lucide.SpellCheck2,
                     title = stringRes(R.string.settings__typing__title),
                     onClick = { navController.navigate(Routes.Settings.Typing) },
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 M3ClickablePreference(
-                    icon = Icons.Default.Gesture,
+                    icon = Lucide.Hand,
                     title = stringRes(R.string.settings__gestures__title),
                     onClick = { navController.navigate(Routes.Settings.Gestures) },
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 M3ClickablePreference(
-                    icon = Icons.Outlined.Assignment,
+                    icon = Lucide.ClipboardList,
                     title = stringRes(R.string.settings__clipboard__title),
                     onClick = { navController.navigate(Routes.Settings.Clipboard) },
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 M3ClickablePreference(
-                    icon = Icons.Default.SentimentSatisfiedAlt,
+                    icon = Lucide.SmilePlus,
                     title = stringRes(R.string.settings__media__title),
                     onClick = { navController.navigate(Routes.Settings.Media) },
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 M3ClickablePreference(
-                    icon = Icons.Default.Extension,
+                    icon = Lucide.Puzzle,
                     title = stringRes(R.string.ext__home__title),
                     onClick = { navController.navigate(Routes.Ext.Home) },
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 M3ClickablePreference(
-                    icon = Icons.Outlined.Build,
+                    icon = Lucide.Settings2,
                     title = stringRes(R.string.settings__other__title),
                     onClick = { navController.navigate(Routes.Settings.Other) },
                 )
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
                 M3ClickablePreference(
-                    icon = Icons.Outlined.Info,
+                    icon = Lucide.Info,
                     title = stringRes(R.string.about__title),
                     onClick = { navController.navigate(Routes.Settings.About) },
                 )
