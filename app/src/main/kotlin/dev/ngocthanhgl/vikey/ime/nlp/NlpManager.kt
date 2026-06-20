@@ -35,19 +35,19 @@ import dev.ngocthanhgl.vikey.lib.util.NetworkUtils
 import dev.ngocthanhgl.vikey.subtypeManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.florisboard.lib.kotlin.guardedByLock
 import org.florisboard.lib.kotlin.collectLatestIn
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.properties.Delegates
+import java.util.concurrent.atomic.AtomicReference
 
 private const val BLANK_STR_PATTERN = "^\\s*$"
 
@@ -69,24 +69,32 @@ class NlpManager(context: Context) {
             VietnameseLanguageProvider.ProviderId to ProviderInstanceWrapper(VietnameseLanguageProvider(context)),
         )
     }
-    // lock unnecessary because values constant
-    private val providersForceSuggestionOn = mutableMapOf<String, Boolean>()
-
     private var hasPendingComposition = false
     private var lastPrefix: String? = null
     private var lastShiftSeen: dev.ngocthanhgl.vikey.ime.input.InputShiftState? = null
 
     fun hasPendingCompositionSuggestion(): Boolean = hasPendingComposition
 
+    private var suggestJob: Job? = null
+
+    fun onStartInput() {
+        clearCompositionState()
+        suggestJob?.cancel()
+        suggestJob = null
+    }
+
+    fun onFinishInput() {
+        clearCompositionState()
+        suggestJob?.cancel()
+        suggestJob = null
+    }
+
     fun clearCompositionState() {
         lastPrefix = null
         lastShiftSeen = null
     }
 
-    private val internalSuggestionsGuard = Mutex()
-    private var internalSuggestions by Delegates.observable(SystemClock.uptimeMillis() to listOf<SuggestionCandidate>()) { _, _, _ ->
-        scope.launch { assembleCandidates() }
-    }
+    private val internalSuggestions = AtomicReference(SystemClock.uptimeMillis() to listOf<SuggestionCandidate>())
 
     private val _activeCandidatesFlow = MutableStateFlow(listOf<SuggestionCandidate>())
     val activeCandidatesFlow = _activeCandidatesFlow.asStateFlow()
@@ -117,16 +125,11 @@ class NlpManager(context: Context) {
         }
         keyboardManager.activeState.collectLatestIn(scope) { state ->
             val currentShift = state.inputShiftState
-            val prefix = lastPrefix
             if (currentShift == lastShiftSeen) return@collectLatestIn
-
-            if (prefix != null) {
-                suggestComposition(prefix, currentShift)
-            } else if (currentShift != dev.ngocthanhgl.vikey.ime.input.InputShiftState.UNSHIFTED) {
-                QwenSuggestionProvider.pendingShiftState = currentShift
-                suggest(subtypeManager.activeSubtype, editorInstance.activeContent)
-            }
             lastShiftSeen = currentShift
+
+            QwenSuggestionProvider.pendingShiftState = currentShift
+            recaseSuggestions(currentShift)
         }
     }
 
@@ -155,6 +158,8 @@ class NlpManager(context: Context) {
             ?: FallbackNlpProvider
     }
 
+    private var cachedForcesSuggestionOn: Boolean? = null
+
     private suspend fun getSuggestionProvider(subtype: Subtype): SuggestionProvider {
         return providers.withLock { it[subtype.nlpProviders.suggestion] }?.provider as? SuggestionProvider
             ?: FallbackNlpProvider
@@ -171,6 +176,7 @@ class NlpManager(context: Context) {
                     }
                 }
             }
+            cachedForcesSuggestionOn = getSuggestionProvider(subtype).forcesSuggestionOn
         }
     }
 
@@ -205,12 +211,12 @@ class NlpManager(context: Context) {
     }
 
     fun providerForcesSuggestionOn(subtype: Subtype): Boolean {
-        // Using a cache because I have no idea how fast the runBlocking is
-        return providersForceSuggestionOn.getOrPut(subtype.nlpProviders.suggestion) {
-            runBlocking {
+        if (cachedForcesSuggestionOn == null) {
+            cachedForcesSuggestionOn = runBlocking {
                 getSuggestionProvider(subtype).forcesSuggestionOn
             }
         }
+        return cachedForcesSuggestionOn!!
     }
 
     fun isSuggestionOn(): Boolean =
@@ -239,20 +245,20 @@ class NlpManager(context: Context) {
                 allowPossiblyOffensive = !prefs.suggestion.blockPossiblyOffensive.get(),
                 isPrivateSession = keyboardManager.activeState.isIncognitoMode,
             )
-            QwenSuggestionProvider.pendingShiftState = null
-            internalSuggestionsGuard.withLock {
-                if (internalSuggestions.first < reqTime) {
-                    internalSuggestions = reqTime to suggestions
-                }
+            internalSuggestions.update { (prevTime, _) ->
+                if (prevTime < reqTime) reqTime to suggestions else prevTime to suggestions
             }
+            scope.launch { assembleCandidates() }
             hasPendingComposition = false
         }
     }
 
     fun suggest(subtype: Subtype, content: EditorContent) {
+        suggestJob?.cancel()
         val reqTime = SystemClock.uptimeMillis()
         if (!isSuggestionOn()) return
-        scope.launch {
+        suggestJob = scope.launch {
+            delay(80)
             val emojiSuggestions = when {
                 prefs.emoji.suggestionEnabled.get() -> {
                     emojiSuggestionProvider.suggest(
@@ -279,29 +285,40 @@ class NlpManager(context: Context) {
                     )
                 }
             }
-            internalSuggestionsGuard.withLock {
-                if (internalSuggestions.first < reqTime) {
-                    internalSuggestions = reqTime to buildList {
-                        addAll(emojiSuggestions)
-                        addAll(suggestions)
-                    }
-                }
+            internalSuggestions.update { (prevTime, prevList) ->
+                if (prevTime < reqTime) reqTime to buildList {
+                    addAll(emojiSuggestions)
+                    addAll(suggestions)
+                } else prevTime to prevList
             }
+            scope.launch { assembleCandidates() }
         }
     }
 
     fun suggestDirectly(suggestions: List<SuggestionCandidate>) {
         val reqTime = SystemClock.uptimeMillis()
-        runBlocking {
-            internalSuggestions = reqTime to suggestions
+        internalSuggestions.set(reqTime to suggestions)
+        scope.launch { assembleCandidates() }
+    }
+
+    fun recaseSuggestions(shiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState) {
+        QwenSuggestionProvider.pendingShiftState = shiftState
+        val current = internalSuggestions.get()
+        val recased = current.second.map { candidate ->
+            if (candidate is WordSuggestionCandidate) {
+                candidate.copy(text = QwenSuggestionProvider.recase(candidate.text.toString(), shiftState))
+            } else {
+                candidate
+            }
         }
+        internalSuggestions.set(current.first to recased)
+        scope.launch { assembleCandidates() }
     }
 
     fun clearSuggestions() {
         val reqTime = SystemClock.uptimeMillis()
-        runBlocking {
-            internalSuggestions = reqTime to emptyList()
-        }
+        internalSuggestions.set(reqTime to emptyList())
+        scope.launch { assembleCandidates() }
     }
 
     private var suppressNextAutoCommit = false
@@ -318,17 +335,13 @@ class NlpManager(context: Context) {
         return activeCandidates.firstOrNull { it.isEligibleForAutoCommit }
     }
 
-    fun removeSuggestion(subtype: Subtype, candidate: SuggestionCandidate): Boolean {
-        return runBlocking { candidate.sourceProvider?.removeSuggestion(subtype, candidate) == true }.also { result ->
-            if (result) {
-                scope.launch {
-                    // Need to re-trigger the suggestions algorithm
-                    if (candidate is ClipboardSuggestionCandidate) {
-                        assembleCandidates()
-                    } else {
-                        suggest(subtypeManager.activeSubtype, editorInstance.activeContent)
-                    }
-                }
+    fun removeSuggestion(subtype: Subtype, candidate: SuggestionCandidate) {
+        scope.launch {
+            candidate.sourceProvider?.removeSuggestion(subtype, candidate)
+            if (candidate is ClipboardSuggestionCandidate) {
+                assembleCandidates()
+            } else {
+                suggest(subtypeManager.activeSubtype, editorInstance.activeContent)
             }
         }
     }
@@ -341,29 +354,29 @@ class NlpManager(context: Context) {
         return runBlocking { getSuggestionProvider(subtype).getFrequencyForWord(subtype, word) }
     }
 
-    private fun assembleCandidates() {
-        runBlocking {
-            val candidates = when {
-                isSuggestionOn() -> {
-                    clipboardSuggestionProvider.suggest(
-                        subtype = Subtype.DEFAULT,
-                        content = editorInstance.activeContent,
-                        maxCandidateCount = 8,
-                        allowPossiblyOffensive = !prefs.suggestion.blockPossiblyOffensive.get(),
-                        isPrivateSession = keyboardManager.activeState.isIncognitoMode,
-                    ).ifEmpty {
-                        buildList {
-                            internalSuggestionsGuard.withLock {
-                                addAll(internalSuggestions.second)
-                            }
-                        }
+    private suspend fun assembleCandidates() {
+        val candidates = when {
+            isSuggestionOn() -> {
+                clipboardSuggestionProvider.suggest(
+                    subtype = Subtype.DEFAULT,
+                    content = editorInstance.activeContent,
+                    maxCandidateCount = 8,
+                    allowPossiblyOffensive = !prefs.suggestion.blockPossiblyOffensive.get(),
+                    isPrivateSession = keyboardManager.activeState.isIncognitoMode,
+                ).ifEmpty {
+                    internalSuggestions.get().second.map { candidate ->
+                        if (candidate is WordSuggestionCandidate && QwenSuggestionProvider.pendingShiftState != null) {
+                            candidate.copy(text = QwenSuggestionProvider.recase(
+                                candidate.text.toString(), QwenSuggestionProvider.pendingShiftState
+                            ))
+                        } else candidate
                     }
                 }
-                else -> emptyList()
             }
-            activeCandidates = candidates
-            autoExpandCollapseSmartbarActions(candidates, NlpInlineAutofill.suggestions.value)
+            else -> emptyList()
         }
+        activeCandidates = candidates
+        autoExpandCollapseSmartbarActions(candidates, NlpInlineAutofill.suggestions.value)
     }
 
     fun autoExpandCollapseSmartbarActions(list1: List<*>?, list2: List<*>?) {
@@ -395,6 +408,10 @@ class NlpManager(context: Context) {
     fun clearDebugOverlay() {
         debugOverlaySuggestionsInfos.evictAll()
         debugOverlayVersion.update { it + 1 }
+    }
+
+    fun destroy() {
+        scope.cancel()
     }
 
     private class ProviderInstanceWrapper(val provider: NlpProvider) {

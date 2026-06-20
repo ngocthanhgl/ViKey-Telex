@@ -66,30 +66,97 @@ class EmojiSuggestionProvider(private val context: Context) : SuggestionProvider
     ): List<SuggestionCandidate> {
         val preferredSkinTone = prefs.emoji.preferredSkinTone.get()
         val showName = prefs.emoji.suggestionCandidateShowName.get()
-        val query = validateInputQuery(content.composingText) ?: return emptyList()
-        val emojis = cachedEmojiMappings.get(subtype.primaryLocale)?.get(preferredSkinTone) ?: emptyList()
-        val candidates = withContext(Dispatchers.Default) {
-            emojis.parallelStream()
-                .map { emoji ->
-                    val nameWeight = emoji.name.containsWeighted(query, ignoreCase = true)
-                    val keywordWeight = emoji.keywords
-                        .any { it.contains(query, ignoreCase = true) }
-                        .let { if (it) 1.0 else 0.0 }
-                    emoji to (nameWeight * 0.7 + keywordWeight * 0.3)
-                }
-                .sorted { (_, a), (_, b) -> b.compareTo(a) }
-                .limit(maxCandidateCount.toLong())
-                .filter { (_, a) -> a > 0 }
-                .map { (emoji, _) ->
-                    EmojiSuggestionCandidate(
-                        emoji = emoji,
-                        showName = showName,
-                        sourceProvider = this@EmojiSuggestionProvider,
-                    )
-                }
-                .collect(Collectors.toList())
+
+        val emojiQuery = validateInputQuery(content.composingText)
+        if (emojiQuery != null) {
+            val emojis = cachedEmojiMappings.get(subtype.primaryLocale)?.get(preferredSkinTone) ?: emptyList()
+            val candidates = withContext(Dispatchers.Default) {
+                emojis.parallelStream()
+                    .map { emoji ->
+                        val nameWeight = emoji.name.containsWeighted(emojiQuery, ignoreCase = true)
+                        val keywordWeight = emoji.keywords
+                            .any { it.contains(emojiQuery, ignoreCase = true) }
+                            .let { if (it) 1.0 else 0.0 }
+                        emoji to (nameWeight * 0.7 + keywordWeight * 0.3)
+                    }
+                    .sorted { (_, a), (_, b) -> b.compareTo(a) }
+                    .limit(maxCandidateCount.toLong())
+                    .filter { (_, a) -> a > 0 }
+                    .map { (emoji, _) ->
+                        EmojiSuggestionCandidate(
+                            emoji = emoji,
+                            showName = showName,
+                            sourceProvider = this@EmojiSuggestionProvider,
+                        )
+                    }
+                    .collect(Collectors.toList())
+            }
+            return candidates
         }
-        return candidates
+
+        val textBefore = content.textBeforeSelection
+        if (textBefore.isBlank()) return emptyList()
+        val lastWord = textBefore.trimEnd().split(Regex("\\s+")).lastOrNull {
+            it.length >= 3 && it.all { c -> c.isLetter() }
+        } ?: return emptyList()
+        val lastWordLc = lastWord.lowercase()
+        val contextualEmoji = CONTEXTUAL_MAP[lastWordLc] ?: return emptyList()
+        return listOf(
+            EmojiSuggestionCandidate(
+                emoji = contextualEmoji,
+                showName = showName,
+                sourceProvider = this@EmojiSuggestionProvider,
+            ),
+        )
+    }
+
+    companion object {
+        private val CONTEXTUAL_MAP = mapOf(
+            "happy" to Emoji("\uD83D\uDE04", "smile", emptyList()),
+            "love" to Emoji("\u2764\uFE0F", "heart", emptyList()),
+            "sad" to Emoji("\uD83D\uDE22", "cry", emptyList()),
+            "laugh" to Emoji("\uD83D\uDE02", "joy", emptyList()),
+            "cry" to Emoji("\uD83D\uDE2D", "sob", emptyList()),
+            "angry" to Emoji("\uD83D\uDE20", "angry", emptyList()),
+            "cool" to Emoji("\uD83D\uDE0E", "sunglasses", emptyList()),
+            "wink" to Emoji("\uD83D\uDE09", "wink", emptyList()),
+            "food" to Emoji("\uD83C\uDF54", "burger", emptyList()),
+            "pizza" to Emoji("\uD83C\uDF55", "pizza", emptyList()),
+            "coffee" to Emoji("\u2615", "coffee", emptyList()),
+            "beer" to Emoji("\uD83C\uDF7A", "beer", emptyList()),
+            "wine" to Emoji("\uD83C\uDF77", "wine", emptyList()),
+            "music" to Emoji("\uD83C\uDFB5", "music", emptyList()),
+            "dog" to Emoji("\uD83D\uDC36", "dog", emptyList()),
+            "cat" to Emoji("\uD83D\uDC31", "cat", emptyList()),
+            "sun" to Emoji("\u2600\uFE0F", "sun", emptyList()),
+            "moon" to Emoji("\uD83C\uDF19", "moon", emptyList()),
+            "star" to Emoji("\u2B50", "star", emptyList()),
+            "fire" to Emoji("\uD83D\uDD25", "fire", emptyList()),
+            "ok" to Emoji("\uD83D\uDC4C", "ok", emptyList()),
+            "yes" to Emoji("\u2705", "yes", emptyList()),
+            "no" to Emoji("\u274C", "no", emptyList()),
+            "thank" to Emoji("\uD83D\uDE4F", "pray", emptyList()),
+            "please" to Emoji("\uD83E\uDD1E", "please", emptyList()),
+            "sorry" to Emoji("\uD83D\uDE25", "sorry", emptyList()),
+            "hello" to Emoji("\uD83D\uDC4B", "wave", emptyList()),
+            "bye" to Emoji("\uD83D\uDC4B", "wave", emptyList()),
+            "good" to Emoji("\uD83D\uDC4D", "thumbsup", emptyList()),
+            "bad" to Emoji("\uD83D\uDC4E", "thumbsdown", emptyList()),
+            "great" to Emoji("\uD83D\uDC4D", "thumbsup", emptyList()),
+            "awesome" to Emoji("\uD83D\uDE0E", "sunglasses", emptyList()),
+            "beautiful" to Emoji("\uD83D\uDC90", "bouquet", emptyList()),
+            "party" to Emoji("\uD83C\uDF89", "party", emptyList()),
+            "cake" to Emoji("\uD83C\uDF70", "cake", emptyList()),
+            "gift" to Emoji("\uD83C\uDF81", "gift", emptyList()),
+            "money" to Emoji("\uD83D\uDCB0", "money", emptyList()),
+            "time" to Emoji("\u23F0", "clock", emptyList()),
+            "sleep" to Emoji("\uD83D\uDE34", "sleep", emptyList()),
+            "tired" to Emoji("\uD83D\uDE2B", "tired", emptyList()),
+            "cute" to Emoji("\uD83D\uDE18", "kiss", emptyList()),
+            "strong" to Emoji("\uD83D\uDCAA", "muscle", emptyList()),
+            "run" to Emoji("\uD83C\uDFC3", "runner", emptyList()),
+            "book" to Emoji("\uD83D\uDCDA", "books", emptyList()),
+        )
     }
 
     override suspend fun notifySuggestionAccepted(subtype: Subtype, candidate: SuggestionCandidate) {

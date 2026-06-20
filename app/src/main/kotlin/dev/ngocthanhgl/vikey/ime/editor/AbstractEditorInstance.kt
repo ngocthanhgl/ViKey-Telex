@@ -32,6 +32,7 @@ import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
 import dev.ngocthanhgl.vikey.nlpManager
 import dev.ngocthanhgl.vikey.subtypeManager
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -224,6 +225,10 @@ abstract class AbstractEditorInstance(context: Context) {
         activeContent = EditorContent.Unspecified
         runBlocking { expectedContentQueue.clear() }
         _lastCommitPosition.reset()
+    }
+
+    fun destroy() {
+        scope.cancel()
     }
 
     private suspend fun generateContent(

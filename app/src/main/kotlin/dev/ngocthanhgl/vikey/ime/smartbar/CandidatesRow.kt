@@ -127,6 +127,7 @@ fun CandidatesRow(modifier: Modifier = Modifier) {
                         val candidateItem = candidates[n]
                         if (candidateItem.isEligibleForUserRemoval) {
                             nlpManager.removeSuggestion(subtypeManager.activeSubtype, candidateItem)
+                            true
                         } else {
                             false
                         }

@@ -1,6 +1,8 @@
 package dev.ngocthanhgl.vikey.ime.nlp.vietnamese
 
 import android.content.Context
+import android.util.LruCache
+import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.ime.core.Subtype
 import dev.ngocthanhgl.vikey.ime.dictionary.DictionaryManager
 import dev.ngocthanhgl.vikey.ime.dictionary.UserDictionaryEntry
@@ -12,6 +14,8 @@ import dev.ngocthanhgl.vikey.lib.devtools.flogDebug
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -19,6 +23,10 @@ import java.io.File
 import kotlin.math.pow
 
 class QwenSuggestionProvider(private val context: Context) : SuggestionProvider {
+    private val prefs by FlorisPreferenceStore
+    private var autocorrectEngine: AutocorrectEngine? = null
+    private var typoDetector: TypoDetector? = null
+
     init {
         Companion.currentInstance = this
     }
@@ -36,6 +44,16 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
         var pendingShiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState? = null
 
+        fun recase(word: String, shiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState?): String {
+            return when (shiftState) {
+                dev.ngocthanhgl.vikey.ime.input.InputShiftState.CAPS_LOCK -> word.uppercase()
+                dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_MANUAL,
+                dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_AUTOMATIC -> word.replaceFirstChar { it.uppercase() }
+                null, dev.ngocthanhgl.vikey.ime.input.InputShiftState.UNSHIFTED -> word.lowercase()
+                else -> word
+            }
+        }
+
         fun getInstance(): QwenSuggestionProvider? = currentInstance
     }
 
@@ -44,10 +62,13 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private var natLoading = false
 
     private data class PersonalWord(val count: Int, val lastUsedTs: Long)
+    private data class DampedWord(val dampCount: Int = 0, val lastDampedTs: Long = 0)
 
     private val personalDict = mutableMapOf<String, PersonalWord>()
+    private val dampedWords = mutableMapOf<String, DampedWord>()
     private var personalDirty = false
     private var learnCounter = 0
+    private var lastTopSuggestion: String? = null
 
     private val seedWords = mutableSetOf<String>()
     private var prefixTrie: Map<String, List<String>> = mapOf()
@@ -57,6 +78,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private var ngramDirty = false
     private var lastTextLen = 0
     private var pasteUntil = 0L
+    private val discourseBuffer = mutableListOf<String>()
+    private val suggestionCache = LruCache<String, List<Pair<String, Double>>>(5)
 
     private val bgScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -71,6 +94,17 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             catch (_: Exception) {}
             loadModelBg()
         }
+        startPeriodicSave()
+    }
+
+    private fun startPeriodicSave() {
+        bgScope.launch {
+            while (true) {
+                delay(30_000)
+                if (personalDirty) savePersonalDict()
+                if (ngramDirty) saveNgrams()
+            }
+        }
     }
 
     private fun loadPersonalDict() {
@@ -84,8 +118,15 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     count = obj.optInt("c", 1),
                     lastUsedTs = obj.optLong("t", System.currentTimeMillis()),
                 )
+                val dc = obj.optInt("d", 0)
+                if (dc > 0) {
+                    dampedWords[key] = DampedWord(
+                        dampCount = dc,
+                        lastDampedTs = obj.optLong("dt", System.currentTimeMillis()),
+                    )
+                }
             }
-            flogDebug { "Qwen: loaded ${personalDict.size} personal words" }
+            flogDebug { "Qwen: loaded ${personalDict.size} personal words, ${dampedWords.size} damped" }
         } catch (e: Exception) {
             flogDebug { "Qwen: personal dict load: ${e.message}" }
         }
@@ -111,6 +152,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             }
             prefixTrie = trie
             useTrie = true
+            autocorrectEngine = AutocorrectEngine(seedWords)
+            typoDetector = TypoDetector(seedWords)
         } catch (e: Exception) {
             flogDebug { "Qwen: seed words load: ${e.message}" }
         }
@@ -125,6 +168,11 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 val obj = JSONObject()
                 obj.put("c", pw.count)
                 obj.put("t", pw.lastUsedTs)
+                val dw = dampedWords[word]
+                if (dw != null && dw.dampCount > 0) {
+                    obj.put("d", dw.dampCount)
+                    obj.put("dt", dw.lastDampedTs)
+                }
                 json.put(word, obj)
             }
             File(context.filesDir, PERSONAL_DICT).writeText(json.toString())
@@ -288,6 +336,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         isPrivateSession: Boolean,
     ): List<SuggestionCandidate> {
         checkClearedMarker()
+        if (isPrivateSession) return emptyList()
         return withContext(Dispatchers.Default) {
             try {
                 val textBefore = content.textBeforeSelection
@@ -296,16 +345,26 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 if (textBefore.length > lastTextLen + 1) pasteUntil = now + 500
                 lastTextLen = textBefore.length
                 val lastChar = textBefore.last()
-                if (lastChar == '.' || lastChar == '?' || lastChar == '!' || lastChar == '\n')
+                if (lastChar == '\n') return@withContext emptyList()
+                if (lastChar == '.' || lastChar == '?' || lastChar == '!') {
+                    val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
+                    discourseBuffer.clear()
+                    discourseBuffer.addAll(words.takeLast(5))
                     return@withContext emptyList()
+                }
 
-                learnFromText(textBefore)
+                bgScope.launch { learnFromText(textBefore) }
 
                 val pairs = if (lastChar == ' ' || lastChar == '\t') {
                     val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
                     if (lastWord.isBlank()) return@withContext emptyList()
-                    if (now >= pasteUntil) recordWord(lastWord)
+                    if (now >= pasteUntil) {
+                        recordWord(lastWord)
+                        if (lastTopSuggestion != null && lastWord.lowercase() != lastTopSuggestion) {
+                            dampWord(lastTopSuggestion)
+                        }
+                    }
                     suggestNextWord(textBefore, maxCandidateCount)
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
@@ -313,7 +372,9 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     completeCurrentWord(cur, maxCandidateCount, textBefore)
                 }
 
-                pairs.map { (word, _) ->
+                pairs.also { result ->
+                    lastTopSuggestion = result.firstOrNull()?.first?.lowercase()
+                }.map { (word, _) ->
                     WordSuggestionCandidate(
                         text = word,
                         confidence = 1.0,
@@ -373,6 +434,13 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         personalDirty = true
     }
 
+    private fun dampWord(word: String) {
+        val lc = word.lowercase()
+        val existing = dampedWords[lc]
+        val newCount = (existing?.dampCount ?: 0).coerceAtMost(5) + 1
+        dampedWords[lc] = DampedWord(dampCount = newCount, lastDampedTs = System.currentTimeMillis())
+    }
+
     private fun computeAlpha(decayedCount: Double, qwenScored: Boolean): Double = when {
         qwenScored -> when {
             decayedCount < 3.0 -> 0.05
@@ -403,16 +471,20 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val maxScore = rawScores.max()
         val range = maxScore - minScore
         return candidates.map { (word, baseScore) ->
-            val normBase = if (range > 0.0) (baseScore - minScore) / range else 0.5
+            var score = if (range > 0.0) (baseScore - minScore) / range else 0.5
             val pw = personalDict[word.lowercase()]
             if (pw != null && pw.count >= 3) {
                 val dc = decayedCount(pw)
                 val alpha = computeAlpha(dc, qwenScored)
                 val ps = personalScore(pw)
-                word to (alpha * ps + (1.0 - alpha) * normBase)
-            } else {
-                word to normBase
+                score = alpha * ps + (1.0 - alpha) * score
             }
+            val dw = dampedWords[word.lowercase()]
+            if (dw != null && dw.dampCount > 0) {
+                val penalty = (dw.dampCount * 0.02).coerceAtMost(0.10)
+                score *= (1.0 - penalty)
+            }
+            word to score
         }.sortedByDescending { it.second }
     }
 
@@ -426,7 +498,12 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         var qwenScored = false
 
         if (!natLoading && natLoaded && modelPtr != 0L) {
-            val predictions = QwenNatives.predictNext(modelPtr, textBefore, limit * 3)
+            val contextText = if (discourseBuffer.isNotEmpty() && textBefore.split(Regex("\\s+")).size <= 2) {
+                discourseBuffer.joinToString(" ") + " " + textBefore.trimStart()
+            } else {
+                textBefore
+            }
+            val predictions = QwenNatives.predictNext(modelPtr, contextText, limit * 3)
             if (predictions != null) {
                 qwenScored = true
                 val firstBatch = predictions.take(limit * 2)
@@ -463,19 +540,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val topBase = scored.entries.sortedByDescending { it.value }
             .take(limit * 3).map { it.key to it.value }
 
-        val reranked = rerankWithPersonal(topBase, qwenScored).take(limit)
-
-        val shiftState = pendingShiftState
-        val useUpper = shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.CAPS_LOCK
-        val useTitle = !useUpper && (shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_MANUAL
-            || shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_AUTOMATIC)
-
-        return reranked.map { (word, score) ->
-            val cased = if (useUpper) word.uppercase()
-                        else if (useTitle) word.replaceFirstChar { it.uppercase() }
-                        else word
-            cased to score
-        }
+        return rerankWithPersonal(topBase, qwenScored).take(limit)
     }
 
     private fun ngramWords(): Set<String> {
@@ -488,6 +553,17 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     }
 
     private fun completeCurrentWord(prefix: String, k: Int, textBefore: String): List<Pair<String, Double>> {
+        val limit = k.coerceIn(1, 15)
+        val lcPrefix = prefix.lowercase()
+        val cacheKey = "$lcPrefix|$textBefore.length"
+        suggestionCache.get(cacheKey)?.let { return it }
+
+        val result = doCompleteCurrentWord(prefix, k, textBefore)
+        suggestionCache.put(cacheKey, result)
+        return result
+    }
+
+    private fun doCompleteCurrentWord(prefix: String, k: Int, textBefore: String): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
         val lcPrefix = prefix.lowercase()
 
@@ -508,12 +584,19 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val candidates = mutableListOf<Pair<String, Double>>()
         var qwenScored = false
 
+        val autoCorrectOn = prefs.correction.autoCorrect.get()
+
         if (pool.isNotEmpty() && !natLoading && natLoaded && modelPtr != 0L) {
             val scores = QwenNatives.scoreCandidates(modelPtr, context, pool)
             if (scores != null && scores.size == pool.size) {
                 qwenScored = true
                 for (i in pool.indices) {
-                    candidates.add(pool[i] to scores[i].toDouble())
+                    val base = if (autoCorrectOn) {
+                        autocorrectEngine?.score(lcPrefix, pool[i], scores[i].toDouble()) ?: scores[i].toDouble()
+                    } else {
+                        scores[i].toDouble()
+                    }
+                    candidates.add(pool[i] to base)
                 }
             }
         }
@@ -530,27 +613,33 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     trigrams["$w1|$w2"]?.let { tri -> s += (tri[word]?.toDouble() ?: 0.0) * TRIGRAM_BOOST }
                 }
                 bigrams[w2]?.let { bi -> s += (bi[word]?.toDouble() ?: 0.0) * BIGRAM_BOOST }
-                candidates.add(word to s)
+                val base = if (autoCorrectOn) {
+                    autocorrectEngine?.score(lcPrefix, word, s) ?: s
+                } else {
+                    s
+                }
+                candidates.add(word to base)
             }
         }
 
-        val reranked = rerankWithPersonal(candidates, qwenScored)
-
-        val shiftState = pendingShiftState
-        val useUpper = shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.CAPS_LOCK
-            || (shiftState == null && prefix.length >= 1 && prefix.all { it.isUpperCase() })
-        val useTitle = !useUpper && (shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_MANUAL
-            || shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.SHIFTED_AUTOMATIC
-            || (shiftState == null && prefix.isNotEmpty() && prefix[0].isUpperCase()))
-
-        return reranked.take(limit).map { (word, score) ->
-            val cased = when {
-                useUpper -> word.uppercase()
-                useTitle -> word.replaceFirstChar { it.uppercase() }
-                else -> word
+        if (autoCorrectOn && lcPrefix.length >= 2) {
+            val corrections = autocorrectEngine?.correct(lcPrefix, limit * 2) ?: emptyList()
+            val existingWords = candidates.map { it.first }.toSet()
+            for (corr in corrections) {
+                if (corr.word !in existingWords && corr.word !in pool.toSet()) {
+                    val blended = autocorrectEngine?.score(lcPrefix, corr.word, null) ?: continue
+                    candidates.add(corr.word to blended)
+                }
             }
-            cased to score
+            val typoCorrections = typoDetector?.detectAndScore(lcPrefix) ?: emptyList()
+            for ((word, score) in typoCorrections) {
+                if (word !in existingWords && word !in pool.toSet()) {
+                    candidates.add(word to score * 0.5)
+                }
+            }
         }
+
+        return rerankWithPersonal(candidates, qwenScored).take(limit)
     }
 
     private fun getCurrentWord(content: EditorContent): String? {
@@ -583,6 +672,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     }
 
     override suspend fun destroy() {
+        bgScope.cancel()
         if (personalDirty) savePersonalDict()
         if (ngramDirty) saveNgrams()
         if (modelPtr != 0L) QwenNatives.close(modelPtr)

@@ -354,6 +354,8 @@ class FlorisImeService : LifecycleInputMethodService() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(wallpaperChangeReceiver)
+        nlpManager.destroy()
+        editorInstance.destroy()
         FlorisImeServiceReference = WeakReference(null)
     }
 
@@ -362,6 +364,7 @@ class FlorisImeService : LifecycleInputMethodService() {
         super.onStartInput(info, restarting)
         if (info == null) return
         val editorInfo = FlorisEditorInfo.wrap(info)
+        nlpManager.onStartInput()
         editorInstance.handleStartInput(editorInfo)
     }
 
@@ -409,12 +412,14 @@ class FlorisImeService : LifecycleInputMethodService() {
     override fun onFinishInputView(finishingInput: Boolean) {
         flogInfo { "finishing=$finishingInput" }
         super.onFinishInputView(finishingInput)
+        nlpManager.onFinishInput()
         editorInstance.handleFinishInputView()
     }
 
     override fun onFinishInput() {
         flogInfo { "(no args)" }
         super.onFinishInput()
+        nlpManager.onFinishInput()
         editorInstance.handleFinishInput()
         NlpInlineAutofill.clearInlineSuggestions()
     }
