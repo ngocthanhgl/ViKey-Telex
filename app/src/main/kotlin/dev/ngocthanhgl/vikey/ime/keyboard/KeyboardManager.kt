@@ -606,7 +606,9 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
      */
     private fun handleToggleAutocorrect() {
         val current = prefs.correction.autoCorrect.get()
-        prefs.correction.autoCorrect.set(!current)
+        scope.launch {
+            prefs.correction.autoCorrect.set(!current)
+        }
         lastToastReference.get()?.cancel()
         lastToastReference = WeakReference(
             appContext.showLongToastSync(
