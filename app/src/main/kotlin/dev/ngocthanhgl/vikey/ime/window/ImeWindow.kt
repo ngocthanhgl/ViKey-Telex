@@ -92,6 +92,7 @@ import org.florisboard.lib.snygg.ui.rememberSnyggThemeQuery
  * @see ImeWindow
  * @see BottomSheetWindow
  * @see BottomSheetWindow
+ */
 @Composable
 fun ImeRootWindow() {
     val density = LocalDensity.current

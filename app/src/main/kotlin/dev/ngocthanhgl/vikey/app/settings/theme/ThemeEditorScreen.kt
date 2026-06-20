@@ -23,10 +23,8 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -212,8 +210,6 @@ fun ThemeEditorScreen(
 
     val snyggLevel by prefs.theme.editorLevel.collectAsState()
     val colorRepresentation by prefs.theme.editorColorRepresentation.collectAsState()
-    val displayKbdAfterDialogs by prefs.theme.editorDisplayKbdAfterDialogs.collectAsState()
-    var oldFocusState by remember { mutableStateOf(false) }
     var snyggRuleToEdit by rememberSaveable(stateSaver = SnyggRule.Saver) { mutableStateOf(null) }
     var snyggPropertyToEdit by remember { mutableStateOf<PropertyInfo?>(null) }
     var snyggPropertySetForEditing = remember<SnyggSinglePropertySetEditor?> { null }
@@ -287,28 +283,13 @@ fun ThemeEditorScreen(
             handleBackPress()
         }
 
-        val isImeVisible = WindowInsets.isImeVisible
         LaunchedEffect(showEditComponentMetaDialog, showFineTuneDialog, snyggRuleToEdit, snyggPropertyToEdit) {
             val visible = showEditComponentMetaDialog || showFineTuneDialog ||
                 snyggRuleToEdit != null || snyggPropertyToEdit != null
             if (visible) {
-                oldFocusState = isImeVisible
                 focusManager.clearFocus()
             } else {
                 delay(250)
-                when (displayKbdAfterDialogs) {
-                    DisplayKbdAfterDialogs.ALWAYS -> {
-                        previewFieldController.focusRequester.requestFocus()
-                    }
-                    DisplayKbdAfterDialogs.NEVER -> {
-                        // Do nothing
-                    }
-                    DisplayKbdAfterDialogs.REMEMBER -> {
-                        if (oldFocusState) {
-                            previewFieldController.focusRequester.requestFocus()
-                        }
-                    }
-                }
             }
         }
 
