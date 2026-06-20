@@ -69,7 +69,7 @@ abstract class AbstractEditorInstance(context: Context) {
     private val keyboardManager by context.keyboardManager()
     private val subtypeManager by context.subtypeManager()
     private val nlpManager by context.nlpManager()
-    private val scope = MainScope()
+    protected val scope = MainScope()
     protected val breakIterators = BreakIteratorGroup()
 
     private val _activeInfoFlow = MutableStateFlow(FlorisEditorInfo.Unspecified)
