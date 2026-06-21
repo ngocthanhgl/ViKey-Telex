@@ -67,9 +67,7 @@ import androidx.compose.ui.unit.toSize
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
-import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
@@ -350,7 +348,7 @@ private fun TextKeyButton(
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     val backdrop = rememberLayerBackdrop()
-    val lensRefraction = if (isLiquidGlass) 4f else 0f
+    val lensRefraction = if (isLiquidGlass) 6f else 0f
     val textLift by animateFloatAsState(
         targetValue = if (isLiquidGlass && key.isPressed) 1.25f else 1f,
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 400f),
@@ -427,8 +425,8 @@ private fun TextKeyButton(
         }
         }
         if (isLiquidGlass) {
-            val heightPx = with(density) { (lensRefraction * 1f).dp.toPx() }
-            val amountPx = with(density) { (lensRefraction * 2f).dp.toPx() }
+            val heightPx = with(density) { (lensRefraction * 1.5f).dp.toPx() }
+            val amountPx = with(density) { (lensRefraction * 3f).dp.toPx() }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -439,10 +437,8 @@ private fun TextKeyButton(
                     )
                     .drawBackdrop(
                         backdrop = backdrop,
-                        shape = { RoundedCornerShape(14.dp) },
+                        shape = { RoundedCornerShape(22.dp) },
                         effects = {
-                            vibrancy()
-                            blur(8f.dp.toPx())
                             lens(
                                 refractionHeight = heightPx,
                                 refractionAmount = amountPx,
