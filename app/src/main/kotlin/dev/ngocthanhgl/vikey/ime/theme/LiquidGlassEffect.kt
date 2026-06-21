@@ -31,32 +31,29 @@ fun LiquidGlassEffect(
     val refractionHeightPx = with(density) { 10.dp.toPx() }
     val refractionAmountPx = with(density) { 14.dp.toPx() }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedCornerShape(28.dp) },
+                effects = {
+                    blur(radius = blurPx)
+                    colorControls(brightness = 0.03f, saturation = 1.3f)
+                    lens(
+                        refractionHeight = refractionHeightPx,
+                        refractionAmount = refractionAmountPx,
+                        chromaticAberration = true,
+                    )
+                },
+                highlight = { Highlight.Ambient },
+            )
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .drawBackdrop(
-                    backdrop = backdrop,
-                    shape = { RoundedCornerShape(28.dp) },
-                    effects = {
-                        blur(radius = blurPx)
-                        colorControls(brightness = 0.03f, saturation = 1.3f)
-                        lens(
-                            refractionHeight = refractionHeightPx,
-                            refractionAmount = refractionAmountPx,
-                            chromaticAberration = true,
-                        )
-                    },
-                    highlight = { Highlight.Ambient },
-                )
+                .layerBackdrop(backdrop)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .layerBackdrop(backdrop)
-            ) {
-                content()
-            }
+            content()
         }
     }
 }

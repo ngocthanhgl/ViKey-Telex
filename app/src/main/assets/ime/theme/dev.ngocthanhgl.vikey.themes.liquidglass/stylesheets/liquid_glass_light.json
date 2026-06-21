@@ -1,33 +1,33 @@
 {
   "$schema": "https://schemas.florisboard.org/snygg/v2/stylesheet",
   "@defines": {
-    "--glass-bg": "rgba(235,240,250,0.70)",
-    "--glass-border": "rgba(180,200,230,0.25)",
-    "--glass-edge": "rgba(200,215,240,0.12)",
-    "--glass-rim": "rgba(255,255,255,0.20)",
-    "--k": "rgba(255,255,255,0.12)",
-    "--tk": "rgba(30,40,55,0.85)",
-    "--k-dim": "rgba(255,255,255,0.08)",
-    "--tk-dim": "rgba(30,40,55,0.45)",
-    "--k-fn": "rgba(255,255,255,0.12)",
-    "--tk-fn": "rgba(30,40,55,0.70)",
-    "--k-enter": "rgba(60,160,240,0.25)",
+    "--glass-bg": "rgba(240,245,255,0.65)",
+    "--glass-border": "rgba(200,215,240,0.30)",
+    "--glass-edge": "rgba(220,230,250,0.15)",
+    "--glass-rim": "rgba(255,255,255,0.50)",
+    "--k": "rgba(255,255,255,0.35)",
+    "--tk": "rgba(20,30,50,0.90)",
+    "--k-dim": "rgba(255,255,255,0.20)",
+    "--tk-dim": "rgba(20,30,50,0.40)",
+    "--k-fn": "rgba(255,255,255,0.30)",
+    "--tk-fn": "rgba(20,30,50,0.70)",
+    "--k-enter": "rgba(50,150,240,0.30)",
     "--tk-enter": "rgba(255,255,255,0.95)",
-    "--k-enter-pressed": "rgba(60,160,240,0.40)",
-    "--k-del": "rgba(240,80,110,0.20)",
-    "--tk-del": "rgba(255,255,255,0.90)",
-    "--k-space": "rgba(255,255,255,0.06)",
-    "--tk-space": "rgba(30,40,55,0.35)",
-    "--k-emoji": "rgba(255,255,255,0.40)",
-    "--tk-emoji": "rgba(40,60,100,0.70)",
-    "--acc": "rgba(40,120,220,0.80)",
-    "--kpop": "rgba(245,248,255,0.95)",
-    "--tkpop": "rgba(30,40,55,0.90)",
-    "--kpop-f": "rgba(240,244,255,0.95)",
-    "--tb": "rgba(40,50,70,0.60)",
-    "--tb-dim": "rgba(40,50,70,0.25)",
-    "--pressed": "rgba(60,120,220,0.12)",
-    "--tp": "rgba(30,40,55,0.95)",
+    "--k-enter-pressed": "rgba(50,150,240,0.45)",
+    "--k-del": "rgba(240,70,100,0.25)",
+    "--tk-del": "rgba(255,255,255,0.95)",
+    "--k-space": "rgba(255,255,255,0.15)",
+    "--tk-space": "rgba(20,30,50,0.35)",
+    "--k-emoji": "rgba(200,215,255,0.40)",
+    "--tk-emoji": "rgba(30,50,90,0.75)",
+    "--acc": "rgba(30,120,220,0.85)",
+    "--kpop": "rgba(255,255,255,0.96)",
+    "--tkpop": "rgba(20,30,50,0.90)",
+    "--kpop-f": "rgba(248,250,255,0.96)",
+    "--tb": "rgba(40,50,70,0.55)",
+    "--tb-dim": "rgba(40,50,70,0.22)",
+    "--pressed": "rgba(50,110,220,0.15)",
+    "--tp": "rgba(20,30,50,0.95)",
     "--shape": "rounded-corner(42%,42%,42%,42%)",
     "--shape-key": "rounded-corner(14dp,14dp,14dp,14dp)",
     "--shape-pill": "rounded-corner(22dp,22dp,22dp,22dp)",
@@ -79,11 +79,89 @@
     "border-color": "var(--glass-rim)",
     "border-width": "1dp"
   },
+  "key[code=-11]": {
+    "background": "var(--k-fn)",
+    "foreground": "var(--tk-fn)"
+  },
+  "key[code=-201]": {
+    "background": "var(--k-del)",
+    "foreground": "var(--tk-del)",
+    "font-size": "18sp",
+    "border-color": "rgba(240,70,100,0.20)",
+    "border-width": "1dp"
+  },
+  "key[code=-202,-203]": {
+    "background": "var(--k-fn)",
+    "foreground": "var(--tk-fn)",
+    "font-size": "18sp"
+  },
+  "key[code=-204]": {
+    "background": "var(--k-emoji)",
+    "foreground": "var(--tk-emoji)",
+    "shape": "var(--shape-pill)"
+  },
+  "key[code=-205]": {
+    "background": "var(--k-fn)",
+    "foreground": "var(--tk-fn)",
+    "font-size": "12sp",
+    "text-max-lines": "2",
+    "shape": "var(--shape-pill)"
+  },
+  "key[code=10]": {
+    "background": "var(--k-enter)",
+    "foreground": "var(--tk-enter)",
+    "shape": "var(--shape-pill)",
+    "border-color": "rgba(50,150,240,0.30)",
+    "border-width": "1dp"
+  },
+  "key[code=32]": {
+    "background": "var(--k-space)",
+    "foreground": "var(--tk-space)",
+    "font-size": "12sp",
+    "text-overflow": "ellipsis",
+    "shape": "var(--shape-pill)"
+  },
+  "key[code=44]": {
+    "background": "var(--k-dim)",
+    "foreground": "var(--tk-dim)"
+  },
+  "key[code=46]": {
+    "background": "var(--k-dim)",
+    "foreground": "var(--tk-dim)"
+  },
   "key:pressed": {
     "background": "var(--pressed)",
     "foreground": "var(--tp)",
-    "border-color": "rgba(60,120,220,0.25)",
+    "border-color": "rgba(50,110,220,0.35)",
     "border-width": "1dp"
+  },
+  "key[code=-201]:pressed": {
+    "background": "var(--k-enter-pressed)",
+    "foreground": "var(--tk-enter)"
+  },
+  "key[code=-202,-203]:pressed": {
+    "background": "var(--k-enter-pressed)",
+    "foreground": "var(--tk-enter)"
+  },
+  "key[code=-204]:pressed": {
+    "background": "var(--k-enter-pressed)",
+    "foreground": "var(--tk-enter)",
+    "shape": "var(--shape-pill)"
+  },
+  "key[code=-205]:pressed": {
+    "background": "var(--k-enter-pressed)",
+    "foreground": "var(--tk-enter)",
+    "shape": "var(--shape-pill)"
+  },
+  "key[code=10]:pressed": {
+    "background": "var(--k-enter-pressed)",
+    "foreground": "var(--tk-enter)",
+    "shape": "var(--shape-pill)"
+  },
+  "key[code=32]:pressed": {
+    "background": "var(--pressed)",
+    "foreground": "var(--tp)",
+    "shape": "var(--shape-pill)"
   },
   "key-hint": {
     "background": "rgba(0,0,0,0)",
