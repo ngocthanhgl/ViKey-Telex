@@ -9,8 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.RenderEffect
+import android.graphics.RenderEffect as AndroidRenderEffect
 
 private const val KEY_LENS_SHADER = """
 uniform float2 resolution;
@@ -42,6 +44,7 @@ half4 main(float2 fragCoord) {
 """
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun rememberLensRenderEffect(
     isPressed: Boolean,
@@ -58,6 +61,8 @@ fun rememberLensRenderEffect(
         shader.setFloatUniform("refractionAmount", refraction)
     }
     return remember(shader) {
-        RenderEffect.createRuntimeShaderEffect(shader, "inputImage")
+        RenderEffect.wrap(
+            AndroidRenderEffect.createRuntimeShaderEffect(shader, "inputImage")
+        )
     }
 }
