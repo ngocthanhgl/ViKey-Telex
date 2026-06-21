@@ -19,14 +19,13 @@ package dev.ngocthanhgl.vikey.ime.text.keyboard
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.view.MotionEvent
 import android.view.animation.AccelerateInterpolator
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
@@ -62,13 +61,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import com.kyant.backdrop.drawBackdrop
-import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.highlight.Highlight
 import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.editorInstance
@@ -347,15 +340,15 @@ private fun TextKeyButton(
         key.visibleBounds.size.toDpSize()
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
+    val lensEffect = if (isLiquidGlass && Build.VERSION.SDK_INT >= 33) {
+        rememberLensRenderEffect(key.isPressed, key.visibleBounds.size)
+    } else {
+        null
+    }
     val pressScale by animateFloatAsState(
         targetValue = if (isLiquidGlass && key.isPressed) 1.08f else 1f,
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f),
         label = "pressScale",
-    )
-    val lensRefraction by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 6f else 0f,
-        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f),
-        label = "lensRefraction",
     )
     SnyggBox(
         FlorisImeUi.Key.elementName,
@@ -364,11 +357,14 @@ private fun TextKeyButton(
         modifier = Modifier
             .requiredSize(size)
             .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() }
-            .graphicsLayer(
-                scaleX = pressScale,
-                scaleY = pressScale,
-                transformOrigin = TransformOrigin(0.5f, 0.5f),
-            ),
+            .graphicsLayer {
+                scaleX = pressScale
+                scaleY = pressScale
+                transformOrigin = TransformOrigin(0.5f, 0.5f)
+                if (Build.VERSION.SDK_INT >= 33) {
+                    renderEffect = lensEffect
+                }
+            },
     ) {
         val isTelPadKey = key.computedData.type == KeyType.NUMERIC && evaluator.keyboard.mode == KeyboardMode.PHONE
         key.label?.let { label ->
@@ -407,9 +403,6 @@ private fun TextKeyButton(
                 contentDescription = null,
             )
         }
-        if (isLiquidGlass && lensRefraction > 0.5f) {
-            KeyLensOverlay(refractionAmount = lensRefraction)
-        }
     }
     if (debugShowTouchBoundaries) {
         Box(
@@ -417,33 +410,6 @@ private fun TextKeyButton(
                 .requiredSize(key.touchBounds.size.toDpSize())
                 .absoluteOffset { key.touchBounds.topLeft.toIntOffset() }
                 .border(Dp.Hairline, Color.Red),
-        )
-    }
-}
-
-@Composable
-private fun KeyLensOverlay(refractionAmount: Float) {
-    val backdrop = rememberLayerBackdrop()
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RoundedCornerShape(14.dp) },
-                effects = {
-                    lens(
-                        refractionHeight = refractionAmount * 2f / 3f,
-                        refractionAmount = refractionAmount,
-                        chromaticAberration = true,
-                    )
-                },
-                highlight = { Highlight.Ambient },
-            )
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .layerBackdrop(backdrop)
         )
     }
 }
