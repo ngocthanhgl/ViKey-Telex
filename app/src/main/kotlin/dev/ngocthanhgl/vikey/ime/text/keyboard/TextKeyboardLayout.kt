@@ -64,7 +64,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.lens
@@ -371,6 +370,7 @@ private fun TextKeyButton(
             FlorisImeUi.Key.elementName,
             attributes = attributes,
             selector = selector,
+            modifier = Modifier.fillMaxSize(),
         ) {
         val isTelPadKey = key.computedData.type == KeyType.NUMERIC && evaluator.keyboard.mode == KeyboardMode.PHONE
         key.label?.let { label ->
@@ -409,7 +409,7 @@ private fun TextKeyButton(
                 contentDescription = null,
             )
         }
-        if (isLiquidGlass && lensRefraction > 0.5f) {
+        if (isLiquidGlass) {
             KeyLensOverlay(refractionAmount = lensRefraction)
         }
     }
@@ -441,14 +441,8 @@ private fun KeyLensOverlay(refractionAmount: Float) {
                     )
                 },
                 highlight = { Highlight.Ambient },
-            )
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .layerBackdrop(backdrop)
-        )
-    }
+            ),
+    )
 }
 
 @Suppress("unused_parameter")
