@@ -421,6 +421,7 @@ private fun TextKeyButton(
                 .border(Dp.Hairline, Color.Red),
         )
     }
+    }
 }
 
 @Composable
