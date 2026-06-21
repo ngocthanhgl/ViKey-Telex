@@ -1,6 +1,5 @@
 package dev.ngocthanhgl.vikey.ime.text.keyboard
 
-import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -11,6 +10,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.RenderEffect
 
 private const val KEY_LENS_SHADER = """
 uniform float2 resolution;

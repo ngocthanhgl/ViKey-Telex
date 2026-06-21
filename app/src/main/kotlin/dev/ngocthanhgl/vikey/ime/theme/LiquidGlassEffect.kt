@@ -2,6 +2,7 @@ package dev.ngocthanhgl.vikey.ime.theme
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RectangleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -30,6 +31,7 @@ fun LiquidGlassEffect(
         modifier = Modifier
             .drawBackdrop(
                 backdrop = backdrop,
+                shape = { RectangleShape },
                 effects = {
                     blur(radius = blurPx)
                     colorControls(brightness = 0.03f, saturation = 1.3f)
