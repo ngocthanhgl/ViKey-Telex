@@ -24,7 +24,7 @@ import android.view.animation.AccelerateInterpolator
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,11 +48,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
@@ -63,7 +61,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.highlight.Highlight
 import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.editorInstance
@@ -106,7 +110,6 @@ import org.florisboard.lib.snygg.ui.SnyggIcon
 import org.florisboard.lib.snygg.ui.SnyggText
 import org.florisboard.lib.snygg.ui.rememberSnyggThemeQuery
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.sqrt
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -129,8 +132,6 @@ fun TextKeyboardLayout(
     val glideTrailStyle = rememberSnyggThemeQuery(FlorisImeUi.GlideTrail.elementName)
     val glideTrailColor = glideTrailStyle.foreground(default = Color.Green)
     val isLiquidGlass = LocalLiquidGlassEnabled.current
-    val accentStyle = rememberSnyggThemeQuery(FlorisImeUi.KeyHint.elementName)
-    val accentColor = accentStyle.foreground(default = Color(0xFF64C8FF))
 
     val controller = remember { TextKeyboardLayoutController(context) }.also {
         it.keyboard = keyboard
@@ -308,7 +309,7 @@ fun TextKeyboardLayout(
         for (textKey in keyboard.keys()) {
             TextKeyButton(
                 textKey, evaluator, desiredKey,
-                debugShowTouchBoundaries, accentColor,
+                debugShowTouchBoundaries,
             )
         }
 
@@ -330,7 +331,6 @@ private fun TextKeyButton(
     evaluator: ComputingEvaluator,
     desiredKey: TextKey,
     debugShowTouchBoundaries: Boolean,
-    accentColor: Color = Color(0xFF64C8FF),
 ) = with(LocalDensity.current) {
     val attributes = mapOf(
         FlorisImeUi.Attr.Code to key.computedData.code,
@@ -351,10 +351,10 @@ private fun TextKeyButton(
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f),
         label = "pressScale",
     )
-    val glowAlpha by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 0.35f else 0f,
-        animationSpec = spring(dampingRatio = 0.7f, stiffness = 600f),
-        label = "keyGlow",
+    val lensRefraction by animateFloatAsState(
+        targetValue = if (isLiquidGlass && key.isPressed) 6f else 0f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f),
+        label = "lensRefraction",
     )
     SnyggBox(
         FlorisImeUi.Key.elementName,
@@ -367,23 +367,7 @@ private fun TextKeyButton(
                 scaleX = pressScale,
                 scaleY = pressScale,
                 transformOrigin = TransformOrigin(0.5f, 0.5f),
-            )
-            .drawBehind {
-                if (isLiquidGlass && glowAlpha > 0.001f) {
-                    val c = Offset(this.size.width / 2f, this.size.height / 2f)
-                    val r = max(this.size.width, this.size.height) * 2.5f
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            0.0f to accentColor.copy(alpha = glowAlpha * 0.25f),
-                            0.2f to accentColor.copy(alpha = glowAlpha * 0.10f),
-                            0.5f to accentColor.copy(alpha = glowAlpha * 0.03f),
-                            1.0f to Color.Transparent,
-                        ),
-                        radius = r,
-                        center = c,
-                    )
-                }
-            },
+            ),
     ) {
         val isTelPadKey = key.computedData.type == KeyType.NUMERIC && evaluator.keyboard.mode == KeyboardMode.PHONE
         key.label?.let { label ->
@@ -422,6 +406,9 @@ private fun TextKeyButton(
                 contentDescription = null,
             )
         }
+        if (isLiquidGlass && lensRefraction > 0.5f) {
+            KeyLensOverlay(refractionAmount = lensRefraction)
+        }
     }
     if (debugShowTouchBoundaries) {
         Box(
@@ -429,6 +416,33 @@ private fun TextKeyButton(
                 .requiredSize(key.touchBounds.size.toDpSize())
                 .absoluteOffset { key.touchBounds.topLeft.toIntOffset() }
                 .border(Dp.Hairline, Color.Red),
+        )
+    }
+}
+
+@Composable
+private fun KeyLensOverlay(refractionAmount: Float) {
+    val backdrop = rememberLayerBackdrop()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { RoundedCornerShape(14.dp) },
+                effects = {
+                    lens(
+                        refractionHeight = refractionAmount * 2f / 3f,
+                        refractionAmount = refractionAmount,
+                        chromaticAberration = true,
+                    )
+                },
+                highlight = { Highlight.Ambient },
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .layerBackdrop(backdrop)
         )
     }
 }

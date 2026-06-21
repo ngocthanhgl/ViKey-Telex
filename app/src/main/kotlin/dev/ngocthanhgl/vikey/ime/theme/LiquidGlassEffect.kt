@@ -13,7 +13,6 @@ import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.highlight.Highlight
 
 @Composable
 fun LiquidGlassEffect(
@@ -45,7 +44,6 @@ fun LiquidGlassEffect(
                         chromaticAberration = true,
                     )
                 },
-                highlight = { Highlight.Ambient },
             )
     ) {
         Box(
