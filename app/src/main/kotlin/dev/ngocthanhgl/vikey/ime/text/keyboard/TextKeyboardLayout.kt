@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.toSize
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.highlight.Highlight
 import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.editorInstance
@@ -426,6 +427,9 @@ private fun TextKeyButton(
 @Composable
 private fun KeyLensOverlay(refractionAmount: Float) {
     val backdrop = rememberLayerBackdrop()
+    val density = LocalDensity.current
+    val heightPx = with(density) { (refractionAmount * 2f).dp.toPx() }
+    val amountPx = with(density) { (refractionAmount * 4f).dp.toPx() }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -434,11 +438,12 @@ private fun KeyLensOverlay(refractionAmount: Float) {
                 shape = { RoundedCornerShape(14.dp) },
                 effects = {
                     lens(
-                        refractionHeight = refractionAmount * 2f / 3f,
-                        refractionAmount = refractionAmount,
+                        refractionHeight = heightPx,
+                        refractionAmount = amountPx,
                         chromaticAberration = true,
                     )
                 },
+                highlight = { Highlight.Ambient },
             ),
     )
 }

@@ -1,47 +1,11 @@
 package dev.ngocthanhgl.vikey.ime.theme
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
-import com.kyant.backdrop.drawBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.effects.blur
-import com.kyant.backdrop.effects.colorControls
 
 @Composable
 fun LiquidGlassEffect(
     enabled: Boolean,
     content: @Composable () -> Unit,
 ) {
-    if (!enabled) {
-        content()
-        return
-    }
-
-    val backdrop = rememberLayerBackdrop()
-    val density = LocalDensity.current
-    val blurPx = with(density) { 16.dp.toPx() }
-
-    Box(
-        modifier = Modifier
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RoundedCornerShape(0.dp) },
-                effects = {
-                    blur(radius = blurPx)
-                    colorControls(brightness = 0.03f, saturation = 1.3f)
-                },
-            )
-    ) {
-        Box(
-            modifier = Modifier
-                .layerBackdrop(backdrop)
-        ) {
-            content()
-        }
-    }
+    content()
 }
