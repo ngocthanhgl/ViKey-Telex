@@ -67,7 +67,6 @@ import androidx.compose.ui.unit.toSize
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.highlight.Highlight
 import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.editorInstance
@@ -440,7 +439,6 @@ private fun KeyLensOverlay(refractionAmount: Float) {
                         chromaticAberration = true,
                     )
                 },
-                highlight = { Highlight.Ambient },
             ),
     )
 }
