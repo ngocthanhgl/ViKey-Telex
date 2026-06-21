@@ -350,8 +350,13 @@ private fun TextKeyButton(
     val backdrop = rememberLayerBackdrop()
     val lensRefraction by animateFloatAsState(
         targetValue = if (isLiquidGlass && key.isPressed) 6f else 0f,
-        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f),
+        animationSpec = spring(dampingRatio = 0.4f, stiffness = 600f),
         label = "lensRefraction",
+    )
+    val textLift by animateFloatAsState(
+        targetValue = if (isLiquidGlass && key.isPressed) 1.15f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 400f),
+        label = "textLift",
     )
     val pressScale by animateFloatAsState(
         targetValue = if (isLiquidGlass && key.isPressed) 1.08f else 1f,
