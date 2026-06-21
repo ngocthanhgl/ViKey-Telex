@@ -347,6 +347,7 @@ private fun TextKeyButton(
         key.visibleBounds.size.toDpSize()
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
+    val backdrop = rememberLayerBackdrop()
     val lensRefraction by animateFloatAsState(
         targetValue = if (isLiquidGlass && key.isPressed) 6f else 0f,
         animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f),
@@ -360,58 +361,92 @@ private fun TextKeyButton(
     Box(
         modifier = Modifier
             .requiredSize(size)
-            .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() }
-            .graphicsLayer(
-                scaleX = pressScale,
-                scaleY = pressScale,
-                transformOrigin = TransformOrigin(0.5f, 0.5f),
-            ),
+            .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() },
     ) {
-        SnyggBox(
-            FlorisImeUi.Key.elementName,
-            attributes = attributes,
-            selector = selector,
-            modifier = Modifier.fillMaxSize(),
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer(
+                    scaleX = pressScale,
+                    scaleY = pressScale,
+                    transformOrigin = TransformOrigin(0.5f, 0.5f),
+                ),
         ) {
-        val isTelPadKey = key.computedData.type == KeyType.NUMERIC && evaluator.keyboard.mode == KeyboardMode.PHONE
-        key.label?.let { label ->
-            var customLabel = label
-            if (key.computedData.code == KeyCode.SPACE) {
-                val prefs by FlorisPreferenceStore
-                val spaceBarMode by prefs.keyboard.spaceBarMode.collectAsState()
-                when (spaceBarMode) {
-                    SpaceBarMode.NOTHING -> return@let
-                    SpaceBarMode.CURRENT_LANGUAGE -> {}
-                    SpaceBarMode.SPACE_BAR_KEY -> customLabel = "␣"
-                }
-            }
-            SnyggText(
+            Box(
                 modifier = Modifier
-                    .wrapContentSize()
-                    .align(if (isTelPadKey) BiasAlignment(-0.5f, 0f) else Alignment.Center),
-                text = customLabel,
-            )
-        }
-        key.hintedLabel?.let { hintedLabel ->
-            SnyggText(
-                elementName = FlorisImeUi.KeyHint.elementName,
+                    .fillMaxSize()
+                    .layerBackdrop(backdrop),
+            ) {
+            SnyggBox(
+                FlorisImeUi.Key.elementName,
                 attributes = attributes,
                 selector = selector,
-                modifier = Modifier
-                    .wrapContentSize()
-                    .align(if (isTelPadKey) BiasAlignment(0.5f, 0f) else Alignment.TopEnd),
-                text = hintedLabel,
-            )
+                modifier = Modifier.fillMaxSize(),
+            ) {
+            val isTelPadKey = key.computedData.type == KeyType.NUMERIC && evaluator.keyboard.mode == KeyboardMode.PHONE
+            key.label?.let { label ->
+                var customLabel = label
+                if (key.computedData.code == KeyCode.SPACE) {
+                    val prefs by FlorisPreferenceStore
+                    val spaceBarMode by prefs.keyboard.spaceBarMode.collectAsState()
+                    when (spaceBarMode) {
+                        SpaceBarMode.NOTHING -> return@let
+                        SpaceBarMode.CURRENT_LANGUAGE -> {}
+                        SpaceBarMode.SPACE_BAR_KEY -> customLabel = "␣"
+                    }
+                }
+                SnyggText(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .align(if (isTelPadKey) BiasAlignment(-0.5f, 0f) else Alignment.Center),
+                    text = customLabel,
+                )
+            }
+            key.hintedLabel?.let { hintedLabel ->
+                SnyggText(
+                    elementName = FlorisImeUi.KeyHint.elementName,
+                    attributes = attributes,
+                    selector = selector,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .align(if (isTelPadKey) BiasAlignment(0.5f, 0f) else Alignment.TopEnd),
+                    text = hintedLabel,
+                )
+            }
+            key.foregroundImageVector?.let { imageVector ->
+                SnyggIcon(
+                    modifier = Modifier.align(Alignment.Center),
+                    imageVector = imageVector,
+                    contentDescription = null,
+                )
+            }
         }
-        key.foregroundImageVector?.let { imageVector ->
-            SnyggIcon(
-                modifier = Modifier.align(Alignment.Center),
-                imageVector = imageVector,
-                contentDescription = null,
-            )
+        }
         }
         if (isLiquidGlass) {
-            KeyLensOverlay(refractionAmount = lensRefraction)
+            val heightPx = with(density) { (lensRefraction * 2f).dp.toPx() }
+            val amountPx = with(density) { (lensRefraction * 4f).dp.toPx() }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(
+                        scaleX = pressScale,
+                        scaleY = pressScale,
+                        transformOrigin = TransformOrigin(0.5f, 0.5f),
+                    )
+                    .drawBackdrop(
+                        backdrop = backdrop,
+                        shape = { RoundedCornerShape(14.dp) },
+                        effects = {
+                            lens(
+                                refractionHeight = heightPx,
+                                refractionAmount = amountPx,
+                                chromaticAberration = true,
+                            )
+                        },
+                        highlight = { Highlight.Ambient },
+                    ),
+            )
         }
     }
     if (debugShowTouchBoundaries) {
@@ -420,37 +455,6 @@ private fun TextKeyButton(
                 .requiredSize(key.touchBounds.size.toDpSize())
                 .absoluteOffset { key.touchBounds.topLeft.toIntOffset() }
                 .border(Dp.Hairline, Color.Red),
-        )
-    }
-    }
-}
-
-@Composable
-private fun KeyLensOverlay(refractionAmount: Float) {
-    val backdrop = rememberLayerBackdrop()
-    val density = LocalDensity.current
-    val heightPx = with(density) { (refractionAmount * 2f).dp.toPx() }
-    val amountPx = with(density) { (refractionAmount * 4f).dp.toPx() }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { RoundedCornerShape(14.dp) },
-                effects = {
-                    lens(
-                        refractionHeight = heightPx,
-                        refractionAmount = amountPx,
-                        chromaticAberration = true,
-                    )
-                },
-                highlight = { Highlight.Ambient },
-            ),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .layerBackdrop(backdrop),
         )
     }
 }
