@@ -64,6 +64,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.lens
@@ -445,7 +446,13 @@ private fun KeyLensOverlay(refractionAmount: Float) {
                 },
                 highlight = { Highlight.Ambient },
             ),
-    )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .layerBackdrop(backdrop),
+        )
+    }
 }
 
 @Suppress("unused_parameter")
