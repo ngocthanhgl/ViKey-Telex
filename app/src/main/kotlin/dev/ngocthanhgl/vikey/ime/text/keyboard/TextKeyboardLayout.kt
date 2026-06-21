@@ -425,7 +425,7 @@ private fun TextKeyButton(
         }
         }
         if (isLiquidGlass) {
-            val heightPx = with(density) { (lensRefraction * 1.5f).dp.toPx() }
+            val heightPx = with(density) { (lensRefraction * 2.5f).dp.toPx() }
             val amountPx = with(density) { (lensRefraction * 3f).dp.toPx() }
             Box(
                 modifier = Modifier
@@ -442,6 +442,7 @@ private fun TextKeyButton(
                             lens(
                                 refractionHeight = heightPx,
                                 refractionAmount = amountPx,
+                                depthEffect = true,
                                 chromaticAberration = true,
                             )
                         },
