@@ -49,7 +49,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -57,6 +56,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
@@ -106,6 +106,7 @@ import org.florisboard.lib.snygg.ui.SnyggIcon
 import org.florisboard.lib.snygg.ui.SnyggText
 import org.florisboard.lib.snygg.ui.rememberSnyggThemeQuery
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.sqrt
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -127,6 +128,15 @@ fun TextKeyboardLayout(
     val glideShowTrail by prefs.glide.showTrail.collectAsState()
     val glideTrailStyle = rememberSnyggThemeQuery(FlorisImeUi.GlideTrail.elementName)
     val glideTrailColor = glideTrailStyle.foreground(default = Color.Green)
+    val isLiquidGlass = LocalLiquidGlassEnabled.current
+    val accentStyle = rememberSnyggThemeQuery(FlorisImeUi.KeyHint.elementName)
+    val accentColor = accentStyle.foreground(default = Color(0xFF64C8FF))
+    val anyKeyPressed by remember { derivedStateOf { keyboard.keys().any { it.isPressed } } }
+    val glowAlpha by animateFloatAsState(
+        targetValue = if (isLiquidGlass && anyKeyPressed) 0.50f else 0f,
+        animationSpec = tween(durationMillis = 100),
+        label = "glowAlpha",
+    )
 
     val controller = remember { TextKeyboardLayoutController(context) }.also {
         it.keyboard = keyboard
@@ -194,6 +204,27 @@ fun TextKeyboardLayout(
             }
             .drawWithContent {
                 drawContent()
+                if (isLiquidGlass && glowAlpha > 0.001f) {
+                    for (textKey in keyboard.keys()) {
+                        if (textKey.isPressed) {
+                            val c = textKey.visibleBounds.center
+                            val r = max(
+                                textKey.visibleBounds.width,
+                                textKey.visibleBounds.height,
+                            ) * 1.5f
+                            drawCircle(
+                                brush = Brush.radialGradient(
+                                    0.0f to accentColor.copy(alpha = glowAlpha * 0.30f),
+                                    0.3f to accentColor.copy(alpha = glowAlpha * 0.12f),
+                                    0.7f to accentColor.copy(alpha = glowAlpha * 0.03f),
+                                    1.0f to Color.Transparent,
+                                ),
+                                radius = r,
+                                center = Offset(c.x, c.y),
+                            )
+                        }
+                    }
+                }
                 if (glideEnabled && glideShowTrail) {
                     val targetDist = 3.0f
                     val radius = 20.0f
@@ -342,14 +373,9 @@ private fun TextKeyButton(
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     val pressScale by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 0.93f else 1f,
+        targetValue = if (isLiquidGlass && key.isPressed) 1.15f else 1f,
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f),
         label = "pressScale",
-    )
-    val glowAlpha by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 0.50f else 0f,
-        animationSpec = tween(durationMillis = 100),
-        label = "glowAlpha",
     )
     SnyggBox(
         FlorisImeUi.Key.elementName,
@@ -360,25 +386,10 @@ private fun TextKeyButton(
             .graphicsLayer(
                 scaleX = pressScale,
                 scaleY = pressScale,
+                transformOrigin = TransformOrigin(0.5f, 0.5f),
             )
             .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() },
     ) {
-        if (isLiquidGlass && glowAlpha > 0.001f) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                0.0f to Color.White.copy(alpha = glowAlpha * 0.45f),
-                                0.6f to Color.White.copy(alpha = glowAlpha * 0.10f),
-                                1.0f to Color.Transparent,
-                            ),
-                            radius = this.size.minDimension * 0.65f,
-                        )
-                    },
-            )
-        }
         val isTelPadKey = key.computedData.type == KeyType.NUMERIC && evaluator.keyboard.mode == KeyboardMode.PHONE
         key.label?.let { label ->
             var customLabel = label

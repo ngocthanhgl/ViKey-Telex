@@ -1,10 +1,10 @@
 {
   "$schema": "https://schemas.florisboard.org/snygg/v2/stylesheet",
   "@defines": {
-    "--glass-bg": "rgba(8,12,24,0.82)",
+    "--glass-bg": "rgba(0,0,0,1)",
     "--glass-border": "rgba(180,210,255,0.18)",
     "--glass-edge": "rgba(200,220,255,0.10)",
-    "--glass-rim": "rgba(220,235,255,0.08)",
+    "--glass-rim": "rgba(200,220,255,0.18)",
     "--k": "rgba(200,215,240,0.06)",
     "--tk": "rgba(210,225,250,0.85)",
     "--k-dim": "rgba(200,215,240,0.04)",
@@ -32,7 +32,7 @@
     "--shape-key": "rounded-corner(14dp,14dp,14dp,14dp)",
     "--shape-pill": "rounded-corner(22dp,22dp,22dp,22dp)",
     "--shape-var": "rounded-corner(12dp,12dp,12dp,12dp)",
-    "--shadow-elevation": "3dp"
+    "--shadow-elevation": "0dp"
   },
   "window": {
     "background": "var(--glass-bg)",
@@ -42,7 +42,7 @@
     "border-width": "1dp"
   },
   "window[windowmode=`floating`]": {
-    "shadow-elevation": "8dp",
+    "shadow-elevation": "0dp",
     "shape": "rounded-corner(5%,5%,5%,5%)",
     "border-color": "var(--glass-border)",
     "border-width": "1dp"
@@ -180,7 +180,7 @@
     "foreground": "var(--tkpop)",
     "font-size": "22sp",
     "shape": "var(--shape-key)",
-    "shadow-elevation": "2dp",
+    "shadow-elevation": "0dp",
     "border-color": "var(--glass-rim)",
     "border-width": "1dp"
   },
@@ -224,20 +224,20 @@
     "margin": "4dp 4dp 4dp 4dp",
     "padding": "12dp 8dp 12dp 8dp",
     "shape": "var(--shape-var)",
-    "shadow-elevation": "2dp"
+    "shadow-elevation": "0dp"
   },
   "clipboard-item-popup": {
     "background": "var(--k-fn)",
     "foreground": "var(--tk-fn)",
     "margin": "4dp 4dp 4dp 4dp",
     "shape": "var(--shape-var)",
-    "shadow-elevation": "2dp"
+    "shadow-elevation": "0dp"
   },
   "clipboard-clear-all-dialog": {
     "background": "var(--kpop)",
     "foreground": "var(--tkpop)",
     "shape": "var(--shape-var)",
-    "shadow-elevation": "1dp"
+    "shadow-elevation": "0dp"
   },
   "clipboard-clear-all-dialog-message": {
     "padding": "16dp 16dp 16dp 16dp"
@@ -310,7 +310,7 @@
     "foreground": "var(--tkpop)",
     "font-size": "22sp",
     "shape": "var(--shape-key)",
-    "shadow-elevation": "2dp"
+    "shadow-elevation": "0dp"
   },
   "media-emoji-key-popup-element:focus": {
     "background": "var(--kpop-f)",
@@ -341,7 +341,7 @@
     "foreground": "var(--acc)",
     "margin": "6dp 6dp 6dp 6dp",
     "shape": "circle()",
-    "shadow-elevation": "2dp"
+    "shadow-elevation": "0dp"
   },
   "smartbar-extended-actions-toggle": {
     "background": "rgba(0,0,0,0)",

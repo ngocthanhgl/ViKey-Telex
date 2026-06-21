@@ -61,6 +61,7 @@ fun PopupBaseBox(
         elementName = FlorisImeUi.KeyPopupBox.elementName,
         attributes = attributes,
         modifier = modifier,
+        contentAlignment = Alignment.Center,
     ) {
         key.label?.let { label ->
             SnyggBox(
