@@ -37,15 +37,11 @@
   "window": {
     "background": "var(--glass-bg)",
     "foreground": "var(--tb)",
-    "clip": "no",
-    "border-color": "var(--glass-border)",
-    "border-width": "1dp"
+    "clip": "no"
   },
   "window[windowmode=`floating`]": {
     "shadow-elevation": "0dp",
-    "shape": "rounded-corner(5%,5%,5%,5%)",
-    "border-color": "var(--glass-border)",
-    "border-width": "1dp"
+    "shape": "rounded-corner(5%,5%,5%,5%)"
   },
   "window-move-handle[windowmode=`fixed`]": {
     "background": "var(--k-fn)",

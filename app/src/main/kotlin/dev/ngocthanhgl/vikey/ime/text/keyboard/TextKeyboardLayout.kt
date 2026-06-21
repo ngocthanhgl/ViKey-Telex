@@ -131,7 +131,7 @@ fun TextKeyboardLayout(
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     val accentStyle = rememberSnyggThemeQuery(FlorisImeUi.KeyHint.elementName)
     val accentColor = accentStyle.foreground(default = Color(0xFF64C8FF))
-    val anyKeyPressed by remember { derivedStateOf<Boolean> { keyboard.keys().any { key -> key.isPressed } } }
+    val anyKeyPressed by remember { derivedStateOf<Boolean> { keyboard.keys().asSequence().any { it.isPressed } } }
     val glowAlpha by animateFloatAsState(
         targetValue = if (isLiquidGlass && anyKeyPressed) 0.50f else 0f,
         animationSpec = tween(durationMillis = 100),
