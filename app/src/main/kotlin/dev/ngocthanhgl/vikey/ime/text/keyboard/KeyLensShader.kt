@@ -2,16 +2,15 @@ package dev.ngocthanhgl.vikey.ime.text.keyboard
 
 import android.graphics.RuntimeShader
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.RenderEffect
+import androidx.compose.ui.graphics.asComposeRenderEffect
 import android.graphics.RenderEffect as AndroidRenderEffect
 
 private const val KEY_LENS_SHADER = """
@@ -43,13 +42,13 @@ half4 main(float2 fragCoord) {
 }
 """
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun rememberLensRenderEffect(
     isPressed: Boolean,
     keySize: Size,
 ): RenderEffect? {
+    if (Build.VERSION.SDK_INT < 33) return null
+
     val shader = remember { RuntimeShader(KEY_LENS_SHADER) }
     val refraction by animateFloatAsState(
         targetValue = if (isPressed) 1f else 0f,
@@ -61,8 +60,7 @@ fun rememberLensRenderEffect(
         shader.setFloatUniform("refractionAmount", refraction)
     }
     return remember(shader) {
-        RenderEffect.wrap(
-            AndroidRenderEffect.createRuntimeShaderEffect(shader, "inputImage")
-        )
+        AndroidRenderEffect.createRuntimeShaderEffect(shader, "inputImage")
+            .asComposeRenderEffect()
     }
 }
