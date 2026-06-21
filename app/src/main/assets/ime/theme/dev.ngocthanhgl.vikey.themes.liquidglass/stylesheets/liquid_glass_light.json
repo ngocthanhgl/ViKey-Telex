@@ -74,7 +74,7 @@
     "foreground": "var(--tk)",
     "font-size": "22sp",
     "shadow-elevation": "var(--shadow-elevation)",
-    "shape": "var(--shape-key)",
+    "shape": "var(--shape-pill)",
     "text-max-lines": "1",
     "border-color": "var(--glass-rim)",
     "border-width": "1dp"

@@ -67,7 +67,9 @@ import androidx.compose.ui.unit.toSize
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
@@ -348,14 +350,10 @@ private fun TextKeyButton(
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     val backdrop = rememberLayerBackdrop()
-    val lensRefraction by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 12f else 0f,
-        animationSpec = spring(dampingRatio = 0.2f, stiffness = 1200f),
-        label = "lensRefraction",
-    )
+    val lensRefraction = if (isLiquidGlass) 4f else 0f
     val textLift by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 1.50f else 1f,
-        animationSpec = spring(dampingRatio = 0.3f, stiffness = 800f),
+        targetValue = if (isLiquidGlass && key.isPressed) 1.25f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 400f),
         label = "textLift",
     )
     val pressScale by animateFloatAsState(
@@ -429,8 +427,8 @@ private fun TextKeyButton(
         }
         }
         if (isLiquidGlass) {
-            val heightPx = with(density) { (lensRefraction * 2f).dp.toPx() }
-            val amountPx = with(density) { (lensRefraction * 4f).dp.toPx() }
+            val heightPx = with(density) { (lensRefraction * 1f).dp.toPx() }
+            val amountPx = with(density) { (lensRefraction * 2f).dp.toPx() }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -443,6 +441,8 @@ private fun TextKeyButton(
                         backdrop = backdrop,
                         shape = { RoundedCornerShape(14.dp) },
                         effects = {
+                            vibrancy()
+                            blur(8f.dp.toPx())
                             lens(
                                 refractionHeight = heightPx,
                                 refractionAmount = amountPx,
