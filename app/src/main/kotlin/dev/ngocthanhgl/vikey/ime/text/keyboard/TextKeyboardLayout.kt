@@ -349,7 +349,7 @@ private fun TextKeyButton(
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     val backdrop = rememberLayerBackdrop()
-    val lensRefraction = remember { Animatable(if (isLiquidGlass) 3f else 0f) }
+    val lensRefraction = remember { Animatable(if (isLiquidGlass) 5f else 0f) }
     var shouldReachPeak by remember { mutableStateOf(false) }
 
     LaunchedEffect(key.isPressed) {
@@ -367,7 +367,7 @@ private fun TextKeyButton(
 
     LaunchedEffect(key.isPressed, shouldReachPeak) {
         if (!key.isPressed && !shouldReachPeak) {
-            lensRefraction.animateTo(3f, spring(dampingRatio = 0.5f, stiffness = 120f))
+            lensRefraction.animateTo(5f, spring(dampingRatio = 0.28f, stiffness = 220f))
         }
     }
     val textLift by animateFloatAsState(
@@ -447,7 +447,7 @@ private fun TextKeyButton(
         }
         if (isLiquidGlass) {
             val heightPx = with(density) { (lensRefraction.value * 2.5f).dp.toPx() }
-            val amountPx = with(density) { (lensRefraction.value * 3f).dp.toPx() }
+            val amountPx = with(density) { (lensRefraction.value * 1.5f).dp.toPx() }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
