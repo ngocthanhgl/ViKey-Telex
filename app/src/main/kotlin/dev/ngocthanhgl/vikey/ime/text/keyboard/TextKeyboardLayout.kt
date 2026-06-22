@@ -436,8 +436,8 @@ private fun TextKeyButton(
         }
         }
         if (isLiquidGlass) {
-            val heightPx = with(density) { (lensRefraction * 2.5f).dp.toPx() }
-            val amountPx = with(density) { (lensRefraction * 3f).dp.toPx() }
+            val heightPx = with(density) { (lensRefraction.value * 2.5f).dp.toPx() }
+            val amountPx = with(density) { (lensRefraction.value * 3f).dp.toPx() }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
