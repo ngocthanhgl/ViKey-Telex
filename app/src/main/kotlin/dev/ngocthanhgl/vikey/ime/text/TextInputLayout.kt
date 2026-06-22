@@ -36,14 +36,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
@@ -51,6 +55,7 @@ import dev.ngocthanhgl.vikey.ime.smartbar.IncognitoDisplayMode
 import dev.ngocthanhgl.vikey.ime.smartbar.InlineSuggestionsStyleCache
 import dev.ngocthanhgl.vikey.ime.smartbar.Smartbar
 import dev.ngocthanhgl.vikey.ime.smartbar.quickaction.QuickActionsOverflowPanel
+import dev.ngocthanhgl.vikey.ime.text.keyboard.BackgroundPhotoState
 import dev.ngocthanhgl.vikey.ime.text.keyboard.TextKeyboardLayout
 import dev.ngocthanhgl.vikey.ime.theme.FlorisImeUi
 import dev.ngocthanhgl.vikey.keyboardManager
@@ -85,18 +90,36 @@ fun TextInputLayout(
         }
     }
 
+    val bgPhotoBitmap = remember(bgBitmap) { bgBitmap?.asImageBitmap() }
+    var photoWindowPos by remember { mutableStateOf(Offset.Zero) }
+    var photoBoxSize by remember { mutableStateOf(IntSize.Zero) }
+
+    val bgPhotoState = remember(bgPhotoBitmap, photoWindowPos, photoBoxSize) {
+        if (bgPhotoBitmap != null && photoBoxSize != IntSize.Zero) {
+            BackgroundPhotoState(
+                bitmap = bgPhotoBitmap!!,
+                boxSize = photoBoxSize,
+                windowPos = photoWindowPos,
+            )
+        } else null
+    }
+
     InlineSuggestionsStyleCache()
 
     Box(
         modifier = modifier
             .wrapContentWidth()
-            .wrapContentHeight(),
+            .wrapContentHeight()
+            .onGloballyPositioned { coords ->
+                photoWindowPos = coords.positionInWindow()
+                photoBoxSize = coords.size
+            },
     ) {
         if (bgPhotoPath.isNotBlank() && bgBitmap != null) {
             Image(
-                bitmap = bgBitmap!!.asImageBitmap(),
+                bitmap = bgPhotoBitmap!!,
                 contentDescription = null,
-                contentScale = ContentScale.FillWidth,
+                contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .matchParentSize()
                     .alpha(bgPhotoVis / 100f)
@@ -139,7 +162,7 @@ fun TextInputLayout(
                             painter = painterResource(R.drawable.ic_incognito),
                         )
                     }
-                    TextKeyboardLayout(evaluator = evaluator)
+                    TextKeyboardLayout(evaluator = evaluator, backgroundPhoto = bgPhotoState)
                 }
             }
             if (bottomPaddingDp > 0.dp) {

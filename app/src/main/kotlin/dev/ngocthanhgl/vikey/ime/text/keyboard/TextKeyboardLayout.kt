@@ -55,6 +55,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -122,9 +126,16 @@ import kotlin.math.sqrt
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
+data class BackgroundPhotoState(
+    val bitmap: ImageBitmap,
+    val boxSize: IntSize,
+    val windowPos: Offset,
+)
+
 fun TextKeyboardLayout(
     modifier: Modifier = Modifier,
     evaluator: ComputingEvaluator,
+    backgroundPhoto: BackgroundPhotoState? = null,
 ): Unit = with(LocalDensity.current) {
     val prefs by FlorisPreferenceStore
     val context = LocalContext.current
@@ -370,6 +381,7 @@ fun TextKeyboardLayout(
                 textKey, evaluator, desiredKey,
                 debugShowTouchBoundaries,
                 lqConfig = lqConfig,
+                backgroundPhoto = backgroundPhoto,
                 rippleOrigin = rippleOrigin,
                 rippleProgress = rippleRadius.value,
                 onRipple = { center -> rippleOrigin = center },
@@ -395,6 +407,7 @@ private fun TextKeyButton(
     desiredKey: TextKey,
     debugShowTouchBoundaries: Boolean,
     lqConfig: LiquidGlassConfig,
+    backgroundPhoto: BackgroundPhotoState? = null,
     rippleOrigin: Offset? = null,
     rippleProgress: Float = 0f,
     onRipple: ((Offset) -> Unit)? = null,
@@ -414,6 +427,7 @@ private fun TextKeyButton(
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     val backdrop = rememberLayerBackdrop()
+    var keyCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val lensRefraction = remember { Animatable(if (isLiquidGlass) lqConfig.lensIdle else 0f) }
     var shouldReachPeak by remember { mutableStateOf(false) }
 
@@ -474,7 +488,8 @@ private fun TextKeyButton(
     Box(
         modifier = Modifier
             .requiredSize(size)
-            .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() },
+            .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() }
+            .onGloballyPositioned { coords -> keyCoords = coords },
     ) {
         Box(
             modifier = Modifier
@@ -568,6 +583,34 @@ private fun TextKeyButton(
                             )
                         },
                         highlight = { Highlight.Ambient },
+                        onDrawBackdrop = { scope, onDraw ->
+                            val photo = backgroundPhoto
+                            val coords = keyCoords
+                            if (photo != null && coords != null) {
+                                val keyPos = coords.positionInWindow()
+                                val photoPos = photo.windowPos
+                                val relX = keyPos.x - photoPos.x
+                                val relY = keyPos.y - photoPos.y
+                                if (relX >= 0f && relY >= 0f &&
+                                    relX < photo.boxSize.width && relY < photo.boxSize.height
+                                ) {
+                                    scope.drawImage(
+                                        image = photo.bitmap,
+                                        srcOffset = IntOffset(
+                                            (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
+                                            (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
+                                        ),
+                                        srcSize = IntSize(
+                                            (scope.size.width * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
+                                            (scope.size.height * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
+                                        ),
+                                        dstOffset = IntOffset.Zero,
+                                        dstSize = IntSize(scope.size.width.toInt(), scope.size.height.toInt()),
+                                    )
+                                }
+                            }
+                            onDraw(scope)
+                        },
                     ),
             )
         } else if (isLiquidGlass && lqConfig.chromaticEnabled) {
@@ -593,6 +636,34 @@ private fun TextKeyButton(
                             )
                         },
                         highlight = { Highlight.Ambient },
+                        onDrawBackdrop = { scope, onDraw ->
+                            val photo = backgroundPhoto
+                            val coords = keyCoords
+                            if (photo != null && coords != null) {
+                                val keyPos = coords.positionInWindow()
+                                val photoPos = photo.windowPos
+                                val relX = keyPos.x - photoPos.x
+                                val relY = keyPos.y - photoPos.y
+                                if (relX >= 0f && relY >= 0f &&
+                                    relX < photo.boxSize.width && relY < photo.boxSize.height
+                                ) {
+                                    scope.drawImage(
+                                        image = photo.bitmap,
+                                        srcOffset = IntOffset(
+                                            (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
+                                            (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
+                                        ),
+                                        srcSize = IntSize(
+                                            (scope.size.width * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
+                                            (scope.size.height * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
+                                        ),
+                                        dstOffset = IntOffset.Zero,
+                                        dstSize = IntSize(scope.size.width.toInt(), scope.size.height.toInt()),
+                                    )
+                                }
+                            }
+                            onDraw(scope)
+                        },
                     ),
             )
         }

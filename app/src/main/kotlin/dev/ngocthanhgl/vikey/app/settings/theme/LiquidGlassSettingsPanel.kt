@@ -364,7 +364,7 @@ private fun CropPhotoDialog(
                     )
                     Canvas(Modifier.fillMaxSize()) {
                         val cropW = size.width * 0.9f
-                        val cropH = cropW / 3.5f
+                        val cropH = cropW / 2.2f
                         val left = (size.width - cropW) / 2f
                         val top = (size.height - cropH) / 2f
                         val overlay = Color.Black.copy(alpha = 0.5f)
@@ -421,7 +421,7 @@ private fun CropPhotoDialog(
                             val ox = (dw - rw) / 2f
                             val oy = (dh - rh) / 2f
                             val cw = dw * 0.9f
-                            val ch = cw / 3.5f
+                            val ch = cw / 2.2f
                             val cl = (dw - cw) / 2f
                             val ct = (dh - ch) / 2f
                             val cx = dw / 2f
