@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -41,6 +42,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.ime.smartbar.IncognitoDisplayMode
@@ -88,9 +90,10 @@ fun TextInputLayout(
             .fillMaxWidth()
             .wrapContentHeight(),
     ) {
-        if (bgPhotoPath.isNotBlank() && bgBitmap != null) {
+        val photoBitmap = bgBitmap
+        if (bgPhotoPath.isNotBlank() && photoBitmap != null) {
             Image(
-                bitmap = bgBitmap.asImageBitmap(),
+                bitmap = photoBitmap.asImageBitmap(),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier

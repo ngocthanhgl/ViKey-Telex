@@ -105,6 +105,4 @@ sealed interface ImeInsets {
             }
         }
     }
-        }
-    }
 }

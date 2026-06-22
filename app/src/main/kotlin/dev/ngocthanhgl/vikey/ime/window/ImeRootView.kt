@@ -55,17 +55,16 @@ class ImeRootView(val ims: FlorisImeService) : AbstractComposeView(ims) {
             /* width = */ LayoutParams.MATCH_PARENT,
             /* height = */ LayoutParams.MATCH_PARENT,
         )
-    }
-
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        if (right == 0 || bottom == 0) return
-        val wc = ims.windowController
-        if (wc.activeRootInsets.value == ImeInsets.Root.Zero) {
-            val bounds = IntRect(left, top, right, bottom)
-            val metrics = ims.resources.displayMetrics
-            val d = Density(metrics.density, metrics.scaledDensity)
-            with(d) { wc.updateRootInsets(ImeInsets.Root.of(bounds)) }
+        post {
+            val wc = ims.windowController
+            if (measuredWidth > 0 && measuredHeight > 0
+                && wc.activeRootInsets.value == ImeInsets.Root.Zero
+            ) {
+                val bounds = IntRect(0, 0, measuredWidth, measuredHeight)
+                val metrics = ims.resources.displayMetrics
+                val d = Density(metrics.density, metrics.scaledDensity)
+                with(d) { wc.updateRootInsets(ImeInsets.Root.of(bounds)) }
+            }
         }
     }
 
