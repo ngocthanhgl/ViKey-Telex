@@ -21,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.R
@@ -53,6 +55,18 @@ class ImeRootView(val ims: FlorisImeService) : AbstractComposeView(ims) {
             /* width = */ LayoutParams.MATCH_PARENT,
             /* height = */ LayoutParams.MATCH_PARENT,
         )
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (right == 0 || bottom == 0) return
+        val wc = ims.windowController
+        if (wc.activeRootInsets.value == ImeInsets.Root.Zero) {
+            val bounds = IntRect(left, top, right, bottom)
+            val metrics = ims.resources.displayMetrics
+            val d = Density(metrics.density, metrics.scaledDensity)
+            with(d) { wc.updateRootInsets(ImeInsets.Root.of(bounds)) }
+        }
     }
 
     @Composable

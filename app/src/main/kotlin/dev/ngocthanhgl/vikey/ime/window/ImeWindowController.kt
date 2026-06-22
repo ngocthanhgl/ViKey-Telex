@@ -75,13 +75,15 @@ class ImeWindowController(
      *
      * This value is used for responding to [onComputeInsets] by the accompanying IME service class.
      *
-     * May be null. If null, this indicates the window insets are unknown, and no insets will be reported
-     * back to the IME service class in this case.
+     * Initialized to [ImeInsets.Window.Zero] and replaced with the actual bounds once Compose
+     * layout completes via [ImeWindow]. The pane-inset path (layout-driven, not draw-driven) uses
+     * `contentTopInsets = windowBounds.top`, so a zero value simply means "no keyboard known yet"
+     * and gets overwritten on the next traversal.
      *
      * @see ImeWindow
      */
-    val activeWindowInsets: StateFlow<ImeInsets.Window?>
-        field = MutableStateFlow(null)
+    val activeWindowInsets: StateFlow<ImeInsets.Window>
+        field = MutableStateFlow(ImeInsets.Window.Zero)
 
     /**
      * Holds the active window config for the current type guess based on the root insets.
@@ -222,12 +224,16 @@ class ImeWindowController(
         isFullscreenInputRequired: Boolean,
     ) {
         val rootInsets = activeRootInsets.value
-        val windowInsets = activeWindowInsets.value ?: return
+        val windowInsets = activeWindowInsets.value
         val rootBounds = rootInsets.boundsPx
         val windowBounds = windowInsets.boundsPx
         val windowSpec = activeWindowSpec.value
         val editorState = editor.state.value
 
+        if (rootBounds.width == 0 || rootBounds.height == 0) {
+            outInsets.touchableInsets = InputMethodService.Insets.TOUCHABLE_INSETS_CONTENT
+            return
+        }
         when (windowSpec) {
             is ImeWindowSpec.Fixed -> {
                 outInsets.contentTopInsets = windowBounds.top

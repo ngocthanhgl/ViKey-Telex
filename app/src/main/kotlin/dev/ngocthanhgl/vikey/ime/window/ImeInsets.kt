@@ -90,12 +90,11 @@ sealed interface ImeInsets {
         override val boundsPx: IntRect,
     ) : ImeInsets {
         companion object {
-            /**
-             * Returns a new window insets instance for given parameters.
-             *
-             * @param density The density of the screen. Must be provided contextual.
-             * @param boundsPx The window bounds measured in px.
-             */
+            val Zero = Window(
+                boundsDp = DpRect(0.dp, 0.dp, 0.dp, 0.dp),
+                boundsPx = IntRect.Zero,
+            )
+
             context(density: Density)
             fun of(boundsPx: IntRect): Window {
                 val boundsDp = boundsPx.toDpRect()
@@ -104,6 +103,8 @@ sealed interface ImeInsets {
                     boundsPx = boundsPx,
                 )
             }
+        }
+    }
         }
     }
 }
