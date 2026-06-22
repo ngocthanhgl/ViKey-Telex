@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.patrickgold.jetpref.datastore.model.collectAsState
@@ -220,8 +221,12 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
             CropPhotoDialog(
                 imageUri = uri,
                 context = context,
-                onSave = { path ->
-                    scope.launch { prefs.backgroundPhoto.imagePath.set(path) }
+                onSave = { path, vis, blur ->
+                    scope.launch {
+                        prefs.backgroundPhoto.imagePath.set(path)
+                        prefs.backgroundPhoto.visibility.set(vis)
+                        prefs.backgroundPhoto.blurRadius.set(blur)
+                    }
                     cropUri = null
                 },
                 onDismiss = { cropUri = null },
@@ -299,7 +304,7 @@ private fun PrefSlider(
 private fun CropPhotoDialog(
     imageUri: Uri,
     context: Context,
-    onSave: (String) -> Unit,
+    onSave: (String, Int, Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val bitmap = remember(imageUri) {
@@ -317,6 +322,8 @@ private fun CropPhotoDialog(
     var offsetY by remember { mutableFloatStateOf(0f) }
     var visibility by remember { mutableFloatStateOf(100f) }
     var blurRadius by remember { mutableFloatStateOf(0f) }
+    var displayW by remember { mutableFloatStateOf(0f) }
+    var displayH by remember { mutableFloatStateOf(0f) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -327,6 +334,10 @@ private fun CropPhotoDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
+                        .onGloballyPositioned { coords ->
+                            displayW = coords.size.width.toFloat()
+                            displayH = coords.size.height.toFloat()
+                        }
                         .pointerInput(Unit) {
                             detectTransformGestures { _, pan, zoom, _ ->
                                 scale = (scale * zoom).coerceIn(0.5f, 5f)
@@ -399,12 +410,41 @@ private fun CropPhotoDialog(
                     dir.mkdirs()
                     val file = File(dir, "bg.jpg")
                     try {
-                        FileOutputStream(file).use { out ->
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                        val bw = bitmap.width.toFloat()
+                        val bh = bitmap.height.toFloat()
+                        val dw = displayW
+                        val dh = displayH
+                        if (dw > 0f && dh > 0f && scale > 0f) {
+                            val fs = if (dw / bw < dh / bh) dw / bw else dh / bh
+                            val rw = bw * fs
+                            val rh = bh * fs
+                            val ox = (dw - rw) / 2f
+                            val oy = (dh - rh) / 2f
+                            val cw = dw * 0.9f
+                            val ch = cw / 3.5f
+                            val cl = (dw - cw) / 2f
+                            val ct = (dh - ch) / 2f
+                            val cx = dw / 2f
+                            val cy = dh / 2f
+                            fun ix(px: Float) = (px - cx - offsetX) / scale + cx
+                            fun iy(py: Float) = (py - cy - offsetY) / scale + cy
+                            val bl = ((ix(cl) - ox) / fs).toInt().coerceIn(0, bitmap.width)
+                            val bt = ((iy(ct) - oy) / fs).toInt().coerceIn(0, bitmap.height)
+                            val br = ((ix(cl + cw) - ox) / fs).toInt().coerceIn(1, bitmap.width)
+                            val bb = ((iy(ct + ch) - oy) / fs).toInt().coerceIn(1, bitmap.height)
+                            val cropped = Bitmap.createBitmap(bitmap, bl, bt, br - bl, bb - bt)
+                            FileOutputStream(file).use { out ->
+                                cropped.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                            }
+                            cropped.recycle()
+                        } else {
+                            FileOutputStream(file).use { out ->
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                            }
                         }
-                        onSave("photos/bg.jpg")
+                        onSave("photos/bg.jpg", visibility.toInt(), blurRadius.toInt())
                     } catch (_: Exception) {
-                        onSave("")
+                        onSave("", 100, 0)
                     }
                 },
                 shape = RoundedCornerShape(50.dp),

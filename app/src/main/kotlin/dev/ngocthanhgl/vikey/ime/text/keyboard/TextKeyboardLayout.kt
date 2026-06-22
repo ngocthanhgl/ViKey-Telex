@@ -474,7 +474,8 @@ private fun TextKeyButton(
     Box(
         modifier = Modifier
             .requiredSize(size)
-            .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() },
+            .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() }
+            .layerBackdrop(backdrop),
     ) {
         Box(
             modifier = Modifier
@@ -485,11 +486,6 @@ private fun TextKeyButton(
                     transformOrigin = TransformOrigin(0.5f, 0.5f),
                 ),
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .layerBackdrop(backdrop),
-            ) {
             SnyggBox(
                 FlorisImeUi.Key.elementName,
                 attributes = attributes,
@@ -542,7 +538,6 @@ private fun TextKeyButton(
                     contentDescription = null,
                 )
             }
-        }
         }
         }
         if (isLiquidGlass && lqConfig.depthEnabled) {
