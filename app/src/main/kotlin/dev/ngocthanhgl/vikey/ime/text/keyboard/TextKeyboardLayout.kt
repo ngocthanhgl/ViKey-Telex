@@ -350,15 +350,25 @@ private fun TextKeyButton(
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     val backdrop = rememberLayerBackdrop()
     val lensRefraction = remember { Animatable(if (isLiquidGlass) 5f else 0f) }
-    val targetLensRefraction = if (isLiquidGlass && key.isPressed) 8f else if (isLiquidGlass) 5f else 0f
-    LaunchedEffect(targetLensRefraction) {
-        lensRefraction.animateTo(
-            targetValue = targetLensRefraction,
-            animationSpec = spring(
-                dampingRatio = 0.5f,
-                stiffness = if (targetLensRefraction > lensRefraction.value) 4000f else 120f,
-            ),
-        )
+    var shouldReachPeak by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key.isPressed) {
+        if (key.isPressed) {
+            shouldReachPeak = true
+        }
+    }
+
+    LaunchedEffect(shouldReachPeak) {
+        if (shouldReachPeak) {
+            lensRefraction.snapTo(8f)
+            shouldReachPeak = false
+        }
+    }
+
+    LaunchedEffect(key.isPressed, shouldReachPeak) {
+        if (!key.isPressed && !shouldReachPeak) {
+            lensRefraction.animateTo(5f, spring(dampingRatio = 0.5f, stiffness = 120f))
+        }
     }
     val textLift by animateFloatAsState(
         targetValue = if (isLiquidGlass && key.isPressed) 1.25f else 1f,
