@@ -138,6 +138,8 @@ fun TextKeyboardLayout(
     val glideTrailStyle = rememberSnyggThemeQuery(FlorisImeUi.GlideTrail.elementName)
     val glideTrailColor = glideTrailStyle.foreground(default = Color.Green)
     val isLiquidGlass = LocalLiquidGlassEnabled.current
+    var rippleOrigin by remember { mutableStateOf<Offset?>(null) }
+    val rippleRadius = remember { Animatable(0f) }
 
     val controller = remember { TextKeyboardLayoutController(context) }.also {
         it.keyboard = keyboard
@@ -322,8 +324,6 @@ fun TextKeyboardLayout(
         popupUiController.keyHintConfiguration = prefs.keyboard.keyHintConfiguration()
         controller.popupUiController = popupUiController
         val debugShowTouchBoundaries by prefs.devtools.showKeyTouchBoundaries.collectAsState()
-        var rippleOrigin by remember { mutableStateOf<Offset?>(null) }
-        val rippleRadius = remember { Animatable(0f) }
 
         LaunchedEffect(rippleOrigin) {
             val origin = rippleOrigin ?: return@LaunchedEffect
