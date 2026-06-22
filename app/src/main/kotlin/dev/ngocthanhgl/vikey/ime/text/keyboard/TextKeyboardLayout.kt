@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.ui.Modifier
@@ -348,11 +349,17 @@ private fun TextKeyButton(
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     val backdrop = rememberLayerBackdrop()
-    val lensRefraction by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 8f else if (isLiquidGlass) 3f else 0f,
-        animationSpec = spring(dampingRatio = 0.5f, stiffness = 350f),
-        label = "lensRefraction",
-    )
+    val lensRefraction = remember { Animatable(if (isLiquidGlass) 5f else 0f) }
+    val targetLensRefraction = if (isLiquidGlass && key.isPressed) 8f else if (isLiquidGlass) 5f else 0f
+    LaunchedEffect(targetLensRefraction) {
+        lensRefraction.animateTo(
+            targetValue = targetLensRefraction,
+            animationSpec = spring(
+                dampingRatio = 0.5f,
+                stiffness = if (targetLensRefraction > lensRefraction.value) 600f else 250f,
+            ),
+        )
+    }
     val textLift by animateFloatAsState(
         targetValue = if (isLiquidGlass && key.isPressed) 1.25f else 1f,
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 400f),
