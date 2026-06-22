@@ -140,6 +140,35 @@ fun TextKeyboardLayout(
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     var rippleOrigin by remember { mutableStateOf<Offset?>(null) }
     val rippleRadius = remember { Animatable(0f) }
+    val lqLensIdle by prefs.liquidGlass.lensIdle.collectAsState()
+    val lqLensPeak by prefs.liquidGlass.lensPeak.collectAsState()
+    val lqHeightMult by prefs.liquidGlass.heightMultiplier.collectAsState()
+    val lqAmountMult by prefs.liquidGlass.amountMultiplier.collectAsState()
+    val lqTextLift by prefs.liquidGlass.textLift.collectAsState()
+    val lqPressScale by prefs.liquidGlass.pressScale.collectAsState()
+    val lqChromatic by prefs.liquidGlass.chromaticEnabled.collectAsState()
+    val lqDepth by prefs.liquidGlass.depthEnabled.collectAsState()
+    val lqRipple by prefs.liquidGlass.rippleEnabled.collectAsState()
+    val lqDamping by prefs.liquidGlass.reboundDamping.collectAsState()
+    val lqStiffness by prefs.liquidGlass.reboundStiffness.collectAsState()
+    val lqConfig = remember(
+        lqLensIdle, lqLensPeak, lqHeightMult, lqAmountMult, lqTextLift, lqPressScale,
+        lqChromatic, lqDepth, lqRipple, lqDamping, lqStiffness,
+    ) {
+        LiquidGlassConfig(
+            lensIdle = lqLensIdle / 100f,
+            lensPeak = lqLensPeak / 100f,
+            heightMultiplier = lqHeightMult / 100f,
+            amountMultiplier = lqAmountMult / 100f,
+            textLift = lqTextLift / 100f,
+            pressScale = lqPressScale / 100f,
+            chromaticEnabled = lqChromatic,
+            depthEnabled = lqDepth,
+            rippleEnabled = lqRipple,
+            reboundDamping = lqDamping / 100f,
+            reboundStiffness = lqStiffness.toFloat(),
+        )
+    }
 
     val controller = remember { TextKeyboardLayoutController(context) }.also {
         it.keyboard = keyboard
@@ -207,7 +236,7 @@ fun TextKeyboardLayout(
             }
             .drawWithContent {
                 drawContent()
-                if (rippleOrigin != null && isLiquidGlass) {
+                if (rippleOrigin != null && isLiquidGlass && lqConfig.rippleEnabled) {
                     val maxRadius = size.width
                     val progress = (rippleRadius.value / maxRadius).coerceIn(0f, 1f)
                     drawCircle(
@@ -330,7 +359,7 @@ fun TextKeyboardLayout(
             rippleRadius.snapTo(0f)
             rippleRadius.animateTo(
                 keyboardWidth,
-                animationSpec = tween(500, easing = LinearEasing),
+                animationSpec = tween(1000, easing = LinearEasing),
             )
             rippleOrigin = null
         }
@@ -339,6 +368,7 @@ fun TextKeyboardLayout(
             TextKeyButton(
                 textKey, evaluator, desiredKey,
                 debugShowTouchBoundaries,
+                lqConfig = lqConfig,
                 rippleOrigin = rippleOrigin,
                 rippleProgress = rippleRadius.value,
                 onRipple = { center -> rippleOrigin = center },
@@ -363,6 +393,7 @@ private fun TextKeyButton(
     evaluator: ComputingEvaluator,
     desiredKey: TextKey,
     debugShowTouchBoundaries: Boolean,
+    lqConfig: LiquidGlassConfig,
     rippleOrigin: Offset? = null,
     rippleProgress: Float = 0f,
     onRipple: ((Offset) -> Unit)? = null,
@@ -382,51 +413,60 @@ private fun TextKeyButton(
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     val backdrop = rememberLayerBackdrop()
-    val lensRefraction = remember { Animatable(if (isLiquidGlass) 5f else 0f) }
+    val lensRefraction = remember { Animatable(if (isLiquidGlass) lqConfig.lensIdle else 0f) }
     var shouldReachPeak by remember { mutableStateOf(false) }
 
     LaunchedEffect(key.isPressed) {
         if (key.isPressed) {
             shouldReachPeak = true
-            val center = Offset(
-                key.visibleBounds.center.x,
-                key.visibleBounds.center.y,
-            )
-            onRipple?.invoke(center)
+            if (lqConfig.rippleEnabled) {
+                val center = Offset(
+                    key.visibleBounds.center.x,
+                    key.visibleBounds.center.y,
+                )
+                onRipple?.invoke(center)
+            }
         }
     }
 
     LaunchedEffect(shouldReachPeak) {
         if (shouldReachPeak) {
-            lensRefraction.snapTo(8f)
+            lensRefraction.snapTo(lqConfig.lensPeak)
             shouldReachPeak = false
         }
     }
 
     LaunchedEffect(key.isPressed, shouldReachPeak) {
         if (!key.isPressed && !shouldReachPeak) {
-            lensRefraction.animateTo(5f, spring(dampingRatio = 0.28f, stiffness = 220f))
+            lensRefraction.animateTo(lqConfig.lensIdle, spring(dampingRatio = lqConfig.reboundDamping, stiffness = lqConfig.reboundStiffness))
         }
     }
+
+    LaunchedEffect(lqConfig.lensIdle) {
+        if (!key.isPressed && !shouldReachPeak) {
+            lensRefraction.snapTo(lqConfig.lensIdle)
+        }
+    }
+
     val textLift by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 1.4f else 1f,
+        targetValue = if (isLiquidGlass && key.isPressed) lqConfig.textLift else 1f,
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 400f),
         label = "textLift",
     )
     val pressScale by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 1.08f else 1f,
+        targetValue = if (isLiquidGlass && key.isPressed) lqConfig.pressScale else 1f,
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f),
         label = "pressScale",
     )
-    val rippleBoost = if (rippleOrigin != null && onRipple != null) {
+    val rippleBoost = if (rippleOrigin != null && onRipple != null && lqConfig.rippleEnabled) {
         val keyCenter = Offset(
             key.visibleBounds.center.x,
             key.visibleBounds.center.y,
         )
         val dist = (rippleOrigin!! - keyCenter).getDistance()
         val fromWave = rippleProgress - dist
-        if (fromWave in -30f..30f) {
-            exp(-(fromWave * fromWave) / (2f * 15f * 15f)) * 2.5f
+        if (fromWave in -60f..60f) {
+            exp(-(fromWave * fromWave) / (2f * 30f * 30f)) * 5f
         } else 0f
     } else 0f
     val effectiveLens = lensRefraction.value + rippleBoost
@@ -505,8 +545,8 @@ private fun TextKeyButton(
         }
         }
         if (isLiquidGlass) {
-            val heightPx = with(density) { (effectiveLens * 2.5f).dp.toPx() }
-            val amountPx = with(density) { (effectiveLens * 1.5f).dp.toPx() }
+            val heightPx = with(density) { (effectiveLens * lqConfig.heightMultiplier).dp.toPx() }
+            val amountPx = with(density) { (effectiveLens * lqConfig.amountMultiplier).dp.toPx() }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -522,8 +562,8 @@ private fun TextKeyButton(
                             lens(
                                 refractionHeight = heightPx,
                                 refractionAmount = amountPx,
-                                depthEffect = true,
-                                chromaticAberration = true,
+                                depthEffect = lqConfig.depthEnabled,
+                                chromaticAberration = lqConfig.chromaticEnabled,
                             )
                         },
                         highlight = { Highlight.Ambient },
@@ -1159,3 +1199,17 @@ private class TextKeyboardLayoutController(
         }
     }
 }
+
+private data class LiquidGlassConfig(
+    val lensIdle: Float,
+    val lensPeak: Float,
+    val heightMultiplier: Float,
+    val amountMultiplier: Float,
+    val textLift: Float,
+    val pressScale: Float,
+    val chromaticEnabled: Boolean,
+    val depthEnabled: Boolean,
+    val rippleEnabled: Boolean,
+    val reboundDamping: Float,
+    val reboundStiffness: Float,
+)

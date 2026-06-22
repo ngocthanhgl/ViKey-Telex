@@ -47,6 +47,7 @@ import org.florisboard.lib.compose.FlorisOutlinedBox
 import org.florisboard.lib.compose.defaultFlorisOutlinedBox
 import org.florisboard.lib.compose.rippleClickable
 import org.florisboard.lib.compose.stringRes
+import dev.ngocthanhgl.vikey.app.settings.theme.LiquidGlassSettingsPanel
 
 enum class ThemeManagerScreenAction(val id: String) {
     SELECT_DAY("select-day"),
@@ -138,6 +139,9 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) = FlorisScreen {
                         },
                     )
                 }
+            }
+            if (extensionId == "dev.ngocthanhgl.vikey.themes.liquidglass") {
+                LiquidGlassSettingsPanel(prefs)
             }
         }
     }

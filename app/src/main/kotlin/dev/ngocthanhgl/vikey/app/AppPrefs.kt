@@ -765,6 +765,54 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
         )
     }
 
+    val liquidGlass = LiquidGlass()
+    inner class LiquidGlass {
+        val lensIdle = int(
+            key = "liquid_glass__lens_idle",
+            default = 500,
+        )
+        val lensPeak = int(
+            key = "liquid_glass__lens_peak",
+            default = 800,
+        )
+        val heightMultiplier = int(
+            key = "liquid_glass__height_mult",
+            default = 250,
+        )
+        val amountMultiplier = int(
+            key = "liquid_glass__amount_mult",
+            default = 150,
+        )
+        val textLift = int(
+            key = "liquid_glass__text_lift",
+            default = 140,
+        )
+        val pressScale = int(
+            key = "liquid_glass__press_scale",
+            default = 108,
+        )
+        val chromaticEnabled = boolean(
+            key = "liquid_glass__chromatic",
+            default = true,
+        )
+        val depthEnabled = boolean(
+            key = "liquid_glass__depth",
+            default = true,
+        )
+        val rippleEnabled = boolean(
+            key = "liquid_glass__ripple",
+            default = true,
+        )
+        val reboundDamping = int(
+            key = "liquid_glass__rebound_damping",
+            default = 28,
+        )
+        val reboundStiffness = int(
+            key = "liquid_glass__rebound_stiff",
+            default = 220,
+        )
+    }
+
     override fun migrate(entry: PreferenceMigrationEntry): PreferenceMigrationEntry {
         return when (entry.key) {
 
