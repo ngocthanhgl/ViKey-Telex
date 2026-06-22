@@ -48,13 +48,16 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -112,6 +115,7 @@ import org.florisboard.lib.snygg.ui.SnyggIcon
 import org.florisboard.lib.snygg.ui.SnyggText
 import org.florisboard.lib.snygg.ui.rememberSnyggThemeQuery
 import kotlin.math.abs
+import kotlin.math.exp
 import kotlin.math.sqrt
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -201,6 +205,16 @@ fun TextKeyboardLayout(
             }
             .drawWithContent {
                 drawContent()
+                if (rippleOrigin != null && isLiquidGlass) {
+                    val maxRadius = size.width
+                    val progress = (rippleRadius.value / maxRadius).coerceIn(0f, 1f)
+                    drawCircle(
+                        Color.White.copy(alpha = 0.15f * (1f - progress)),
+                        rippleRadius.value,
+                        rippleOrigin!!,
+                        style = Stroke(2.dp.toPx()),
+                    )
+                }
                 if (glideEnabled && glideShowTrail) {
                     val targetDist = 3.0f
                     val radius = 20.0f
@@ -308,10 +322,26 @@ fun TextKeyboardLayout(
         popupUiController.keyHintConfiguration = prefs.keyboard.keyHintConfiguration()
         controller.popupUiController = popupUiController
         val debugShowTouchBoundaries by prefs.devtools.showKeyTouchBoundaries.collectAsState()
+        var rippleOrigin by remember { mutableStateOf<Offset?>(null) }
+        val rippleRadius = remember { Animatable(0f) }
+
+        LaunchedEffect(rippleOrigin) {
+            val origin = rippleOrigin ?: return@LaunchedEffect
+            rippleRadius.snapTo(0f)
+            rippleRadius.animateTo(
+                keyboardWidth,
+                animationSpec = tween(500, easing = LinearEasing),
+            )
+            rippleOrigin = null
+        }
+
         for (textKey in keyboard.keys()) {
             TextKeyButton(
                 textKey, evaluator, desiredKey,
                 debugShowTouchBoundaries,
+                rippleOrigin = rippleOrigin,
+                rippleProgress = rippleRadius.value,
+                onRipple = { center -> rippleOrigin = center },
             )
         }
 
@@ -333,6 +363,9 @@ private fun TextKeyButton(
     evaluator: ComputingEvaluator,
     desiredKey: TextKey,
     debugShowTouchBoundaries: Boolean,
+    rippleOrigin: Offset? = null,
+    rippleProgress: Float = 0f,
+    onRipple: ((Offset) -> Unit)? = null,
 ) = with(LocalDensity.current) {
     val attributes = mapOf(
         FlorisImeUi.Attr.Code to key.computedData.code,
@@ -355,6 +388,11 @@ private fun TextKeyButton(
     LaunchedEffect(key.isPressed) {
         if (key.isPressed) {
             shouldReachPeak = true
+            val center = Offset(
+                key.visibleBounds.center.x,
+                key.visibleBounds.center.y,
+            )
+            onRipple?.invoke(center)
         }
     }
 
@@ -371,7 +409,7 @@ private fun TextKeyButton(
         }
     }
     val textLift by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 1.25f else 1f,
+        targetValue = if (isLiquidGlass && key.isPressed) 1.4f else 1f,
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 400f),
         label = "textLift",
     )
@@ -380,6 +418,18 @@ private fun TextKeyButton(
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f),
         label = "pressScale",
     )
+    val rippleBoost = if (rippleOrigin != null && onRipple != null) {
+        val keyCenter = Offset(
+            key.visibleBounds.center.x,
+            key.visibleBounds.center.y,
+        )
+        val dist = (rippleOrigin!! - keyCenter).getDistance()
+        val fromWave = rippleProgress - dist
+        if (fromWave in -30f..30f) {
+            exp(-(fromWave * fromWave) / (2f * 15f * 15f)) * 2.5f
+        } else 0f
+    } else 0f
+    val effectiveLens = lensRefraction.value + rippleBoost
     Box(
         modifier = Modifier
             .requiredSize(size)
@@ -417,12 +467,21 @@ private fun TextKeyButton(
                         SpaceBarMode.SPACE_BAR_KEY -> customLabel = "␣"
                     }
                 }
-                SnyggText(
+                Box(
                     modifier = Modifier
                         .wrapContentSize()
+                        .graphicsLayer(
+                            scaleX = textLift,
+                            scaleY = textLift,
+                            transformOrigin = TransformOrigin(0.5f, 0.5f),
+                        )
                         .align(if (isTelPadKey) BiasAlignment(-0.5f, 0f) else Alignment.Center),
-                    text = customLabel,
-                )
+                ) {
+                    SnyggText(
+                        modifier = Modifier.wrapContentSize(),
+                        text = customLabel,
+                    )
+                }
             }
             key.hintedLabel?.let { hintedLabel ->
                 SnyggText(
@@ -446,8 +505,8 @@ private fun TextKeyButton(
         }
         }
         if (isLiquidGlass) {
-            val heightPx = with(density) { (lensRefraction.value * 2.5f).dp.toPx() }
-            val amountPx = with(density) { (lensRefraction.value * 1.5f).dp.toPx() }
+            val heightPx = with(density) { (effectiveLens * 2.5f).dp.toPx() }
+            val amountPx = with(density) { (effectiveLens * 1.5f).dp.toPx() }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
