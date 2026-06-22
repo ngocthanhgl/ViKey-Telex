@@ -36,7 +36,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -106,7 +108,21 @@ fun TextInputLayout(
                 .fillMaxWidth()
                 .wrapContentHeight(),
         ) {
-            Smartbar()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .then(
+                        if (bgPhotoPath.isNotBlank() && bgBitmap != null) {
+                            Modifier.drawBehind {
+                                val overlayAlpha = (bgPhotoVis / 100f) * 0.35f
+                                drawRect(Color.Black.copy(alpha = overlayAlpha), size = size)
+                            }
+                        } else Modifier
+                    ),
+            ) {
+                Smartbar()
+            }
             if (state.isActionsOverflowVisible) {
                 QuickActionsOverflowPanel()
             } else {

@@ -474,19 +474,23 @@ private fun TextKeyButton(
     Box(
         modifier = Modifier
             .requiredSize(size)
-            .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() }
-            .layerBackdrop(backdrop),
+            .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() },
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .graphicsLayer(
-                    scaleX = pressScale,
-                    scaleY = pressScale,
-                    transformOrigin = TransformOrigin(0.5f, 0.5f),
-                ),
+                .layerBackdrop(backdrop),
         ) {
-            SnyggBox(
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(
+                        scaleX = pressScale,
+                        scaleY = pressScale,
+                        transformOrigin = TransformOrigin(0.5f, 0.5f),
+                    ),
+            ) {
+                SnyggBox(
                 FlorisImeUi.Key.elementName,
                 attributes = attributes,
                 selector = selector,
@@ -538,6 +542,7 @@ private fun TextKeyButton(
                     contentDescription = null,
                 )
             }
+        }
         }
         }
         if (isLiquidGlass && lqConfig.depthEnabled) {
