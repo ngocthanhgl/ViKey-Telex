@@ -43,7 +43,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -353,17 +356,21 @@ private fun CropPhotoDialog(
                         val cropH = cropW / 3.5f
                         val left = (size.width - cropW) / 2f
                         val top = (size.height - cropH) / 2f
-                        drawRect(
-                            color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f),
-                            topLeft = Offset.Zero,
-                            size = androidx.compose.ui.geometry.Size(size.width, size.height),
-                        )
-                        drawRect(
-                            color = androidx.compose.ui.graphics.Color.Transparent,
-                            topLeft = Offset(left, top),
-                            size = androidx.compose.ui.geometry.Size(cropW, cropH),
-                            blendMode = androidx.compose.ui.graphics.BlendMode.Clear,
-                        )
+                        val overlay = Color.Black.copy(alpha = 0.5f)
+                        val guide = Color.White
+
+                        drawRect(overlay, Offset(0f, 0f), Size(size.width, top))
+                        drawRect(overlay, Offset(0f, top + cropH), Size(size.width, size.height - top - cropH))
+                        drawRect(overlay, Offset(0f, top), Size(left, cropH))
+                        drawRect(overlay, Offset(left + cropW, top), Size(size.width - left - cropW, cropH))
+
+                        drawRect(guide, Offset(left, top), Size(cropW, cropH), style = Stroke(2.dp.toPx()))
+
+                        val r = 6.dp.toPx()
+                        drawCircle(guide, r, Offset(left, top))
+                        drawCircle(guide, r, Offset(left + cropW, top))
+                        drawCircle(guide, r, Offset(left, top + cropH))
+                        drawCircle(guide, r, Offset(left + cropW, top + cropH))
                     }
                 }
                 Spacer(Modifier.height(8.dp))
