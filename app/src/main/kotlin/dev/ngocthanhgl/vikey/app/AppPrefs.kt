@@ -813,6 +813,22 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
         )
     }
 
+    val backgroundPhoto = BackgroundPhoto()
+    inner class BackgroundPhoto {
+        val imagePath = string(
+            key = "bg_photo__path",
+            default = "",
+        )
+        val visibility = int(
+            key = "bg_photo__visibility",
+            default = 100,
+        )
+        val blurRadius = int(
+            key = "bg_photo__blur",
+            default = 0,
+        )
+    }
+
     override fun migrate(entry: PreferenceMigrationEntry): PreferenceMigrationEntry {
         return when (entry.key) {
 

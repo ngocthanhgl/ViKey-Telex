@@ -1,12 +1,27 @@
 package dev.ngocthanhgl.vikey.app.settings.theme
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LocalContentColor
@@ -14,19 +29,33 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import dev.patrickgold.jetpref.datastore.model.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
@@ -43,6 +72,16 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     val ripple by prefs.liquidGlass.rippleEnabled.collectAsState()
     val damping by prefs.liquidGlass.reboundDamping.collectAsState()
     val stiffness by prefs.liquidGlass.reboundStiffness.collectAsState()
+    val bgPath by prefs.backgroundPhoto.imagePath.collectAsState()
+    val bgVisibility by prefs.backgroundPhoto.visibility.collectAsState()
+    val bgBlur by prefs.backgroundPhoto.blurRadius.collectAsState()
+    val context = LocalContext.current
+    var cropUri by remember { mutableStateOf<Uri?>(null) }
+    val photoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        if (uri != null) cropUri = uri
+    }
 
     Column(
         modifier = Modifier
@@ -61,56 +100,56 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
             label = "Lens Idle",
             value = lensIdle / 100f,
             valueRange = 0f..20f,
-            steps = 39,
+            steps = 9,
             onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.lensIdle.set((v * 100).toInt()) } },
         )
         PrefSlider(
             label = "Lens Peak",
             value = lensPeak / 100f,
             valueRange = 0f..30f,
-            steps = 59,
+            steps = 14,
             onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.lensPeak.set((v * 100).toInt()) } },
         )
         PrefSlider(
             label = "Height Multiplier",
             value = heightMult / 100f,
             valueRange = 0.5f..5.0f,
-            steps = 44,
+            steps = 8,
             onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.heightMultiplier.set((v * 100).toInt()) } },
         )
         PrefSlider(
             label = "Amount Multiplier",
             value = amountMult / 100f,
             valueRange = 0.5f..3.0f,
-            steps = 24,
+            steps = 4,
             onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.amountMultiplier.set((v * 100).toInt()) } },
         )
         PrefSlider(
             label = "Text Lift",
             value = textLiftVal / 100f,
             valueRange = 1.0f..2.0f,
-            steps = 19,
+            steps = 4,
             onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.textLift.set((v * 100).toInt()) } },
         )
         PrefSlider(
             label = "Press Scale",
             value = pressScaleVal / 100f,
             valueRange = 1.0f..1.5f,
-            steps = 49,
+            steps = 9,
             onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.pressScale.set((v * 100).toInt()) } },
         )
         PrefSlider(
             label = "Rebound Damping",
             value = damping / 100f,
             valueRange = 0.05f..0.95f,
-            steps = 89,
+            steps = 17,
             onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.reboundDamping.set((v * 100).toInt()) } },
         )
         PrefSlider(
             label = "Rebound Stiffness",
             value = stiffness.toFloat(),
             valueRange = 50f..500f,
-            steps = 44,
+            steps = 8,
             formatValue = { it.toInt().toString() },
             onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.reboundStiffness.set(v.toInt()) } },
         )
@@ -135,6 +174,59 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
         Spacer(Modifier.height(12.dp))
 
+        Text(
+            text = "Background Photo",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        if (bgPath.isNotBlank()) {
+            Text(
+                text = "Photo selected",
+                style = MaterialTheme.typography.bodySmall,
+                color = LocalContentColor.current.copy(alpha = 0.56f),
+            )
+            Spacer(Modifier.height(4.dp))
+            Button(
+                onClick = {
+                    scope.launch {
+                        val file = File(context.filesDir, bgPath)
+                        if (file.exists()) file.delete()
+                        prefs.backgroundPhoto.imagePath.set("")
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                ),
+                shape = RoundedCornerShape(50.dp),
+            ) {
+                Text("Remove Photo")
+            }
+        } else {
+            Button(
+                onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                shape = RoundedCornerShape(50.dp),
+            ) {
+                Text("Choose Photo")
+            }
+        }
+
+        cropUri?.let { uri ->
+            CropPhotoDialog(
+                imageUri = uri,
+                context = context,
+                onSave = { path ->
+                    scope.launch { prefs.backgroundPhoto.imagePath.set(path) }
+                    cropUri = null
+                },
+                onDismiss = { cropUri = null },
+            )
+        }
+
+        Spacer(Modifier.height(12.dp))
+
         Button(
             onClick = {
                 scope.launch {
@@ -151,8 +243,10 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
                     prefs.liquidGlass.reboundStiffness.set(220)
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            shape = RoundedCornerShape(50.dp),
         ) {
             Text("Reset to Defaults")
         }
@@ -195,6 +289,123 @@ private fun PrefSlider(
         valueRange = valueRange,
         steps = steps,
         modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+@Composable
+private fun CropPhotoDialog(
+    imageUri: Uri,
+    context: Context,
+    onSave: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val bitmap = remember(imageUri) {
+        context.contentResolver.openInputStream(imageUri)?.use { stream ->
+            BitmapFactory.decodeStream(stream)
+        }
+    }
+    if (bitmap == null) {
+        onDismiss()
+        return
+    }
+
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+    var visibility by remember { mutableFloatStateOf(100f) }
+    var blurRadius by remember { mutableFloatStateOf(0f) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Crop Photo") },
+        text = {
+            Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .pointerInput(Unit) {
+                            detectTransformGestures { _, pan, zoom, _ ->
+                                scale = (scale * zoom).coerceIn(0.5f, 5f)
+                                offsetX += pan.x
+                                offsetY += pan.y
+                            }
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(visibility / 100f)
+                            .blur(radius = blurRadius.dp)
+                            .graphicsLayer(
+                                scaleX = scale,
+                                scaleY = scale,
+                                translationX = offsetX,
+                                translationY = offsetY,
+                            ),
+                    )
+                    Canvas(Modifier.fillMaxSize()) {
+                        val cropW = size.width * 0.9f
+                        val cropH = cropW / 3.5f
+                        val left = (size.width - cropW) / 2f
+                        val top = (size.height - cropH) / 2f
+                        drawRect(
+                            color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f),
+                            topLeft = Offset.Zero,
+                            size = androidx.compose.ui.geometry.Size(size.width, size.height),
+                        )
+                        drawRect(
+                            color = androidx.compose.ui.graphics.Color.Transparent,
+                            topLeft = Offset(left, top),
+                            size = androidx.compose.ui.geometry.Size(cropW, cropH),
+                            blendMode = androidx.compose.ui.graphics.BlendMode.Clear,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                Text("Visibility", style = MaterialTheme.typography.bodySmall)
+                Slider(
+                    value = visibility,
+                    onValueChange = { visibility = it },
+                    valueRange = 0f..100f,
+                    steps = 19,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text("Blur", style = MaterialTheme.typography.bodySmall)
+                Slider(
+                    value = blurRadius,
+                    onValueChange = { blurRadius = it },
+                    valueRange = 0f..30f,
+                    steps = 29,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val dir = File(context.filesDir, "photos")
+                    dir.mkdirs()
+                    val file = File(dir, "bg.jpg")
+                    try {
+                        FileOutputStream(file).use { out ->
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                        }
+                        onSave("photos/bg.jpg")
+                    } catch (_: Exception) {
+                        onSave("")
+                    }
+                },
+                shape = RoundedCornerShape(50.dp),
+            ) { Text("Apply") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
     )
 }
 
