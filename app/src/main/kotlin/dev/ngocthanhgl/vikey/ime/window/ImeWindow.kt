@@ -222,8 +222,7 @@ private fun ImeInnerWindow() {
                     .padding(
                         start = props.paddingLeft.coerceAtLeast(0.dp),
                         end = props.paddingRight.coerceAtLeast(0.dp),
-                        bottom = props.paddingBottom.coerceAtLeast(0.dp) +
-                            windowSpec.userPreferredOptions.bottomPaddingDp.dp,
+                        bottom = props.paddingBottom.coerceAtLeast(0.dp),
                     )
             }
             .ifIsInstance<ImeWindowProps.Floating>(windowSpec.props) {
@@ -233,7 +232,9 @@ private fun ImeInnerWindow() {
     ) {
         Column {
             when (state.imeUiMode) {
-                ImeUiMode.TEXT -> TextInputLayout()
+                ImeUiMode.TEXT -> TextInputLayout(
+                    bottomPaddingDp = windowSpec.userPreferredOptions.bottomPaddingDp.dp,
+                )
                 ImeUiMode.MEDIA -> ProvideActualLayoutDirection { MediaInputLayout() }
                 ImeUiMode.CLIPBOARD -> ProvideActualLayoutDirection { ClipboardInputLayout() }
             }
