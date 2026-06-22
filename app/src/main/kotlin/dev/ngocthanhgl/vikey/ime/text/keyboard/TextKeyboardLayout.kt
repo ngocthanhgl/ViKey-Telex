@@ -585,7 +585,7 @@ private fun TextKeyButton(
                             )
                         },
                         highlight = { Highlight.Ambient },
-                        onDrawBackdrop = { onDraw: (DrawScope) -> Unit ->
+                        onDrawBackdrop = { scope: DrawScope, onDraw: (DrawScope) -> Unit ->
                             val photo = backgroundPhoto
                             val coords = keyCoords
                             if (photo != null && coords != null) {
@@ -596,22 +596,24 @@ private fun TextKeyButton(
                                 if (relX >= 0f && relY >= 0f &&
                                     relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
                                 ) {
-                                    drawImage(
+                                    val sw = scope.size.width
+                                    val sh = scope.size.height
+                                    scope.drawImage(
                                         image = photo.bitmap,
                                         srcOffset = IntOffset(
                                             (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
                                             (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
                                         ),
                                         srcSize = IntSize(
-                                            (size.width * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
-                                            (size.height * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
+                                            (sw * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
+                                            (sh * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
                                         ),
                                         dstOffset = IntOffset.Zero,
-                                        dstSize = IntSize(size.width.toInt(), size.height.toInt()),
+                                        dstSize = IntSize(sw.toInt(), sh.toInt()),
                                     )
                                 }
                             }
-                            onDraw(this)
+                            onDraw(scope)
                         },
                     ),
             )
@@ -638,7 +640,7 @@ private fun TextKeyButton(
                             )
                         },
                         highlight = { Highlight.Ambient },
-                        onDrawBackdrop = { onDraw: (DrawScope) -> Unit ->
+                        onDrawBackdrop = { scope: DrawScope, onDraw: (DrawScope) -> Unit ->
                             val photo = backgroundPhoto
                             val coords = keyCoords
                             if (photo != null && coords != null) {
@@ -649,22 +651,24 @@ private fun TextKeyButton(
                                 if (relX >= 0f && relY >= 0f &&
                                     relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
                                 ) {
-                                    drawImage(
+                                    val sw = scope.size.width
+                                    val sh = scope.size.height
+                                    scope.drawImage(
                                         image = photo.bitmap,
                                         srcOffset = IntOffset(
                                             (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
                                             (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
                                         ),
                                         srcSize = IntSize(
-                                            (size.width * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
-                                            (size.height * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
+                                            (sw * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
+                                            (sh * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
                                         ),
                                         dstOffset = IntOffset.Zero,
-                                        dstSize = IntSize(size.width.toInt(), size.height.toInt()),
+                                        dstSize = IntSize(sw.toInt(), sh.toInt()),
                                     )
                                 }
                             }
-                            onDraw(this)
+                            onDraw(scope)
                         },
                     ),
             )
