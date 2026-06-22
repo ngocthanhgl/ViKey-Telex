@@ -356,7 +356,7 @@ private fun TextKeyButton(
             targetValue = targetLensRefraction,
             animationSpec = spring(
                 dampingRatio = 0.5f,
-                stiffness = if (targetLensRefraction > lensRefraction.value) 600f else 250f,
+                stiffness = if (targetLensRefraction > lensRefraction.value) 4000f else 120f,
             ),
         )
     }
@@ -437,7 +437,7 @@ private fun TextKeyButton(
         }
         if (isLiquidGlass) {
             val heightPx = with(density) { (lensRefraction.value * 2.5f).dp.toPx() }
-            val amountPx = with(density) { (lensRefraction.value * 3f).dp.toPx() }
+            val amountPx = with(density) { (lensRefraction.value * 1.5f).dp.toPx() }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
