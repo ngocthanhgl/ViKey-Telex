@@ -57,10 +57,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.TransformOrigin
@@ -123,15 +125,15 @@ import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.sqrt
 
-@SuppressLint("UnusedBoxWithConstraintsScope")
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
 data class BackgroundPhotoState(
     val bitmap: ImageBitmap,
     val boxSize: IntSize,
     val windowPos: Offset,
 )
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
 fun TextKeyboardLayout(
     modifier: Modifier = Modifier,
     evaluator: ComputingEvaluator,
@@ -583,7 +585,7 @@ private fun TextKeyButton(
                             )
                         },
                         highlight = { Highlight.Ambient },
-                        onDrawBackdrop = { scope, onDraw ->
+                        onDrawBackdrop = { onDraw: (DrawScope) -> Unit ->
                             val photo = backgroundPhoto
                             val coords = keyCoords
                             if (photo != null && coords != null) {
@@ -592,24 +594,24 @@ private fun TextKeyButton(
                                 val relX = keyPos.x - photoPos.x
                                 val relY = keyPos.y - photoPos.y
                                 if (relX >= 0f && relY >= 0f &&
-                                    relX < photo.boxSize.width && relY < photo.boxSize.height
+                                    relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
                                 ) {
-                                    scope.drawImage(
+                                    drawImage(
                                         image = photo.bitmap,
                                         srcOffset = IntOffset(
                                             (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
                                             (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
                                         ),
                                         srcSize = IntSize(
-                                            (scope.size.width * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
-                                            (scope.size.height * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
+                                            (size.width * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
+                                            (size.height * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
                                         ),
                                         dstOffset = IntOffset.Zero,
-                                        dstSize = IntSize(scope.size.width.toInt(), scope.size.height.toInt()),
+                                        dstSize = IntSize(size.width.toInt(), size.height.toInt()),
                                     )
                                 }
                             }
-                            onDraw(scope)
+                            onDraw(this)
                         },
                     ),
             )
@@ -636,7 +638,7 @@ private fun TextKeyButton(
                             )
                         },
                         highlight = { Highlight.Ambient },
-                        onDrawBackdrop = { scope, onDraw ->
+                        onDrawBackdrop = { onDraw: (DrawScope) -> Unit ->
                             val photo = backgroundPhoto
                             val coords = keyCoords
                             if (photo != null && coords != null) {
@@ -645,24 +647,24 @@ private fun TextKeyButton(
                                 val relX = keyPos.x - photoPos.x
                                 val relY = keyPos.y - photoPos.y
                                 if (relX >= 0f && relY >= 0f &&
-                                    relX < photo.boxSize.width && relY < photo.boxSize.height
+                                    relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
                                 ) {
-                                    scope.drawImage(
+                                    drawImage(
                                         image = photo.bitmap,
                                         srcOffset = IntOffset(
                                             (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
                                             (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
                                         ),
                                         srcSize = IntSize(
-                                            (scope.size.width * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
-                                            (scope.size.height * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
+                                            (size.width * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
+                                            (size.height * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
                                         ),
                                         dstOffset = IntOffset.Zero,
-                                        dstSize = IntSize(scope.size.width.toInt(), scope.size.height.toInt()),
+                                        dstSize = IntSize(size.width.toInt(), size.height.toInt()),
                                     )
                                 }
                             }
-                            onDraw(scope)
+                            onDraw(this)
                         },
                     ),
             )
