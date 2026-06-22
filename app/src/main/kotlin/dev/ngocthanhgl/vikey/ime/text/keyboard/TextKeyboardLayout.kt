@@ -585,7 +585,7 @@ private fun TextKeyButton(
                             )
                         },
                         highlight = { Highlight.Ambient },
-                        onDrawBackdrop = { scope: DrawScope, onDraw: (DrawScope) -> Unit ->
+                        onDrawBackdrop = { onDraw: DrawScope.() -> Unit ->
                             val photo = backgroundPhoto
                             val coords = keyCoords
                             if (photo != null && coords != null) {
@@ -596,9 +596,9 @@ private fun TextKeyButton(
                                 if (relX >= 0f && relY >= 0f &&
                                     relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
                                 ) {
-                                    val sw = scope.size.width
-                                    val sh = scope.size.height
-                                    scope.drawImage(
+                                    val sw = this.size.width
+                                    val sh = this.size.height
+                                    this.drawImage(
                                         image = photo.bitmap,
                                         srcOffset = IntOffset(
                                             (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
@@ -613,7 +613,7 @@ private fun TextKeyButton(
                                     )
                                 }
                             }
-                            onDraw(scope)
+                            onDraw()
                         },
                     ),
             )
@@ -640,7 +640,7 @@ private fun TextKeyButton(
                             )
                         },
                         highlight = { Highlight.Ambient },
-                        onDrawBackdrop = { scope: DrawScope, onDraw: (DrawScope) -> Unit ->
+                        onDrawBackdrop = { onDraw: DrawScope.() -> Unit ->
                             val photo = backgroundPhoto
                             val coords = keyCoords
                             if (photo != null && coords != null) {
@@ -651,9 +651,9 @@ private fun TextKeyButton(
                                 if (relX >= 0f && relY >= 0f &&
                                     relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
                                 ) {
-                                    val sw = scope.size.width
-                                    val sh = scope.size.height
-                                    scope.drawImage(
+                                    val sw = this.size.width
+                                    val sh = this.size.height
+                                    this.drawImage(
                                         image = photo.bitmap,
                                         srcOffset = IntOffset(
                                             (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
@@ -668,7 +668,7 @@ private fun TextKeyButton(
                                     )
                                 }
                             }
-                            onDraw(scope)
+                            onDraw()
                         },
                     ),
             )
