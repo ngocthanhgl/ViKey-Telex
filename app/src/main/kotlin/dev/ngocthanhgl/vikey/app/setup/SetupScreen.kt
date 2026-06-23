@@ -82,9 +82,9 @@ private data class StepState(
     fun isActive(stepId: Int): Boolean = stepId == getCurrent()
 
     companion object {
-        val Saver = Saver<MutableState<StepState>, ArrayList<Int>>(
-            save = { arrayListOf(it.value.currentAuto, it.value.currentManual) },
-            restore = { mutableStateOf(StepState(it[0], it[1])) },
+        val Saver = Saver<StepState, ArrayList<Int>>(
+            save = { arrayListOf(it.currentAuto, it.currentManual) },
+            restore = { StepState(it[0], it[1]) },
         )
     }
 }
@@ -119,15 +119,16 @@ fun SetupScreen() {
         }
     }
 
-    var stepState by rememberSaveable(saver = StepState.Saver) {
+    val savedStepState = rememberSaveable(saver = StepState.Saver) {
         val initStep = when {
             !isViKeyEnabled -> Steps.EnableIme.id
             !isViKeySelected -> Steps.SelectIme.id
             hasNotificationPermission == NotificationPermissionState.NOT_SET && AndroidVersion.ATLEAST_API33_T -> Steps.SelectNotification.id
             else -> Steps.FinishUp.id
         }
-        mutableStateOf(StepState(initStep, -1))
+        StepState(initStep, -1)
     }
+    var stepState by remember { mutableStateOf(savedStepState) }
 
     val state = stepState.copy(
         currentAuto = autoStep.value,

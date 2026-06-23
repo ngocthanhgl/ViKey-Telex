@@ -70,11 +70,13 @@ fun LanguagePackManagerScreen(action: LanguagePackManagerScreenAction?) {
             LanguagePackManagerScreenAction.MANAGE -> {
                 selectedManagerLanguagePackId.value = extComponentName
             }
+            else -> {}
         }
     }
 
     val activeLanguagePackId by when (action) {
         LanguagePackManagerScreenAction.MANAGE -> selectedManagerLanguagePackId
+        null -> null
     }
     var languagePackExtToDelete by remember { mutableStateOf<Extension?>(null) }
 

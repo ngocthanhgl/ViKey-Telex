@@ -121,7 +121,8 @@ private fun ViewScreen(ext: Extension) {
             }
             if (!ext.meta.keywords.isNullOrEmpty()) {
                 MetaRowScrollable(label = stringRes(R.string.ext__meta__keywords)) {
-                    ext.meta.keywords.forEachIndexed { index, keyword ->
+                    val localKeywords = ext.meta.keywords
+                    localKeywords.forEachIndexed { index, keyword ->
                         if (index > 0) Spacer(Modifier.width(8.dp))
                         ExtensionKeywordChip(keyword)
                     }

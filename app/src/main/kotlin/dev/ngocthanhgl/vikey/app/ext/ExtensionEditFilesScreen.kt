@@ -189,13 +189,29 @@ fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) {
                     onDismissRequest = { dialogFile = null },
                     title = { Text(stringRes(R.string.general__properties)) },
                     text = {
-                        OutlinedTextField(
-                            value = fileNameInput,
-                            onValueChange = { fileNameInput = it },
-                            singleLine = true,
-                            label = { Text(stringRes(R.string.general__file_name)) },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                        Column {
+                            OutlinedTextField(
+                                value = fileNameInput,
+                                onValueChange = { fileNameInput = it },
+                                singleLine = true,
+                                label = { Text(stringRes(R.string.general__file_name)) },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            TextButton(onClick = {
+                                if (file.delete()) {
+                                    context.showShortToastSync("Successfully deleted")
+                                } else {
+                                    context.showShortToastSync("Failed to delete")
+                                }
+                                dialogFile = null
+                                version++
+                            }) {
+                                Text(
+                                    stringRes(R.string.action__delete),
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
+                        }
                     },
                     confirmButton = {
                         TextButton(onClick = {
@@ -223,22 +239,6 @@ fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) {
                     dismissButton = {
                         TextButton(onClick = { dialogFile = null }) {
                             Text(stringRes(R.string.action__cancel))
-                        }
-                    },
-                    neutralButton = {
-                        TextButton(onClick = {
-                            if (file.delete()) {
-                                context.showShortToastSync("Successfully deleted")
-                            } else {
-                                context.showShortToastSync("Failed to delete")
-                            }
-                            dialogFile = null
-                            version++
-                        }) {
-                            Text(
-                                stringRes(R.string.action__delete),
-                                color = MaterialTheme.colorScheme.error,
-                            )
                         }
                     },
                 )

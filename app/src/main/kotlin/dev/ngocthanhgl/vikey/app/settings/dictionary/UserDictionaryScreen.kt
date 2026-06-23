@@ -89,6 +89,7 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
         }
     }
 
+    @Composable
     fun getDisplayNameForLocale(locale: FlorisLocale): String {
         return if (locale == AllLanguagesLocale) {
             stringRes(R.string.settings__udm__all_languages)

@@ -1,6 +1,7 @@
 package dev.ngocthanhgl.vikey.app.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -24,7 +25,7 @@ fun SettingsScaffold(
     title: String,
     scrollable: Boolean = true,
     fab: @Composable () -> Unit = {},
-    actions: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     val navController = LocalNavController.current

@@ -445,11 +445,6 @@ private fun EditScreen(
                             Text(stringRes(R.string.action__discard))
                         }
                     },
-                    neutralButton = {
-                        TextButton(onClick = { showUnsavedChangesDialog = false }) {
-                            Text(stringRes(R.string.action__cancel))
-                        }
-                    },
                 )
             }
 

@@ -34,8 +34,8 @@ import dev.ngocthanhgl.vikey.ime.theme.ThemeMode
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import kotlinx.coroutines.launch
 import org.florisboard.lib.color.ColorMappings
+import dev.patrickgold.jetpref.datastore.model.LocalTime
 import org.florisboard.lib.compose.stringRes
-import java.time.LocalTime
 
 @Composable
 fun ThemeScreen() {
@@ -91,7 +91,7 @@ fun ThemeScreen() {
                 currentHour = sunriseTime.hour,
                 currentMinute = sunriseTime.minute,
                 onTimeSelected = { hour, minute ->
-                    scope.launch { prefs.theme.sunriseTime.set(LocalTime.of(hour, minute)) }
+                    scope.launch { prefs.theme.sunriseTime.set(LocalTime(hour, minute)) }
                 },
             )
             SettingsDivider()
@@ -101,7 +101,7 @@ fun ThemeScreen() {
                 currentHour = sunsetTime.hour,
                 currentMinute = sunsetTime.minute,
                 onTimeSelected = { hour, minute ->
-                    scope.launch { prefs.theme.sunsetTime.set(LocalTime.of(hour, minute)) }
+                    scope.launch { prefs.theme.sunsetTime.set(LocalTime(hour, minute)) }
                 },
             )
             SettingsDivider()
@@ -110,7 +110,7 @@ fun ThemeScreen() {
                 title = stringRes(R.string.pref__theme__theme_accent_color__label),
                 currentColor = accentColor,
                 onColorSelected = { scope.launch { prefs.theme.accentColor.set(it) } },
-                defaultColors = ColorMappings.colors,
+                defaultColors = ColorMappings.colors.toList(),
                 defaultValueLabel = stringRes(R.string.action__default),
             )
         }

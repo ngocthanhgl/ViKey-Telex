@@ -68,6 +68,7 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
     fun getThemeIdPref() = when (action) {
         ThemeManagerScreenAction.SELECT_DAY -> prefs.theme.dayThemeId
         ThemeManagerScreenAction.SELECT_NIGHT -> prefs.theme.nightThemeId
+        null -> error("ThemeManager screen action must not be null")
     }
 
     fun setTheme(extId: String, componentId: String) {
@@ -77,6 +78,7 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
             ThemeManagerScreenAction.SELECT_NIGHT -> scope.launch {
                 getThemeIdPref().set(extComponentName)
             }
+            null -> {}
         }
     }
 
@@ -84,6 +86,7 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
         ThemeManagerScreenAction.SELECT_DAY,
         ThemeManagerScreenAction.SELECT_NIGHT
             -> getThemeIdPref().collectAsState()
+        null -> null
     }
 
     SettingsScaffold(title = stringRes(when (action) {

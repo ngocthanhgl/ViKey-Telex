@@ -59,7 +59,7 @@ fun OtherScreen() {
                 title = stringRes(R.string.pref__other__settings_accent_color__label),
                 currentColor = accentColor,
                 onColorSelected = { scope.launch { prefs.other.accentColor.set(it) } },
-                defaultColors = ColorMappings.colors,
+                defaultColors = ColorMappings.colors.toList(),
                 defaultValueLabel = stringRes(R.string.action__default),
             )
         }
