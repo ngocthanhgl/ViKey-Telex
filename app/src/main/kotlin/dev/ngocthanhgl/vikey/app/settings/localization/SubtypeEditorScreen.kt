@@ -671,7 +671,7 @@ fun SubtypeEditorScreen(id: Long?) {
                 HorizontalDivider()
                 val lazyListState = rememberLazyListState()
                 LazyColumn(
-                    modifier = Modifier.florisScrollbar(lazyListState, isVertical = true).weight(1f),
+                    modifier = Modifier.florisScrollbar(lazyListState, isVertical = true).fillMaxWidth(),
                     state = lazyListState,
                 ) {
                     items(subtypePresets) { subtypePreset ->

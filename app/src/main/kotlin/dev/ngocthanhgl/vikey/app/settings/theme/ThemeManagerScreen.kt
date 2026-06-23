@@ -24,6 +24,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -86,7 +87,7 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
         ThemeManagerScreenAction.SELECT_DAY,
         ThemeManagerScreenAction.SELECT_NIGHT
             -> getThemeIdPref().collectAsState()
-        null -> null
+        null -> mutableStateOf<ExtensionComponentName?>(null)
     }
 
     SettingsScaffold(title = stringRes(when (action) {
