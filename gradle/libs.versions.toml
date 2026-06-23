@@ -85,6 +85,7 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 # Main
 agp-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 agp-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
+agp-test = { id = "com.android.test", version.ref = "android-gradle-plugin" }
 
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
