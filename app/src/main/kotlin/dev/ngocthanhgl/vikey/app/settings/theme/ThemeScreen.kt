@@ -2,7 +2,6 @@ package dev.ngocthanhgl.vikey.app.settings.theme
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -54,7 +53,6 @@ fun ThemeScreen() = FlorisScreen {
 
     content {
         val scope = rememberCoroutineScope()
-        val model = this
         val dayThemeId by prefs.theme.dayThemeId.collectAsState()
         val nightThemeId by prefs.theme.nightThemeId.collectAsState()
         val themeMode by prefs.theme.mode.collectAsState()
@@ -84,44 +82,35 @@ fun ThemeScreen() = FlorisScreen {
                 navController.navigate(Routes.Settings.ThemeManager(ThemeManagerScreenAction.SELECT_NIGHT))
             },
         )
-        Box(Modifier.heightIn(min = 56.dp)) {
-            with(model) {
-                LocalTimePickerPreference(
-                    pref = theme.sunriseTime,
-                    title = stringRes(R.string.pref__theme__sunrise_time__label),
-                    icon = Icons.Default.WbSunny,
-                )
-            }
-        }
-        Box(Modifier.heightIn(min = 56.dp)) {
-            with(model) {
-                LocalTimePickerPreference(
-                    pref = theme.sunsetTime,
-                    title = stringRes(R.string.pref__theme__sunset_time__label),
-                    icon = Icons.Outlined.WbSunny,
-                )
-            }
-        }
-        Box(Modifier.heightIn(min = 56.dp)) {
-            with(model) {
-                ColorPickerPreference(
-                    pref = theme.accentColor,
-                    title = stringRes(R.string.pref__theme__theme_accent_color__label),
-                    defaultValueLabel = stringRes(R.string.action__default),
-                    icon = Icons.Default.Palette,
-                    defaultColors = ColorMappings.colors,
-                    showAlphaSlider = false,
-                    enableAdvancedLayout = true,
-                    colorOverride = {
-                        if (it.isMaterialYou(context)) {
-                            Color.Unspecified
-                        } else {
-                            it
-                        }
-                    },
-                )
-            }
-        }
+        LocalTimePickerPreference(
+            pref = prefs.theme.sunriseTime,
+            title = stringRes(R.string.pref__theme__sunrise_time__label),
+            icon = Icons.Default.WbSunny,
+            modifier = Modifier.heightIn(min = 56.dp),
+        )
+        LocalTimePickerPreference(
+            pref = prefs.theme.sunsetTime,
+            title = stringRes(R.string.pref__theme__sunset_time__label),
+            icon = Icons.Outlined.WbSunny,
+            modifier = Modifier.heightIn(min = 56.dp),
+        )
+        ColorPickerPreference(
+            pref = prefs.theme.accentColor,
+            title = stringRes(R.string.pref__theme__theme_accent_color__label),
+            defaultValueLabel = stringRes(R.string.action__default),
+            icon = Icons.Default.Palette,
+            defaultColors = ColorMappings.colors,
+            showAlphaSlider = false,
+            enableAdvancedLayout = true,
+            colorOverride = {
+                if (it.isMaterialYou(context)) {
+                    Color.Unspecified
+                } else {
+                    it
+                }
+            },
+            modifier = Modifier.heightIn(min = 56.dp),
+        )
 
         AddonManagementReferenceBox(type = ExtensionListScreenType.EXT_THEME)
     }
