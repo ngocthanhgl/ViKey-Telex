@@ -1,9 +1,9 @@
-<table align="center">
+<table align="center" width="100%">
   <tr>
-    <td width="140">
+    <td width="140" valign="middle">
       <img src=".github/repo_icon.png" width="128" alt="ViKey">
     </td>
-    <td>
+    <td valign="middle">
       <h1>ViKey</h1>
       <p><strong>Vietnamese Telex Keyboard for Android</strong></p>
       <p>
@@ -51,7 +51,7 @@ Những IME khác gõ Telex kiểu:
 
 ```
 gõ "chaof" → tra bảng thấy "ao" → "ào" → ghép → "chào" ❌
-              (nếu state sai sẽ ra "chaof" hoặc "chàoo")
+             (nếu state sai sẽ ra "chaof" hoặc "chàoo")
 ```
 
 ViKey gõ Telex kiểu:
@@ -59,7 +59,7 @@ ViKey gõ Telex kiểu:
 ```
 gõ "chaof" → parseSyllable("chao") → onset:"ch" + nucleus:"ao"
            → applyTone('f') → "ào" → ghép → "chào" ✅
-              (mỗi lần gõ là parse lại từ đầu, không drift)
+             (mỗi lần gõ là parse lại từ đầu, không drift)
 ```
 
 **Hệ quả thực tế:**
@@ -80,7 +80,7 @@ gõ "chaof" → parseSyllable("chao") → onset:"ch" + nucleus:"ao"
 
 ViKey hội tụ **3 tầng** gợi ý từ:
 
-1. **Từ điển tĩnh** — 77k từ Tiếng Việt có tần suất thực tế (OpenSubtitles 2018)
+1. **Từ điển tĩnh** — ~100k từ Tiếng Việt có tần suất thực tế
 2. **Personal dictionary** — tự động học từ bạn hay gõ, có **decay theo thời gian** (từ lâu không dùng tự tụt hạng) + **damping** (bạn không chọn, nó không học lại)
 3. **Qwen GGUF LLM** *(bản Full, optional)* — import model ngôn ngữ, suggest từ tiếp theo theo context thực tế
 
@@ -148,12 +148,12 @@ Tỉ lệ dương tính giả cực thấp nhờ kết hợp cả 3 lớp.
 **Zero network access. Zero tracking. Zero analytics.**
 
 ```
-┌─────────────────────────────────────────────┐
-│  Mọi thao tác gõ phím → ở lại trên máy bạn  │
-│  Không Internet → không gửi dữ liệu đi đâu   │
-│  Telex engine local 100% → không API call    │
-│  Qwen model chạy native (JNI) → offline      │
-└─────────────────────────────────────────────┘
+╭──────────────────────────────────────────────╮
+│  Mọi thao tác gõ phím → ở lại trên máy bạn   │
+│  Không Internet → không gửi dữ liệu đi đâu    │
+│  Telex engine local 100% → không API call     │
+│  Qwen model chạy native (JNI) → offline       │
+╰──────────────────────────────────────────────╯
 ```
 
 ViKey theo triết lý **privacy-first** của FlorisBoard. Mọi thứ từ gợi ý, autocorrect, đến AI đều chạy **trên thiết bị**, không cần Internet.
