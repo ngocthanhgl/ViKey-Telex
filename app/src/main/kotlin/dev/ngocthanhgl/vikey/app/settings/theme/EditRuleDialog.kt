@@ -174,7 +174,6 @@ internal fun EditRuleDialog(
                 R.string.settings__theme_editor__edit_rule
             }
         )) },
-        confirmButton = {},
         text = {
             Column {
                 AnimatedVisibility(visible = showAlreadyExistsError) {
