@@ -129,8 +129,8 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
-                            selected = activeThemeId.extensionId == extensionId &&
-                                activeThemeId.componentId == config.id,
+                            selected = activeThemeId?.extensionId == extensionId &&
+                                activeThemeId?.componentId == config.id,
                             onClick = null,
                         )
                         Spacer(Modifier.width(8.dp))
