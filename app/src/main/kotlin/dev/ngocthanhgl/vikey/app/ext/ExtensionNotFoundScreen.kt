@@ -18,23 +18,27 @@ package dev.ngocthanhgl.vikey.app.ext
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import org.florisboard.lib.compose.stringRes
 
 @Composable
-internal fun ExtensionNotFoundScreen(id: String) = FlorisScreen {
-    title = stringRes(R.string.ext__error__not_found_title)
-
-    content {
+internal fun ExtensionNotFoundScreen(id: String) {
+    SettingsScaffold(
+        title = stringRes(R.string.ext__error__not_found_title),
+    ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp),
         ) {
-            Text(stringRes(R.string.ext__error__not_found_description, "id" to id))
+            Text(
+                text = stringRes(R.string.ext__error__not_found_description, "id" to id),
+                style = MaterialTheme.typography.bodyLarge,
+            )
         }
     }
 }

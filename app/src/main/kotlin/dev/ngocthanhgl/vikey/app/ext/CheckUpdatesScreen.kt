@@ -21,19 +21,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import dev.ngocthanhgl.vikey.R
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import dev.ngocthanhgl.vikey.extensionManager
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import org.florisboard.lib.compose.stringRes
 
 @Composable
-fun CheckUpdatesScreen() = FlorisScreen {
-    title = stringRes(R.string.ext__check_updates__title)
-
+fun CheckUpdatesScreen() {
     val context = LocalContext.current
     val extensionManager by context.extensionManager()
     val extensionIndex by extensionManager.extensions.collectAsState()
 
-    content {
+    SettingsScaffold(title = stringRes(R.string.ext__check_updates__title)) {
         UpdateBox(extensionIndex)
     }
 }

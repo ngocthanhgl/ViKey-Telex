@@ -19,12 +19,12 @@ package dev.ngocthanhgl.vikey.app.ext
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import dev.ngocthanhgl.vikey.extensionManager
-import org.florisboard.lib.android.showLongToast
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.ngocthanhgl.vikey.lib.ext.Extension
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionDefaults
 import org.florisboard.lib.android.showLongToastSync
@@ -43,10 +43,7 @@ fun ExtensionExportScreen(id: String) {
 }
 
 @Composable
-private fun ExportScreen(ext: Extension) = FlorisScreen {
-    title = ext.meta.title
-    scrollable = false
-
+private fun ExportScreen(ext: Extension) {
     val navController = LocalNavController.current
     val context = LocalContext.current
     val extensionManager by context.extensionManager()
@@ -54,9 +51,6 @@ private fun ExportScreen(ext: Extension) = FlorisScreen {
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument(),
         onResult = { uri ->
-            // If uri is null it indicates that the selection activity
-            //  was cancelled (mostly by pressing the back button), so
-            //  we don't display an error message here.
             if (uri == null) {
                 navController.popBackStack()
                 return@rememberLauncherForActivityResult
@@ -70,7 +64,9 @@ private fun ExportScreen(ext: Extension) = FlorisScreen {
         },
     )
 
-    content {
-        exportLauncher.launch(ExtensionDefaults.createFlexName(ext.meta.id))
+    SettingsScaffold(title = ext.meta.title) {
+        LaunchedEffect(Unit) {
+            exportLauncher.launch(ExtensionDefaults.createFlexName(ext.meta.id))
+        }
     }
 }

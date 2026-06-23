@@ -21,17 +21,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -43,9 +50,6 @@ import dev.ngocthanhgl.vikey.ime.theme.ThemeExtensionComponent
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponent
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionMeta
-import org.florisboard.lib.compose.FlorisIconButton
-import org.florisboard.lib.compose.FlorisOutlinedBox
-import org.florisboard.lib.compose.FlorisTextButton
 import org.florisboard.lib.compose.stringRes
 
 @Composable
@@ -66,77 +70,101 @@ fun ExtensionComponentView(
     onEditBtnClick: (() -> Unit)? = null,
 ) {
     val componentName = remember(meta.id, component.id) { ExtensionComponentName(meta.id, component.id).toString() }
-    FlorisOutlinedBox(
+    ElevatedCard(
         modifier = modifier,
-        title = component.label,
-        subtitle = componentName,
+        shape = RoundedCornerShape(28.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ),
     ) {
-        Column(
-            modifier = Modifier.padding(
-                start = 16.dp,
-                end = 16.dp,
-                bottom = if (onDeleteBtnClick == null && onEditBtnClick == null) 8.dp else 0.dp,
-            ),
-        ) {
-            when (component) {
-                is ThemeExtensionComponent -> {
-                    val text = remember(
-                        component.authors, component.isNightTheme, component.stylesheetPath(),
-                    ) {
-                        buildString {
-                            appendLine("authors = ${component.authors}")
-                            appendLine("isNightTheme = ${component.isNightTheme}")
-                            append("stylesheetPath = ${component.stylesheetPath()}")
-                        }
-                    }
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = LocalContentColor.current,
-                    )
-                }
-                is LanguagePackComponent -> {
-                    val text = remember(
-                        component.authors, component.locale, component.hanShapeBasedKeyCode,
-                    ) {
-                        buildString {
-                            appendLine("authors = ${component.authors}")
-                            appendLine("locale = ${component.locale.localeTag()}")
-                            appendLine("hanShapeBasedKeyCode = ${component.hanShapeBasedKeyCode}")
-                        }
-                    }
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = LocalContentColor.current,
-                    )
-                }
-                else -> { }
-            }
-        }
-        if (onDeleteBtnClick != null || onEditBtnClick != null) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 6.dp),
+        Column {
+            Column(
+                modifier = Modifier.padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 12.dp,
+                    bottom = if (onDeleteBtnClick == null && onEditBtnClick == null) 12.dp else 0.dp,
+                ),
             ) {
-                if (onDeleteBtnClick != null) {
-                    FlorisTextButton(
-                        onClick = onDeleteBtnClick,
-                        icon = Icons.Default.Delete,
-                        text = stringRes(R.string.action__delete),
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                        ),
-                    )
+                Text(
+                    text = component.label,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = componentName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                when (component) {
+                    is ThemeExtensionComponent -> {
+                        val text = remember(
+                            component.authors, component.isNightTheme, component.stylesheetPath(),
+                        ) {
+                            buildString {
+                                appendLine("authors = ${component.authors}")
+                                appendLine("isNightTheme = ${component.isNightTheme}")
+                                append("stylesheetPath = ${component.stylesheetPath()}")
+                            }
+                        }
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = LocalContentColor.current,
+                        )
+                    }
+                    is LanguagePackComponent -> {
+                        val text = remember(
+                            component.authors, component.locale, component.hanShapeBasedKeyCode,
+                        ) {
+                            buildString {
+                                appendLine("authors = ${component.authors}")
+                                appendLine("locale = ${component.locale.localeTag()}")
+                                appendLine("hanShapeBasedKeyCode = ${component.hanShapeBasedKeyCode}")
+                            }
+                        }
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = LocalContentColor.current,
+                        )
+                    }
+                    else -> { }
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                if (onEditBtnClick != null) {
-                    FlorisTextButton(
-                        onClick = onEditBtnClick,
-                        icon = Icons.Default.Edit,
-                        text = stringRes(R.string.action__edit),
-                    )
+            }
+            if (onDeleteBtnClick != null || onEditBtnClick != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (onDeleteBtnClick != null) {
+                        TextButton(
+                            onClick = onDeleteBtnClick,
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error,
+                            ),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 4.dp),
+                            )
+                            Text(text = stringRes(R.string.action__delete))
+                        }
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    if (onEditBtnClick != null) {
+                        TextButton(onClick = onEditBtnClick) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 4.dp),
+                            )
+                            Text(text = stringRes(R.string.action__edit))
+                        }
+                    }
                 }
             }
         }
@@ -162,11 +190,13 @@ fun <T : ExtensionComponent> ExtensionComponentListView(
             ) },
             trailingContent = if (onCreateBtnClick != null) {
                 @Composable {
-                    FlorisIconButton(
-                        onClick = onCreateBtnClick,
-                        icon = Icons.Default.Add,
-                        iconColor = MaterialTheme.colorScheme.secondary,
-                    )
+                    IconButton(onClick = onCreateBtnClick) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.secondary,
+                        )
+                    }
                 }
             } else { null },
         )

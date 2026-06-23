@@ -2,10 +2,14 @@ package dev.ngocthanhgl.vikey.app.settings.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -24,11 +29,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -398,6 +406,177 @@ fun M3DialogSliderPreference(
                 TextButton(onClick = {
                     onPrimaryChange(tmpPrimary.toInt())
                     onSecondaryChange(tmpSecondary.toInt())
+                    showDialog = false
+                }) {
+                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__cancel))
+                }
+            },
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun M3ColorPickerPreference(
+    icon: ImageVector,
+    title: String,
+    currentColor: Color,
+    onColorSelected: (Color) -> Unit,
+    defaultColors: List<Color>,
+    defaultValueLabel: String? = null,
+    colorOverride: ((Color) -> Color)? = null,
+    enabled: Boolean = true,
+) {
+    val displayColor = colorOverride?.invoke(currentColor) ?: currentColor
+    var showDialog by remember { mutableStateOf(false) }
+    var tmpColor by remember { mutableStateOf(displayColor) }
+    var hexInput by remember { mutableStateOf("") }
+
+    SettingsRowLayout(
+        icon = icon,
+        title = title,
+        summary = if (displayColor == Color.Unspecified) defaultValueLabel
+                  else "#${displayColor.value.toHexString().takeLast(6).uppercase()}",
+        modifier = Modifier.clickable(enabled = enabled, onClick = { showDialog = true }),
+        trailing = {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                    .background(if (displayColor == Color.Unspecified) MaterialTheme.colorScheme.surfaceContainerHighest else displayColor),
+            )
+        },
+    )
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(title) },
+            text = {
+                Column(verticalScroll(rememberScrollState())) {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        for (color in defaultColors) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .border(
+                                        width = if (tmpColor == color) 2.dp else 0.dp,
+                                        color = if (tmpColor == color) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                        shape = RoundedCornerShape(8.dp),
+                                    )
+                                    .background(color)
+                                    .clickable {
+                                        tmpColor = color
+                                        hexInput = "#${color.value.toHexString().takeLast(6).uppercase()}"
+                                    },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                if (tmpColor == color) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        contentDescription = null,
+                                        tint = if (color == Color.Black || color == Color.DarkGray) Color.White else Color.Black,
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = hexInput,
+                        onValueChange = { input ->
+                            hexInput = input
+                            runCatching {
+                                val hex = input.removePrefix("#")
+                                if (hex.length == 6) {
+                                    tmpColor = Color(hex.toLong(16) or 0xFF000000UL.toLong())
+                                }
+                            }
+                        },
+                        label = { Text("Hex") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onColorSelected(tmpColor)
+                    showDialog = false
+                }) {
+                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__cancel))
+                }
+            },
+        )
+    }
+}
+
+@Composable
+fun M3LocalTimePickerPreference(
+    icon: ImageVector,
+    title: String,
+    currentHour: Int,
+    currentMinute: Int,
+    onTimeSelected: (Int, Int) -> Unit,
+    enabled: Boolean = true,
+) {
+    var showDialog by remember { mutableStateOf(false) }
+
+    SettingsRowLayout(
+        icon = icon,
+        title = title,
+        summary = "${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}",
+        modifier = Modifier.clickable(enabled = enabled, onClick = { showDialog = true }),
+        trailing = {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
+                modifier = Modifier.size(24.dp),
+            )
+        },
+    )
+
+    if (showDialog) {
+        val timePickerState = remember {
+            androidx.compose.material3.TimePickerState(
+                initialHour = currentHour,
+                initialMinute = currentMinute,
+                is24Hour = true,
+            )
+        }
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(title) },
+            text = {
+                TimePicker(
+                    state = timePickerState,
+                    colors = TimePickerDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    ),
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onTimeSelected(timePickerState.hour, timePickerState.minute)
                     showDialog = false
                 }) {
                     Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__ok))

@@ -20,12 +20,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Input
 import androidx.compose.material.icons.filled.Shop
 import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,17 +42,21 @@ import dev.ngocthanhgl.vikey.app.Routes
 import dev.ngocthanhgl.vikey.lib.ext.Extension
 import dev.ngocthanhgl.vikey.lib.ext.generateUpdateUrl
 import dev.ngocthanhgl.vikey.lib.util.launchUrl
-import org.florisboard.lib.compose.FlorisOutlinedBox
-import org.florisboard.lib.compose.FlorisTextButton
-import org.florisboard.lib.compose.defaultFlorisOutlinedBox
 import org.florisboard.lib.compose.stringRes
 import org.florisboard.lib.kotlin.curlyFormat
 
 @Composable
 fun ImportExtensionBox(navController: NavController) {
     val context = LocalContext.current
-    FlorisOutlinedBox(
-        modifier = Modifier.defaultFlorisOutlinedBox(),
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(28.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ),
     ) {
         Text(
             modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 4.dp),
@@ -60,21 +68,31 @@ fun ImportExtensionBox(navController: NavController) {
                 .fillMaxWidth()
                 .padding(horizontal = 6.dp),
         ) {
-            FlorisTextButton(
+            TextButton(
                 onClick = {
                     context.launchUrl("https://${BuildConfig.FLADDONS_STORE_URL}/")
                 },
-                icon = Icons.Default.Shop,
-                text = stringRes(id = R.string.ext__home__visit_store),
-            )
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Default.Shop,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 4.dp),
+                )
+                Text(text = stringRes(id = R.string.ext__home__visit_store))
+            }
             Spacer(modifier = Modifier.weight(1f))
-            FlorisTextButton(
+            TextButton(
                 onClick = {
                     navController.navigate(Routes.Ext.Import(ExtensionImportScreenType.EXT_ANY, null))
                 },
-                icon = Icons.AutoMirrored.Filled.Input,
-                text = stringRes(R.string.action__import),
-            )
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Input,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 4.dp),
+                )
+                Text(text = stringRes(R.string.action__import))
+            }
         }
     }
 }
@@ -82,8 +100,15 @@ fun ImportExtensionBox(navController: NavController) {
 @Composable
 fun UpdateBox(extensionIndex: List<Extension>) {
     val context = LocalContext.current
-    FlorisOutlinedBox(
-        modifier = Modifier.defaultFlorisOutlinedBox(),
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(28.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ),
     ) {
         Text(
             modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 4.dp),
@@ -95,13 +120,18 @@ fun UpdateBox(extensionIndex: List<Extension>) {
                 .fillMaxWidth()
                 .padding(horizontal = 6.dp),
         ) {
-            FlorisTextButton(
+            TextButton(
                 onClick = {
                     context.launchUrl(extensionIndex.generateUpdateUrl())
                 },
-                icon = Icons.Outlined.FileDownload,
-                text = stringRes(id = R.string.ext__update_box__search_for_updates)
-            )
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Outlined.FileDownload,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 4.dp),
+                )
+                Text(text = stringRes(id = R.string.ext__update_box__search_for_updates))
+            }
             Spacer(modifier = Modifier.weight(1f))
         }
     }
@@ -113,12 +143,23 @@ fun AddonManagementReferenceBox(
 ) {
     val navController = LocalNavController.current
 
-    FlorisOutlinedBox(
-        modifier = Modifier.defaultFlorisOutlinedBox(),
-        title = stringRes(id = R.string.ext__addon_management_box__managing_placeholder).curlyFormat(
-            "extensions" to type.let { stringRes(id = it.titleResId).lowercase() }
-        )
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(28.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ),
     ) {
+        Text(
+            modifier = Modifier.padding(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 4.dp),
+            text = stringRes(id = R.string.ext__addon_management_box__managing_placeholder).curlyFormat(
+                "extensions" to type.let { stringRes(id = it.titleResId).lowercase() }
+            ),
+            style = MaterialTheme.typography.titleMedium,
+        )
         Text(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
             text = stringRes(id = R.string.ext__addon_management_box__addon_manager_info),
@@ -130,18 +171,21 @@ fun AddonManagementReferenceBox(
                 .padding(horizontal = 6.dp),
         ) {
             Spacer(modifier = Modifier.weight(1f))
-            FlorisTextButton(
+            TextButton(
                 onClick = {
                     val route = Routes.Ext.List(type, showUpdate = true)
-                    navController.navigate(
-                        route
-                    )
+                    navController.navigate(route)
                 },
-                icon = Icons.Default.Shop,
-                text = stringRes(id = R.string.ext__addon_management_box__go_to_page).curlyFormat(
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Default.Shop,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 4.dp),
+                )
+                Text(text = stringRes(id = R.string.ext__addon_management_box__go_to_page).curlyFormat(
                     "ext_home_title" to stringRes(type.titleResId),
-                ),
-            )
+                ))
+            }
         }
     }
 }

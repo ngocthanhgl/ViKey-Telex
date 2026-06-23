@@ -13,31 +13,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.AppTheme
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.app.enumDisplayEntriesOf
 import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
+import dev.ngocthanhgl.vikey.app.settings.components.M3ColorPickerPreference
 import dev.ngocthanhgl.vikey.app.settings.components.M3ListPreference
 import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.patrickgold.jetpref.datastore.model.collectAsState
-import dev.patrickgold.jetpref.datastore.ui.ColorPickerPreference
-import dev.patrickgold.jetpref.datastore.ui.isMaterialYou
 import kotlinx.coroutines.launch
 import org.florisboard.lib.color.ColorMappings
 import org.florisboard.lib.compose.stringRes
 
 @Composable
 fun OtherScreen() {
-    val context = LocalContext.current
     val prefs by FlorisPreferenceStore
 
     SettingsScaffold(title = stringRes(R.string.settings__other__title)) {
         val scope = rememberCoroutineScope()
         val settingsTheme by prefs.other.settingsTheme.collectAsState()
+        val accentColor by prefs.other.accentColor.collectAsState()
 
         ElevatedCard(
             modifier = Modifier
@@ -57,21 +54,13 @@ fun OtherScreen() {
                 entries = enumDisplayEntriesOf(AppTheme::class).map { it.key.toString() to it.label },
             )
             SettingsDivider()
-            ColorPickerPreference(
-                pref = prefs.other.accentColor,
-                title = stringRes(R.string.pref__other__settings_accent_color__label),
-                defaultValueLabel = stringRes(R.string.action__default),
+            M3ColorPickerPreference(
                 icon = Icons.Outlined.WaterDrop,
+                title = stringRes(R.string.pref__other__settings_accent_color__label),
+                currentColor = accentColor,
+                onColorSelected = { scope.launch { prefs.other.accentColor.set(it) } },
                 defaultColors = ColorMappings.colors,
-                showAlphaSlider = false,
-                enableAdvancedLayout = true,
-                colorOverride = {
-                    if (it.isMaterialYou(context)) {
-                        Color.Unspecified
-                    } else {
-                        it
-                    }
-                },
+                defaultValueLabel = stringRes(R.string.action__default),
             )
         }
     }

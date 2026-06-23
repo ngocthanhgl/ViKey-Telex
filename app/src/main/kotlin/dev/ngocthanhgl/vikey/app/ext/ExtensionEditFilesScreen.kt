@@ -20,18 +20,27 @@ import android.provider.OpenableColumns
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +49,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -47,20 +57,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import dev.ngocthanhgl.vikey.lib.cache.CacheManager
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
-import dev.patrickgold.jetpref.datastore.ui.Preference
-import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
-import dev.patrickgold.jetpref.material.ui.JetPrefTextField
 import java.io.File
 import java.util.*
 import org.florisboard.lib.android.query
 import org.florisboard.lib.android.readToFile
 import org.florisboard.lib.android.showLongToast
 import org.florisboard.lib.android.showLongToastSync
-import org.florisboard.lib.android.showShortToast
 import org.florisboard.lib.android.showShortToastSync
-import org.florisboard.lib.compose.FlorisIconButton
 import org.florisboard.lib.compose.stringRes
 import org.florisboard.lib.kotlin.io.parentDir
 import org.florisboard.lib.kotlin.io.subDir
@@ -72,7 +77,6 @@ const val IMAGES = "images"
 
 val MIME_TYPES = mapOf(
     FONTS to mimeTypeFilterOf(
-        // Source: https://www.alienfactory.co.uk/articles/mime-types-for-web-fonts-in-bedsheet#mimeTypes
         "font/*",
         "application/font-*",
         "application/x-font-*",
@@ -84,21 +88,8 @@ val MIME_TYPES = mapOf(
 )
 
 @Composable
-fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) = FlorisScreen {
-    title = stringRes(R.string.ext__editor__files__title)
-
-    fun handleBackPress() {
-        workspace.currentAction = null
-    }
-
-    navigationIcon {
-        FlorisIconButton(
-            onClick = { handleBackPress() },
-            icon = Icons.Default.Close,
-        )
-    }
-
-    content {
+fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) {
+    SettingsScaffold(title = stringRes(R.string.ext__editor__files__title)) {
         val context = LocalContext.current
         var version by rememberSaveable { mutableIntStateOf(0) }
         val fontFiles = remember(version) {
@@ -140,91 +131,117 @@ fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) = Fl
             }
         }
 
-        BackHandler {
-            handleBackPress()
-        }
-
         @Composable
         fun FileList(title: String, icon: ImageVector, files: List<File>, onAdd: () -> Unit) {
             var dialogFile by remember { mutableStateOf<File?>(null) }
-            ListItem(
-                headlineContent = {
-                    Text(
-                        text = title,
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                },
-                leadingContent = {
-                    Spacer(modifier = Modifier.width(24.dp))
-                },
-                trailingContent = {
-                    IconButton(
-                        onClick = onAdd,
-                    ) {
-                        Icon(Icons.Default.Add, null)
-                    }
-                },
-            )
-            for (file in files) {
-                Preference(
-                    onClick = {
-                        dialogFile = file
-                    },
-                    icon = icon,
-                    title = file.name,
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
                 )
+                Spacer(Modifier.width(24.dp))
+                IconButton(onClick = onAdd) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                }
+            }
+            for (file in files) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { dialogFile = file }
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Spacer(Modifier.width(16.dp))
+                    Text(
+                        text = file.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+                if (file != files.last()) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 56.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                    )
+                }
             }
 
             dialogFile?.let { file ->
                 var fileNameInput by rememberSaveable { mutableStateOf(file.name) }
-                JetPrefAlertDialog(
-                    title = stringRes(R.string.general__properties),
-                    confirmLabel = stringRes(R.string.action__apply),
-                    dismissLabel = stringRes(R.string.action__cancel),
-                    neutralLabel = stringRes(R.string.action__delete),
-                    allowOutsideDismissal = true,
-                    onNeutral = {
-                        if (file.delete()) {
-                            context.showShortToastSync("Successfully deleted")
-                        } else {
-                            context.showShortToastSync("Failed to delete")
-                        }
-                        dialogFile = null
-                        version++
+                AlertDialog(
+                    onDismissRequest = { dialogFile = null },
+                    title = { Text(stringRes(R.string.general__properties)) },
+                    text = {
+                        OutlinedTextField(
+                            value = fileNameInput,
+                            onValueChange = { fileNameInput = it },
+                            singleLine = true,
+                            label = { Text(stringRes(R.string.general__file_name)) },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     },
-                    onConfirm = {
-                        val newFile = file.parentFile!!.subFile(fileNameInput).canonicalFile
-                        if (newFile.parentFile != file.canonicalFile.parentFile) {
-                            context.showLongToastSync("Invalid file name!")
-                            return@JetPrefAlertDialog
+                    confirmButton = {
+                        TextButton(onClick = {
+                            val newFile = file.parentFile!!.subFile(fileNameInput).canonicalFile
+                            if (newFile.parentFile != file.canonicalFile.parentFile) {
+                                context.showLongToastSync("Invalid file name!")
+                                return@TextButton
+                            }
+                            if (newFile.exists()) {
+                                context.showShortToastSync("Filename already exists.")
+                                return@TextButton
+                            }
+                            val success = file.renameTo(newFile)
+                            if (success) {
+                                context.showShortToastSync("Successfully renamed")
+                            } else {
+                                context.showShortToastSync("Failed to rename the file.")
+                            }
+                            dialogFile = null
+                            version++
+                        }) {
+                            Text(stringRes(R.string.action__apply))
                         }
-                        if (newFile.exists()) {
-                            context.showShortToastSync("Filename already exists.")
-                            return@JetPrefAlertDialog
-                        }
-                        val success = file.renameTo(newFile)
-                        if (success) {
-                            context.showShortToastSync("Successfully renamed")
-                        } else {
-                            context.showShortToastSync("Failed to rename the file.")
-                        }
-                        dialogFile = null
-                        version++
                     },
-                    onDismiss = {
-                        dialogFile = null
+                    dismissButton = {
+                        TextButton(onClick = { dialogFile = null }) {
+                            Text(stringRes(R.string.action__cancel))
+                        }
                     },
-                ) {
-                    JetPrefTextField(
-                        labelText = stringRes(R.string.general__file_name),
-                        value = fileNameInput,
-                        onValueChange = { fileNameInput = it },
-                        singleLine = true,
-                    )
-                }
+                    neutralButton = {
+                        TextButton(onClick = {
+                            if (file.delete()) {
+                                context.showShortToastSync("Successfully deleted")
+                            } else {
+                                context.showShortToastSync("Failed to delete")
+                            }
+                            dialogFile = null
+                            version++
+                        }) {
+                            Text(
+                                stringRes(R.string.action__delete),
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                    },
+                )
             }
         }
 
@@ -250,43 +267,55 @@ fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) = Fl
         val result = currentImportResult?.getOrNull()
         if (dest != null && result != null) {
             var fileNameInput by rememberSaveable { mutableStateOf(result.second) }
-            JetPrefAlertDialog(
-                title = stringRes(R.string.action__import_file),
-                confirmLabel = stringRes(R.string.action__add),
-                onConfirm = {
-                    val fileName = fileNameInput.trim()
-                    val dir = workspace.extDir.subDir(dest)
-                    dir.mkdirs()
-                    val file = dir.subFile(fileName)
-                    if (file.parentDir != workspace.extDir.subDir(dest)) {
-                        context.showShortToastSync("Invalid file name")
-                    } else if (file.exists()) {
-                        context.showShortToastSync("File already exists")
-                    } else {
-                        val tempFile = result.first
-                        if (!tempFile.renameTo(file)) {
-                            context.showShortToastSync("Failed to rename file")
-                            tempFile.delete()
-                        }
-                        currentImportDest = null
-                        currentImportResult = null
-                        version++
-                    }
-                },
-                dismissLabel = stringRes(R.string.action__cancel),
-                onDismiss = {
-                    val tempFile = result.first
-                    tempFile.delete()
+            AlertDialog(
+                onDismissRequest = {
+                    result.first.delete()
                     currentImportDest = null
                     currentImportResult = null
                 },
-            ) {
-                JetPrefTextField(
-                    value = fileNameInput,
-                    onValueChange = { fileNameInput = it },
-                    singleLine = true,
-                )
-            }
+                title = { Text(stringRes(R.string.action__import_file)) },
+                text = {
+                    OutlinedTextField(
+                        value = fileNameInput,
+                        onValueChange = { fileNameInput = it },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val fileName = fileNameInput.trim()
+                        val dir = workspace.extDir.subDir(dest)
+                        dir.mkdirs()
+                        val file = dir.subFile(fileName)
+                        if (file.parentDir != workspace.extDir.subDir(dest)) {
+                            context.showShortToastSync("Invalid file name")
+                        } else if (file.exists()) {
+                            context.showShortToastSync("File already exists")
+                        } else {
+                            val tempFile = result.first
+                            if (!tempFile.renameTo(file)) {
+                                context.showShortToastSync("Failed to rename file")
+                                tempFile.delete()
+                            }
+                            currentImportDest = null
+                            currentImportResult = null
+                            version++
+                        }
+                    }) {
+                        Text(stringRes(R.string.action__add))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        result.first.delete()
+                        currentImportDest = null
+                        currentImportResult = null
+                    }) {
+                        Text(stringRes(R.string.action__cancel))
+                    }
+                },
+            )
         }
     }
 }

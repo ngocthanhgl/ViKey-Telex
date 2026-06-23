@@ -17,25 +17,39 @@
 package dev.ngocthanhgl.vikey.app.ext
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import dev.ngocthanhgl.vikey.R
@@ -53,12 +68,7 @@ import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
 import dev.ngocthanhgl.vikey.extensionManager
 import dev.ngocthanhgl.vikey.ime.theme.ThemeExtension
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionManager
-import org.florisboard.lib.compose.FlorisOutlinedBox
-import org.florisboard.lib.compose.FlorisTextButton
-import org.florisboard.lib.compose.defaultFlorisOutlinedBox
-import org.florisboard.lib.compose.florisScrollbar
 import org.florisboard.lib.compose.stringRes
 
 enum class ExtensionListScreenType(
@@ -77,107 +87,147 @@ enum class ExtensionListScreenType(
         id = "ext-keyboard",
         titleResId = R.string.ext__list__ext_keyboard,
         getExtensionIndex = { it.keyboardExtensions },
-        launchExtensionCreate = null,//{ it.navigate(Routes.Ext.Edit("null", KeyboardExtension.SERIAL_TYPE)) },
+        launchExtensionCreate = null,
     ),
     EXT_LANGUAGEPACK(
         id = "ext-languagepack",
         titleResId = R.string.ext__list__ext_languagepack,
         getExtensionIndex = { it.languagePacks },
-        launchExtensionCreate = null,//{ it.navigate(Routes.Ext.Edit("null", LanguagePackExtension.SERIAL_TYPE)) },
+        launchExtensionCreate = null,
     );
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExtensionListScreen(type: ExtensionListScreenType, showUpdate: Boolean) = FlorisScreen {
-    title = stringRes(type.titleResId)
-    scrollable = false
-
+fun ExtensionListScreen(type: ExtensionListScreenType, showUpdate: Boolean) {
     val context = LocalContext.current
     val navController = LocalNavController.current
     val extensionManager by context.extensionManager()
     val extensionIndex by type.getExtensionIndex(extensionManager).collectAsState()
 
-    var fabHeight by remember {
-        mutableStateOf(0)
-    }
-    val fabHeightDp = with(LocalDensity.current) { fabHeight.toDp()+16.dp }
+    var fabHeight by remember { mutableStateOf(0) }
+    val fabHeightDp = with(LocalDensity.current) { fabHeight.toDp() + 16.dp }
     val listState = rememberLazyListState()
 
-    content {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringRes(type.titleResId)) },
+                navigationIcon = {
+                    androidx.compose.material3.IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null,
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            )
+        },
+        floatingActionButton = {
+            if (type.launchExtensionCreate != null) {
+                ExtendedFloatingActionButton(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = stringRes(id = R.string.ext__editor__title_create_any),
+                        )
+                    },
+                    text = { Text(text = stringRes(id = R.string.ext__editor__title_create_any)) },
+                    modifier = Modifier.onGloballyPositioned {
+                        fabHeight = it.size.height
+                    },
+                    shape = FloatingActionButtonDefaults.extendedFabShape,
+                    onClick = { type.launchExtensionCreate.invoke(navController) },
+                )
+            }
+        },
+    ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .florisScrollbar(state = listState, isVertical = true),
+                .padding(padding),
             state = listState,
             contentPadding = PaddingValues(bottom = fabHeightDp),
         ) {
             if (showUpdate) {
-                item {
-                    ImportExtensionBox(navController)
-                }
-                item {
-                    UpdateBox(extensionIndex = extensionIndex)
-                }
+                item { ImportExtensionBox(navController) }
+                item { UpdateBox(extensionIndex = extensionIndex) }
+                item { AddonManagementReferenceBox(type) }
             }
             items(extensionIndex) { ext ->
-                FlorisOutlinedBox(
-                    modifier = Modifier.defaultFlorisOutlinedBox(),
-                    title = ext.meta.title,
-                    subtitle = ext.meta.id,
+                ElevatedCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    ),
                 ) {
-                    Text(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                        text = ext.meta.description ?: "",
-                        style = MaterialTheme.typography.bodySmall,
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { navController.navigate(Routes.Ext.View(ext.meta.id)) }
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                    ) {
+                        Text(
+                            text = ext.meta.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            text = ext.meta.id,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        ext.meta.description?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                     )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 6.dp),
                     ) {
-                        FlorisTextButton(
-                            onClick = {
-                                navController.navigate(Routes.Ext.View(ext.meta.id))
-                            },
-                            icon = Icons.Outlined.Info,
-                            text = stringRes(id = R.string.ext__list__view_details),//stringRes(R.string.action__add),
-                            colors = ButtonDefaults.textButtonColors(),
-                        )
+                        TextButton(
+                            onClick = { navController.navigate(Routes.Ext.View(ext.meta.id)) },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 4.dp),
+                            )
+                            Text(text = stringRes(id = R.string.ext__list__view_details))
+                        }
                         Spacer(modifier = Modifier.weight(1f))
-                        FlorisTextButton(
-                            onClick = {
-                                navController.navigate(Routes.Ext.Edit(ext.meta.id))
-                            },
-                            icon = Icons.Default.Edit,
-                            text = stringRes(R.string.action__edit),
+                        TextButton(
+                            onClick = { navController.navigate(Routes.Ext.Edit(ext.meta.id)) },
                             enabled = extensionManager.canDelete(ext),
-                        )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 4.dp),
+                            )
+                            Text(text = stringRes(R.string.action__edit))
+                        }
                     }
                 }
             }
-        }
-    }
-
-    if (type.launchExtensionCreate != null) {
-        floatingActionButton {
-            ExtendedFloatingActionButton(
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringRes(id = R.string.ext__editor__title_create_any),
-                    )
-                },
-                text = {
-                    Text(
-                        text = stringRes(id = R.string.ext__editor__title_create_any),
-                    )
-                },
-                modifier = Modifier.onGloballyPositioned {
-                    fabHeight = it.size.height
-                },
-                shape = FloatingActionButtonDefaults.extendedFabShape,
-                onClick = { type.launchExtensionCreate.invoke(navController) },
-            )
         }
     }
 }

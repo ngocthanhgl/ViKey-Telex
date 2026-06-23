@@ -18,28 +18,38 @@ package dev.ngocthanhgl.vikey.app.settings.typing
 
 import android.content.ComponentName
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.lib.util.launchActivity
 import org.florisboard.lib.android.AndroidSettings
-import org.florisboard.lib.compose.FlorisCanvasIcon
-import org.florisboard.lib.compose.FlorisErrorCard
-import org.florisboard.lib.compose.FlorisSimpleCard
-import org.florisboard.lib.compose.FlorisWarningCard
 import org.florisboard.lib.compose.observeAsState
 import org.florisboard.lib.compose.stringRes
 
@@ -74,13 +84,25 @@ fun SpellCheckerServiceSelector(florisSpellCheckerEnabled: MutableState<Boolean>
         systemSpellCheckerEnabled == "1" &&
         systemSpellCheckerPkgName == context.packageName
 
-    Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         if (systemSpellCheckerEnabled == "1") {
             if (systemSpellCheckerId == null) {
-                FlorisWarningCard(
-                    text = stringRes(R.string.pref__spelling__active_spellchecker__summary_none),
+                ElevatedCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    ),
                     onClick = openSystemSpellCheckerSettings,
-                )
+                ) {
+                    Text(
+                        text = stringRes(R.string.pref__spelling__active_spellchecker__summary_none),
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
             } else {
                 var spellCheckerIcon: Drawable?
                 var spellCheckerLabel = "Unknown"
@@ -92,36 +114,86 @@ fun SpellCheckerServiceSelector(florisSpellCheckerEnabled: MutableState<Boolean>
                 } catch (e: Exception) {
                     spellCheckerIcon = null
                 }
-                FlorisSimpleCard(
-                    icon = {
-                        if (spellCheckerIcon != null) {
-                            FlorisCanvasIcon(
+                val iconBitmap = remember(spellCheckerIcon) {
+                    spellCheckerIcon?.let {
+                        val bmp = Bitmap.createBitmap(
+                            it.intrinsicWidth.coerceAtLeast(1),
+                            it.intrinsicHeight.coerceAtLeast(1),
+                            Bitmap.Config.ARGB_8888,
+                        )
+                        val canvas = android.graphics.Canvas(bmp)
+                        it.setBounds(0, 0, canvas.width, canvas.height)
+                        it.draw(canvas)
+                        bmp
+                    }
+                }
+                val iconPainter = remember(iconBitmap) {
+                    iconBitmap?.let { BitmapPainter(it.asImageBitmap()) }
+                }
+                ElevatedCard(
+                    onClick = openSystemSpellCheckerSettings,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    ),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (iconPainter != null) {
+                            androidx.compose.foundation.Image(
+                                painter = iconPainter,
+                                contentDescription = null,
                                 modifier = Modifier
-                                    .padding(end = 8.dp)
-                                    .requiredSize(32.dp),
-                                drawable = spellCheckerIcon,
+                                    .requiredSize(32.dp)
+                                    .clip(RoundedCornerShape(8.dp)),
                             )
                         } else {
                             Icon(
-                                modifier = Modifier
-                                    .padding(end = 8.dp)
-                                    .requiredSize(32.dp),
                                 imageVector = Icons.AutoMirrored.Filled.HelpOutline,
                                 contentDescription = null,
+                                modifier = Modifier.requiredSize(32.dp),
                             )
                         }
-                    },
-                    text = spellCheckerLabel,
-                    secondaryText = systemSpellCheckerPkgName,
-                    contentPadding = PaddingValues(all = 8.dp),
-                    onClick = openSystemSpellCheckerSettings,
-                )
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = spellCheckerLabel,
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                            Text(
+                                text = systemSpellCheckerPkgName,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
             }
         } else {
-            FlorisErrorCard(
-                text = stringRes(R.string.pref__spelling__active_spellchecker__summary_disabled),
+            ElevatedCard(
                 onClick = openSystemSpellCheckerSettings,
-            )
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                ),
+            ) {
+                Text(
+                    text = stringRes(R.string.pref__spelling__active_spellchecker__summary_disabled),
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
         }
     }
 }

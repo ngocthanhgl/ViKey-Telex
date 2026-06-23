@@ -19,12 +19,16 @@ package dev.ngocthanhgl.vikey.app.ext
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
 import dev.ngocthanhgl.vikey.lib.ext.Extension
-import dev.patrickgold.jetpref.material.ui.JetPrefListItem
 
 @Composable
 fun <T : Extension> ExtensionList(
@@ -34,19 +38,32 @@ fun <T : Extension> ExtensionList(
 ) {
     val navController = LocalNavController.current
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        for (ext in extList) {
-            JetPrefListItem(
-                icon = { },
+    Column(modifier = modifier.fillMaxWidth()) {
+        extList.forEachIndexed { index, ext ->
+            Column(
                 modifier = Modifier
-                    .clickable {
-                        navController.navigate(Routes.Ext.View(ext.meta.id))
-                    },
-                text = ext.meta.title,
-                secondaryText = summaryProvider(ext),
-            )
+                    .fillMaxWidth()
+                    .clickable { navController.navigate(Routes.Ext.View(ext.meta.id)) }
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+            ) {
+                Text(
+                    text = ext.meta.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                summaryProvider(ext)?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (index < extList.lastIndex) {
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 16.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                )
+            }
         }
     }
 }

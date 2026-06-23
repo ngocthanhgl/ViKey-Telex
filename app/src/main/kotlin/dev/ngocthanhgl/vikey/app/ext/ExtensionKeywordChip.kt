@@ -16,21 +16,28 @@
 
 package dev.ngocthanhgl.vikey.app.ext
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import org.florisboard.lib.compose.FlorisChip
 
 @Composable
 fun ExtensionKeywordChip(
     keyword: String,
     modifier: Modifier = Modifier,
 ) {
-    FlorisChip(
-        modifier = modifier,
+    Text(
         text = keyword,
-        enabled = false,
-        shape = RoundedCornerShape(4.dp),
+        modifier = modifier
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 }

@@ -16,9 +16,9 @@
 
 package dev.ngocthanhgl.vikey.app.ext
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -27,13 +27,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,25 +49,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import dev.ngocthanhgl.vikey.extensionManager
 import dev.ngocthanhgl.vikey.ime.nlp.LanguagePackExtension
 import dev.ngocthanhgl.vikey.ime.theme.ThemeExtension
 import dev.ngocthanhgl.vikey.ime.theme.ThemeExtensionComponentImpl
-import dev.ngocthanhgl.vikey.lib.compose.FlorisConfirmDeleteDialog
-import dev.ngocthanhgl.vikey.lib.compose.FlorisHyperlinkText
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.ngocthanhgl.vikey.lib.ext.Extension
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionMaintainer
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionMeta
 import dev.ngocthanhgl.vikey.lib.io.FlorisRef
+import dev.ngocthanhgl.vikey.lib.util.launchUrl
 import org.florisboard.lib.android.showLongToastSync
-import org.florisboard.lib.compose.FlorisOutlinedButton
-import org.florisboard.lib.compose.defaultFlorisOutlinedBox
 import org.florisboard.lib.compose.stringRes
 
 @Composable
@@ -77,90 +82,112 @@ fun ExtensionViewScreen(id: String) {
 }
 
 @Composable
-private fun ViewScreen(ext: Extension) = FlorisScreen {
-    title = ext.meta.title
-
+private fun ViewScreen(ext: Extension) {
     val navController = LocalNavController.current
     val context = LocalContext.current
     val extensionManager by context.extensionManager()
 
     var extToDelete by remember { mutableStateOf<Extension?>(null) }
 
-    content {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
+    SettingsScaffold(title = ext.meta.title) {
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
         ) {
-            ext.meta.description?.let { Text(it) }
-            Spacer(modifier = Modifier.height(16.dp))
-            ExtensionMetaRowScrollableChips(
-                label = stringRes(R.string.ext__meta__maintainers),
-                showDividerAbove = false,
-            ) {
-                for ((n, maintainer) in ext.meta.maintainers.withIndex()) {
-                    if (n > 0) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
+            ext.meta.description?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+            MetaRowScrollable(label = stringRes(R.string.ext__meta__maintainers)) {
+                ext.meta.maintainers.forEachIndexed { index, maintainer ->
+                    if (index > 0) Spacer(Modifier.width(8.dp))
                     ExtensionMaintainerChip(maintainer)
                 }
             }
-            ExtensionMetaRowSimpleText(label = stringRes(R.string.ext__meta__id)) {
+            MetaRowSimple(label = stringRes(R.string.ext__meta__id)) {
                 Text(text = ext.meta.id)
             }
-            ExtensionMetaRowSimpleText(label = stringRes(R.string.ext__meta__version)) {
+            MetaRowSimple(label = stringRes(R.string.ext__meta__version)) {
                 Text(text = ext.meta.version)
             }
-            if (ext.meta.keywords != null && ext.meta.keywords!!.isNotEmpty()) {
-                ExtensionMetaRowScrollableChips(label = stringRes(R.string.ext__meta__keywords)) {
-                    for ((n, keyword) in ext.meta.keywords!!.withIndex()) {
-                        if (n > 0) {
-                            Spacer(modifier = Modifier.width(8.dp))
-                        }
+            if (!ext.meta.keywords.isNullOrEmpty()) {
+                MetaRowScrollable(label = stringRes(R.string.ext__meta__keywords)) {
+                    ext.meta.keywords.forEachIndexed { index, keyword ->
+                        if (index > 0) Spacer(Modifier.width(8.dp))
                         ExtensionKeywordChip(keyword)
                     }
                 }
             }
             if (!ext.meta.homepage.isNullOrBlank()) {
-                ExtensionMetaRowSimpleText(label = stringRes(R.string.ext__meta__homepage)) {
-                    FlorisHyperlinkText(
+                MetaRowSimple(label = stringRes(R.string.ext__meta__homepage)) {
+                    Text(
                         text = FlorisRef.fromUrl(ext.meta.homepage!!).authority,
-                        url = ext.meta.homepage!!,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable {
+                            context.launchUrl(ext.meta.homepage!!)
+                        },
                     )
                 }
             }
             if (!ext.meta.issueTracker.isNullOrBlank()) {
-                ExtensionMetaRowSimpleText(label = stringRes(R.string.ext__meta__issue_tracker)) {
-                    FlorisHyperlinkText(
+                MetaRowSimple(label = stringRes(R.string.ext__meta__issue_tracker)) {
+                    Text(
                         text = FlorisRef.fromUrl(ext.meta.issueTracker!!).authority,
-                        url = ext.meta.issueTracker!!,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable {
+                            context.launchUrl(ext.meta.issueTracker!!)
+                        },
                     )
                 }
             }
-            ExtensionMetaRowSimpleText(label = stringRes(R.string.ext__meta__license)) {
-                // TODO: display human-readable License name instead of
-                //  SPDX identifier
+            MetaRowSimple(label = stringRes(R.string.ext__meta__license)) {
                 Text(text = ext.meta.license)
             }
-            Row(modifier = Modifier.fillMaxWidth()) {
-                if (extensionManager.canDelete(ext)) {
-                    FlorisOutlinedButton(
-                        onClick = {
-                            extToDelete = ext
-                        },
-                        icon = Icons.Default.Delete,
-                        text = stringRes(R.string.action__delete),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                        ),
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+        ) {
+            if (extensionManager.canDelete(ext)) {
+                OutlinedButton(
+                    onClick = { extToDelete = ext },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 4.dp),
                     )
+                    Text(text = stringRes(R.string.action__delete))
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                FlorisOutlinedButton(
-                    onClick = {
-                        navController.navigate(Routes.Ext.Export(ext.meta.id))
-                    },
-                    icon = Icons.Default.Share,
-                    text = stringRes(R.string.action__export),
+            }
+            Spacer(Modifier.weight(1f))
+            OutlinedButton(
+                onClick = {
+                    navController.navigate(Routes.Ext.Export(ext.meta.id))
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 4.dp),
                 )
+                Text(text = stringRes(R.string.action__export))
             }
         }
 
@@ -171,7 +198,7 @@ private fun ViewScreen(ext: Extension) = FlorisScreen {
                     components = ext.themes,
                 ) { component ->
                     ExtensionComponentView(
-                        modifier = Modifier.defaultFlorisOutlinedBox(),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         meta = ext.meta,
                         component = component,
                     )
@@ -183,81 +210,108 @@ private fun ViewScreen(ext: Extension) = FlorisScreen {
                     components = ext.items,
                 ) { component ->
                     ExtensionComponentView(
-                        modifier = Modifier.defaultFlorisOutlinedBox(),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         meta = ext.meta,
                         component = component,
                     )
                 }
             }
-            else -> {
-                // Render nothing
-            }
+            else -> { }
         }
 
         if (extToDelete != null) {
-            FlorisConfirmDeleteDialog(
-                onConfirm = {
-                    runCatching {
-                        extensionManager.delete(extToDelete!!)
-                    }.onSuccess {
-                        navController.popBackStack()
-                    }.onFailure { error ->
-                        context.showLongToastSync(
-                            R.string.error__snackbar_message,
-                            "error_message" to error.localizedMessage,
-                        )
-                    }
-                    extToDelete = null
+            AlertDialog(
+                onDismissRequest = { extToDelete = null },
+                title = { Text(stringRes(R.string.action__delete_confirm_title)) },
+                text = {
+                    Text(stringRes(R.string.action__delete_confirm_message, "name" to extToDelete!!.meta.title))
                 },
-                onDismiss = { extToDelete = null },
-                what = extToDelete!!.meta.title,
+                confirmButton = {
+                    TextButton(onClick = {
+                        runCatching {
+                            extensionManager.delete(extToDelete!!)
+                        }.onSuccess {
+                            navController.popBackStack()
+                        }.onFailure { error ->
+                            context.showLongToastSync(
+                                R.string.error__snackbar_message,
+                                "error_message" to error.localizedMessage,
+                            )
+                        }
+                        extToDelete = null
+                    }) {
+                        Text(stringRes(R.string.action__delete))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { extToDelete = null }) {
+                        Text(stringRes(R.string.action__cancel))
+                    }
+                },
             )
         }
     }
 }
 
 @Composable
-private fun ExtensionMetaRowSimpleText(
+private fun MetaRowSimple(
     label: String,
     modifier: Modifier = Modifier,
     showDividerAbove: Boolean = true,
     content: @Composable RowScope.() -> Unit,
 ) {
     if (showDividerAbove) {
-        HorizontalDivider()
+        HorizontalDivider(
+            modifier = Modifier.padding(start = 16.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+        )
     }
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(modifier = Modifier.padding(end = 24.dp), text = label)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(end = 24.dp),
+        )
         content()
     }
 }
 
 @Composable
-private fun ExtensionMetaRowScrollableChips(
+private fun MetaRowScrollable(
     label: String,
     modifier: Modifier = Modifier,
     showDividerAbove: Boolean = true,
     content: @Composable RowScope.() -> Unit,
 ) {
     if (showDividerAbove) {
-        HorizontalDivider()
+        HorizontalDivider(
+            modifier = Modifier.padding(start = 16.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+        )
     }
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(modifier = Modifier.padding(end = 24.dp), text = label)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 16.dp, end = 24.dp),
+        )
         Row(
             modifier = Modifier
                 .weight(1.0f, fill = false)
-                .horizontalScroll(rememberScrollState()),
+                .horizontalScroll(rememberScrollState())
+                .padding(vertical = 12.dp),
         ) {
             content()
         }

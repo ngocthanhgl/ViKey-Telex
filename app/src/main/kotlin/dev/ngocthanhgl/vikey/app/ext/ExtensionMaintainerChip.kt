@@ -16,24 +16,37 @@
 
 package dev.ngocthanhgl.vikey.app.ext
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.outlined.Mail
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionMaintainer
 import dev.ngocthanhgl.vikey.lib.util.launchUrl
-import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
-import org.florisboard.lib.compose.FlorisChip
 
 @Composable
 fun ExtensionMaintainerChip(
@@ -43,47 +56,105 @@ fun ExtensionMaintainerChip(
     val context = LocalContext.current
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
-    FlorisChip(
-        modifier = modifier,
-        text = maintainer.name,
-        trailingIcons = when {
-            maintainer.email != null && maintainer.url != null -> listOf(
-                Icons.Outlined.Mail,
-                Icons.Default.Link,
-            )
-            maintainer.email != null -> listOf(Icons.Outlined.Mail)
-            maintainer.url != null -> listOf(Icons.Default.Link)
-            else -> listOf()
-        },
-        onClick = { showDialog = !showDialog },
-        enabled = maintainer.email != null || maintainer.url != null,
-        shape = RoundedCornerShape(4.dp),
-    )
+    val hasEmail = maintainer.email != null
+    val hasUrl = maintainer.url != null
 
-    if (showDialog) {
-        JetPrefAlertDialog(
-            title = maintainer.name,
-            onDismiss = { showDialog = false },
+    Surface(
+        modifier = modifier
+            .clickable(enabled = hasEmail || hasUrl) { showDialog = true },
+        shape = RoundedCornerShape(4.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column {
-                if (maintainer.email != null) {
-                    FlorisChip(
-                        onClick = { context.launchUrl("mailto:${maintainer.email}") },
-                        text = maintainer.email,
-                        leadingIcons = listOf(Icons.Outlined.Mail),
-                        shape = RoundedCornerShape(4.dp),
+            Text(
+                text = maintainer.name,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            if (hasEmail || hasUrl) {
+                Spacer(Modifier.width(4.dp))
+                if (hasEmail) {
+                    Icon(
+                        imageVector = Icons.Outlined.Mail,
+                        contentDescription = null,
+                        modifier = Modifier.size(12.dp),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
                     )
                 }
-                if (maintainer.url != null) {
-                    FlorisChip(
-                        onClick = { context.launchUrl(maintainer.url) },
-                        text = maintainer.url,
-                        leadingIcons = listOf(Icons.Default.Link),
-                        shape = RoundedCornerShape(4.dp),
+                if (hasUrl) {
+                    Spacer(Modifier.width(2.dp))
+                    Icon(
+                        imageVector = Icons.Default.Link,
+                        contentDescription = null,
+                        modifier = Modifier.size(12.dp),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
                     )
                 }
             }
         }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(maintainer.name) },
+            text = {
+                Column {
+                    if (maintainer.email != null) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { context.launchUrl("mailto:${maintainer.email}") }
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Mail,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                text = maintainer.email,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                    if (maintainer.url != null) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { context.launchUrl(maintainer.url) }
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Link,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                text = maintainer.url,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__close))
+                }
+            },
+        )
     }
 }
 
