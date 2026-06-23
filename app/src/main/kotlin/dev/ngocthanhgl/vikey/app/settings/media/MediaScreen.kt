@@ -55,7 +55,6 @@ fun MediaScreen() {
     val scope = rememberCoroutineScope()
 
     SettingsScaffold(title = stringRes(R.string.settings__media__title)) {
-        val scope = rememberCoroutineScope()
         val preferredSkinTone by prefs.emoji.preferredSkinTone.collectAsState()
         val historyPinnedUpdateStrategy by prefs.emoji.historyPinnedUpdateStrategy.collectAsState()
         val historyRecentUpdateStrategy by prefs.emoji.historyRecentUpdateStrategy.collectAsState()
@@ -255,6 +254,8 @@ fun MediaScreen() {
         },
     )
 }
+
+private data class ShouldDelete(val pinned: Boolean)
 
 @Composable
 private fun DeleteEmojiHistoryConfirmDialog(

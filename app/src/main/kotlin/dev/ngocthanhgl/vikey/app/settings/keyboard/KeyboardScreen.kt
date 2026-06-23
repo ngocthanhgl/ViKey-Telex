@@ -80,12 +80,6 @@ fun KeyboardScreen() {
         val longPressDelay by prefs.keyboard.longPressDelay.collectAsState()
         val spaceBarSwitchesToCharacters by prefs.keyboard.spaceBarSwitchesToCharacters.collectAsState()
 
-        Text(
-            text = stringRes(R.string.pref__keyboard__title),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
-        )
         ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
