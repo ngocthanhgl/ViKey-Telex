@@ -5,139 +5,161 @@
 <h1 align="center">ViKey</h1>
 
 <p align="center">
-  <strong>Bàn phím Tiếng Việt Telex cho Android</strong><br>
-  IME Telex mã nguồn mở với engine xử lý ngữ âm dựa trên kiến trúc FST, gợi ý theo thời gian thực.
+  <strong>Vietnamese Telex Keyboard for Android</strong><br>
+  IME mã nguồn mở đầu tiên dùng xử lý âm tiết thuần thuật toán —<br>
+  không lookup table, không mutation, không dictionary dependency.
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=flat&logo=kotlin&logoColor=white" alt="Kotlin">
   <img src="https://img.shields.io/badge/API_26+-3DDC84?style=flat&logo=android&logoColor=white" alt="API 26+">
   <img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="License">
+  <img src="https://img.shields.io/badge/LLM-Qwen_GGUF-orange?style=flat" alt="Qwen GGUF">
 </p>
 
-## Sự Ra Đời Của ViKey
+---
 
-ViKey ban đầu chỉ là một app dùng cho mục đích cá nhân. Tôi là người đam mê bảo mật nhưng tìm mãi không có app bàn phím Android nào đáp ứng nhu cầu. Đã thử Heliboard, FUTO, Openboard, Fcitx5 và cuối cùng là FlorisBoard — tất cả đều chỉ dừng lại ở mức gõ **được** chứ chưa gõ **đúng**. Vì vậy tôi quyết định build lại từ nền tảng FlorisBoard, bắt đầu bằng việc viết lại engine Telex mới. Sau đó tôi quyết định trau chuốt để public cho mọi người cùng sử dụng.
+## Tại Sao Lại Có ViKey?
 
-```kotlin
-// FlorisBoard (mutation-based): "chaof" → "chào"
-//   cần entry trong bảng cho "ào" hoặc thay thế theo chuỗi
-// ViKey (FST-based): parse("chao") + applyTone('f') → "chào"
-//   xử lý theo trạng thái — đọc đúng dấu thanh ngay khi đang gõ, chưa cần commit
-```
+Mọi IME mã nguồn mở trên Android đều xử lý Tiếng Việt theo kiểu **"có thì tốt, không có cũng được"**:
 
-### Tái Tổ Hợp Âm Tiết Theo Thời Gian Thực
+| IME | Engine Telex | Gỡ dấu real-time | Auto-correct VN | English detect | Gợi ý AI |
+|-----|-------------|-------------------|-----------------|----------------|----------|
+| **ViKey** | Thuật toán âm tiết | ✅ | ✅ (Levenshtein + QWERTY) | ✅ (3 lớp heuristic) | ✅ Qwen GGUF |
+| FlorisBoard | Mutation table | ❌ | ❌ | ❌ | ❌ |
+| Heliboard | Mutation table | ❌ | ❌ | ❌ | ❌ |
+| FUTO Keyboard | Mutation table | ❌ | ❌ | ❌ | ❌ |
+| OpenBoard | Mutation table | ❌ | ❌ | ❌ | ❌ |
 
-Nhờ kiến trúc FST, mỗi lần gõ phím — kể cả khi đổi dấu thanh giữa chừng — đều được xử lý và phản hồi ngay lập tức:
+**Mutation table** là cách mà tất cả các IME khác dùng: tra bảng `"ao" → "ào"`, `"oo" → "ô"`. Cách này có vấn đề:
 
-```
-Gõ phím → Phân rã → Phân tích âm tiết → Áp dụng quy tắc → Tái tạo → Xuất ra
-```
+- **Drift state** — gõ nhanh dễ bị lệch, ra kết quả sai
+- **Không đọc được dấu đang gõ** — gợi ý từ không cập nhật theo dấu thanh
+- **Phải có entry cho mọi tổ hợp** — không xử lý được tri giác (vd: `uow` → `ươ`)
+- **Không phân biệt được Tiếng Việt / Tiếng Anh** — gõ "school" dễ biến thành "schôôl"
 
-Ví dụ: gõ **"bá"** rồi đổi dấu thành **"bà"** → gợi ý lập tức chuyển sang **"bàn — bàng — bài"** mà không cần commit từ. Đây là điểm khác biệt lớn so với Telex kiểu cũ, vốn không đọc được dấu thanh đang gõ nên gợi ý không cập nhật real-time.
-
-### Bộ Phân Tích Âm Tiết
-
-Phân rã chuỗi Tiếng Việt thành các thành phần ngữ âm chuẩn:
-
-```
-  n g u y ễ n
-  ↑↑   ↑↑  ↑
-âm đầu  âm chính  âm cuối + thanh điệu
-```
-
-Xử lý đầy đủ các tổ hợp phụ âm đầu (`ngh`, `ng`, `ch`, `gh`, `gi`, `kh`, `nh`, `ph`, `th`, `tr`, `qu`) với cơ chế phòng tránh nhận nhầm.
-
-### Đặt Dấu Thanh Theo Chính Tả
-
-Dấu thanh được đặt theo quy tắc Quốc Ngữ 1984 qua 4 cấp ưu tiên:
-
-1. **Quy tắc đôi/ba nguyên âm** — 30+ cụm nguyên âm được ánh xạ đến đúng vị trí đặt dấu
-2. **Ưu tiên nguyên âm có móc** — `ê`, `ơ` được ưu tiên
-3. **Ưu tiên nguyên âm có mũ/breve** — `â`, `ă`, `ô`
-4. **Nguyên âm cuối** — quy tắc mặc định cho đôi nguyên âm đơn giản
+ViKey giải quyết tất cả bằng **một engine xử lý âm tiết thuần thuật toán** — parse cấu trúc ngữ âm, không lookup table.
 
 ---
 
-## Tính Năng
+## Engine Telex Khác Biệt Như Thế Nào?
 
-### Hoàn Tác Bằng `z`
+Những IME khác gõ Telex kiểu:
 
-Gõ `z` ở cuối từ để xóa toàn bộ dấu thanh:
+```
+gõ "chaof" → tra bảng thấy "ao" → "ào" → ghép → "chào" ❌
+              (nếu state sai sẽ ra "chaof" hoặc "chàoo")
+```
 
-| Gõ | Kết quả |
-|------|-----|
-| `ƯỚz` | `ươ` |
-| `chàoz` | `chao` |
+ViKey gõ Telex kiểu:
 
-Nếu không có dấu, `z` là ký tự thường.
+```
+gõ "chaof" → parseSyllable("chao") → onset:"ch" + nucleus:"ao"
+           → applyTone('f') → "ào" → ghép → "chào" ✅
+              (mỗi lần gõ là parse lại từ đầu, không drift)
+```
 
-### Hoàn Tác Phím Tắt
+**Hệ quả thực tế:**
 
-Nhấn phím tắt lần hai để hoàn tác:
-
-| Gõ | Kết quả |
-|------|-----|
-| `aa` | `â` |
-| `âa` | `aa` |
-| `uw` | `ư` |
-| `ưw` | `w` |
-| `uow` | `ươ` |
-| `ươw` | `uow` |
-
-Hoạt động với cả 7 phím tắt: `aw(ă)` `aa(â)` `ee(ê)` `oo(ô)` `ow(ơ)` `uw(ư)` `dd(đ)`.
-
-### Vòng Đời Phím `w`
-
-| Gõ | Kết quả | Giải thích |
-|------|-----|------|
-| `w` | `w` | Ký tự đầu tiên → `w` |
-| `kw` | `kư` | Phụ âm + `w` → `kư` |
-| `kưw` | `kw` | Hoàn tác |
-| `aw` | `ă` | Phím tắt |
-| `uw` | `ư` | Phím tắt |
-
-### Phím Tắt 3 Ký Tự
-
-`uow` → `ươ` trong một thao tác — tính năng hiệu quả không có trong Telex chuẩn.
-
-### Tự Nhận Diện Tiếng Anh
-
-Ba heuristic ngăn biến đổi Telex khi gõ tiếng Anh:
-
-1. **Pattern tiếng Anh** — `tion`, `ness`, `ship`, `str`, `ight`...
-2. **Kiểm tra âm cuối** — chỉ `c`, `m`, `n`, `p`, `t` hoặc `ch`, `ng`, `nh`, `ngh` là âm cuối hợp lệ trong Tiếng Việt
-3. **Mật độ nguyên âm** — chuỗi phụ âm quá 3 ký tự liên tiếp → nhận diện là tiếng Anh
-
-Không cần chuyển chế độ thủ công.
+| Tình huống | IME khác | ViKey |
+|------------|----------|-------|
+| Gõ `"bá"` rồi sửa thành `"bà"` | Gợi ý không đổi hoặc sai | Gợi ý lập tức chuyển → `bàn — bàng — bài` |
+| Gõ `"uow"` → `"ươ"` | Không hỗ trợ | ✅ Phím tắt 3 ký tự |
+| Gõ `"z"` cuối từ để xoá dấu | Không hỗ trợ | ✅ `"chàoz"` → `"chao"` |
+| Gõ Tiếng Anh "school" | Biến thành "schôôl" | ✅ Tự nhận diện, không biến đổi |
+| Gõ `"w"` đầu từ | Ra `"w"` hoặc lỗi | ✅ Ra `"ư"` nếu là âm tiết Việt |
 
 ---
 
-## Giao Diện
+## Tính Năng Nổi Bật
 
-| Sakura Dark | Valentine Light |
-|:---:|:---:|
-| <img src=".github/theme-dark.jpg" width="300" alt="Dark theme"> | <img src=".github/theme-light.jpg" width="300" alt="Light theme"> |
+### 🤖 Gợi Ý Thông Minh (AI + Personal)
 
-Và hơn 12 theme tùy chỉnh có sẵn, bao gồm theme **Liquid Glass** với hiệu ứng kính mờ, glow bloom.
+ViKey hội tụ **3 tầng** gợi ý từ:
 
----
+1. **Từ điển tĩnh** — 77k từ Tiếng Việt có tần suất thực tế (OpenSubtitles 2018)
+2. **Personal dictionary** — tự động học từ bạn hay gõ, có **decay theo thời gian** (từ lâu không dùng tự tụt hạng) + **damping** (bạn không chọn, nó không học lại)
+3. **Qwen GGUF LLM** *(bản Full, optional)* — import model ngôn ngữ, suggest từ tiếp theo theo context thực tế
 
-## Điểm Nổi Bật
+**Autocorrect** thông minh: kết hợp Levenshtein distance + keyboard proximity (QWERTY) + Qwen score + length ratio — composite scoring 4 thành phần.
 
-- **Hỗ trợ import GGUF model** — Bản Full cho phép import LLM (như Qwen) để gợi ý từ và gợi ý từ tiếp theo thông minh hơn. Bản Lite gọn nhẹ, không cần model.
-- **Kiến trúc FST** — gợi ý, auto-correct và đặt dấu thanh phản hồi theo thời gian thực, ngay cả khi đổi dấu giữa chừng.
-- **30+ quy tắc đặt dấu thanh** — bao phủ toàn bộ đôi và ba nguyên âm Tiếng Việt.
-- **3 lớp nhận diện tiếng Anh** — pattern, kiểm tra âm cuối, mật độ nguyên âm.
-- **Fork của FlorisBoard** — kế thừa toàn bộ tính năng (theme, layout, glide typing, clipboard, emoji, spell check) trong khi thay thế hoàn toàn engine Telex.
-- **Tự động học cách gõ** — từ thường xuyên gõ sẽ xuất hiện trên thanh gợi ý, từ lâu không dùng sẽ tự động tụt hạng.
-- **Tối ưu cho người Việt** — điểm khác biệt lớn nhất của ViKey là hỗ trợ gõ Tiếng Việt cực mạnh, không giống các IME khác luôn đặt Tiếng Việt ở mức ưu tiên thấp.
+**TypoDetector** chuyên biệt cho người Việt: phát hiện thiếu dấu thanh, swap phím bên cạnh, gõ thừa ký tự, thiếu modifier (a→aa/aw), sai tone key.
+
+### 🎨 Giao Diện & Themes
+
+| Giao diện | Mô tả |
+|-----------|-------|
+| **Liquid Glass** 🪟 | Hiệu ứng kính mờ real-time với lens animation, chromatic aberration, ripple wave, depth effect. **Không IME mã nguồn mở nào có.** |
+| **Sakura / Valentine** | 12 theme tùy chỉnh theo mùa |
+| **Material You** | Dynamic color theo hệ thống |
+| **20+ themes** | Cài thêm qua extension store |
+
+<p align="center">
+  <img src=".github/theme-dark.jpg" width="250" alt="Sakura Dark">
+  <img src=".github/theme-light.jpg" width="250" alt="Valentine Light">
+  <img src=".github/liquid-glass.jpg" width="250" alt="Liquid Glass">
+</p>
+
+### 🧠 Tự Nhận Diện Tiếng Anh
+
+Không cần chuyển chế độ thủ công. 3 lớp heuristic:
+
+1. **Pattern matching** — `tion`, `ness`, `ship`, `ight`...
+2. **Kiểm tra âm cuối** — chỉ `c/m/n/p/t/ch/ng/nh/ngh` là âm cuối hợp lệ trong Tiếng Việt
+3. **Mật độ nguyên âm** — chuỗi phụ âm > 3 ký tự → Tiếng Anh
+
+Tỉ lệ dương tính giả cực thấp nhờ kết hợp cả 3 lớp.
+
+### ⌨️ Phím Tắt Telex Thông Minh
+
+| Tổ hợp | Kết quả | Ghi chú |
+|--------|---------|---------|
+| `uow` | `ươ` | Phím tắt 3 ký tự — không IME nào có |
+| `aw` / `aa` / `ee` / `oo` / `ow` / `uw` / `dd` | ă / â / ê / ô / ơ / ư / đ | 7 phím tắt chuẩn |
+| `ưw` → `uw` | Undo phím tắt | Gõ lại lần hai để undo |
+| `z` cuối từ | Xoá toàn bộ dấu | `"chàoz"` → `"chao"` |
+| `w` đầu/sau phụ âm | `ư` / `Ư` | `"kw"` → `"kư"` |
+| `w` sau nguyên âm | `w` thường | `"baw"` → `"băw"`? Không, `"baw"` → `"bă"` |
+
+### 📋 Kế Thừa Toàn Bộ Tính Năng Từ FlorisBoard
+
+- Glide typing vẽ đường trượt
+- Clipboard manager (lịch sử, pin, auto-clean)
+- Emoji palette + search + skin tone
+- One-handed mode, floating keyboard
+- Spell checker (Android API)
+- Inline autofill (API 30+)
+- Extension system (themes, layouts)
+- Multi-window, resize mode
+- Incognito mode
 
 ---
 
 ## Quyền Riêng Tư
 
-ViKey theo triết lý privacy-first của FlorisBoard: **không truy cập mạng, không theo dõi, không analytics**. Mọi thao tác gõ phím đều ở lại trên điện thoại của bạn, không ai có thể theo dõi bạn.
+**Zero network access. Zero tracking. Zero analytics.**
+
+```
+┌─────────────────────────────────────────────┐
+│  Mọi thao tác gõ phím → ở lại trên máy bạn  │
+│  Không Internet → không gửi dữ liệu đi đâu   │
+│  Telex engine local 100% → không API call    │
+│  Qwen model chạy native (JNI) → offline      │
+└─────────────────────────────────────────────┘
+```
+
+ViKey theo triết lý **privacy-first** của FlorisBoard. Mọi thứ từ gợi ý, autocorrect, đến AI đều chạy **trên thiết bị**, không cần Internet.
+
+---
+
+## Download
+
+| Phiên bản | Mô tả |
+|-----------|-------|
+| **Full** | Bao gồm Qwen JNI .so. Import GGUF model để có gợi ý AI. |
+| **Lite** | Gọn nhẹ, không model. Frequency-based suggestions. |
+
+Tải về từ [Releases](https://github.com/ngocthanhgl/ViKey-Telex/releases).
 
 ---
 
