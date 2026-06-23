@@ -23,15 +23,15 @@
 
 Mọi IME mã nguồn mở trên Android đều xử lý Tiếng Việt theo kiểu **"có thì tốt, không có cũng được"**:
 
-| IME | Engine Telex | Gỡ dấu real-time | Auto-correct VN | English detect | Gợi ý AI |
-|-----|-------------|-------------------|-----------------|----------------|----------|
-| **ViKey** | Thuật toán âm tiết | ✅ | ✅ (Levenshtein + QWERTY) | ✅ (3 lớp heuristic) | ✅ Qwen GGUF |
-| FlorisBoard | Mutation table | ❌ | ❌ | ❌ | ❌ |
-| Heliboard | Mutation table | ❌ | ❌ | ❌ | ❌ |
-| FUTO Keyboard | Mutation table | ❌ | ❌ | ❌ | ❌ |
-| OpenBoard | Mutation table | ❌ | ❌ | ❌ | ❌ |
+| IME | Engine Telex | Auto-correct VN | English detect | Gợi ý AI offline | VNI | Gợi ý đổi dấu |
+|-----|-------------|-----------------|----------------|------------------|-----|---------------|
+| **ViKey** | Thuật toán âm tiết | ✅ Levenshtein + QWERTY | ✅ 3 lớp heuristic | ✅ Qwen GGUF | ❌ | ✅ |
+| FlorisBoard | Mutation table (2000+ rules) | ❌ (hardcode ~20 case) | ❌ (chỉ tắt w→ư) | ❌ (NLP chưa merged) | ✅ extension | ❌ |
+| HeliBoard | ❌ (chưa hỗ trợ) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| FUTO Keyboard | VietIME library (vi-rs) | ❌ (EN only) | ❌ | ✅ Transformer (EN only) | ✅ | ❌ |
+| OpenBoard | ❌ (chưa hỗ trợ) | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-**Mutation table** là cách mà tất cả các IME khác dùng: tra bảng `"ao" → "ào"`, `"oo" → "ô"`. Cách này có vấn đề:
+**Mutation table** là cách FlorisBoard dùng: tra bảng `"ao" → "ào"`, `"oo" → "ô"`. HeliBoard và OpenBoard chưa có Telex. FUTO dùng VietIME library từ v0.1.28. Cách mutation table có vấn đề:
 
 - **Drift state** — gõ nhanh dễ bị lệch, ra kết quả sai
 - **Không đọc được dấu đang gõ** — gợi ý từ không cập nhật theo dấu thanh
@@ -120,18 +120,6 @@ Tỉ lệ dương tính giả cực thấp nhờ kết hợp cả 3 lớp.
 | `z` cuối từ | Xoá toàn bộ dấu | `"chàoz"` → `"chao"` |
 | `w` đầu/sau phụ âm | `ư` / `Ư` | `"kw"` → `"kư"` |
 | `w` sau nguyên âm | `w` thường | `"baw"` → `"băw"`? Không, `"baw"` → `"bă"` |
-
-### 📋 Kế Thừa Toàn Bộ Tính Năng Từ FlorisBoard
-
-- Glide typing vẽ đường trượt
-- Clipboard manager (lịch sử, pin, auto-clean)
-- Emoji palette + search + skin tone
-- One-handed mode, floating keyboard
-- Spell checker (Android API)
-- Inline autofill (API 30+)
-- Extension system (themes, layouts)
-- Multi-window, resize mode
-- Incognito mode
 
 ---
 
