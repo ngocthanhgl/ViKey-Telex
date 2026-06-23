@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.widthIn
@@ -311,7 +310,6 @@ internal fun EditRuleDialog(
                     trailingIconTitle = {
                         FlorisIconButton(
                             onClick = { editCodeDialogValue = KeyCode.UNSPECIFIED.toString() },
-                            modifier = Modifier.offset(x = 12.dp),
                             icon = Icons.Default.Add,
                         )
                     },
@@ -508,7 +506,6 @@ private fun EditCodeValueDialog(
         trailingIconTitle = {
             FlorisIconButton(
                 onClick = { showKeyCodesHelp = !showKeyCodesHelp },
-                modifier = Modifier.offset(x = 12.dp),
                 icon = Icons.AutoMirrored.Filled.HelpOutline,
             )
         },
@@ -689,7 +686,6 @@ private fun <V : Any> EnumLikeAttributeBox(
         trailingIconTitle = {
             FlorisIconButton(
                 onClick = { showAddDialog = true },
-                modifier = Modifier.offset(x = 12.dp),
                 icon = Icons.Default.Add,
             )
         },

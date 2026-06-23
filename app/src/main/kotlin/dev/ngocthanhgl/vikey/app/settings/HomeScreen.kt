@@ -1,11 +1,13 @@
 package dev.ngocthanhgl.vikey.app.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,14 +68,14 @@ fun HomeScreen() {
             val isViKeySelected by InputMethodUtils.observeIsViKeySelected(foregroundOnly = true)
             if (!isViKeyEnabled) {
                 FlorisErrorCard(
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                     showIcon = false,
                     text = stringRes(R.string.settings__home__ime_not_enabled),
                     onClick = { InputMethodUtils.showImeEnablerActivity(context) },
                 )
             } else if (!isViKeySelected) {
                 FlorisWarningCard(
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                     showIcon = false,
                     text = stringRes(R.string.settings__home__ime_not_selected),
                     onClick = { InputMethodUtils.showImePicker(context) },
@@ -223,6 +225,7 @@ fun HomeScreen() {
                     onClick = { navController.navigate(Routes.Settings.About) },
                 )
             }
+            Spacer(Modifier.height(16.dp))
         }
     }
 }

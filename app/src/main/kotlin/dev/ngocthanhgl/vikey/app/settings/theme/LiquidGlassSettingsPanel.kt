@@ -90,7 +90,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp),
     ) {
         Text(
             text = "Liquid Glass",
@@ -201,6 +201,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
                         prefs.backgroundPhoto.imagePath.set("")
                     }
                 },
+                modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                 ),
@@ -211,6 +212,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
         } else {
             Button(
                 onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(50.dp),
             ) {
                 Text("Choose Photo")
@@ -251,9 +253,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
                     prefs.liquidGlass.reboundStiffness.set(220)
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(50.dp),
         ) {
             Text("Reset to Defaults")

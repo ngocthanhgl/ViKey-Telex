@@ -34,8 +34,6 @@ import org.florisboard.lib.compose.stringRes
 @Composable
 fun MediaScreen() = FlorisScreen {
     title = stringRes(R.string.settings__media__title)
-    iconSpaceReserved = true
-
     val prefs by FlorisPreferenceStore
 
     var shouldDelete by remember { mutableStateOf<ShouldDelete?>(null) }

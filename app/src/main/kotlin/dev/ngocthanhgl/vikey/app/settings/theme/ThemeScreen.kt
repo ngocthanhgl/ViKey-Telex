@@ -2,6 +2,8 @@ package dev.ngocthanhgl.vikey.app.settings.theme
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.DarkMode
@@ -79,32 +81,38 @@ fun ThemeScreen() = FlorisScreen {
                 navController.navigate(Routes.Settings.ThemeManager(ThemeManagerScreenAction.SELECT_NIGHT))
             },
         )
-        LocalTimePickerPreference(
-            pref = prefs.theme.sunriseTime,
-            title = stringRes(R.string.pref__theme__sunrise_time__label),
-            icon = Icons.Default.WbSunny,
-        )
-        LocalTimePickerPreference(
-            pref = prefs.theme.sunsetTime,
-            title = stringRes(R.string.pref__theme__sunset_time__label),
-            icon = Icons.Outlined.WbSunny,
-        )
-        ColorPickerPreference(
-            pref = prefs.theme.accentColor,
-            title = stringRes(R.string.pref__theme__theme_accent_color__label),
-            defaultValueLabel = stringRes(R.string.action__default),
-            icon = Icons.Default.Palette,
-            defaultColors = ColorMappings.colors,
-            showAlphaSlider = false,
-            enableAdvancedLayout = true,
-            colorOverride = {
-                if (it.isMaterialYou(context)) {
-                    Color.Unspecified
-                } else {
-                    it
-                }
-            }
-        )
+        Box(Modifier.heightIn(min = 56.dp)) {
+            LocalTimePickerPreference(
+                pref = prefs.theme.sunriseTime,
+                title = stringRes(R.string.pref__theme__sunrise_time__label),
+                icon = Icons.Default.WbSunny,
+            )
+        }
+        Box(Modifier.heightIn(min = 56.dp)) {
+            LocalTimePickerPreference(
+                pref = prefs.theme.sunsetTime,
+                title = stringRes(R.string.pref__theme__sunset_time__label),
+                icon = Icons.Outlined.WbSunny,
+            )
+        }
+        Box(Modifier.heightIn(min = 56.dp)) {
+            ColorPickerPreference(
+                pref = prefs.theme.accentColor,
+                title = stringRes(R.string.pref__theme__theme_accent_color__label),
+                defaultValueLabel = stringRes(R.string.action__default),
+                icon = Icons.Default.Palette,
+                defaultColors = ColorMappings.colors,
+                showAlphaSlider = false,
+                enableAdvancedLayout = true,
+                colorOverride = {
+                    if (it.isMaterialYou(context)) {
+                        Color.Unspecified
+                    } else {
+                        it
+                    }
+                },
+            )
+        }
 
         AddonManagementReferenceBox(type = ExtensionListScreenType.EXT_THEME)
     }

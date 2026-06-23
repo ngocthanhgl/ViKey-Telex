@@ -113,7 +113,7 @@ fun LocalizationScreen() = FlorisScreen {
         val subtypes by subtypeManager.subtypesFlow.collectAsState()
         if (subtypes.isEmpty()) {
             FlorisWarningCard(
-                modifier = Modifier.padding(all = 8.dp),
+                modifier = Modifier.padding(8.dp),
                 text = stringRes(R.string.settings__localization__subtype_no_subtypes_configured_warning),
             )
         } else {

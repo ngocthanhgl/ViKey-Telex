@@ -114,7 +114,7 @@ fun M3ListPreference(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { onSelect(key); showDialog = false }
-                                .padding(vertical = 8.dp),
+                                .padding(horizontal = 8.dp, vertical = 8.dp),
                         ) {
                                 RadioButton(
                                     selected = value.toString() == key,
@@ -182,7 +182,7 @@ fun M3SwitchListPreference(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { onListSelect(key); showDialog = false }
-                                .padding(vertical = 8.dp),
+                                .padding(horizontal = 8.dp, vertical = 8.dp),
                         ) {
                             RadioButton(
                                 selected = listValue.toString() == key,
@@ -222,6 +222,7 @@ fun M3DialogSliderPreference(
         headlineContent = { Text(title, style = MaterialTheme.typography.bodyLarge) },
         supportingContent = { Text(valueLabel(value), style = MaterialTheme.typography.bodySmall) },
         leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
+        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
         modifier = Modifier.clickable(enabled = enabled, onClick = { tmpValue = value.toFloat(); showDialog = true }),
     )
@@ -284,6 +285,7 @@ fun M3DialogSliderPreference(
             )
         },
         leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
+        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
         modifier = Modifier.clickable(enabled = enabled, onClick = {
             tmpPrimary = primaryValue.toFloat(); tmpSecondary = secondaryValue.toFloat(); showDialog = true
