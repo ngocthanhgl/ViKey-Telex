@@ -88,57 +88,73 @@ fun HomeScreen() {
 
     var searchQuery by remember { mutableStateOf("") }
 
+    val sectionInput = stringRes(R.string.settings__section__input)
+    val sectionPersonalization = stringRes(R.string.settings__section__personalization)
+    val sectionFeatures = stringRes(R.string.settings__section__features)
+    val sectionSystem = stringRes(R.string.settings__section__system)
+    val titleKeyboard = stringRes(R.string.settings__keyboard__title)
+    val titleTyping = stringRes(R.string.settings__typing__title)
+    val titleGestures = stringRes(R.string.settings__gestures__title)
+    val titleLocalization = stringRes(R.string.settings__localization__title)
+    val titleTheme = stringRes(R.string.settings__theme__title)
+    val titleSmartbar = stringRes(R.string.settings__smartbar__title)
+    val titleClipboard = stringRes(R.string.settings__clipboard__title)
+    val titleMedia = stringRes(R.string.settings__media__title)
+    val titleExt = stringRes(R.string.ext__home__title)
+    val titleOther = stringRes(R.string.settings__other__title)
+    val titleAbout = stringRes(R.string.about__title)
+
     val allSections = remember(navController) {
         listOf(
             SettingsSection(
-                header = stringRes(R.string.settings__section__input),
+                header = sectionInput,
                 items = listOf(
-                    SettingsItem(Icons.Outlined.Keyboard, stringRes(R.string.settings__keyboard__title), null) {
+                    SettingsItem(Icons.Outlined.Keyboard, titleKeyboard, null) {
                         navController.navigate(Routes.Settings.Keyboard)
                     },
-                    SettingsItem(Icons.Outlined.Spellcheck, stringRes(R.string.settings__typing__title), null) {
+                    SettingsItem(Icons.Outlined.Spellcheck, titleTyping, null) {
                         navController.navigate(Routes.Settings.Typing)
                     },
-                    SettingsItem(Icons.Outlined.PanTool, stringRes(R.string.settings__gestures__title), null) {
+                    SettingsItem(Icons.Outlined.PanTool, titleGestures, null) {
                         navController.navigate(Routes.Settings.Gestures)
                     },
-                    SettingsItem(Icons.Outlined.Language, stringRes(R.string.settings__localization__title), null) {
+                    SettingsItem(Icons.Outlined.Language, titleLocalization, null) {
                         navController.navigate(Routes.Settings.Localization)
                     },
                 ),
             ),
             SettingsSection(
-                header = stringRes(R.string.settings__section__personalization),
+                header = sectionPersonalization,
                 items = listOf(
-                    SettingsItem(Icons.Outlined.Palette, stringRes(R.string.settings__theme__title), null) {
+                    SettingsItem(Icons.Outlined.Palette, titleTheme, null) {
                         navController.navigate(Routes.Settings.Theme)
                     },
-                    SettingsItem(Icons.Outlined.Widgets, stringRes(R.string.settings__smartbar__title), null) {
+                    SettingsItem(Icons.Outlined.Widgets, titleSmartbar, null) {
                         navController.navigate(Routes.Settings.Smartbar)
                     },
                 ),
             ),
             SettingsSection(
-                header = stringRes(R.string.settings__section__features),
+                header = sectionFeatures,
                 items = listOf(
-                    SettingsItem(Icons.Outlined.FormatListBulleted, stringRes(R.string.settings__clipboard__title), null) {
+                    SettingsItem(Icons.Outlined.FormatListBulleted, titleClipboard, null) {
                         navController.navigate(Routes.Settings.Clipboard)
                     },
-                    SettingsItem(Icons.Outlined.EmojiEmotions, stringRes(R.string.settings__media__title), null) {
+                    SettingsItem(Icons.Outlined.EmojiEmotions, titleMedia, null) {
                         navController.navigate(Routes.Settings.Media)
                     },
                 ),
             ),
             SettingsSection(
-                header = stringRes(R.string.settings__section__system),
+                header = sectionSystem,
                 items = listOf(
-                    SettingsItem(Icons.Outlined.Extension, stringRes(R.string.ext__home__title), null) {
+                    SettingsItem(Icons.Outlined.Extension, titleExt, null) {
                         navController.navigate(Routes.Ext.Home)
                     },
-                    SettingsItem(Icons.Outlined.Settings, stringRes(R.string.settings__other__title), null) {
+                    SettingsItem(Icons.Outlined.Settings, titleOther, null) {
                         navController.navigate(Routes.Settings.Other)
                     },
-                    SettingsItem(Icons.Outlined.Info, stringRes(R.string.about__title), null) {
+                    SettingsItem(Icons.Outlined.Info, titleAbout, null) {
                         navController.navigate(Routes.Settings.About)
                     },
                 ),
