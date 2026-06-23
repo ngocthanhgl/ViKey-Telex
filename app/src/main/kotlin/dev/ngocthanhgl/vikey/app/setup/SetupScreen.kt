@@ -82,9 +82,9 @@ private data class StepState(
     fun isActive(stepId: Int): Boolean = stepId == getCurrent()
 
     companion object {
-        val Saver = Saver<StepState, ArrayList<Int>>(
-            save = { arrayListOf(it.currentAuto, it.currentManual) },
-            restore = { StepState(it[0], it[1]) },
+        val Saver = Saver<MutableState<StepState>, ArrayList<Int>>(
+            save = { arrayListOf(it.value.currentAuto, it.value.currentManual) },
+            restore = { mutableStateOf(StepState(it[0], it[1])) },
         )
     }
 }

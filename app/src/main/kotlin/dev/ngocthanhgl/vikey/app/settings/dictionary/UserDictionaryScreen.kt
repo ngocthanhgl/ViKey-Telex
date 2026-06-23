@@ -91,7 +91,7 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
 
     fun getDisplayNameForLocale(locale: FlorisLocale): String {
         return if (locale == AllLanguagesLocale) {
-            context.stringRes(R.string.settings__udm__all_languages)
+            stringRes(R.string.settings__udm__all_languages)
         } else {
             locale.displayName()
         }

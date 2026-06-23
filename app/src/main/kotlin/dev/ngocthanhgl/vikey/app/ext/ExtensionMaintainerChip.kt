@@ -151,7 +151,7 @@ fun ExtensionMaintainerChip(
             },
             confirmButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__close))
+                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__done))
                 }
             },
         )

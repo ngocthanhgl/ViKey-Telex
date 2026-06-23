@@ -765,6 +765,28 @@ private fun SnyggRuleRow(
     }
 }
 
+@Composable
+fun DialogProperty(
+    text: String,
+    modifier: Modifier = Modifier,
+    trailingIconTitle: @Composable () -> Unit = { },
+    content: @Composable () -> Unit,
+) {
+    Column(modifier = modifier.padding(bottom = 8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 8.dp),
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            trailingIconTitle()
+        }
+        content()
+    }
+}
+
 private object CustomRuleComparator : Comparator<SnyggRule> {
     @Suppress("IfThenToElvis")
     override fun compare(a: SnyggRule, b: SnyggRule): Int {

@@ -831,7 +831,7 @@ private fun <T : ExtensionComponent> CreateComponentScreen(
                                     stylesheetFile.writeText(stylesheet)
                                     componentEditor.stylesheetEditor = null
                                 } else {
-                                    val srcStylesheetFile = workspace.extDir.subFile(component.stylesheetPath())
+                                    val srcStylesheetFile = workspace.extDir.subFile(srcComponent.stylesheetPath())
                                     val dstStylesheetFile = workspace.extDir.subFile(componentEditor.stylesheetPath())
                                     dstStylesheetFile.parentFile?.mkdirs()
                                     srcStylesheetFile.copyTo(dstStylesheetFile, overwrite = true)

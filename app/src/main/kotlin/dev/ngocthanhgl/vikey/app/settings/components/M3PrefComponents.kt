@@ -459,7 +459,7 @@ fun M3ColorPickerPreference(
             onDismissRequest = { showDialog = false },
             title = { Text(title) },
             text = {
-                Column(verticalScroll(rememberScrollState())) {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
