@@ -1,26 +1,9 @@
-/*
- * Copyright (C) 2021-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.localization
 
 import androidx.compose.foundation.clickable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,25 +11,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileDownload
-import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,6 +53,8 @@ import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
+import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.ime.core.DisplayLanguageNamesIn
 import dev.ngocthanhgl.vikey.ime.core.Subtype
 import dev.ngocthanhgl.vikey.ime.core.SubtypeJsonConfig
@@ -91,7 +71,6 @@ import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.devtools.flogDebug
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
 import dev.ngocthanhgl.vikey.subtypeManager
 import kotlinx.coroutines.launch
@@ -195,13 +174,7 @@ private class SubtypeEditorState(init: Subtype?) {
 }
 
 @Composable
-fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
-    title = stringRes(if (id == null) {
-        R.string.settings__localization__subtype_add_title
-    } else {
-        R.string.settings__localization__subtype_edit_title
-    })
-
+fun SubtypeEditorScreen(id: Long?) {
     val selectValue = stringRes(R.string.settings__localization__subtype_select_placeholder)
     val selectListValues = remember(selectValue) { listOf(selectValue) }
 
@@ -221,11 +194,10 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
     val subtypePresets by keyboardManager.resources.subtypePresets.collectAsState()
 
     val subtypeEditor = rememberSaveable(saver = SubtypeEditorState.Saver) {
-        val subtype = id?.let { subtypeManager.getSubtypeById(id) }
+        val subtype = id?.let { subtypeManager.getSubtypeById(it) }
         SubtypeEditorState(subtype)
     }
     var primaryLocale by subtypeEditor.primaryLocale
-    //var secondaryLocales by subtypeEditor.secondaryLocales
     var composer by subtypeEditor.composer
     var currencySet by subtypeEditor.currencySet
     var popupMapping by subtypeEditor.popupMapping
@@ -268,113 +240,131 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
         }
     }
 
-    actions {
-        if (id != null) {
-            IconButton(onClick = {
-                val subtype = subtypeManager.getSubtypeById(id)
-                if (subtype != null) {
-                    subtypeManager.removeSubtype(subtype)
-                    navController.popBackStack()
-                }
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = null,
-                )
-            }
-        }
-    }
-
-    bottomBar {
-        FlorisButtonBar {
-            ButtonBarSpacer()
-            ButtonBarTextButton(text = stringRes(R.string.action__cancel)) {
-                navController.popBackStack()
-            }
-            ButtonBarButton(text = stringRes(R.string.action__save)) {
-                subtypeEditor.toSubtype().onSuccess { subtype ->
-                    if (id == null) {
-                        if (!subtypeManager.addSubtype(subtype)) {
-                            errorDialogStrId = R.string.settings__localization__subtype_error_already_exists
-                            return@ButtonBarButton
-                        }
-                    } else {
-                        subtypeManager.modifySubtypeWithSameId(subtype)
-                    }
-                    navController.popBackStack()
-                }.onFailure {
-                    showSelectAsError = true
-                    errorDialogStrId = R.string.settings__localization__subtype_error_fields_no_value
-                }
-            }
-        }
-    }
-
-    content {
-        Column(modifier = Modifier.padding(8.dp)) {
+    fun saveAction() {
+        subtypeEditor.toSubtype().onSuccess { subtype ->
             if (id == null) {
-                Card(modifier = Modifier
+                if (!subtypeManager.addSubtype(subtype)) {
+                    errorDialogStrId = R.string.settings__localization__subtype_error_already_exists
+                    return@onSuccess
+                }
+            } else {
+                subtypeManager.modifySubtypeWithSameId(subtype)
+            }
+            navController.popBackStack()
+        }.onFailure {
+            showSelectAsError = true
+            errorDialogStrId = R.string.settings__localization__subtype_error_fields_no_value
+        }
+    }
+
+    SettingsScaffold(
+        title = stringRes(if (id == null) {
+            R.string.settings__localization__subtype_add_title
+        } else {
+            R.string.settings__localization__subtype_edit_title
+        }),
+        actions = {
+            if (id != null) {
+                IconButton(onClick = {
+                    val subtype = subtypeManager.getSubtypeById(id)
+                    if (subtype != null) {
+                        subtypeManager.removeSubtype(subtype)
+                        navController.popBackStack()
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                    )
+                }
+            }
+        },
+    ) {
+        if (id == null) {
+            ElevatedCard(
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                ) {
-                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(28.dp),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                ),
+            ) {
+                Text(
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                    text = stringRes(R.string.settings__localization__suggested_subtype_presets),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                val systemLocales = remember {
+                    val list = mutableListOf<FlorisLocale>()
+                    val localeList = configuration.locales
+                    for (n in 0 until localeList.size()) {
+                        list.add(FlorisLocale.from(localeList.get(n)))
+                    }
+                    list
+                }
+                val suggestedPresets = remember(subtypePresets) {
+                    val presets = mutableListOf<SubtypePreset>()
+                    for (systemLocale in systemLocales) {
+                        subtypePresets.find { it.locale == systemLocale }?.let { presets.add(it) }
+                    }
+                    presets
+                }
+                if (suggestedPresets.isNotEmpty()) {
+                    suggestedPresets.forEachIndexed { index, suggestedPreset ->
                         Text(
-                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                            text = stringRes(R.string.settings__localization__suggested_subtype_presets),
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        val systemLocales = remember {
-                            val list = mutableListOf<FlorisLocale>()
-                            val localeList = configuration.locales
-                            for (n in 0 until localeList.size()) {
-                                list.add(FlorisLocale.from(localeList.get(n)))
-                            }
-                            list
-                        }
-                        val suggestedPresets = remember(subtypePresets) {
-                            val presets = mutableListOf<SubtypePreset>()
-                            for (systemLocale in systemLocales) {
-                                subtypePresets.find { it.locale == systemLocale }?.let { presets.add(it) }
-                            }
-                            presets
-                        }
-                        if (suggestedPresets.isNotEmpty()) {
-                            for (suggestedPreset in suggestedPresets) {
-                                JetPrefListItem(
-                                    modifier = Modifier.clickable {
-                                        subtypeEditor.applySubtype(suggestedPreset.toSubtype())
-                                    },
-                                    text = when (displayLanguageNamesIn) {
-                                        DisplayLanguageNamesIn.SYSTEM_LOCALE -> suggestedPreset.locale.displayName()
-                                        DisplayLanguageNamesIn.NATIVE_LOCALE -> suggestedPreset.locale.displayName(suggestedPreset.locale)
-                                    },
-                                    secondaryText = suggestedPreset.preferred.characters.componentId,
-                                    colors = ListItemDefaults.colors(containerColor = CardDefaults.cardColors().containerColor),
-                                )
-                            }
-                        } else {
-                            Text(
-                                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                                text = stringRes(R.string.settings__localization__suggested_subtype_presets_none_found),
-                            )
-                        }
-                        Button(
                             modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .align(Alignment.End),
-                            onClick = { showSubtypePresetsDialog = true },
-                        ) {
-                            Text(
-                                text = stringRes(R.string.settings__localization__subtype_presets_view_all)
-                            )
+                                .clickable { subtypeEditor.applySubtype(suggestedPreset.toSubtype()) }
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            text = when (displayLanguageNamesIn) {
+                                DisplayLanguageNamesIn.SYSTEM_LOCALE -> suggestedPreset.locale.displayName()
+                                DisplayLanguageNamesIn.NATIVE_LOCALE -> suggestedPreset.locale.displayName(suggestedPreset.locale)
+                            },
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        if (index < suggestedPresets.lastIndex) {
+                            SettingsDivider()
                         }
                     }
+                } else {
+                    Text(
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                        text = stringRes(R.string.settings__localization__suggested_subtype_presets_none_found),
+                    )
+                }
+                Button(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .align(Alignment.End),
+                    onClick = { showSubtypePresetsDialog = true },
+                ) {
+                    Text(text = stringRes(R.string.settings__localization__subtype_presets_view_all))
                 }
             }
 
+            GroupSpacer()
+        }
+
+        Text(
+            text = stringRes(R.string.settings__localization__subtype_locale),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
+        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_locale)) {
                 FlorisDropdownLikeButton(
                     item = if (primaryLocale == SelectLocale) selectValue else when (displayLanguageNamesIn) {
@@ -388,6 +378,7 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     appearance = JetPrefDropdownMenuDefaults.outlined(shape = ShapeDefaults.Small),
                 )
             }
+            SettingsDivider()
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_popup_mapping)) {
                 val popupMappingIds = remember(popupMappings) {
                     SelectListKeys + popupMappings.keys
@@ -406,13 +397,29 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     appearance = JetPrefDropdownMenuDefaults.outlined(shape = ShapeDefaults.Small),
                 )
             }
+            SettingsDivider()
             SubtypePropertyDropdown(stringRes(R.string.settings__localization__subtype_characters_layout), LayoutType.CHARACTERS)
+        }
 
-            SubtypeGroupSpacer()
+        GroupSpacer()
 
+        Text(
+            text = stringRes(R.string.settings__localization__subtype_suggestion_provider),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
+        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_suggestion_provider)) {
-                // TODO: Put this map somewhere more formal (another KeyboardExtension field?)
-                //  optionally use a string resource below
                 val nlpProviderMappings = mapOf(
                     FallbackNlpProvider.providerId to "None",
                     QwenSuggestionProvider.ProviderId to "Vietnamese (Qwen)"
@@ -470,6 +477,7 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     }
                 }
 
+                SettingsDivider()
                 SubtypeProperty("Model") {
                     if (modelExists) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -521,12 +529,30 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     }
                 }
             }
+        }
 
-            SubtypeGroupSpacer()
+        GroupSpacer()
 
+        Text(
+            text = "Layouts",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
+        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
             SubtypePropertyDropdown(stringRes(R.string.settings__localization__subtype_symbols_layout), LayoutType.SYMBOLS)
+            SettingsDivider()
             SubtypePropertyDropdown(stringRes(R.string.settings__localization__subtype_symbols2_layout), LayoutType.SYMBOLS2)
-
+            SettingsDivider()
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_composer)) {
                 val composerIds = remember(composers) {
                     SelectListKeys + composers.keys
@@ -544,6 +570,7 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     appearance = JetPrefDropdownMenuDefaults.outlined(shape = ShapeDefaults.Small),
                 )
             }
+            SettingsDivider()
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_currency_set)) {
                 val currencySetIds = remember(currencySets) {
                     SelectListKeys + currencySets.keys
@@ -561,57 +588,103 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
                     appearance = JetPrefDropdownMenuDefaults.outlined(shape = ShapeDefaults.Small),
                 )
             }
+        }
 
-            SubtypeGroupSpacer()
+        GroupSpacer()
 
+        Text(
+            text = "Numeric",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
+        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
             SubtypePropertyDropdown(stringRes(R.string.settings__localization__subtype_numeric_layout), LayoutType.NUMERIC)
-
+            SettingsDivider()
             SubtypePropertyDropdown(stringRes(R.string.settings__localization__subtype_numeric_advanced_layout), LayoutType.NUMERIC_ADVANCED)
-
+            SettingsDivider()
             SubtypePropertyDropdown(stringRes(R.string.settings__localization__subtype_numeric_row_layout), LayoutType.NUMERIC_ROW)
+        }
 
-            SubtypeGroupSpacer()
+        GroupSpacer()
 
+        Text(
+            text = "Phone",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
+        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
             SubtypePropertyDropdown(stringRes(R.string.settings__localization__subtype_phone_layout), LayoutType.PHONE)
-
+            SettingsDivider()
             SubtypePropertyDropdown(stringRes(R.string.settings__localization__subtype_phone2_layout), LayoutType.PHONE2)
         }
+
+        Spacer(Modifier.height(16.dp))
+
+        Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+            OutlinedButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(stringRes(R.string.action__cancel))
+            }
+            Spacer(Modifier.width(12.dp))
+            Button(
+                onClick = { saveAction() },
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(stringRes(R.string.action__save))
+            }
+        }
+        Spacer(Modifier.height(16.dp))
 
         if (showSubtypePresetsDialog) {
             JetPrefAlertDialog(
                 title = stringRes(R.string.settings__localization__subtype_presets),
                 dismissLabel = stringRes(android.R.string.cancel),
-                scrollModifier = Modifier,
-                contentPadding = PaddingValues(horizontal = 8.dp),
-                onDismiss = {
-                    showSubtypePresetsDialog = false
-                },
+                onDismiss = { showSubtypePresetsDialog = false },
             ) {
-                Column {
-                    HorizontalDivider()
-                    val lazyListState = rememberLazyListState()
-                    LazyColumn(
-                        modifier = Modifier
-                            .florisScrollbar(lazyListState, isVertical = true).weight(1f),
-                        state = lazyListState,
-                    ) {
-                        items(subtypePresets) { subtypePreset ->
-                            JetPrefListItem(
-                                modifier = Modifier.clickable {
-                                    subtypeEditor.applySubtype(subtypePreset.toSubtype())
-                                    showSubtypePresetsDialog = false
-                                },
-                                text = when (displayLanguageNamesIn) {
-                                    DisplayLanguageNamesIn.SYSTEM_LOCALE -> subtypePreset.locale.displayName()
-                                    DisplayLanguageNamesIn.NATIVE_LOCALE -> subtypePreset.locale.displayName(subtypePreset.locale)
-                                },
-                                secondaryText = subtypePreset.preferred.characters.componentId,
-                                colors = ListItemDefaults.colors(containerColor = AlertDialogDefaults.containerColor),
-                            )
-                        }
+                HorizontalDivider()
+                val lazyListState = rememberLazyListState()
+                LazyColumn(
+                    modifier = Modifier.florisScrollbar(lazyListState, isVertical = true).weight(1f),
+                    state = lazyListState,
+                ) {
+                    items(subtypePresets) { subtypePreset ->
+                        JetPrefListItem(
+                            modifier = Modifier.clickable {
+                                subtypeEditor.applySubtype(subtypePreset.toSubtype())
+                                showSubtypePresetsDialog = false
+                            },
+                            text = when (displayLanguageNamesIn) {
+                                DisplayLanguageNamesIn.SYSTEM_LOCALE -> subtypePreset.locale.displayName()
+                                DisplayLanguageNamesIn.NATIVE_LOCALE -> subtypePreset.locale.displayName(subtypePreset.locale)
+                            },
+                            secondaryText = subtypePreset.preferred.characters.componentId,
+                            colors = ListItemDefaults.colors(containerColor = AlertDialogDefaults.containerColor),
+                        )
                     }
-                    HorizontalDivider()
                 }
+                HorizontalDivider()
             }
         }
 
@@ -619,12 +692,8 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
             JetPrefAlertDialog(
                 title = stringRes(R.string.error__title),
                 confirmLabel = stringRes(android.R.string.ok),
-                onConfirm = {
-                    errorDialogStrId = null
-                },
-                onDismiss = {
-                    errorDialogStrId = null
-                },
+                onConfirm = { errorDialogStrId = null },
+                onDismiss = { errorDialogStrId = null },
             ) {
                 Text(text = stringRes(strId))
             }
@@ -634,7 +703,7 @@ fun SubtypeEditorScreen(id: Long?) = FlorisScreen {
 
 @Composable
 private fun SubtypeProperty(text: String, content: @Composable () -> Unit) {
-    Column(modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp)) {
+    Column(modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)) {
         Text(
             modifier = Modifier.padding(bottom = 8.dp),
             text = text,
@@ -669,8 +738,8 @@ private fun SubtypeLayoutDropdown(
 }
 
 @Composable
-private fun SubtypeGroupSpacer() {
+private fun GroupSpacer() {
     Spacer(modifier = Modifier
         .fillMaxWidth()
-        .height(32.dp))
+        .height(8.dp))
 }

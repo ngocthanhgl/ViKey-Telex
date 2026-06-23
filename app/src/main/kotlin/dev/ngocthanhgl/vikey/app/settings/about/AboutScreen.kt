@@ -77,7 +77,6 @@ fun AboutScreen() {
             M3ClickablePreference(
                 icon = Icons.Outlined.Info,
                 title = stringRes(R.string.about__version__title),
-                summary = appVersion,
                 onClick = {
                     try {
                         clipboardManager.addNewPlaintext(appVersion)
@@ -95,28 +94,24 @@ fun AboutScreen() {
             M3ClickablePreference(
                 icon = Icons.Outlined.History,
                 title = stringRes(R.string.about__changelog__title),
-                summary = stringRes(R.string.about__changelog__summary),
                 onClick = { context.launchUrl(R.string.florisboard__changelog_url, "version" to BuildConfig.VERSION_NAME) },
             )
             SettingsDivider()
             M3ClickablePreference(
                 icon = Icons.Outlined.Code,
                 title = stringRes(R.string.about__repository__title),
-                summary = stringRes(R.string.about__repository__summary),
                 onClick = { context.launchUrl(R.string.florisboard__repo_url) },
             )
             SettingsDivider()
             M3ClickablePreference(
                 icon = Icons.Outlined.Description,
                 title = stringRes(R.string.about__project_license__title),
-                summary = stringRes(R.string.about__project_license__summary, "license_name" to "Apache 2.0"),
                 onClick = { navController.navigate(Routes.Settings.ProjectLicense) },
             )
             SettingsDivider()
             M3ClickablePreference(
                 icon = Icons.Outlined.Description,
                 title = stringRes(id = R.string.about__third_party_licenses__title),
-                summary = stringRes(id = R.string.about__third_party_licenses__summary),
                 onClick = { navController.navigate(Routes.Settings.ThirdPartyLicenses) },
             )
         }

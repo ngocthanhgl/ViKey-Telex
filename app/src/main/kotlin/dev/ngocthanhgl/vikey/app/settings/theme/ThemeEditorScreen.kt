@@ -1,23 +1,8 @@
-/*
- * Copyright (C) 2022-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.theme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -40,15 +26,21 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
+import androidx.compose.material3.Scaffold
+
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -82,7 +74,6 @@ import dev.ngocthanhgl.vikey.ime.theme.ThemeExtensionEditor
 import dev.ngocthanhgl.vikey.ime.theme.ThemeManager
 import dev.ngocthanhgl.vikey.ime.theme.extPreviewTheme
 import dev.ngocthanhgl.vikey.lib.cache.CacheManager
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.ngocthanhgl.vikey.lib.compose.PreviewKeyboardPill
 import dev.ngocthanhgl.vikey.lib.compose.Validation
 import dev.ngocthanhgl.vikey.lib.compose.rememberPreviewFieldController
@@ -92,17 +83,13 @@ import dev.ngocthanhgl.vikey.themeManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
 import dev.patrickgold.jetpref.material.ui.JetPrefDropdown
-import dev.patrickgold.jetpref.material.ui.JetPrefListItem
 import dev.patrickgold.jetpref.material.ui.JetPrefTextField
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.florisboard.lib.android.showLongToastSync
 import org.florisboard.lib.color.MaterialYouFlagsSaver
 import org.florisboard.lib.compose.FlorisIconButton
-import org.florisboard.lib.compose.FlorisOutlinedBox
-import org.florisboard.lib.compose.defaultFlorisOutlinedBox
 import org.florisboard.lib.compose.florisVerticalScroll
-import org.florisboard.lib.compose.rippleClickable
 import org.florisboard.lib.compose.stringRes
 import org.florisboard.lib.kotlin.io.subFile
 import org.florisboard.lib.snygg.SnyggAnnotationRule
@@ -133,20 +120,17 @@ private val LenientConfig = SnyggJsonConfiguration.of(
 )
 
 private enum class StylesheetLoadingStrategy {
-    TRY_LOAD_OR_ASK_ON_CONFLICT, // default state
-    TRY_LOAD_OR_EMPTY, // user chose to not auto-fix errors
-    TRY_LOAD_OR_PARSE_LENIENT; // user chose to auto-fix errors
+    TRY_LOAD_OR_ASK_ON_CONFLICT,
+    TRY_LOAD_OR_EMPTY,
+    TRY_LOAD_OR_PARSE_LENIENT;
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ThemeEditorScreen(
     workspace: CacheManager.ExtEditorWorkspace<*>,
     editor: ThemeExtensionComponentEditor,
-) = FlorisScreen {
-    title = stringRes(R.string.ext__editor__edit_component__title_theme)
-    scrollable = false
-
+) {
     val prefs by FlorisPreferenceStore
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -220,38 +204,37 @@ fun ThemeEditorScreen(
         workspace.currentAction = null
     }
 
-    navigationIcon {
-        FlorisIconButton(
-            onClick = { handleBackPress() },
-            icon = Icons.Default.Close,
-        )
-    }
-
-    actions {
-        FlorisIconButton(
-            onClick = { showFineTuneDialog = true },
-            icon = Icons.Outlined.Tune,
-        )
-    }
-
-    floatingActionButton {
-        ExtendedFloatingActionButton(
-            icon = { Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = null,
-            ) },
-            text = { Text(
-                text = stringRes(R.string.settings__theme_editor__add_rule),
-            ) },
-            onClick = { snyggRuleToEdit = SnyggEmptyRuleForAdding },
-        )
-    }
-
-    bottomBar {
-        PreviewKeyboardPill(previewFieldController)
-    }
-
-    content {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringRes(R.string.ext__editor__edit_component__title_theme)) },
+                navigationIcon = {
+                    IconButton(onClick = { handleBackPress() }) {
+                        Icon(Icons.Default.Close, contentDescription = null)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showFineTuneDialog = true }) {
+                        Icon(Icons.Outlined.Tune, contentDescription = null)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
+                text = { Text(text = stringRes(R.string.settings__theme_editor__add_rule)) },
+                onClick = { snyggRuleToEdit = SnyggEmptyRuleForAdding },
+            )
+        },
+        bottomBar = {
+            PreviewKeyboardPill(previewFieldController)
+        },
+    ) { padding ->
         stylesheetEditorFailure?.let { failure ->
             JetPrefAlertDialog(
                 title = stringRes(R.string.settings__theme_editor__stylesheet_error_title),
@@ -279,18 +262,13 @@ fun ThemeEditorScreen(
             }
         }
 
-        BackHandler {
-            handleBackPress()
-        }
+        BackHandler { handleBackPress() }
 
         LaunchedEffect(showEditComponentMetaDialog, showFineTuneDialog, snyggRuleToEdit, snyggPropertyToEdit) {
             val visible = showEditComponentMetaDialog || showFineTuneDialog ||
                 snyggRuleToEdit != null || snyggPropertyToEdit != null
-            if (visible) {
-                focusManager.clearFocus()
-            } else {
-                delay(250)
-            }
+            if (visible) focusManager.clearFocus()
+            else delay(250)
         }
 
         DisposableEffect(workspace.version) {
@@ -300,67 +278,62 @@ fun ThemeEditorScreen(
                 stylesheet = stylesheetEditor.build(),
                 loadedDir = workspace.extDir,
             )
-            onDispose {
-                themeManager.previewThemeInfo.value = null
-            }
+            onDispose { themeManager.previewThemeInfo.value = null }
         }
 
-        // TODO: (priority = low)
-        //  Floris scrollbar does not like lazy lists with non-constant item heights.
-        //  Consider building a custom scrollbar tailored for this list specifically.
         val lazyListState = rememberLazyListState()
         LazyColumn(
-            //modifier = Modifier.florisScrollbar(lazyListState, isVertical = true),
+            modifier = Modifier.padding(padding),
             state = lazyListState,
         ) {
             item {
-                Column {
-                    ExtensionComponentView(
-                        modifier = Modifier.defaultFlorisOutlinedBox(),
-                        meta = workspace.editor!!.meta,
-                        component = editor,
-                        onEditBtnClick = { showEditComponentMetaDialog = true },
+                ExtensionComponentView(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    meta = workspace.editor!!.meta,
+                    component = editor,
+                    onEditBtnClick = { showEditComponentMetaDialog = true },
+                )
+                if (stylesheetEditor.rules.isEmpty() ||
+                    (stylesheetEditor.rules.size == 1 && stylesheetEditor.rules.all { (rule, _) -> rule == SnyggAnnotationRule.Defines })
+                ) {
+                    Text(
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                        text = stringRes(R.string.settings__theme_editor__no_rules_defined),
+                        fontStyle = FontStyle.Italic,
                     )
-                    if (stylesheetEditor.rules.isEmpty() ||
-                        (stylesheetEditor.rules.size == 1 && stylesheetEditor.rules.all { (rule, _) -> rule == SnyggAnnotationRule.Defines })
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                            text = stringRes(R.string.settings__theme_editor__no_rules_defined),
-                            fontStyle = FontStyle.Italic,
-                        )
-                    }
                 }
             }
 
             items(stylesheetEditor.rules.toList()) { (rule, propertySet) -> key(rule) {
                 val propertySetSpec = SnyggSpec.propertySetSpecOf(rule)
                 val isVariablesRule = rule == SnyggAnnotationRule.Defines
-                FlorisOutlinedBox(
+
+                ElevatedCard(
                     modifier = Modifier
-                        .padding(vertical = 8.dp, horizontal = 16.dp)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    ),
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         SnyggRuleRow(
                             rule = rule,
                             level = snyggLevel,
                             showEditBtn = !isVariablesRule,
-                            onEditRuleBtnClick = {
-                                snyggRuleToEdit = rule
-                            },
+                            onEditRuleBtnClick = { snyggRuleToEdit = rule },
                             onAddPropertyBtnClick = {
                                 when(propertySet) {
                                     is SnyggMultiplePropertySetsEditor -> {
-                                        workspace.update {
-                                            propertySet.sets.add(SnyggSinglePropertySetEditor())
-                                        }
+                                        workspace.update { propertySet.sets.add(SnyggSinglePropertySetEditor()) }
                                     }
                                     is SnyggSinglePropertySetEditor -> {
                                         snyggPropertySetForEditing = propertySet
-                                        snyggPropertyToEdit = SnyggEmptyPropertyInfoForAdding.copy(
-                                            rule = rule,
-                                        )
+                                        snyggPropertyToEdit = SnyggEmptyPropertyInfoForAdding.copy(rule = rule)
                                     }
                                 }
                             },
@@ -380,28 +353,33 @@ fun ThemeEditorScreen(
                         ) {
                             for ((propertyName, propertySpec) in propertySetSpec?.properties.orEmpty()) {
                                 if (propertySpec.required && !propertySet.properties.containsKey(propertyName)) {
-                                    FlorisOutlinedBox(title = "Errors", modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+                                    ElevatedCard(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.elevatedCardColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                        ),
+                                    ) {
                                         Text(
-                                            modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                                            modifier = Modifier.padding(12.dp),
                                             text = "Required property '$propertyName' does not exist",
                                             color = MaterialTheme.colorScheme.error,
+                                            style = MaterialTheme.typography.bodyMedium,
                                         )
                                     }
                                 }
                             }
-                            for ((propertyName, propertyValue) in propertySet.properties) {
-                                if (true /*propertySpec != null && propertySpec.level <= snyggLevel*/ || isVariablesRule) {
-                                    JetPrefListItem(
-                                        modifier = Modifier.rippleClickable {
+                            propertySet.properties.forEach { (propertyName, propertyValue) ->
+                                Text(
+                                    modifier = Modifier
+                                        .clickable {
                                             snyggPropertySetForEditing = propertySet
                                             snyggPropertyToEdit = PropertyInfo(rule, propertyName, propertyValue)
-                                        },
-                                        text = context.translatePropertyName(propertyName, snyggLevel),
-                                        secondaryText = context.translatePropertyValue(propertyValue, snyggLevel, colorRepresentation),
-                                        singleLineSecondaryText = true,
-                                        trailing = { SnyggValueIcon(propertyValue, definedVariables) },
-                                    )
-                                }
+                                        }
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                                    text = context.translatePropertyName(propertyName, snyggLevel),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
                             }
                         }
 
@@ -411,20 +389,28 @@ fun ThemeEditorScreen(
                             }
                             is SnyggMultiplePropertySetsEditor -> {
                                 val sets = propertySet.sets
-                                sets.forEachIndexed { propertySetIndex, propertySet ->
-                                    key(propertySet.uuid) {
-                                        FlorisOutlinedBox(Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+                                sets.forEachIndexed { propertySetIndex, ps ->
+                                    key(ps.uuid) {
+                                        ElevatedCard(
+                                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                                            shape = RoundedCornerShape(12.dp),
+                                            colors = CardDefaults.elevatedCardColors(
+                                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                            ),
+                                        ) {
                                             Row {
-                                                Text("Source set", Modifier
-                                                    .padding(start = 16.dp)
-                                                    .align(Alignment.CenterVertically))
+                                                Text(
+                                                    "Source set",
+                                                    modifier = Modifier.padding(start = 16.dp).align(Alignment.CenterVertically),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                )
                                                 Spacer(Modifier.weight(1f))
                                                 FlorisIconButton(
                                                     onClick = {
                                                         workspace.update {
                                                             if (propertySetIndex > 0) {
-                                                                val set = sets.removeAt(propertySetIndex)
-                                                                sets.add(propertySetIndex - 1, set)
+                                                                val s = sets.removeAt(propertySetIndex)
+                                                                sets.add(propertySetIndex - 1, s)
                                                             }
                                                         }
                                                     },
@@ -437,8 +423,8 @@ fun ThemeEditorScreen(
                                                     onClick = {
                                                         workspace.update {
                                                             if (propertySetIndex + 1 < sets.size) {
-                                                                val set = sets.removeAt(propertySetIndex)
-                                                                sets.add(propertySetIndex + 1, set)
+                                                                val s = sets.removeAt(propertySetIndex)
+                                                                sets.add(propertySetIndex + 1, s)
                                                             }
                                                         }
                                                     },
@@ -448,28 +434,22 @@ fun ThemeEditorScreen(
                                                     enabled = propertySetIndex + 1 < sets.size,
                                                 )
                                                 FlorisIconButton(
-                                                    onClick = {
-                                                        workspace.update {
-                                                            sets.removeAt(propertySetIndex)
-                                                        }
-                                                    },
+                                                    onClick = { workspace.update { sets.removeAt(propertySetIndex) } },
                                                     icon = Icons.Default.Delete,
                                                     iconColor = MaterialTheme.colorScheme.primary,
                                                     iconModifier = Modifier.size(ButtonDefaults.IconSize),
                                                 )
                                                 FlorisIconButton(
                                                     onClick = {
-                                                        snyggPropertySetForEditing = propertySet
-                                                        snyggPropertyToEdit = SnyggEmptyPropertyInfoForAdding.copy(
-                                                            rule = rule,
-                                                        )
+                                                        snyggPropertySetForEditing = ps
+                                                        snyggPropertyToEdit = SnyggEmptyPropertyInfoForAdding.copy(rule = rule)
                                                     },
                                                     icon = Icons.Default.Add,
                                                     iconColor = MaterialTheme.colorScheme.primary,
                                                     iconModifier = Modifier.size(ButtonDefaults.IconSize),
                                                 )
                                             }
-                                            SinglePropertySetEditor(propertySet)
+                                            SinglePropertySetEditor(ps)
                                         }
                                     }
                                 }
@@ -505,50 +485,33 @@ fun ThemeEditorScreen(
                 onConfirmRule = { oldRule, newRule ->
                     val rules = stylesheetEditor.rules
                     when {
-                        oldRule == newRule -> {
-                            snyggRuleToEdit = null
-                            true
-                        }
-                        rules.contains(newRule) -> {
-                            false
-                        }
+                        oldRule == newRule -> { snyggRuleToEdit = null; true }
+                        rules.contains(newRule) -> false
                         else -> workspace.update {
                             val set = rules.remove(oldRule)
                             when {
                                 set != null -> {
                                     rules[newRule] = set
                                     snyggRuleToEdit = null
-                                    scope.launch {
-                                        lazyListState.animateScrollToItem(index = rules.keys.indexOf(newRule))
-                                    }
+                                    scope.launch { lazyListState.animateScrollToItem(index = rules.keys.indexOf(newRule)) }
                                     true
                                 }
                                 oldRule == SnyggEmptyRuleForAdding -> {
                                     when (SnyggSpec.propertySetSpecOf(newRule)!!.type) {
-                                        SnyggSpecDecl.PropertySet.Type.SINGLE_SET -> {
-                                            rules[newRule] = SnyggSinglePropertySetEditor()
-                                        }
-                                        SnyggSpecDecl.PropertySet.Type.MULTIPLE_SETS -> {
-                                            rules[newRule] = SnyggMultiplePropertySetsEditor()
-                                        }
+                                        SnyggSpecDecl.PropertySet.Type.SINGLE_SET -> rules[newRule] = SnyggSinglePropertySetEditor()
+                                        SnyggSpecDecl.PropertySet.Type.MULTIPLE_SETS -> rules[newRule] = SnyggMultiplePropertySetsEditor()
                                     }
                                     snyggRuleToEdit = null
-                                    scope.launch {
-                                        lazyListState.animateScrollToItem(index = rules.keys.indexOf(newRule))
-                                    }
+                                    scope.launch { lazyListState.animateScrollToItem(index = rules.keys.indexOf(newRule)) }
                                     true
                                 }
-                                else -> {
-                                    false
-                                }
+                                else -> false
                             }
                         }
                     }
                 },
                 onDeleteRule = { rule ->
-                    workspace.update {
-                        stylesheetEditor.rules.remove(rule)
-                    }
+                    workspace.update { stylesheetEditor.rules.remove(rule) }
                     snyggRuleToEdit = null
                 },
                 onDismiss = { snyggRuleToEdit = null },
@@ -569,16 +532,12 @@ fun ThemeEditorScreen(
                     if (propertyToEdit == SnyggEmptyPropertyInfoForAdding && properties.containsKey(name)) {
                         return@EditPropertyDialog false
                     }
-                    workspace.update {
-                        properties[name] = value
-                    }
+                    workspace.update { properties[name] = value }
                     snyggPropertyToEdit = null
                     true
                 },
                 onDelete = {
-                    workspace.update {
-                        snyggPropertySetForEditing?.properties?.remove(propertyToEdit.name)
-                    }
+                    workspace.update { snyggPropertySetForEditing?.properties?.remove(propertyToEdit.name) }
                     snyggPropertyToEdit = null
                 },
                 onDismiss = { snyggPropertyToEdit = null },
@@ -662,13 +621,12 @@ private fun ComponentMetaEditorDialog(
                 )
                 Validation(showValidationErrors, authorsValidation)
             }
-            JetPrefListItem(
-                modifier = Modifier.toggleable(isNightTheme) { isNightTheme = it },
+            Text(
+                modifier = Modifier
+                    .toggleable(isNightTheme) { isNightTheme = it }
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 text = stringRes(R.string.settings__theme_editor__component_meta_is_night_theme),
-                trailing = {
-                    Switch(checked = isNightTheme, onCheckedChange = null)
-                },
-                colors = ListItemDefaults.colors(containerColor = AlertDialogDefaults.containerColor)
+                style = MaterialTheme.typography.bodyLarge,
             )
             DialogProperty(text = stringRes(R.string.settings__theme_editor__component_meta_stylesheet_path)) {
                 JetPrefTextField(
@@ -689,39 +647,26 @@ private fun ComponentMetaEditorDialog(
                 JetPrefDropdown(
                     modifier = Modifier.padding(bottom = 8.dp),
                     labelText = stringRes(R.string.settings__theme_editor__component_meta_material_you__palette_style),
-                    optionsLabelProvider = {
-                        it.name
-                    },
+                    optionsLabelProvider = { it.name },
                     options = PaletteStyle.entries,
-                    onSelectOption = {
-                        materialYouFlags = materialYouFlags.copy(paletteStyle = PaletteStyle.entries[it])
-                    },
-                    selectedOptionIndex = materialYouFlags.paletteStyle.ordinal
+                    onSelectOption = { materialYouFlags = materialYouFlags.copy(paletteStyle = PaletteStyle.entries[it]) },
+                    selectedOptionIndex = materialYouFlags.paletteStyle.ordinal,
                 )
                 JetPrefDropdown(
                     modifier = Modifier.padding(bottom = 8.dp),
                     labelText = stringRes(R.string.settings__theme_editor__component_meta_material_you__color_contrast),
-                    optionsLabelProvider = {
-                        it.name
-                    },
+                    optionsLabelProvider = { it.name },
                     options = Contrast.entries,
-                    onSelectOption = {
-                        materialYouFlags = materialYouFlags.copy(contrastLevel = Contrast.entries[it])
-                    },
-                    selectedOptionIndex = materialYouFlags.contrastLevel.ordinal
+                    onSelectOption = { materialYouFlags = materialYouFlags.copy(contrastLevel = Contrast.entries[it]) },
+                    selectedOptionIndex = materialYouFlags.contrastLevel.ordinal,
                 )
                 JetPrefDropdown(
                     modifier = Modifier.padding(bottom = 8.dp),
                     labelText = stringRes(R.string.settings__theme_editor__component_meta_material_you__spec_version),
-                    optionsLabelProvider = {
-                        it.name
-                    },
+                    optionsLabelProvider = { it.name },
                     options = ColorSpec.SpecVersion.entries,
-                    onSelectOption = {
-                        materialYouFlags =
-                            materialYouFlags.copy(specVersion = ColorSpec.SpecVersion.entries[it])
-                    },
-                    selectedOptionIndex = materialYouFlags.specVersion.ordinal
+                    onSelectOption = { materialYouFlags = materialYouFlags.copy(specVersion = ColorSpec.SpecVersion.entries[it]) },
+                    selectedOptionIndex = materialYouFlags.specVersion.ordinal,
                 )
             }
         }
@@ -767,6 +712,7 @@ private fun SnyggRuleRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
             modifier = Modifier
@@ -783,36 +729,16 @@ private fun SnyggRuleRow(
                 )
                 Row(modifier = Modifier.fillMaxWidth()) {
                     if (rule.selector == SnyggSelector.PRESSED) {
-                        Selector(
-                            text = when (level) {
-                                SnyggLevel.DEVELOPER -> SnyggSelector.PRESSED.id
-                                else -> stringRes(R.string.snygg__rule_selector__pressed)
-                            }
-                        )
+                        Selector(text = when (level) { SnyggLevel.DEVELOPER -> SnyggSelector.PRESSED.id; else -> stringRes(R.string.snygg__rule_selector__pressed) })
                     }
                     if (rule.selector == SnyggSelector.FOCUS) {
-                        Selector(
-                            text = when (level) {
-                                SnyggLevel.DEVELOPER -> SnyggSelector.FOCUS.id
-                                else -> stringRes(R.string.snygg__rule_selector__focus)
-                            }
-                        )
+                        Selector(text = when (level) { SnyggLevel.DEVELOPER -> SnyggSelector.FOCUS.id; else -> stringRes(R.string.snygg__rule_selector__focus) })
                     }
                     if (rule.selector == SnyggSelector.HOVER) {
-                        Selector(
-                            text = when (level) {
-                                SnyggLevel.DEVELOPER -> SnyggSelector.HOVER.id
-                                else -> stringRes(R.string.snygg__rule_selector__hover)
-                            }
-                        )
+                        Selector(text = when (level) { SnyggLevel.DEVELOPER -> SnyggSelector.HOVER.id; else -> stringRes(R.string.snygg__rule_selector__hover) })
                     }
                     if (rule.selector == SnyggSelector.DISABLED) {
-                        Selector(
-                            text = when (level) {
-                                SnyggLevel.DEVELOPER -> SnyggSelector.DISABLED.id
-                                else -> stringRes(R.string.snygg__rule_selector__disabled)
-                            }
-                        )
+                        Selector(text = when (level) { SnyggLevel.DEVELOPER -> SnyggSelector.DISABLED.id; else -> stringRes(R.string.snygg__rule_selector__disabled) })
                     }
                 }
                 for ((attrKey, attrValue) in rule.attributes) {
@@ -836,28 +762,6 @@ private fun SnyggRuleRow(
             iconColor = MaterialTheme.colorScheme.secondary,
             iconModifier = Modifier.size(ButtonDefaults.IconSize),
         )
-    }
-}
-
-@Composable
-internal fun DialogProperty(
-    text: String,
-    modifier: Modifier = Modifier,
-    trailingIconTitle: @Composable () -> Unit = { },
-    content: @Composable () -> Unit,
-) {
-    Column(modifier = modifier.padding(bottom = 8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 8.dp),
-                text = text,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            trailingIconTitle()
-        }
-        content()
     }
 }
 

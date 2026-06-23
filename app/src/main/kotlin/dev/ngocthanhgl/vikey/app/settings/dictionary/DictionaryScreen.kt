@@ -66,13 +66,11 @@ fun DictionaryScreen() {
                 checked = enableSystemUserDictionary,
                 onCheckedChange = { scope.launch { prefs.dictionary.enableSystemUserDictionary.set(it) } },
                 title = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__label),
-                summary = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__summary),
             )
             SettingsDivider()
             M3ClickablePreference(
                 icon = Icons.Outlined.Edit,
                 title = stringRes(R.string.pref__dictionary__manage_system_user_dictionary__label),
-                summary = stringRes(R.string.pref__dictionary__manage_system_user_dictionary__summary),
                 onClick = { navController.navigate(Routes.Settings.UserDictionary(UserDictionaryType.SYSTEM)) },
                 enabled = enableSystemUserDictionary,
             )
@@ -82,13 +80,11 @@ fun DictionaryScreen() {
                 checked = enableFlorisUserDictionary,
                 onCheckedChange = { scope.launch { prefs.dictionary.enableFlorisUserDictionary.set(it) } },
                 title = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__label),
-                summary = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__summary),
             )
             SettingsDivider()
             M3ClickablePreference(
                 icon = Icons.Outlined.Edit,
                 title = stringRes(R.string.pref__dictionary__manage_floris_user_dictionary__label),
-                summary = stringRes(R.string.pref__dictionary__manage_floris_user_dictionary__summary),
                 onClick = { navController.navigate(Routes.Settings.UserDictionary(UserDictionaryType.FLORIS)) },
                 enabled = enableFlorisUserDictionary,
             )
@@ -96,7 +92,6 @@ fun DictionaryScreen() {
             M3ClickablePreference(
                 icon = Icons.Outlined.Delete,
                 title = stringRes(R.string.pref__dictionary__clear_learned_words__label),
-                summary = stringRes(R.string.pref__dictionary__clear_learned_words__summary),
                 onClick = { showClearDialog = true },
             )
         }

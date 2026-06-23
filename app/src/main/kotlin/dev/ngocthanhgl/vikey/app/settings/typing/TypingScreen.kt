@@ -88,7 +88,6 @@ fun TypingScreen() {
                 checked = autoCapitalization,
                 onCheckedChange = { scope.launch { prefs.correction.autoCapitalization.set(it) } },
                 title = stringRes(R.string.pref__correction__auto_capitalization__label),
-                summary = stringRes(R.string.pref__correction__auto_capitalization__summary),
             )
             SettingsDivider()
             M3SwitchPreference(
@@ -96,7 +95,6 @@ fun TypingScreen() {
                 checked = autoSpacePunctuationEnabled,
                 onCheckedChange = { scope.launch { prefs.correction.autoSpacePunctuation.set(it) } },
                 title = stringRes(R.string.pref__correction__auto_space_punctuation__label),
-                summary = stringRes(R.string.pref__correction__auto_space_punctuation__summary),
             )
             if (autoSpacePunctuationEnabled) {
                 SettingsDivider()
@@ -129,7 +127,6 @@ fun TypingScreen() {
                 checked = rememberCapsLockState,
                 onCheckedChange = { scope.launch { prefs.correction.rememberCapsLockState.set(it) } },
                 title = stringRes(R.string.pref__correction__remember_caps_lock_state__label),
-                summary = stringRes(R.string.pref__correction__remember_caps_lock_state__summary),
             )
             SettingsDivider()
             M3SwitchPreference(
@@ -137,7 +134,6 @@ fun TypingScreen() {
                 checked = doubleSpacePeriod,
                 onCheckedChange = { scope.launch { prefs.correction.doubleSpacePeriod.set(it) } },
                 title = stringRes(R.string.pref__correction__double_space_period__label),
-                summary = stringRes(R.string.pref__correction__double_space_period__summary),
             )
             SettingsDivider()
             M3SwitchPreference(
@@ -145,7 +141,6 @@ fun TypingScreen() {
                 checked = autoCorrect,
                 onCheckedChange = { scope.launch { prefs.correction.autoCorrect.set(it) } },
                 title = stringRes(R.string.pref__correction__auto_correct__label),
-                summary = stringRes(R.string.pref__correction__auto_correct__summary),
             )
         }
 
@@ -182,7 +177,6 @@ fun TypingScreen() {
                 checked = useContacts,
                 onCheckedChange = { scope.launch { prefs.spelling.useContacts.set(it) } },
                 title = stringRes(R.string.pref__spelling__use_contacts__label),
-                summary = stringRes(R.string.pref__spelling__use_contacts__summary),
                 enabled = florisSpellCheckerEnabled.value,
             )
             SettingsDivider()
@@ -191,7 +185,6 @@ fun TypingScreen() {
                 checked = useUdmEntries,
                 onCheckedChange = { scope.launch { prefs.spelling.useUdmEntries.set(it) } },
                 title = stringRes(R.string.pref__spelling__use_udm_entries__label),
-                summary = stringRes(R.string.pref__spelling__use_udm_entries__summary),
                 enabled = florisSpellCheckerEnabled.value,
             )
         }

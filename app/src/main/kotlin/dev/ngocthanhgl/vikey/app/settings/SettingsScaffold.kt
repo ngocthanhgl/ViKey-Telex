@@ -24,6 +24,7 @@ fun SettingsScaffold(
     title: String,
     scrollable: Boolean = true,
     fab: @Composable () -> Unit = {},
+    actions: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     val navController = LocalNavController.current
@@ -36,6 +37,7 @@ fun SettingsScaffold(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
+                actions = actions,
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,

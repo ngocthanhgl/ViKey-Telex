@@ -43,7 +43,6 @@ import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchPreference
 import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.ime.core.DisplayLanguageNamesIn
 import dev.ngocthanhgl.vikey.ime.core.Subtype
-import dev.ngocthanhgl.vikey.ime.keyboard.LayoutType
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.subtypeManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
@@ -112,7 +111,6 @@ fun LocalizationScreen() {
             M3ClickablePreference(
                 icon = Icons.Outlined.Extension,
                 title = stringRes(R.string.settings__localization__language_pack_title),
-                summary = stringRes(R.string.settings__localization__language_pack_summary),
                 onClick = {
                     navController.navigate(Routes.Settings.LanguagePackManager(LanguagePackManagerScreenAction.MANAGE))
                 },
@@ -132,7 +130,6 @@ fun LocalizationScreen() {
                 text = stringRes(R.string.settings__localization__subtype_no_subtypes_configured_warning),
             )
         } else {
-            val currencySets by keyboardManager.resources.currencySets.collectAsState()
             val layouts by keyboardManager.resources.layouts.collectAsState()
             val displayLanguageNamesIn by prefs.localization.displayLanguageNamesIn.collectAsState()
             ElevatedCard(
@@ -146,22 +143,12 @@ fun LocalizationScreen() {
                 ),
             ) {
                 subtypes.forEachIndexed { index, subtype ->
-                    val cMeta = layouts[LayoutType.CHARACTERS]?.get(subtype.layoutMap.characters)
-                    val sMeta = layouts[LayoutType.SYMBOLS]?.get(subtype.layoutMap.symbols)
-                    val currMeta = currencySets[subtype.currencySet]
-                    val summary = stringRes(
-                        id = R.string.settings__localization__subtype_summary,
-                        "characters_name" to (cMeta?.label ?: "null"),
-                        "symbols_name" to (sMeta?.label ?: "null"),
-                        "currency_set_name" to (currMeta?.label ?: "null"),
-                    )
                     M3ClickablePreference(
                         icon = Icons.Outlined.Language,
                         title = when (displayLanguageNamesIn) {
                             DisplayLanguageNamesIn.SYSTEM_LOCALE -> subtype.primaryLocale.displayName()
                             DisplayLanguageNamesIn.NATIVE_LOCALE -> subtype.primaryLocale.displayName(subtype.primaryLocale)
                         },
-                        summary = summary,
                         onClick = {
                             navController.navigate(Routes.Settings.SubtypeEdit(subtype.id))
                         },

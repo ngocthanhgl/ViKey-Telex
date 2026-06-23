@@ -110,7 +110,6 @@ fun InputFeedbackScreen() {
                 checked = audioFeatKeyPress,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatKeyPress.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_feat_key_press__label),
-                summary = stringRes(R.string.pref__input_feedback__any_feat_key_press__summary),
                 enabled = audioEnabled,
             )
             SettingsDivider()
@@ -119,7 +118,6 @@ fun InputFeedbackScreen() {
                 checked = audioFeatKeyLongPress,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatKeyLongPress.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_feat_key_long_press__label),
-                summary = stringRes(R.string.pref__input_feedback__any_feat_key_long_press__summary),
                 enabled = audioEnabled,
             )
             SettingsDivider()
@@ -128,7 +126,6 @@ fun InputFeedbackScreen() {
                 checked = audioFeatKeyRepeatedAction,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatKeyRepeatedAction.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_feat_key_repeated_action__label),
-                summary = stringRes(R.string.pref__input_feedback__any_feat_key_repeated_action__summary),
                 enabled = audioEnabled,
             )
             SettingsDivider()
@@ -137,7 +134,6 @@ fun InputFeedbackScreen() {
                 checked = audioFeatGestureSwipe,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatGestureSwipe.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_feat_gesture_swipe__label),
-                summary = stringRes(R.string.pref__input_feedback__any_feat_gesture_swipe__summary),
                 enabled = audioEnabled,
             )
             SettingsDivider()
@@ -146,7 +142,6 @@ fun InputFeedbackScreen() {
                 checked = audioFeatGestureMovingSwipe,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatGestureMovingSwipe.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_feat_gesture_moving_swipe__label),
-                summary = stringRes(R.string.pref__input_feedback__audio_feat_gesture_moving_swipe__label),
                 enabled = audioEnabled,
             )
         }
@@ -214,7 +209,6 @@ fun InputFeedbackScreen() {
                 checked = hapticFeatKeyPress,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatKeyPress.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_feat_key_press__label),
-                summary = stringRes(R.string.pref__input_feedback__any_feat_key_press__summary),
                 enabled = hapticEnabled,
             )
             SettingsDivider()
@@ -223,7 +217,6 @@ fun InputFeedbackScreen() {
                 checked = hapticFeatKeyLongPress,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatKeyLongPress.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_feat_key_long_press__label),
-                summary = stringRes(R.string.pref__input_feedback__any_feat_key_long_press__summary),
                 enabled = hapticEnabled,
             )
             SettingsDivider()
@@ -232,7 +225,6 @@ fun InputFeedbackScreen() {
                 checked = hapticFeatKeyRepeatedAction,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatKeyRepeatedAction.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_feat_key_repeated_action__label),
-                summary = stringRes(R.string.pref__input_feedback__any_feat_key_repeated_action__summary),
                 enabled = hapticEnabled,
             )
             SettingsDivider()
@@ -241,7 +233,6 @@ fun InputFeedbackScreen() {
                 checked = hapticFeatGestureSwipe,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatGestureSwipe.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_feat_gesture_swipe__label),
-                summary = stringRes(R.string.pref__input_feedback__any_feat_gesture_swipe__summary),
                 enabled = hapticEnabled,
             )
             SettingsDivider()
@@ -250,7 +241,6 @@ fun InputFeedbackScreen() {
                 checked = hapticFeatGestureMovingSwipe,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatGestureMovingSwipe.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_feat_gesture_moving_swipe__label),
-                summary = stringRes(R.string.pref__input_feedback__audio_feat_gesture_moving_swipe__label),
                 enabled = hapticEnabled,
             )
         }

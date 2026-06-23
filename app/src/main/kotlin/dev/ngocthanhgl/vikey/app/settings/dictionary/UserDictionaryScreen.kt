@@ -1,38 +1,32 @@
-/*
- * Copyright (C) 2021-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.dictionary
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,6 +41,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
+import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.app.settings.theme.DialogProperty
 import dev.ngocthanhgl.vikey.ime.dictionary.DictionaryManager
 import dev.ngocthanhgl.vikey.ime.dictionary.FREQUENCY_MAX
@@ -55,20 +50,14 @@ import dev.ngocthanhgl.vikey.ime.dictionary.UserDictionaryDao
 import dev.ngocthanhgl.vikey.ime.dictionary.UserDictionaryEntry
 import dev.ngocthanhgl.vikey.ime.dictionary.UserDictionaryValidation
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.ngocthanhgl.vikey.lib.compose.Validation
 import dev.ngocthanhgl.vikey.lib.rememberValidationResult
 import dev.ngocthanhgl.vikey.lib.util.launchActivity
 import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
-import dev.patrickgold.jetpref.material.ui.JetPrefListItem
 import dev.patrickgold.jetpref.material.ui.JetPrefTextField
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.florisboard.lib.android.showLongToast
 import org.florisboard.lib.android.showLongToastSync
-import org.florisboard.lib.android.stringRes
-import org.florisboard.lib.compose.FlorisIconButton
-import org.florisboard.lib.compose.rippleClickable
 import org.florisboard.lib.compose.stringRes
 
 private val AllLanguagesLocale = FlorisLocale.from(language = "zz")
@@ -80,14 +69,9 @@ enum class UserDictionaryType(val id: String) {
     SYSTEM("system");
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
-    title = stringRes(when (type) {
-        UserDictionaryType.FLORIS -> R.string.settings__udm__title_floris
-        UserDictionaryType.SYSTEM -> R.string.settings__udm__title_system
-    })
-    scrollable = false
-
+fun UserDictionaryScreen(type: UserDictionaryType) {
     val navController = LocalNavController.current
     val context = LocalContext.current
     val dictionaryManager = DictionaryManager.default()
@@ -115,7 +99,6 @@ fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
 
     fun buildUi() {
         if (currentLocale != null) {
-            //subtitle = getDisplayNameForLocale(currentLocale)
             val locale = if (currentLocale == AllLanguagesLocale) null else currentLocale
             wordList = userDictionaryDao()?.queryAll(locale) ?: emptyList()
             if (wordList.isEmpty()) {
@@ -123,7 +106,6 @@ fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
             }
         }
         if (currentLocale == null) {
-            //subtitle = null
             languageList = userDictionaryDao()
                 ?.queryLanguageList()
                 ?.sortedBy { it?.displayLanguage() }
@@ -135,8 +117,6 @@ fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
     val importDictionary = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
-            // If uri is null it indicates that the selection activity was cancelled (mostly
-            // by pressing the back button), so we don't display an error message here.
             if (uri == null) return@rememberLauncherForActivityResult
             val db = when (type) {
                 UserDictionaryType.FLORIS -> dictionaryManager.florisUserDictionaryDatabase()
@@ -160,8 +140,6 @@ fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
     val exportDictionary = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument(),
         onResult = { uri ->
-            // If uri is null it indicates that the selection activity was cancelled (mostly
-            // by pressing the back button), so we don't display an error message here.
             if (uri == null) return@rememberLauncherForActivityResult
             val db = when (type) {
                 UserDictionaryType.FLORIS -> dictionaryManager.florisUserDictionaryDatabase()
@@ -174,6 +152,7 @@ fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
             runCatching {
                 db.exportCombinedList(context, uri)
             }.onSuccess {
+                buildUi()
                 context.showLongToastSync(R.string.settings__udm__dictionary_export_success)
             }.onFailure { error ->
                 context.showLongToastSync("Error: ${error.localizedMessage}")
@@ -181,69 +160,82 @@ fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
         },
     )
 
-    navigationIcon {
-        FlorisIconButton(
-            onClick = {
-                if (currentLocale != null) {
-                    currentLocale = null
-                    buildUi()
-                } else {
-                    navController.popBackStack()
-                }
-            },
-            icon = if (currentLocale != null) {
-                Icons.Default.Close
-            } else {
-                Icons.AutoMirrored.Filled.ArrowBack
-            },
-        )
-    }
-
-    actions {
-        var expanded by remember { mutableStateOf(false) }
-        FlorisIconButton(
-            onClick = { expanded = !expanded },
-            icon = Icons.Default.MoreVert,
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            DropdownMenuItem(
-                onClick = {
-                    importDictionary.launch("*/*")
-                    expanded = false
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringRes(when (type) {
+                    UserDictionaryType.FLORIS -> R.string.settings__udm__title_floris
+                    UserDictionaryType.SYSTEM -> R.string.settings__udm__title_system
+                })) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            if (currentLocale != null) {
+                                currentLocale = null
+                                buildUi()
+                            } else {
+                                navController.popBackStack()
+                            }
+                        },
+                    ) {
+                        Icon(
+                            imageVector = if (currentLocale != null) {
+                                Icons.Default.Close
+                            } else {
+                                Icons.AutoMirrored.Filled.ArrowBack
+                            },
+                            contentDescription = null,
+                        )
+                    }
                 },
-                text = { Text(text = stringRes(R.string.action__import)) },
-            )
-            DropdownMenuItem(
-                onClick = {
-                    exportDictionary.launch("my-personal-dictionary.clb")
-                    expanded = false
+                actions = {
+                    var expanded by remember { mutableStateOf(false) }
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = null)
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            onClick = {
+                                importDictionary.launch("*/*")
+                                expanded = false
+                            },
+                            text = { Text(text = stringRes(R.string.action__import)) },
+                        )
+                        DropdownMenuItem(
+                            onClick = {
+                                exportDictionary.launch("my-personal-dictionary.clb")
+                                expanded = false
+                            },
+                            text = { Text(text = stringRes(R.string.action__export)) },
+                        )
+                        if (type == UserDictionaryType.SYSTEM) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    context.launchActivity { it.action = SystemUserDictionaryUiIntentAction }
+                                    expanded = false
+                                },
+                                text = { Text(text = stringRes(R.string.settings__udm__open_system_manager_ui)) },
+                            )
+                        }
+                    }
                 },
-                text = { Text(text = stringRes(R.string.action__export)) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
             )
-            if (type == UserDictionaryType.SYSTEM) {
-                DropdownMenuItem(
-                    onClick = {
-                        context.launchActivity { it.action = SystemUserDictionaryUiIntentAction }
-                        expanded = false
-                    },
-                    text = { Text(text = stringRes(R.string.settings__udm__open_system_manager_ui)) },
-                )
-            }
-        }
-    }
-
-    floatingActionButton {
-        ExtendedFloatingActionButton(
-            onClick = { userDictionaryEntryForDialog = UserDictionaryEntryToAdd },
-            icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
-            text = { Text(text = stringRes(R.string.settings__udm__dialog__title_add)) },
-        )
-    }
-
-    content {
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { userDictionaryEntryForDialog = UserDictionaryEntryToAdd },
+                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
+                text = { Text(text = stringRes(R.string.settings__udm__dialog__title_add)) },
+            )
+        },
+    ) { padding ->
         BackHandler(currentLocale != null) {
             currentLocale = null
             buildUi()
@@ -254,9 +246,9 @@ fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
             buildUi()
         }
 
-        LazyColumn {
-            if (languageList.isEmpty()) {
-                item {
+        LazyColumn(modifier = Modifier.padding(padding)) {
+            item {
+                if (languageList.isEmpty() && currentLocale == null) {
                     Text(
                         modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
                         text = stringRes(R.string.settings__udm__no_words_in_dictionary),
@@ -265,36 +257,53 @@ fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
                 }
             }
             if (currentLocale == null) {
-                items(languageList) { language ->
-                    JetPrefListItem(
-                        modifier = Modifier.rippleClickable {
-                            scope.launch {
-                                // Delay makes UI ripple visible and experience better
-                                delay(150)
-                                currentLocale = language
-                                buildUi()
+                item {
+                    ElevatedCard(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(28.dp),
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        ),
+                    ) {
+                        languageList.forEachIndexed { index, language ->
+                            Text(
+                                modifier = Modifier
+                                    .clickable {
+                                        scope.launch {
+                                            delay(150)
+                                            currentLocale = language
+                                            buildUi()
+                                        }
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                                text = getDisplayNameForLocale(language),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                            if (index < languageList.lastIndex) {
+                                SettingsDivider()
                             }
-                        },
-                        text = getDisplayNameForLocale(language),
-                    )
+                        }
+                    }
                 }
             } else {
                 items(wordList) { wordEntry ->
-                    JetPrefListItem(
-                        modifier = Modifier.rippleClickable {
-                            userDictionaryEntryForDialog = wordEntry
-                        },
-                        text = wordEntry.word,
-                        secondaryText = stringRes(
-                            if (wordEntry.shortcut != null) {
-                                R.string.settings__udm__word_summary_freq_shortcut
-                            } else {
-                                R.string.settings__udm__word_summary_freq
-                            },
-                            "freq" to wordEntry.freq,
-                            "shortcut" to wordEntry.shortcut,
+                    ElevatedCard(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(28.dp),
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         ),
-                    )
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .clickable { userDictionaryEntryForDialog = wordEntry }
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            text = wordEntry.word,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
                 }
             }
         }
@@ -337,7 +346,6 @@ fun UserDictionaryScreen(type: UserDictionaryType) = FlorisScreen {
                             freq = freq.toInt(10),
                             shortcut = shortcut.trim().takeIf { it.isNotBlank() },
                             locale = locale.trim().takeIf { it.isNotBlank() }?.let {
-                                // Normalize tag
                                 FlorisLocale.fromTag(it).localeTag()
                             },
                         )

@@ -61,7 +61,6 @@ fun SmartbarScreen() {
                 checked = enabled,
                 onCheckedChange = { scope.launch { prefs.smartbar.enabled.set(it) } },
                 title = stringRes(R.string.pref__smartbar__enabled__label),
-                summary = stringRes(R.string.pref__smartbar__enabled__summary),
             )
             SettingsDivider()
             M3ListPreference(
@@ -107,7 +106,6 @@ fun SmartbarScreen() {
                     checked = flipToggles,
                     onCheckedChange = { scope.launch { prefs.smartbar.flipToggles.set(it) } },
                     title = stringRes(R.string.pref__smartbar__flip_toggles__label),
-                    summary = stringRes(R.string.pref__smartbar__flip_toggles__summary),
                     enabled = enabled,
                 )
                 SettingsDivider()
@@ -117,7 +115,6 @@ fun SmartbarScreen() {
                 checked = sharedActionsAutoExpandCollapse,
                 onCheckedChange = { scope.launch { prefs.smartbar.sharedActionsAutoExpandCollapse.set(it) } },
                 title = stringRes(R.string.pref__smartbar__shared_actions_auto_expand_collapse__label),
-                summary = "[Since v0.4.1] Always enabled due to UX issues",
                 enabled = false,
             )
             if (layout == SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED) {

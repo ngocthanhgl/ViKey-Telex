@@ -95,7 +95,6 @@ fun KeyboardScreen() {
                 checked = numberRow,
                 onCheckedChange = { scope.launch { prefs.keyboard.numberRow.set(it) } },
                 title = stringRes(R.string.pref__keyboard__number_row__label),
-                summary = stringRes(R.string.pref__keyboard__number_row__summary),
             )
             SettingsDivider()
             M3SwitchListPreference(
@@ -126,7 +125,6 @@ fun KeyboardScreen() {
                 checked = utilityKeyEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.utilityKeyEnabled.set(it) } },
                 title = stringRes(R.string.pref__keyboard__utility_key_enabled__label),
-                summary = stringRes(R.string.pref__keyboard__utility_key_enabled__summary),
             )
             SettingsDivider()
             M3ListPreference(
@@ -254,7 +252,6 @@ fun KeyboardScreen() {
                 checked = popupEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.popupEnabled.set(it) } },
                 title = stringRes(R.string.pref__keyboard__popup_enabled__label),
-                summary = stringRes(R.string.pref__keyboard__popup_enabled__summary),
             )
             SettingsDivider()
             M3SwitchPreference(
@@ -262,7 +259,6 @@ fun KeyboardScreen() {
                 checked = mergeHintPopupsEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.mergeHintPopupsEnabled.set(it) } },
                 title = stringRes(R.string.pref__keyboard__merge_hint_popups_enabled__label),
-                summary = stringRes(R.string.pref__keyboard__merge_hint_popups_enabled__summary),
             )
             SettingsDivider()
             M3DialogSliderPreference(
@@ -279,7 +275,6 @@ fun KeyboardScreen() {
                 checked = spaceBarSwitchesToCharacters,
                 onCheckedChange = { scope.launch { prefs.keyboard.spaceBarSwitchesToCharacters.set(it) } },
                 title = stringRes(R.string.pref__keyboard__space_bar_switches_to_characters__label),
-                summary = stringRes(R.string.pref__keyboard__space_bar_switches_to_characters__summary),
             )
         }
     }

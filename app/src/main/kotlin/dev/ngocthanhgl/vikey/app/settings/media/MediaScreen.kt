@@ -107,7 +107,6 @@ fun MediaScreen() {
                 checked = historyEnabled,
                 onCheckedChange = { scope.launch { prefs.emoji.historyEnabled.set(it) } },
                 title = stringRes(R.string.prefs__media__emoji_history_enabled),
-                summary = stringRes(R.string.prefs__media__emoji_history_enabled__summary),
             )
             SettingsDivider()
             M3ListPreference(
@@ -185,7 +184,6 @@ fun MediaScreen() {
                 checked = suggestionEnabled,
                 onCheckedChange = { scope.launch { prefs.emoji.suggestionEnabled.set(it) } },
                 title = stringRes(R.string.prefs__media__emoji_suggestion_enabled),
-                summary = stringRes(R.string.prefs__media__emoji_suggestion_enabled__summary),
             )
             SettingsDivider()
             M3ListPreference(
@@ -202,7 +200,6 @@ fun MediaScreen() {
                 checked = suggestionUpdateHistory,
                 onCheckedChange = { scope.launch { prefs.emoji.suggestionUpdateHistory.set(it) } },
                 title = stringRes(R.string.prefs__media__emoji_suggestion_update_history),
-                summary = stringRes(R.string.prefs__media__emoji_suggestion_update_history__summary),
                 enabled = suggestionEnabled && historyEnabled,
             )
             SettingsDivider()
@@ -211,7 +208,6 @@ fun MediaScreen() {
                 checked = suggestionCandidateShowName,
                 onCheckedChange = { scope.launch { prefs.emoji.suggestionCandidateShowName.set(it) } },
                 title = stringRes(R.string.prefs__media__emoji_suggestion_candidate_show_name),
-                summary = stringRes(R.string.prefs__media__emoji_suggestion_candidate_show_name__summary),
                 enabled = suggestionEnabled,
             )
             SettingsDivider()

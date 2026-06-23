@@ -84,7 +84,6 @@ fun ThemeScreen() {
             M3ClickablePreference(
                 icon = Icons.Outlined.WbSunny,
                 title = stringRes(R.string.pref__theme__day),
-                summary = themeManager.getThemeLabel(dayThemeId),
                 enabled = themeMode != ThemeMode.ALWAYS_NIGHT,
                 onClick = {
                     navController.navigate(Routes.Settings.ThemeManager(ThemeManagerScreenAction.SELECT_DAY))
@@ -94,7 +93,6 @@ fun ThemeScreen() {
             M3ClickablePreference(
                 icon = Icons.Outlined.DarkMode,
                 title = stringRes(R.string.pref__theme__night),
-                summary = themeManager.getThemeLabel(nightThemeId),
                 enabled = themeMode != ThemeMode.ALWAYS_DAY,
                 onClick = {
                     navController.navigate(Routes.Settings.ThemeManager(ThemeManagerScreenAction.SELECT_NIGHT))

@@ -81,7 +81,6 @@ fun ClipboardScreen() {
                 checked = useInternalClipboard,
                 onCheckedChange = { scope.launch { prefs.clipboard.useInternalClipboard.set(it) } },
                 title = stringRes(R.string.pref__clipboard__use_internal_clipboard__label),
-                summary = stringRes(R.string.pref__clipboard__use_internal_clipboard__summary),
             )
             SettingsDivider()
             M3ListPreference(
@@ -124,7 +123,6 @@ fun ClipboardScreen() {
                 checked = suggestionEnabled,
                 onCheckedChange = { scope.launch { prefs.clipboard.suggestionEnabled.set(it) } },
                 title = stringRes(R.string.pref__clipboard__suggestion_enabled__label),
-                summary = stringRes(R.string.pref__clipboard__suggestion_enabled__summary),
             )
             SettingsDivider()
             M3DialogSliderPreference(
@@ -159,7 +157,6 @@ fun ClipboardScreen() {
                 checked = historyEnabled,
                 onCheckedChange = { scope.launch { prefs.clipboard.historyEnabled.set(it) } },
                 title = stringRes(R.string.pref__clipboard__enable_clipboard_history__label),
-                summary = stringRes(R.string.pref__clipboard__enable_clipboard_history__summary),
             )
             SettingsDivider()
             M3DialogSliderPreference(
@@ -259,7 +256,6 @@ fun ClipboardScreen() {
                 checked = clearPrimaryClipAffectsHistoryIfUnpinned,
                 onCheckedChange = { scope.launch { prefs.clipboard.clearPrimaryClipAffectsHistoryIfUnpinned.set(it) } },
                 title = stringRes(R.string.pref__clipboard__clear_primary_clip_affects_history_if_unpinned__label),
-                summary = stringRes(R.string.pref__clipboard__clear_primary_clip_affects_history_if_unpinned__summary),
                 enabled = historyEnabled,
             )
         }
