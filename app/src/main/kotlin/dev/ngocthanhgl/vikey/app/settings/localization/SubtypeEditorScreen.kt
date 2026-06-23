@@ -80,6 +80,7 @@ import kotlinx.coroutines.launch
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import java.io.File
 import org.florisboard.lib.compose.stringRes
+import androidx.compose.material.icons.filled.ArrowDropDown
 import dev.ngocthanhgl.vikey.app.settings.components.M3Dropdown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults

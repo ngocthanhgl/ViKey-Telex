@@ -93,7 +93,11 @@ private fun SettingsRowLayout(
                     text = summary,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+                )
+            }
+        }
+        Spacer(Modifier.width(12.dp))
+        trailing()
     }
 }
 
@@ -141,10 +145,6 @@ fun M3Dropdown(
                 )
             }
         }
-    }
-}
-        Spacer(Modifier.width(12.dp))
-        trailing()
     }
 }
 
