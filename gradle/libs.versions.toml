@@ -14,6 +14,7 @@ androidx-profileinstaller = "1.4.1"
 androidx-room = "2.8.4"
 androidx-window = "1.5.1"
 cache4k = "0.14.0"
+coil = "3.4.0"
 kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
 
@@ -21,6 +22,7 @@ kotlinx-coroutines = "1.10.2"
 kotlinx-serialization-json = "1.11.0"
 ksp = "2.3.5"
 material = "1.13.0"
+material-kolor = "4.1.1"
 mikepenz-aboutlibraries = "14.0.1"
 patrickgold-compose-tooltip = "0.2.0-rc02"
 patrickgold-jetpref = "0.3.0"
@@ -57,10 +59,13 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "androidx-room" }
 androidx-window-core = { module = "androidx.window:window-core", version.ref = "androidx-window" }
 cache4k = { module = "io.github.reactivecircus.cache4k:cache4k", version.ref = "cache4k" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+material-kolor = { module = "com.materialkolor:material-kolor-android", version.ref = "material-kolor" }
 mikepenz-aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "mikepenz-aboutlibraries" }
 mikepenz-aboutlibraries-compose = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "mikepenz-aboutlibraries" }
 patrickgold-compose-tooltip = { module = "dev.patrickgold.compose.tooltip:tooltip", version.ref = "patrickgold-compose-tooltip" }
