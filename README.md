@@ -97,22 +97,28 @@ ViKey hội tụ **3 tầng** gợi ý từ:
 | **Material You** | Dynamic color theo hệ thống |
 | **20+ themes** | Cài thêm qua extension store |
 
-<p align="center">
-  <figure>
-    <img src=".github/theme-dark.jpg" width="300" alt="Sakura Dark">
-    <figcaption align="center"><em>Sakura Dark</em></figcaption>
-  </figure>
-  <br><br>
-  <figure>
-    <img src=".github/theme-light.jpg" width="300" alt="Valentine Light">
-    <figcaption align="center"><em>Valentine Light</em></figcaption>
-  </figure>
-  <br><br>
-  <figure>
-    <img src=".github/liquid-glass.jpg" width="300" alt="Liquid Glass">
-    <figcaption align="center"><em>Liquid Glass</em></figcaption>
-  </figure>
-</p>
+<table align="center">
+  <tr>
+    <td align="center">
+      <figure>
+        <img src=".github/theme-dark.jpg" width="220" alt="Sakura Dark">
+        <figcaption><em>Sakura Dark</em></figcaption>
+      </figure>
+    </td>
+    <td align="center">
+      <figure>
+        <img src=".github/theme-light.jpg" width="220" alt="Valentine Light">
+        <figcaption><em>Valentine Light</em></figcaption>
+      </figure>
+    </td>
+    <td align="center">
+      <figure>
+        <img src=".github/liquid-glass.jpg" width="220" alt="Liquid Glass">
+        <figcaption><em>Liquid Glass</em></figcaption>
+      </figure>
+    </td>
+  </tr>
+</table>
 
 ### 🧠 Tự Nhận Diện Tiếng Anh
 
