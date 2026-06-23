@@ -22,17 +22,6 @@
         "contrastLevel": "Default",
         "specVersion": "SPEC_2021"
       }
-    },
-    {
-      "id": "liquid_glass_light",
-      "label": "🍸 Liquid Glass Light",
-      "authors": [ "NgocThanhGL" ],
-      "isNight": false,
-      "materialYouFlags": {
-        "paletteStyle": "Fidelity",
-        "contrastLevel": "Default",
-        "specVersion": "SPEC_2021"
-      }
     }
   ]
 }
