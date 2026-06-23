@@ -153,6 +153,23 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
             }
         }
 
-        LiquidGlassSettingsPanel(prefs)
+        Text(
+            text = "Liquid Glass",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
+        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            LiquidGlassSettingsPanel(prefs)
+        }
     }
 }
