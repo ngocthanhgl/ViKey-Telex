@@ -141,7 +141,7 @@ internal fun EditRuleDialog(
             is SnyggElementRule -> rule.elementName
             else -> rule.decl().name
         }
-        context.translateElementName(elementName, level) ?: rule
+        context.translateElementName(elementName, level) ?: rule.toString()
     }
     var elementsSelectedIndex by rememberSaveable {
         val index = possibleRuleTemplates
@@ -174,6 +174,7 @@ internal fun EditRuleDialog(
                 R.string.settings__theme_editor__edit_rule
             }
         )) },
+        confirmButton = {},
         text = {
             Column {
                 AnimatedVisibility(visible = showAlreadyExistsError) {
@@ -735,6 +736,7 @@ private fun <V : Any> EnumLikeAttributeBox(
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
             title = { Text(stringRes(R.string.action__add)) },
+            confirmButton = {},
             text = {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     for (entry in notYetAddedEntries) {

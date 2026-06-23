@@ -686,6 +686,7 @@ private fun PropertyValueEditor(
                     AlertDialog(
                         onDismissRequest = { showSelectFileDialog = false },
                         title = { Text(stringRes(R.string.settings__theme_editor__file_selector_dialog_title)) },
+                        confirmButton = {},
                         dismissButton = {
                             TextButton(onClick = { showSelectFileDialog = false }) {
                                 Text(stringRes(R.string.action__cancel))

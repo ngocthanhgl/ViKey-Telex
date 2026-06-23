@@ -658,6 +658,7 @@ fun SubtypeEditorScreen(id: Long?) {
             AlertDialog(
                 onDismissRequest = { showSubtypePresetsDialog = false },
                 title = { Text(stringRes(R.string.settings__localization__subtype_presets)) },
+                confirmButton = {},
                 dismissButton = {
                     TextButton(onClick = { showSubtypePresetsDialog = false }) {
                         Text(stringRes(android.R.string.cancel))
