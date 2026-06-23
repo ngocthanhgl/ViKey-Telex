@@ -1,21 +1,24 @@
-<p align="center">
-  <img src=".github/repo_icon.png" width="96" height="96" alt="ViKey">
-</p>
-
-<h1 align="center">ViKey</h1>
-
-<p align="center">
-  <strong>Vietnamese Telex Keyboard for Android</strong><br>
-  IME mã nguồn mở đầu tiên dùng xử lý âm tiết thuần thuật toán —<br>
-  không lookup table, không mutation, không dictionary dependency.
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=flat&logo=kotlin&logoColor=white" alt="Kotlin">
-  <img src="https://img.shields.io/badge/API_26+-3DDC84?style=flat&logo=android&logoColor=white" alt="API 26+">
-  <img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="License">
-  <img src="https://img.shields.io/badge/LLM-Qwen_GGUF-orange?style=flat" alt="Qwen GGUF">
-</p>
+<table align="center">
+  <tr>
+    <td width="140">
+      <img src=".github/repo_icon.png" width="128" alt="ViKey">
+    </td>
+    <td>
+      <h1>ViKey</h1>
+      <p><strong>Vietnamese Telex Keyboard for Android</strong></p>
+      <p>
+        IME mã nguồn mở đầu tiên dùng xử lý âm tiết thuần thuật toán —<br>
+        không lookup table, không mutation, không dictionary dependency.
+      </p>
+      <p>
+        <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=flat&logo=kotlin&logoColor=white" alt="Kotlin">
+        <img src="https://img.shields.io/badge/API_26+-3DDC84?style=flat&logo=android&logoColor=white" alt="API 26+">
+        <img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="License">
+        <img src="https://img.shields.io/badge/LLM-Qwen_GGUF-orange?style=flat" alt="Qwen GGUF">
+      </p>
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -95,9 +98,20 @@ ViKey hội tụ **3 tầng** gợi ý từ:
 | **20+ themes** | Cài thêm qua extension store |
 
 <p align="center">
-  <img src=".github/theme-dark.jpg" width="250" alt="Sakura Dark">
-  <img src=".github/theme-light.jpg" width="250" alt="Valentine Light">
-  <img src=".github/liquid-glass.jpg" width="250" alt="Liquid Glass">
+  <figure>
+    <img src=".github/theme-dark.jpg" width="300" alt="Sakura Dark">
+    <figcaption align="center"><em>Sakura Dark</em></figcaption>
+  </figure>
+  <br><br>
+  <figure>
+    <img src=".github/theme-light.jpg" width="300" alt="Valentine Light">
+    <figcaption align="center"><em>Valentine Light</em></figcaption>
+  </figure>
+  <br><br>
+  <figure>
+    <img src=".github/liquid-glass.jpg" width="300" alt="Liquid Glass">
+    <figcaption align="center"><em>Liquid Glass</em></figcaption>
+  </figure>
 </p>
 
 ### 🧠 Tự Nhận Diện Tiếng Anh
