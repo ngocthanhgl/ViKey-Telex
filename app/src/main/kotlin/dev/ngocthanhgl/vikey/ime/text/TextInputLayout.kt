@@ -107,6 +107,14 @@ fun TextInputLayout(
 
     InlineSuggestionsStyleCache()
 
+    LaunchedEffect(photoBoxSize) {
+        if (photoBoxSize.width > 0 && photoBoxSize.height > 0) {
+            prefs.backgroundPhoto.lastKeyboardAspectRatio.set(
+                photoBoxSize.width.toFloat() / photoBoxSize.height.toFloat()
+            )
+        }
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()

@@ -831,6 +831,10 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
             key = "bg_photo__blur",
             default = 0,
         )
+        val lastKeyboardAspectRatio = float(
+            key = "bg_photo__last_keyboard_ar",
+            default = 1.5f,
+        )
     }
 
     override fun migrate(entry: PreferenceMigrationEntry): PreferenceMigrationEntry {

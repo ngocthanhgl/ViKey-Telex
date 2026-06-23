@@ -79,6 +79,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     val bgPath by prefs.backgroundPhoto.imagePath.collectAsState()
     val bgVisibility by prefs.backgroundPhoto.visibility.collectAsState()
     val bgBlur by prefs.backgroundPhoto.blurRadius.collectAsState()
+    val keyboardAspectRatio by prefs.backgroundPhoto.lastKeyboardAspectRatio.collectAsState()
     val context = LocalContext.current
     var cropUri by remember { mutableStateOf<Uri?>(null) }
     val photoPicker = rememberLauncherForActivityResult(
@@ -231,6 +232,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
             CropPhotoDialog(
                 imageUri = uri,
                 context = context,
+                aspectRatio = keyboardAspectRatio,
                 onSave = { path, vis, blur ->
                     scope.launch {
                         prefs.backgroundPhoto.imagePath.set(path)
@@ -312,6 +314,7 @@ private fun PrefSlider(
 private fun CropPhotoDialog(
     imageUri: Uri,
     context: Context,
+    aspectRatio: Float,
     onSave: (String, Int, Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -351,6 +354,21 @@ private fun CropPhotoDialog(
                                 scale = (scale * zoom).coerceIn(0.5f, 5f)
                                 offsetX += pan.x
                                 offsetY += pan.y
+                                val bw = bitmap.width.toFloat()
+                                val bh = bitmap.height.toFloat()
+                                val dw = displayW
+                                val dh = displayH
+                                if (dw > 0f && dh > 0f) {
+                                    val fitScale = if (dw / bw < dh / bh) dw / bw else dh / bh
+                                    val contentW = bw * fitScale * scale
+                                    val contentH = bh * fitScale * scale
+                                    val cropW = dw * 0.9f
+                                    val cropH = cropW / aspectRatio
+                                    val maxOffX = (contentW - cropW) / 2f
+                                    val maxOffY = (contentH - cropH) / 2f
+                                    offsetX = offsetX.coerceIn(-maxOffX, maxOffX)
+                                    offsetY = offsetY.coerceIn(-maxOffY, maxOffY)
+                                }
                             }
                         },
                     contentAlignment = Alignment.Center,
@@ -372,7 +390,7 @@ private fun CropPhotoDialog(
                     )
                     Canvas(Modifier.fillMaxSize()) {
                         val cropW = size.width * 0.9f
-                        val cropH = cropW / 2.2f
+                        val cropH = cropW / aspectRatio
                         val left = (size.width - cropW) / 2f
                         val top = (size.height - cropH) / 2f
                         val overlay = Color.Black.copy(alpha = 0.5f)
@@ -429,7 +447,7 @@ private fun CropPhotoDialog(
                             val ox = (dw - rw) / 2f
                             val oy = (dh - rh) / 2f
                             val cw = dw * 0.9f
-                            val ch = cw / 2.2f
+                            val ch = cw / aspectRatio
                             val cl = (dw - cw) / 2f
                             val ct = (dh - ch) / 2f
                             val cx = dw / 2f
