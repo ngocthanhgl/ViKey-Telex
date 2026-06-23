@@ -87,8 +87,9 @@ import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.NATIVE_NULLPTR
 import dev.ngocthanhgl.vikey.lib.compose.FlorisHyperlinkText
 import dev.ngocthanhgl.vikey.lib.util.InputMethodUtils
-import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
-import dev.patrickgold.jetpref.material.ui.JetPrefDropdown
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import dev.ngocthanhgl.vikey.app.settings.components.M3Dropdown
 import dev.patrickgold.jetpref.material.ui.JetPrefTextField
 import dev.patrickgold.jetpref.material.ui.JetPrefTextFieldDefaults
 import org.florisboard.lib.android.showShortToastSync
@@ -164,203 +165,214 @@ internal fun EditRuleDialog(
         )
     }
 
-    JetPrefAlertDialog(
-        title = stringRes(
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringRes(
             if (isAddRuleDialog) {
                 R.string.settings__theme_editor__add_rule
             } else {
                 R.string.settings__theme_editor__edit_rule
             }
-        ),
-        confirmLabel = stringRes(
-            if (isAddRuleDialog) {
-                R.string.action__add
-            } else {
-                R.string.action__apply
-            }
-        ),
-        onConfirm = {
-            if (isAddRuleDialog && elementsSelectedIndex == 0) {
-                showSelectAsError = true
-            } else {
-                if (!onConfirmRule(initRule, currentRule)) {
-                    showAlreadyExistsError = true
-                }
-            }
-        },
-        dismissLabel = stringRes(R.string.action__cancel),
-        onDismiss = onDismiss,
-        neutralLabel = if (!isAddRuleDialog) {
-            stringRes(R.string.action__delete)
-        } else {
-            null
-        },
-        neutralColors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
-        onNeutral = { onDeleteRule(initRule) },
-    ) {
-        Column {
-            AnimatedVisibility(visible = showAlreadyExistsError) {
-                Text(
-                    modifier = Modifier.padding(bottom = 16.dp),
-                    text = stringRes(R.string.settings__theme_editor__rule_already_exists),
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-
-            DialogProperty(text = stringRes(R.string.settings__theme_editor__rule_name)) {
-                JetPrefDropdown(
-                    options = possibleRuleLabels,
-                    selectedOptionIndex = elementsSelectedIndex,
-                    onSelectOption = { elementsSelectedIndex = it },
-                    enabled = isAddRuleDialog,
-                    isError = showSelectAsError && elementsSelectedIndex == 0,
-                )
-            }
-
-            (currentRule as? SnyggAnnotationRule.Font)?.apply {
-                DialogProperty(text = stringRes(R.string.snygg__rule_annotation__font_name)) {
-                    JetPrefTextField(
-                        modifier = Modifier,
-                        value = fontName,
-                        onValueChange = {
-                            currentRule = copy(fontName = it)
-                        },
-                        singleLine = true,
+        )) },
+        text = {
+            Column {
+                AnimatedVisibility(visible = showAlreadyExistsError) {
+                    Text(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        text = stringRes(R.string.settings__theme_editor__rule_already_exists),
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
-            }
 
-            // TODO: Move to toplevel @Composable function
-            (currentRule as? SnyggElementRule)?.apply {
-                if (elementName == SnyggEmptyRuleForAdding.elementName) {
-                    return@apply
-                }
-                fun updateCurrentRule(newSelector: SnyggSelector) {
-                    currentRule = if (selector == newSelector) {
-                        copy(selector = SnyggSelector.NONE)
-                    } else {
-                        copy(selector = newSelector)
-                    }
-                }
-                DialogProperty(text = stringRes(R.string.settings__theme_editor__rule_selectors)) {
-                    Row(
-                        modifier = Modifier.florisHorizontalScroll(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        // TODO: avoid code duplication
-                        FlorisChip(
-                            onClick = { updateCurrentRule(SnyggSelector.PRESSED) },
-                            text = when (level) {
-                                SnyggLevel.DEVELOPER -> SnyggSelector.PRESSED.id
-                                else -> stringRes(R.string.snygg__rule_selector__pressed)
-                            },
-                            selected = selector == SnyggSelector.PRESSED,
-                        )
-                        FlorisChip(
-                            onClick = { updateCurrentRule(SnyggSelector.FOCUS) },
-                            text = when (level) {
-                                SnyggLevel.DEVELOPER -> SnyggSelector.FOCUS.id
-                                else -> stringRes(R.string.snygg__rule_selector__focus)
-                            },
-                            selected = selector == SnyggSelector.FOCUS,
-                        )
-                        FlorisChip(
-                            onClick = { updateCurrentRule(SnyggSelector.HOVER) },
-                            text = when (level) {
-                                SnyggLevel.DEVELOPER -> SnyggSelector.HOVER.id
-                                else -> stringRes(R.string.snygg__rule_selector__hover)
-                            },
-                            selected = selector == SnyggSelector.HOVER,
-                        )
-                        FlorisChip(
-                            onClick = { updateCurrentRule(SnyggSelector.DISABLED) },
-                            text = when (level) {
-                                SnyggLevel.DEVELOPER -> SnyggSelector.DISABLED.id
-                                else -> stringRes(R.string.snygg__rule_selector__disabled)
-                            },
-                            selected = selector == SnyggSelector.DISABLED,
-                        )
-                    }
-                }
-
-                val codes = remember(currentRule) {
-                    attributes[FlorisImeUi.Attr.Code] ?: emptyList()
-                }
-                var editCodeDialogValue by rememberSaveable { mutableStateOf<String?>(null) }
-                val initCodeValue = editCodeDialogValue
-                if (initCodeValue != null) {
-                    EditCodeValueDialog(
-                        codeValue = initCodeValue,
-                        checkExisting = { codes.contains(it) },
-                        onAdd = {
-                            currentRule = copy(
-                                attributes = attributes.including(FlorisImeUi.Attr.Code to it)
-                            )
-                        },
-                        onDelete = {
-                            currentRule = copy(
-                                attributes = attributes.excluding(FlorisImeUi.Attr.Code to it)
-                            )
-                        },
-                        onDismiss = { editCodeDialogValue = null },
+                DialogProperty(text = stringRes(R.string.settings__theme_editor__rule_name)) {
+                    M3Dropdown(
+                        options = possibleRuleLabels,
+                        selectedOptionIndex = elementsSelectedIndex,
+                        enabled = isAddRuleDialog,
+                        isError = showSelectAsError && elementsSelectedIndex == 0,
+                        onSelectOption = { elementsSelectedIndex = it },
                     )
                 }
-                DialogProperty(
-                    text = stringRes(R.string.settings__theme_editor__rule_codes),
-                    trailingIconTitle = {
-                        FlorisIconButton(
-                            onClick = { editCodeDialogValue = KeyCode.UNSPECIFIED.toString() },
-                            icon = Icons.Default.Add,
-                        )
-                    },
-                ) {
-                    if (codes.isEmpty()) {
-                        Text(
-                            text = stringRes(R.string.settings__theme_editor__no_codes_defined),
-                            fontStyle = FontStyle.Italic,
+
+                (currentRule as? SnyggAnnotationRule.Font)?.apply {
+                    DialogProperty(text = stringRes(R.string.snygg__rule_annotation__font_name)) {
+                        JetPrefTextField(
+                            modifier = Modifier,
+                            value = fontName,
+                            onValueChange = {
+                                currentRule = copy(fontName = it)
+                            },
+                            singleLine = true,
                         )
                     }
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        for (code in codes) {
+                }
+
+                // TODO: Move to toplevel @Composable function
+                (currentRule as? SnyggElementRule)?.apply {
+                    if (elementName == SnyggEmptyRuleForAdding.elementName) {
+                        return@apply
+                    }
+                    fun updateCurrentRule(newSelector: SnyggSelector) {
+                        currentRule = if (selector == newSelector) {
+                            copy(selector = SnyggSelector.NONE)
+                        } else {
+                            copy(selector = newSelector)
+                        }
+                    }
+                    DialogProperty(text = stringRes(R.string.settings__theme_editor__rule_selectors)) {
+                        Row(
+                            modifier = Modifier.florisHorizontalScroll(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            // TODO: avoid code duplication
                             FlorisChip(
-                                onClick = { editCodeDialogValue = code },
-                                text = code,
-                                selected = editCodeDialogValue == code,
-                                shape = MaterialTheme.shapes.medium,
+                                onClick = { updateCurrentRule(SnyggSelector.PRESSED) },
+                                text = when (level) {
+                                    SnyggLevel.DEVELOPER -> SnyggSelector.PRESSED.id
+                                    else -> stringRes(R.string.snygg__rule_selector__pressed)
+                                },
+                                selected = selector == SnyggSelector.PRESSED,
+                            )
+                            FlorisChip(
+                                onClick = { updateCurrentRule(SnyggSelector.FOCUS) },
+                                text = when (level) {
+                                    SnyggLevel.DEVELOPER -> SnyggSelector.FOCUS.id
+                                    else -> stringRes(R.string.snygg__rule_selector__focus)
+                                },
+                                selected = selector == SnyggSelector.FOCUS,
+                            )
+                            FlorisChip(
+                                onClick = { updateCurrentRule(SnyggSelector.HOVER) },
+                                text = when (level) {
+                                    SnyggLevel.DEVELOPER -> SnyggSelector.HOVER.id
+                                    else -> stringRes(R.string.snygg__rule_selector__hover)
+                                },
+                                selected = selector == SnyggSelector.HOVER,
+                            )
+                            FlorisChip(
+                                onClick = { updateCurrentRule(SnyggSelector.DISABLED) },
+                                text = when (level) {
+                                    SnyggLevel.DEVELOPER -> SnyggSelector.DISABLED.id
+                                    else -> stringRes(R.string.snygg__rule_selector__disabled)
+                                },
+                                selected = selector == SnyggSelector.DISABLED,
                             )
                         }
                     }
+
+                    val codes = remember(currentRule) {
+                        attributes[FlorisImeUi.Attr.Code] ?: emptyList()
+                    }
+                    var editCodeDialogValue by rememberSaveable { mutableStateOf<String?>(null) }
+                    val initCodeValue = editCodeDialogValue
+                    if (initCodeValue != null) {
+                        EditCodeValueDialog(
+                            codeValue = initCodeValue,
+                            checkExisting = { codes.contains(it) },
+                            onAdd = {
+                                currentRule = copy(
+                                    attributes = attributes.including(FlorisImeUi.Attr.Code to it)
+                                )
+                            },
+                            onDelete = {
+                                currentRule = copy(
+                                    attributes = attributes.excluding(FlorisImeUi.Attr.Code to it)
+                                )
+                            },
+                            onDismiss = { editCodeDialogValue = null },
+                        )
+                    }
+                    DialogProperty(
+                        text = stringRes(R.string.settings__theme_editor__rule_codes),
+                        trailingIconTitle = {
+                            FlorisIconButton(
+                                onClick = { editCodeDialogValue = KeyCode.UNSPECIFIED.toString() },
+                                icon = Icons.Default.Add,
+                            )
+                        },
+                    ) {
+                        if (codes.isEmpty()) {
+                            Text(
+                                text = stringRes(R.string.settings__theme_editor__no_codes_defined),
+                                fontStyle = FontStyle.Italic,
+                            )
+                        }
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            for (code in codes) {
+                                FlorisChip(
+                                    onClick = { editCodeDialogValue = code },
+                                    text = code,
+                                    selected = editCodeDialogValue == code,
+                                    shape = MaterialTheme.shapes.medium,
+                                )
+                            }
+                        }
+                    }
+
+                    EnumLikeAttributeBox(
+                        text = stringRes(R.string.settings__theme_editor__rule_modes),
+                        enumClass = KeyboardMode::class,
+                        attribute = FlorisImeUi.Attr.Mode,
+                        attributes = attributes,
+                        setAttributes = { currentRule = copy(attributes = it) },
+                        level = level,
+                    )
+
+                    EnumLikeAttributeBox(
+                        text = stringRes(R.string.settings__theme_editor__rule_shift_states),
+                        enumClass = InputShiftState::class,
+                        attribute = FlorisImeUi.Attr.ShiftState,
+                        attributes = attributes,
+                        setAttributes = { currentRule = copy(attributes = it) },
+                        level = level,
+                    )
+
+                    EnumLikeAttributeBox(
+                        text = "Target ime window mode",
+                        enumClass = ImeWindowMode::class,
+                        attribute = FlorisImeUi.Attr.WindowMode,
+                        attributes = attributes,
+                        setAttributes = { currentRule = copy(attributes = it) },
+                        level = level,
+                    )
                 }
-
-                EnumLikeAttributeBox(
-                    text = stringRes(R.string.settings__theme_editor__rule_modes),
-                    enumClass = KeyboardMode::class,
-                    attribute = FlorisImeUi.Attr.Mode,
-                    attributes = attributes,
-                    setAttributes = { currentRule = copy(attributes = it) },
-                    level = level,
-                )
-
-                EnumLikeAttributeBox(
-                    text = stringRes(R.string.settings__theme_editor__rule_shift_states),
-                    enumClass = InputShiftState::class,
-                    attribute = FlorisImeUi.Attr.ShiftState,
-                    attributes = attributes,
-                    setAttributes = { currentRule = copy(attributes = it) },
-                    level = level,
-                )
-
-                EnumLikeAttributeBox(
-                    text = "Target ime window mode",
-                    enumClass = ImeWindowMode::class,
-                    attribute = FlorisImeUi.Attr.WindowMode,
-                    attributes = attributes,
-                    setAttributes = { currentRule = copy(attributes = it) },
-                    level = level,
-                )
             }
-        }
-    }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                if (isAddRuleDialog && elementsSelectedIndex == 0) {
+                    showSelectAsError = true
+                } else {
+                    if (!onConfirmRule(initRule, currentRule)) {
+                        showAlreadyExistsError = true
+                    }
+                }
+            }) {
+                Text(stringRes(
+                    if (isAddRuleDialog) {
+                        R.string.action__add
+                    } else {
+                        R.string.action__apply
+                    }
+                ))
+            }
+        },
+        dismissButton = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (!isAddRuleDialog) {
+                    TextButton(
+                        onClick = { onDeleteRule(initRule) },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    ) {
+                        Text(stringRes(R.string.action__delete))
+                    }
+                }
+                TextButton(onClick = onDismiss) {
+                    Text(stringRes(R.string.action__cancel))
+                }
+            }
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -450,148 +462,159 @@ private fun EditCodeValueDialog(
         }
     }
 
-    JetPrefAlertDialog(
-        title = stringRes(
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringRes(
             if (codeValue == KeyCode.UNSPECIFIED.toString()) {
                 R.string.settings__theme_editor__add_code
             } else {
                 R.string.settings__theme_editor__edit_code
             }
-        ),
-        confirmLabel = stringRes(
-            if (codeValue == KeyCode.UNSPECIFIED.toString()) {
-                R.string.action__add
-            } else {
-                R.string.action__apply
-            }
-        ),
-        onConfirm = {
-            val code = inputCodeString.trim().toIntOrNull(radix = 10)
-            when {
-                code == null || (code !in KeyCode.Spec.CHARACTERS && code !in KeyCode.Spec.INTERNAL) -> {
-                    errorId = R.string.settings__theme_editor__code_invalid
-                    showError = true
+        )) },
+        text = {
+            Column {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    FlorisIconButton(
+                        onClick = { showKeyCodesHelp = !showKeyCodesHelp },
+                        icon = Icons.AutoMirrored.Filled.HelpOutline,
+                    )
                 }
+                AnimatedVisibility(visible = showKeyCodesHelp) {
+                    Column(modifier = Modifier.padding(bottom = 16.dp)) {
+                        Text(text = stringRes(R.string.settings__theme_editor__code_recording_help_text))
+                        Text(text = stringRes(R.string.settings__theme_editor__code_help_text))
+                        FlorisHyperlinkText(
+                            text = "Characters (unicode-table.com)",
+                            url = stringRes(R.string.florisboard__character_key_codes_url),
+                        )
 
-                code.toString() == codeValue -> {
-                    onDismiss()
-                }
-
-                checkExisting(code.toString()) -> {
-                    errorId = R.string.settings__theme_editor__code_already_exists
-                    showError = true
-                }
-
-                else -> {
-                    if (codeValue != KeyCode.UNSPECIFIED.toString()) {
-                        onDelete(codeValue)
                     }
-                    onAdd(code.toString())
-                    onDismiss()
                 }
-            }
-        },
-        dismissLabel = stringRes(R.string.action__cancel),
-        onDismiss = onDismiss,
-        neutralLabel = if (codeValue != KeyCode.UNSPECIFIED.toString()) {
-            stringRes(R.string.action__delete)
-        } else {
-            null
-        },
-        neutralColors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
-        onNeutral = {
-            onDelete(codeValue)
-            onDismiss()
-        },
-        trailingIconTitle = {
-            FlorisIconButton(
-                onClick = { showKeyCodesHelp = !showKeyCodesHelp },
-                icon = Icons.AutoMirrored.Filled.HelpOutline,
-            )
-        },
-    ) {
-        Column {
-            AnimatedVisibility(visible = showKeyCodesHelp) {
-                Column(modifier = Modifier.padding(bottom = 16.dp)) {
-                    Text(text = stringRes(R.string.settings__theme_editor__code_recording_help_text))
-                    Text(text = stringRes(R.string.settings__theme_editor__code_help_text))
-                    FlorisHyperlinkText(
-                        text = "Characters (unicode-table.com)",
-                        url = stringRes(R.string.florisboard__character_key_codes_url),
-                    )
-
-                }
-            }
-            TextKeyDataPreviewBox(
-                modifier = Modifier.padding(bottom = 8.dp),
-                textKeyData = textKeyData,
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                val textSelectionColors = if (isRecordingKey) {
-                    TransparentTextSelectionColors
-                } else {
-                    LocalTextSelectionColors.current
-                }
-                CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
-                    JetPrefTextField(
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .weight(1f),
-                        value = inputCodeString,
-                        onValueChange = { v ->
-                            inputCodeString = v
-                            showError = false
-                        },
-                        placeholderText = when {
-                            isRecordingKey -> {
-                                stringRes(R.string.settings__theme_editor__code_recording_placeholder)
-                            }
-                            inputCodeString.isEmpty() -> {
-                                stringRes(R.string.settings__theme_editor__code_placeholder)
-                            }
-                            else -> {
-                                null
-                            }
-                        },
-                        isError = showError,
-                        singleLine = true,
-                        appearance = JetPrefTextFieldDefaults.filled(
-                            colors = if (isRecordingKey) {
-                                TextFieldDefaults.colors(
-                                    focusedTextColor = Color.Transparent,
-                                    cursorColor = Color.Transparent,
-                                )
-                            } else {
-                                TextFieldDefaults.colors()
-                            }
-                        ),
-                        trailingIcon = {
-                            FlorisIconButton(
-                                onClick = { requestStartRecording() },
-                                icon = Icons.Default.Pageview,
-                                iconColor = recordingKeyColor,
-                            )
-                        }
-                    )
-                }
-            }
-            AnimatedVisibility(visible = showError) {
-                Text(
-                    modifier = Modifier.padding(top = 4.dp),
-                    text = stringRes(errorId).curlyFormat(
-                        "c_min" to KeyCode.Spec.CHARACTERS_MIN,
-                        "c_max" to KeyCode.Spec.CHARACTERS_MAX,
-                        "i_min" to KeyCode.Spec.INTERNAL_MIN,
-                        "i_max" to KeyCode.Spec.INTERNAL_MAX,
-                    ),
-                    color = MaterialTheme.colorScheme.error,
+                TextKeyDataPreviewBox(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    textKeyData = textKeyData,
                 )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val textSelectionColors = if (isRecordingKey) {
+                        TransparentTextSelectionColors
+                    } else {
+                        LocalTextSelectionColors.current
+                    }
+                    CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
+                        JetPrefTextField(
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .weight(1f),
+                            value = inputCodeString,
+                            onValueChange = { v ->
+                                inputCodeString = v
+                                showError = false
+                            },
+                            placeholderText = when {
+                                isRecordingKey -> {
+                                    stringRes(R.string.settings__theme_editor__code_recording_placeholder)
+                                }
+                                inputCodeString.isEmpty() -> {
+                                    stringRes(R.string.settings__theme_editor__code_placeholder)
+                                }
+                                else -> {
+                                    null
+                                }
+                            },
+                            isError = showError,
+                            singleLine = true,
+                            appearance = JetPrefTextFieldDefaults.filled(
+                                colors = if (isRecordingKey) {
+                                    TextFieldDefaults.colors(
+                                        focusedTextColor = Color.Transparent,
+                                        cursorColor = Color.Transparent,
+                                    )
+                                } else {
+                                    TextFieldDefaults.colors()
+                                }
+                            ),
+                            trailingIcon = {
+                                FlorisIconButton(
+                                    onClick = { requestStartRecording() },
+                                    icon = Icons.Default.Pageview,
+                                    iconColor = recordingKeyColor,
+                                )
+                            }
+                        )
+                    }
+                }
+                AnimatedVisibility(visible = showError) {
+                    Text(
+                        modifier = Modifier.padding(top = 4.dp),
+                        text = stringRes(errorId).curlyFormat(
+                            "c_min" to KeyCode.Spec.CHARACTERS_MIN,
+                            "c_max" to KeyCode.Spec.CHARACTERS_MAX,
+                            "i_min" to KeyCode.Spec.INTERNAL_MIN,
+                            "i_max" to KeyCode.Spec.INTERNAL_MAX,
+                        ),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
             }
-        }
-    }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val code = inputCodeString.trim().toIntOrNull(radix = 10)
+                when {
+                    code == null || (code !in KeyCode.Spec.CHARACTERS && code !in KeyCode.Spec.INTERNAL) -> {
+                        errorId = R.string.settings__theme_editor__code_invalid
+                        showError = true
+                    }
+
+                    code.toString() == codeValue -> {
+                        onDismiss()
+                    }
+
+                    checkExisting(code.toString()) -> {
+                        errorId = R.string.settings__theme_editor__code_already_exists
+                        showError = true
+                    }
+
+                    else -> {
+                        if (codeValue != KeyCode.UNSPECIFIED.toString()) {
+                            onDelete(codeValue)
+                        }
+                        onAdd(code.toString())
+                        onDismiss()
+                    }
+                }
+            }) {
+                Text(stringRes(
+                    if (codeValue == KeyCode.UNSPECIFIED.toString()) {
+                        R.string.action__add
+                    } else {
+                        R.string.action__apply
+                    }
+                ))
+            }
+        },
+        dismissButton = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (codeValue != KeyCode.UNSPECIFIED.toString()) {
+                    TextButton(
+                        onClick = {
+                            onDelete(codeValue)
+                            onDismiss()
+                        },
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    ) {
+                        Text(stringRes(R.string.action__delete))
+                    }
+                }
+                TextButton(onClick = onDismiss) {
+                    Text(stringRes(R.string.action__cancel))
+                }
+            }
+        },
+    )
 }
 
 @Composable
@@ -709,31 +732,36 @@ private fun <V : Any> EnumLikeAttributeBox(
     }
 
     if (showAddDialog) {
-        JetPrefAlertDialog(
-            title = stringRes(R.string.action__add),
-            dismissLabel = stringRes(R.string.action__cancel),
-            onDismiss = { showAddDialog = false },
-        ) {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for (entry in notYetAddedEntries) {
-                    FlorisChip(
-                        onClick = {
-                            setAttributes(attributes.including(attribute to entry.key.toString()))
-                            showAddDialog = false
-                        },
-                        text = when (level) {
-                            SnyggLevel.DEVELOPER -> entry.key.toString()
-                            else -> entry.label
-                        },
-                    )
+        AlertDialog(
+            onDismissRequest = { showAddDialog = false },
+            title = { Text(stringRes(R.string.action__add)) },
+            text = {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    for (entry in notYetAddedEntries) {
+                        FlorisChip(
+                            onClick = {
+                                setAttributes(attributes.including(attribute to entry.key.toString()))
+                                showAddDialog = false
+                            },
+                            text = when (level) {
+                                SnyggLevel.DEVELOPER -> entry.key.toString()
+                                else -> entry.label
+                            },
+                        )
+                    }
+                    if (notYetAddedEntries.isEmpty()) {
+                        Text(
+                            text = stringRes(R.string.settings__theme_editor__no_enum_value_to_add_anymore),
+                            fontStyle = FontStyle.Italic,
+                        )
+                    }
                 }
-            }
-            if (notYetAddedEntries.isEmpty()) {
-                Text(
-                    text = stringRes(R.string.settings__theme_editor__no_enum_value_to_add_anymore),
-                    fontStyle = FontStyle.Italic,
-                )
-            }
-        }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddDialog = false }) {
+                    Text(stringRes(R.string.action__cancel))
+                }
+            },
+        )
     }
 }

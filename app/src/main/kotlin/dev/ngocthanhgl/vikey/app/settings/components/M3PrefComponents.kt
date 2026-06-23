@@ -24,12 +24,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
@@ -88,9 +93,56 @@ private fun SettingsRowLayout(
                     text = summary,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+fun M3Dropdown(
+    modifier: Modifier = Modifier,
+    options: List<String>,
+    selectedOptionIndex: Int,
+    isError: Boolean = false,
+    enabled: Boolean = true,
+    onSelectOption: (Int) -> Unit,
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    Box(modifier = modifier) {
+        OutlinedButton(
+            onClick = { isExpanded = true },
+            shape = RoundedCornerShape(28.dp),
+            enabled = enabled,
+            colors = if (isError) {
+                ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            } else {
+                ButtonDefaults.outlinedButtonColors()
+            },
+        ) {
+            Text(
+                text = options.getOrElse(selectedOptionIndex) { "" },
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+        }
+        DropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { isExpanded = false },
+            shape = RoundedCornerShape(28.dp),
+        ) {
+            options.forEachIndexed { index, option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        onSelectOption(index)
+                        isExpanded = false
+                    },
                 )
             }
         }
+    }
+}
         Spacer(Modifier.width(12.dp))
         trailing()
     }

@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -40,7 +42,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ManageSearch
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -82,10 +86,8 @@ import dev.ngocthanhgl.vikey.lib.ext.ExtensionValidation
 import dev.ngocthanhgl.vikey.lib.rememberValidationResult
 import dev.patrickgold.jetpref.material.ui.ColorRepresentation
 import dev.patrickgold.jetpref.material.ui.ExperimentalJetPrefMaterial3Ui
-import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
+import dev.ngocthanhgl.vikey.app.settings.components.M3Dropdown
 import dev.patrickgold.jetpref.material.ui.JetPrefColorPicker
-import dev.patrickgold.jetpref.material.ui.JetPrefDropdown
-import dev.patrickgold.jetpref.material.ui.JetPrefListItem
 import dev.patrickgold.jetpref.material.ui.JetPrefTextField
 import dev.patrickgold.jetpref.material.ui.rememberJetPrefColorPickerState
 import java.io.File
@@ -94,7 +96,7 @@ import org.florisboard.lib.compose.DpSizeSaver
 import org.florisboard.lib.compose.FlorisChip
 import org.florisboard.lib.compose.FlorisIconButton
 import org.florisboard.lib.compose.FlorisTextButton
-import org.florisboard.lib.compose.florisVerticalScroll
+
 import org.florisboard.lib.compose.stringRes
 import org.florisboard.lib.kotlin.curlyFormat
 import org.florisboard.lib.kotlin.io.subDir
@@ -242,95 +244,108 @@ internal fun EditPropertyDialog(
         return propertyValue.let { it.encoder().serialize(it).isSuccess }
     }
 
-    JetPrefAlertDialog(
-        title = stringRes(
-            if (isAddPropertyDialog) {
-                R.string.settings__theme_editor__add_property
-            } else {
-                R.string.settings__theme_editor__edit_property
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(stringRes(
+                if (isAddPropertyDialog) {
+                    R.string.settings__theme_editor__add_property
+                } else {
+                    R.string.settings__theme_editor__edit_property
+                }
+            ))
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                if (!isPropertyNameValid() || !isPropertyValueValid()) {
+                    showSelectAsError = true
+                } else {
+                    if (!onConfirmNewValue(propertyName, propertyValue)) {
+                        showAlreadyExistsError = true
+                    }
+                }
+            }) {
+                Text(stringRes(
+                    if (isAddPropertyDialog) {
+                        R.string.action__add
+                    } else {
+                        R.string.action__apply
+                    }
+                ))
             }
-        ),
-        confirmLabel = stringRes(
-            if (isAddPropertyDialog) {
-                R.string.action__add
-            } else {
-                R.string.action__apply
-            }
-        ),
-        onConfirm = {
-            if (!isPropertyNameValid() || !isPropertyValueValid()) {
-                showSelectAsError = true
-            } else {
-                if (!onConfirmNewValue(propertyName, propertyValue)) {
-                    showAlreadyExistsError = true
+        },
+        dismissButton = {
+            Row {
+                if (!isAddPropertyDialog) {
+                    TextButton(
+                        onClick = onDelete,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error,
+                        ),
+                    ) {
+                        Text(stringRes(R.string.action__delete))
+                    }
+                }
+                TextButton(onClick = onDismiss) {
+                    Text(stringRes(R.string.action__cancel))
                 }
             }
         },
-        dismissLabel = stringRes(R.string.action__cancel),
-        onDismiss = onDismiss,
-        neutralLabel = if (!isAddPropertyDialog) {
-            stringRes(R.string.action__delete)
-        } else {
-            null
+        text = {
+            Column {
+                AnimatedVisibility(visible = showAlreadyExistsError) {
+                    Text(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        text = stringRes(R.string.settings__theme_editor__property_already_exists),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+
+                DialogProperty(text = stringRes(R.string.settings__theme_editor__property_name)) {
+                    PropertyNameInput(
+                        rule = initProperty.rule,
+                        name = propertyName,
+                        nameValidation = propertyNameValidation,
+                        onNameChange = { name ->
+                            if (encoders != null) {
+                                propertyValueEncoder = SnyggUndefinedValue
+                                propertyValue = SnyggUndefinedValue
+                            }
+                            propertyName = name
+                        },
+                        level = level,
+                        isAddPropertyDialog = isAddPropertyDialog,
+                        showSelectAsError = showSelectAsError,
+                    )
+                }
+
+                DialogProperty(text = stringRes(R.string.settings__theme_editor__property_value)) {
+                    PropertyValueEncoderDropdown(
+                        supportedEncoders = encoders.orEmpty(),
+                        encoder = propertyValueEncoder,
+                        onEncoderChange = { encoder ->
+                            propertyValueEncoder = encoder
+                            propertyValue = encoder.defaultValue()
+                        },
+                        enabled = isPropertyNameValid(),
+                        isError = showSelectAsError && propertyValueEncoder == SnyggUndefinedValue,
+                    )
+
+                    PropertyValueEditor(
+                        modifier = Modifier.padding(top = 8.dp),
+                        value = propertyValue,
+                        onValueChange = { propertyValue = it },
+                        level = level,
+                        colorRepresentation = colorRepresentation,
+                        definedVariables = definedVariables,
+                        fontNames = fontNames,
+                        workspace = workspace,
+                        isError = !isPropertyValueValid(),
+                    )
+                }
+            }
         },
-        onNeutral = onDelete,
-        neutralColors = ButtonDefaults.textButtonColors(
-            contentColor = MaterialTheme.colorScheme.error,
-        ),
-    ) {
-        Column {
-            AnimatedVisibility(visible = showAlreadyExistsError) {
-                Text(
-                    modifier = Modifier.padding(bottom = 16.dp),
-                    text = stringRes(R.string.settings__theme_editor__property_already_exists),
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-
-            DialogProperty(text = stringRes(R.string.settings__theme_editor__property_name)) {
-                PropertyNameInput(
-                    rule = initProperty.rule,
-                    name = propertyName,
-                    nameValidation = propertyNameValidation,
-                    onNameChange = { name ->
-                        if (encoders != null) {
-                            propertyValueEncoder = SnyggUndefinedValue
-                            propertyValue = SnyggUndefinedValue
-                        }
-                        propertyName = name
-                    },
-                    level = level,
-                    isAddPropertyDialog = isAddPropertyDialog,
-                    showSelectAsError = showSelectAsError,
-                )
-            }
-
-            DialogProperty(text = stringRes(R.string.settings__theme_editor__property_value)) {
-                PropertyValueEncoderDropdown(
-                    supportedEncoders = encoders.orEmpty(),
-                    encoder = propertyValueEncoder,
-                    onEncoderChange = { encoder ->
-                        propertyValueEncoder = encoder
-                        propertyValue = encoder.defaultValue()
-                    },
-                    enabled = isPropertyNameValid(),
-                    isError = showSelectAsError && propertyValueEncoder == SnyggUndefinedValue,
-                )
-
-                PropertyValueEditor(
-                    modifier = Modifier.padding(top = 8.dp),
-                    value = propertyValue,
-                    onValueChange = { propertyValue = it },
-                    level = level,
-                    colorRepresentation = colorRepresentation,
-                    definedVariables = definedVariables,
-                    fontNames = fontNames,
-                    workspace = workspace,
-                    isError = !isPropertyValueValid(),
-                )
-            }
-        }
-    }
+    )
 }
 
 @Composable
@@ -353,14 +368,14 @@ private fun PropertyNameInput(
         val propertiesSelectedIndex = remember(name) {
             possiblePropertyNames.indexOf(name).coerceIn(possiblePropertyNames.indices)
         }
-        JetPrefDropdown(
+        M3Dropdown(
             options = possiblePropertyLabels,
             selectedOptionIndex = propertiesSelectedIndex,
+            enabled = isAddPropertyDialog,
+            isError = showSelectAsError && propertiesSelectedIndex == 0,
             onSelectOption = { index ->
                 onNameChange(possiblePropertyNames[index])
             },
-            enabled = isAddPropertyDialog,
-            isError = showSelectAsError && propertiesSelectedIndex == 0,
         )
     } else {
         val focusManager = LocalFocusManager.current
@@ -389,22 +404,24 @@ private fun PropertyValueEncoderDropdown(
     enabled: Boolean = true,
     isError: Boolean = false,
 ) {
+    val context = LocalContext.current
     val encoders = remember(supportedEncoders) {
         listOf(SnyggUndefinedValue) + supportedEncoders
     }
     val selectedIndex = remember(encoder) {
         encoders.indexOf(encoder).coerceIn(encoders.indices)
     }
-    val context = LocalContext.current
-    JetPrefDropdown(
-        options = encoders,
+    val encoderLabels = remember(encoders) {
+        encoders.map { context.translatePropertyValueEncoderName(it) }
+    }
+    M3Dropdown(
+        options = encoderLabels,
         selectedOptionIndex = selectedIndex,
+        enabled = enabled,
+        isError = isError,
         onSelectOption = { index ->
             onEncoderChange(encoders[index])
         },
-        enabled = enabled,
-        isError = isError,
-        optionsLabelProvider = { context.translatePropertyValueEncoderName(it) },
     )
 }
 
@@ -431,12 +448,11 @@ private fun PropertyValueEditor(
                 variableKeys.indexOf(value.key).coerceIn(variableKeys.indices)
             }
             Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-                JetPrefDropdown(
+                M3Dropdown(
                     modifier = Modifier
                         .padding(end = 12.dp)
                         .weight(1f),
-                    options = variableKeys,
-                    optionsLabelProvider = { context.translatePropertyName(it, level) },
+                    options = variableKeys.map { context.translatePropertyName(it, level) },
                     selectedOptionIndex = selectedIndex,
                     isError = isError,
                     onSelectOption = { index ->
@@ -477,7 +493,7 @@ private fun PropertyValueEditor(
                 ColorPalette.colorNames.indexOf(value.colorName).coerceIn(ColorPalette.colorNames.indices)
             }
             Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-                JetPrefDropdown(
+                M3Dropdown(
                     modifier = Modifier
                         .padding(end = 12.dp)
                         .weight(1f),
@@ -485,7 +501,6 @@ private fun PropertyValueEditor(
                     selectedOptionIndex = selectedIndex,
                     onSelectOption = onSelectItem,
                     isError = isError,
-                    optionsLabelProvider = { context.translatePropertyName(it, level) },
                 )
                 SnyggValueIcon(
                     value = value,
@@ -653,46 +668,48 @@ private fun PropertyValueEditor(
                             ),
                         )
                         files.forEach { file ->
-                            JetPrefListItem(
-                                modifier = Modifier.clickable {
-                                    val relPath = file.path.removePrefix(workspace.extDir.path)
-                                    inputStr = "flex:" + Uri.encode(relPath, "/")
-                                    onValueChange(SnyggUriValue(inputStr))
-                                    showSelectFileDialog = false
-                                },
+                            Text(
+                                modifier = Modifier
+                                    .clickable {
+                                        val relPath = file.path.removePrefix(workspace.extDir.path)
+                                        inputStr = "flex:" + Uri.encode(relPath, "/")
+                                        onValueChange(SnyggUriValue(inputStr))
+                                        showSelectFileDialog = false
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                                    .fillMaxWidth(),
                                 text = file.name,
-                                colors = ListItemDefaults.colors(
-                                    containerColor = AlertDialogDefaults.containerColor
-                                ),
+                                style = MaterialTheme.typography.bodyLarge,
                             )
                         }
                     }
-                    JetPrefAlertDialog(
-                        title = stringRes(R.string.settings__theme_editor__file_selector_dialog_title),
-                        dismissLabel = stringRes(R.string.action__cancel),
-                        onDismiss = {
-                            showSelectFileDialog = false
+                    AlertDialog(
+                        onDismissRequest = { showSelectFileDialog = false },
+                        title = { Text(stringRes(R.string.settings__theme_editor__file_selector_dialog_title)) },
+                        dismissButton = {
+                            TextButton(onClick = { showSelectFileDialog = false }) {
+                                Text(stringRes(R.string.action__cancel))
+                            }
                         },
-                        contentPadding = PaddingValues(horizontal = 8.dp),
-                        scrollModifier = Modifier.florisVerticalScroll(),
-                    ) {
-                        Column {
-                            if (fontFiles.isNotEmpty()) {
-                                ClickableFilesWithHeading(stringRes(R.string.ext__editor__files__type_fonts), fontFiles)
+                        text = {
+                            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                if (fontFiles.isNotEmpty()) {
+                                    ClickableFilesWithHeading(stringRes(R.string.ext__editor__files__type_fonts), fontFiles)
+                                }
+                                if (imageFiles.isNotEmpty()) {
+                                    ClickableFilesWithHeading(stringRes(R.string.ext__editor__files__type_images), imageFiles)
+                                }
+                                if (fontFiles.isEmpty() && imageFiles.isEmpty()) {
+                                    Text(
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        text = stringRes(R.string.settings__theme_editor__file_selector_no_files_text,
+                                            "action_title" to stringRes(R.string.ext__editor__files__title)),
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
                             }
-                            if (imageFiles.isNotEmpty()) {
-                                ClickableFilesWithHeading(stringRes(R.string.ext__editor__files__type_images), imageFiles)
-                            }
-                            if (fontFiles.isEmpty() && imageFiles.isEmpty()) {
-                                Text(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    text = stringRes(R.string.settings__theme_editor__file_selector_no_files_text,
-                                        "action_title" to stringRes(R.string.ext__editor__files__title)),
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
-                            }
-                        }
-                    }
+                        },
+                    )
                 }
                 JetPrefTextField(
                     value = inputStr,
@@ -727,7 +744,7 @@ private fun <T> EnumLikeValueEditor(
         encoder.serializationMapping.values.indexOf(encoder.destruct(value))
     }
 
-    JetPrefDropdown(
+    M3Dropdown(
         modifier = modifier,
         options = options,
         selectedOptionIndex = selectedIndex,
@@ -759,10 +776,11 @@ private fun CustomFontFamilyValueEditor(
         }
     }
 
-    JetPrefDropdown(
+    M3Dropdown(
         modifier = modifier,
         options = options,
         selectedOptionIndex = selectedIndex,
+        isError = isError,
         onSelectOption = { index ->
             if (index == 0) {
                 val value = SnyggCustomFontFamilyValue("```")
@@ -773,7 +791,6 @@ private fun CustomFontFamilyValueEditor(
                 onValueChange(value)
             }
         },
-        isError = isError,
     )
 }
 
@@ -893,52 +910,58 @@ private fun PaddingValueEditor(
             mutableStateOf(showDialogInitDp.value.toStringWithoutDotZero())
         }
         val sizeValidation = rememberValidationResult(ExtensionValidation.SnyggDpShapeValue, size)
-        JetPrefAlertDialog(
-            title = dialogForPaddingValue.label(),
-            confirmLabel = stringRes(R.string.action__apply),
-            onConfirm = {
-                if (sizeValidation.isInvalid()) {
-                    showValidationErrors = true
-                } else {
-                    val sizeDp = size.toFloat().dp
-                    when (dialogForPaddingValue) {
-                        PaddingValue.TOP -> top = sizeDp
-                        PaddingValue.BOTTOM -> bottom = sizeDp
-                        PaddingValue.START -> start = sizeDp
-                        PaddingValue.END -> end = sizeDp
-                    }
-                    showDialogForPaddingValue = null
+        AlertDialog(
+            onDismissRequest = { showDialogForPaddingValue = null },
+            title = { Text(dialogForPaddingValue.label()) },
+            text = {
+                Column {
+                    JetPrefTextField(
+                        value = size,
+                        onValueChange = { size = it },
+                    )
+                    Validation(showValidationErrors, sizeValidation)
+                    FlorisTextButton(
+                        onClick = {
+                            if (sizeValidation.isInvalid()) {
+                                showValidationErrors = true
+                            } else {
+                                val sizeDp = size.toFloat().dp
+                                top = sizeDp
+                                bottom = sizeDp
+                                start = sizeDp
+                                end = sizeDp
+                                showDialogForPaddingValue = null
+                            }
+                        },
+                        modifier = Modifier.align(Alignment.End),
+                        text = "Apply for all",
+                    )
                 }
             },
-            dismissLabel = stringRes(R.string.action__cancel),
-            onDismiss = {
-                showDialogForPaddingValue = null
-            },
-        ) {
-            Column {
-                JetPrefTextField(
-                    value = size,
-                    onValueChange = { size = it },
-                )
-                Validation(showValidationErrors, sizeValidation)
-                FlorisTextButton(
-                    onClick = {
-                        if (sizeValidation.isInvalid()) {
-                            showValidationErrors = true
-                        } else {
-                            val sizeDp = size.toFloat().dp
-                            top = sizeDp
-                            bottom = sizeDp
-                            start = sizeDp
-                            end = sizeDp
-                            showDialogForPaddingValue = null
+            confirmButton = {
+                TextButton(onClick = {
+                    if (sizeValidation.isInvalid()) {
+                        showValidationErrors = true
+                    } else {
+                        val sizeDp = size.toFloat().dp
+                        when (dialogForPaddingValue) {
+                            PaddingValue.TOP -> top = sizeDp
+                            PaddingValue.BOTTOM -> bottom = sizeDp
+                            PaddingValue.START -> start = sizeDp
+                            PaddingValue.END -> end = sizeDp
                         }
-                    },
-                    modifier = Modifier.align(Alignment.End),
-                    text = "Apply for all",
-                )
-            }
-        }
+                        showDialogForPaddingValue = null
+                    }
+                }) {
+                    Text(stringRes(R.string.action__apply))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialogForPaddingValue = null }) {
+                    Text(stringRes(R.string.action__cancel))
+                }
+            },
+        )
     }
 }
 
@@ -1046,52 +1069,58 @@ private fun ShapeValueEditor(
                     mutableStateOf(showDialogInitDp.value.toStringWithoutDotZero())
                 }
                 val sizeValidation = rememberValidationResult(ExtensionValidation.SnyggDpShapeValue, size)
-                JetPrefAlertDialog(
-                    title = dialogForCorner.label(),
-                    confirmLabel = stringRes(R.string.action__apply),
-                    onConfirm = {
-                        if (sizeValidation.isInvalid()) {
-                            showValidationErrors = true
-                        } else {
-                            val sizeDp = size.toFloat().dp
-                            when (dialogForCorner) {
-                                ShapeCorner.TOP_START -> topStart = sizeDp
-                                ShapeCorner.TOP_END -> topEnd = sizeDp
-                                ShapeCorner.BOTTOM_END -> bottomEnd = sizeDp
-                                ShapeCorner.BOTTOM_START -> bottomStart = sizeDp
-                            }
-                            showDialogForCorner = null
+                AlertDialog(
+                    onDismissRequest = { showDialogForCorner = null },
+                    title = { Text(dialogForCorner.label()) },
+                    text = {
+                        Column {
+                            JetPrefTextField(
+                                value = size,
+                                onValueChange = { size = it },
+                            )
+                            Validation(showValidationErrors, sizeValidation)
+                            FlorisTextButton(
+                                onClick = {
+                                    if (sizeValidation.isInvalid()) {
+                                        showValidationErrors = true
+                                    } else {
+                                        val sizeDp = size.toFloat().dp
+                                        topStart = sizeDp
+                                        topEnd = sizeDp
+                                        bottomEnd = sizeDp
+                                        bottomStart = sizeDp
+                                        showDialogForCorner = null
+                                    }
+                                },
+                                modifier = Modifier.align(Alignment.End),
+                                text = stringRes(R.string.settings__theme_editor__property_value_shape_apply_for_all_corners),
+                            )
                         }
                     },
-                    dismissLabel = stringRes(R.string.action__cancel),
-                    onDismiss = {
-                        showDialogForCorner = null
-                    },
-                ) {
-                    Column {
-                        JetPrefTextField(
-                            value = size,
-                            onValueChange = { size = it },
-                        )
-                        Validation(showValidationErrors, sizeValidation)
-                        FlorisTextButton(
-                            onClick = {
-                                if (sizeValidation.isInvalid()) {
-                                    showValidationErrors = true
-                                } else {
-                                    val sizeDp = size.toFloat().dp
-                                    topStart = sizeDp
-                                    topEnd = sizeDp
-                                    bottomEnd = sizeDp
-                                    bottomStart = sizeDp
-                                    showDialogForCorner = null
+                    confirmButton = {
+                        TextButton(onClick = {
+                            if (sizeValidation.isInvalid()) {
+                                showValidationErrors = true
+                            } else {
+                                val sizeDp = size.toFloat().dp
+                                when (dialogForCorner) {
+                                    ShapeCorner.TOP_START -> topStart = sizeDp
+                                    ShapeCorner.TOP_END -> topEnd = sizeDp
+                                    ShapeCorner.BOTTOM_END -> bottomEnd = sizeDp
+                                    ShapeCorner.BOTTOM_START -> bottomStart = sizeDp
                                 }
-                            },
-                            modifier = Modifier.align(Alignment.End),
-                            text = stringRes(R.string.settings__theme_editor__property_value_shape_apply_for_all_corners),
-                        )
-                    }
-                }
+                                showDialogForCorner = null
+                            }
+                        }) {
+                            Text(stringRes(R.string.action__apply))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDialogForCorner = null }) {
+                            Text(stringRes(R.string.action__cancel))
+                        }
+                    },
+                )
             }
         }
 
@@ -1192,53 +1221,59 @@ private fun ShapeValueEditor(
                     mutableStateOf(showDialogInitPercentage.toString())
                 }
                 val sizeValidation = rememberValidationResult(ExtensionValidation.SnyggPercentShapeValue, size)
-                JetPrefAlertDialog(
-                    title = dialogForCorner.label(),
-                    confirmLabel = stringRes(R.string.action__apply),
-                    onConfirm = {
-                        if (sizeValidation.isInvalid()) {
-                            showValidationErrors = true
-                        } else {
-                            val sizePercentage = size.toInt()
-                            when (showDialogForCorner) {
-                                ShapeCorner.TOP_START -> topStart = sizePercentage
-                                ShapeCorner.TOP_END -> topEnd = sizePercentage
-                                ShapeCorner.BOTTOM_END -> bottomEnd = sizePercentage
-                                ShapeCorner.BOTTOM_START -> bottomStart = sizePercentage
-                                else -> {}
-                            }
-                            showDialogForCorner = null
+                AlertDialog(
+                    onDismissRequest = { showDialogForCorner = null },
+                    title = { Text(dialogForCorner.label()) },
+                    text = {
+                        Column {
+                            JetPrefTextField(
+                                value = size,
+                                onValueChange = { size = it },
+                            )
+                            Validation(showValidationErrors, sizeValidation)
+                            FlorisTextButton(
+                                onClick = {
+                                    if (sizeValidation.isInvalid()) {
+                                        showValidationErrors = true
+                                    } else {
+                                        val sizePercentage = size.toInt()
+                                        topStart = sizePercentage
+                                        topEnd = sizePercentage
+                                        bottomEnd = sizePercentage
+                                        bottomStart = sizePercentage
+                                        showDialogForCorner = null
+                                    }
+                                },
+                                modifier = Modifier.align(Alignment.End),
+                                text = stringRes(R.string.settings__theme_editor__property_value_shape_apply_for_all_corners),
+                            )
                         }
                     },
-                    dismissLabel = stringRes(R.string.action__cancel),
-                    onDismiss = {
-                        showDialogForCorner = null
-                    },
-                ) {
-                    Column {
-                        JetPrefTextField(
-                            value = size,
-                            onValueChange = { size = it },
-                        )
-                        Validation(showValidationErrors, sizeValidation)
-                        FlorisTextButton(
-                            onClick = {
-                                if (sizeValidation.isInvalid()) {
-                                    showValidationErrors = true
-                                } else {
-                                    val sizePercentage = size.toInt()
-                                    topStart = sizePercentage
-                                    topEnd = sizePercentage
-                                    bottomEnd = sizePercentage
-                                    bottomStart = sizePercentage
-                                    showDialogForCorner = null
+                    confirmButton = {
+                        TextButton(onClick = {
+                            if (sizeValidation.isInvalid()) {
+                                showValidationErrors = true
+                            } else {
+                                val sizePercentage = size.toInt()
+                                when (showDialogForCorner) {
+                                    ShapeCorner.TOP_START -> topStart = sizePercentage
+                                    ShapeCorner.TOP_END -> topEnd = sizePercentage
+                                    ShapeCorner.BOTTOM_END -> bottomEnd = sizePercentage
+                                    ShapeCorner.BOTTOM_START -> bottomStart = sizePercentage
+                                    else -> {}
                                 }
-                            },
-                            modifier = Modifier.align(Alignment.End),
-                            text = stringRes(R.string.settings__theme_editor__property_value_shape_apply_for_all_corners),
-                        )
-                    }
-                }
+                                showDialogForCorner = null
+                            }
+                        }) {
+                            Text(stringRes(R.string.action__apply))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDialogForCorner = null }) {
+                            Text(stringRes(R.string.action__cancel))
+                        }
+                    },
+                )
             }
         }
 

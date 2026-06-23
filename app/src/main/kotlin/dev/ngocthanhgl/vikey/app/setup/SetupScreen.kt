@@ -20,6 +20,7 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,16 +32,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -50,12 +53,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -188,58 +192,61 @@ fun SetupScreen() {
                 Steps.FinishUp,
             )
 
-            allSteps.forEach { step ->
+            allSteps.forEachIndexed { index, step ->
                 val hasStep = step != Steps.SelectNotification || AndroidVersion.ATLEAST_API33_T
-                if (!hasStep) return@forEach
+                if (!hasStep) return@forEachIndexed
 
                 val isActive = state.isActive(step.id)
-                val primary = MaterialTheme.colorScheme.primary
-                val bgColor = if (isActive || state.isCompleted(step.id)) primary
-                    else primary.copy(alpha = 0.38f)
+                val isCompleted = state.isCompleted(step.id)
+                val circleColor = if (isActive || isCompleted) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.38f)
+                }
+                val titleColor = if (isCompleted || isActive) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                }
 
-                Row(
+                ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                        .padding(vertical = 4.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    ),
                 ) {
-                    Surface(
-                        modifier = Modifier.size(40.dp),
-                        shape = CircleShape,
-                        color = bgColor,
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = when (step) {
-                                    Steps.EnableIme -> "1"
-                                    Steps.SelectIme -> "2"
-                                    Steps.SelectNotification -> "3"
-                                    Steps.FinishUp -> "4"
-                                },
-                                color = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        }
-                    }
-                    Spacer(Modifier.size(16.dp))
-                    Surface(
-                        modifier = Modifier
-                            .height(32.dp)
-                            .weight(1f)
-                            .clickable(enabled = state.isCompleted(step.id) && !isActive) {
-                                stepState = StepState(autoStep.value, step.id)
-                            },
-                        shape = RoundedCornerShape(16.dp),
-                        color = bgColor,
-                    ) {
-                        Box(
+                    Column {
+                        Row(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 16.dp),
-                            contentAlignment = Alignment.CenterStart,
+                                .fillMaxWidth()
+                                .clickable(enabled = isCompleted && !isActive) {
+                                    stepState = StepState(autoStep.value, step.id)
+                                }
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(circleColor),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = when (step) {
+                                        Steps.EnableIme -> "1"
+                                        Steps.SelectIme -> "2"
+                                        Steps.SelectNotification -> "3"
+                                        Steps.FinishUp -> "4"
+                                    },
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            }
+                            Spacer(Modifier.width(16.dp))
                             Text(
                                 text = when (step) {
                                     Steps.EnableIme -> stringRes(R.string.setup__enable_ime__title)
@@ -247,103 +254,110 @@ fun SetupScreen() {
                                     Steps.SelectNotification -> stringRes(R.string.setup__grant_notification_permission__title)
                                     Steps.FinishUp -> stringRes(R.string.setup__finish_up__title)
                                 },
-                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = titleColor,
                             )
                         }
-                    }
-                }
 
-                AnimatedVisibility(visible = isActive) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 56.dp, end = 8.dp),
-                    ) {
-                        when (step) {
-                            Steps.EnableIme -> {
-                                Text(
-                                    text = stringRes(R.string.setup__enable_ime__description),
-                                    textAlign = TextAlign.Justify,
-                                )
-                                Box(
-                                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Button(
-                                        onClick = { InputMethodUtils.showImeEnablerActivity(context) },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.primary,
-                                        ),
-                                    ) {
-                                        Text(stringRes(R.string.setup__enable_ime__open_settings_btn))
-                                    }
-                                }
-                            }
-                            Steps.SelectIme -> {
-                                Text(
-                                    text = stringRes(R.string.setup__select_ime__description),
-                                    textAlign = TextAlign.Justify,
-                                )
-                                Box(
-                                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Button(
-                                        onClick = { InputMethodUtils.showImePicker(context) },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.primary,
-                                        ),
-                                    ) {
-                                        Text(stringRes(R.string.setup__select_ime__switch_keyboard_btn))
-                                    }
-                                }
-                            }
-                            Steps.SelectNotification -> {
-                                Text(
-                                    text = stringRes(R.string.setup__grant_notification_permission__description),
-                                    textAlign = TextAlign.Justify,
-                                )
-                                Box(
-                                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Button(
-                                        onClick = {
-                                            requestNotification.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                                        },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.primary,
-                                        ),
-                                    ) {
-                                        Text(stringRes(R.string.setup__grant_notification_permission__btn))
-                                    }
-                                }
-                            }
-                            Steps.FinishUp -> {
-                                Text(
-                                    text = stringRes(R.string.setup__finish_up__description_p1),
-                                    textAlign = TextAlign.Justify,
-                                )
-                                Text(
-                                    text = stringRes(R.string.setup__finish_up__description_p2),
-                                    textAlign = TextAlign.Justify,
-                                )
-                                Box(
-                                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Button(
-                                        onClick = {
-                                            scope.launch { prefs.internal.isImeSetUp.set(true) }
-                                            navController.navigate(Routes.Settings.Home) {
-                                                popUpTo(Routes.Setup.Screen) { inclusive = true }
+                        AnimatedVisibility(visible = isActive) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 72.dp, end = 16.dp, bottom = 16.dp),
+                            ) {
+                                when (step) {
+                                    Steps.EnableIme -> {
+                                        Text(
+                                            text = stringRes(R.string.setup__enable_ime__description),
+                                            textAlign = TextAlign.Justify,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Button(
+                                                onClick = { InputMethodUtils.showImeEnablerActivity(context) },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.primary,
+                                                ),
+                                            ) {
+                                                Text(stringRes(R.string.setup__enable_ime__open_settings_btn))
                                             }
-                                        },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.primary,
-                                        ),
-                                    ) {
-                                        Text(stringRes(R.string.setup__finish_up__finish_btn))
+                                        }
+                                    }
+                                    Steps.SelectIme -> {
+                                        Text(
+                                            text = stringRes(R.string.setup__select_ime__description),
+                                            textAlign = TextAlign.Justify,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Button(
+                                                onClick = { InputMethodUtils.showImePicker(context) },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.primary,
+                                                ),
+                                            ) {
+                                                Text(stringRes(R.string.setup__select_ime__switch_keyboard_btn))
+                                            }
+                                        }
+                                    }
+                                    Steps.SelectNotification -> {
+                                        Text(
+                                            text = stringRes(R.string.setup__grant_notification_permission__description),
+                                            textAlign = TextAlign.Justify,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Button(
+                                                onClick = {
+                                                    requestNotification.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                                },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.primary,
+                                                ),
+                                            ) {
+                                                Text(stringRes(R.string.setup__grant_notification_permission__btn))
+                                            }
+                                        }
+                                    }
+                                    Steps.FinishUp -> {
+                                        Text(
+                                            text = stringRes(R.string.setup__finish_up__description_p1),
+                                            textAlign = TextAlign.Justify,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        Spacer(Modifier.height(8.dp))
+                                        Text(
+                                            text = stringRes(R.string.setup__finish_up__description_p2),
+                                            textAlign = TextAlign.Justify,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Button(
+                                                onClick = {
+                                                    scope.launch { prefs.internal.isImeSetUp.set(true) }
+                                                    navController.navigate(Routes.Settings.Home) {
+                                                        popUpTo(Routes.Setup.Screen) { inclusive = true }
+                                                    }
+                                                },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.primary,
+                                                ),
+                                            ) {
+                                                Text(stringRes(R.string.setup__finish_up__finish_btn))
+                                            }
+                                        }
                                     }
                                 }
                             }

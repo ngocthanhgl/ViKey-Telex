@@ -53,7 +53,11 @@ import dev.ngocthanhgl.vikey.lib.FlorisLocale
 import dev.ngocthanhgl.vikey.lib.compose.Validation
 import dev.ngocthanhgl.vikey.lib.rememberValidationResult
 import dev.ngocthanhgl.vikey.lib.util.launchActivity
-import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.Alignment
 import dev.patrickgold.jetpref.material.ui.JetPrefTextField
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -322,92 +326,102 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
             var locale by rememberSaveable { mutableStateOf(wordEntry.locale ?: "") }
             val localeValidation = rememberValidationResult(UserDictionaryValidation.Locale, locale)
 
-            JetPrefAlertDialog(
-                title = stringRes(if (isAddWord) {
+            AlertDialog(
+                onDismissRequest = { userDictionaryEntryForDialog = null },
+                title = { Text(stringRes(if (isAddWord) {
                     R.string.settings__udm__dialog__title_add
                 } else {
                     R.string.settings__udm__dialog__title_edit
-                }),
-                confirmLabel = stringRes(if (isAddWord) {
-                    R.string.action__add
-                } else {
-                    R.string.action__apply
-                }),
-                onConfirm = {
-                    val isInvalid = wordValidation.isInvalid() ||
-                        freqValidation.isInvalid() ||
-                        shortcutValidation.isInvalid() ||
-                        localeValidation.isInvalid()
-                    if (isInvalid) {
-                        showValidationErrors = true
-                    } else {
-                        val entry = UserDictionaryEntry(
-                            id = wordEntry.id,
-                            word = word.trim(),
-                            freq = freq.toInt(10),
-                            shortcut = shortcut.trim().takeIf { it.isNotBlank() },
-                            locale = locale.trim().takeIf { it.isNotBlank() }?.let {
-                                FlorisLocale.fromTag(it).localeTag()
-                            },
-                        )
-                        if (isAddWord) {
-                            userDictionaryDao()?.insert(entry)
-                        } else {
-                            userDictionaryDao()?.update(entry)
+                })) },
+                text = {
+                    Column {
+                        DialogProperty(text = stringRes(R.string.settings__udm__dialog__word_label)) {
+                            JetPrefTextField(
+                                value = word,
+                                onValueChange = { word = it },
+                            )
+                            Validation(showValidationErrors, wordValidation)
                         }
-                        userDictionaryEntryForDialog = null
-                        buildUi()
+                        DialogProperty(text = stringRes(
+                            R.string.settings__udm__dialog__freq_label,
+                            "f_min" to FREQUENCY_MIN, "f_max" to FREQUENCY_MAX,
+                        )) {
+                            JetPrefTextField(
+                                value = freq,
+                                onValueChange = { freq = it },
+                            )
+                            Validation(showValidationErrors, freqValidation)
+                        }
+                        DialogProperty(text = stringRes(R.string.settings__udm__dialog__shortcut_label)) {
+                            JetPrefTextField(
+                                value = shortcut,
+                                onValueChange = { shortcut = it },
+                            )
+                            Validation(showValidationErrors, shortcutValidation)
+                        }
+                        DialogProperty(text = stringRes(R.string.settings__udm__dialog__locale_label)) {
+                            JetPrefTextField(
+                                value = locale,
+                                onValueChange = { locale = it },
+                            )
+                            Validation(showValidationErrors, localeValidation)
+                        }
                     }
                 },
-                dismissLabel = stringRes(R.string.action__cancel),
-                onDismiss = {
-                    userDictionaryEntryForDialog = null
+                confirmButton = {
+                    TextButton(onClick = {
+                        val isInvalid = wordValidation.isInvalid() ||
+                            freqValidation.isInvalid() ||
+                            shortcutValidation.isInvalid() ||
+                            localeValidation.isInvalid()
+                        if (isInvalid) {
+                            showValidationErrors = true
+                        } else {
+                            val entry = UserDictionaryEntry(
+                                id = wordEntry.id,
+                                word = word.trim(),
+                                freq = freq.toInt(10),
+                                shortcut = shortcut.trim().takeIf { it.isNotBlank() },
+                                locale = locale.trim().takeIf { it.isNotBlank() }?.let {
+                                    FlorisLocale.fromTag(it).localeTag()
+                                },
+                            )
+                            if (isAddWord) {
+                                userDictionaryDao()?.insert(entry)
+                            } else {
+                                userDictionaryDao()?.update(entry)
+                            }
+                            userDictionaryEntryForDialog = null
+                            buildUi()
+                        }
+                    }) {
+                        Text(stringRes(if (isAddWord) {
+                            R.string.action__add
+                        } else {
+                            R.string.action__apply
+                        }))
+                    }
                 },
-                neutralLabel = if (isAddWord) {
-                    null
-                } else {
-                    stringRes(R.string.action__delete)
+                dismissButton = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (!isAddWord) {
+                            TextButton(
+                                onClick = {
+                                    userDictionaryDao()?.delete(wordEntry)
+                                    userDictionaryEntryForDialog = null
+                                    buildUi()
+                                },
+                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                            ) {
+                                Text(stringRes(R.string.action__delete))
+                            }
+                        }
+                        TextButton(onClick = { userDictionaryEntryForDialog = null }) {
+                            Text(stringRes(R.string.action__cancel))
+                        }
+                    }
                 },
-                onNeutral = {
-                    userDictionaryDao()?.delete(wordEntry)
-                    userDictionaryEntryForDialog = null
-                    buildUi()
-                },
-            ) {
-                Column {
-                    DialogProperty(text = stringRes(R.string.settings__udm__dialog__word_label)) {
-                        JetPrefTextField(
-                            value = word,
-                            onValueChange = { word = it },
-                        )
-                        Validation(showValidationErrors, wordValidation)
-                    }
-                    DialogProperty(text = stringRes(
-                        R.string.settings__udm__dialog__freq_label,
-                        "f_min" to FREQUENCY_MIN, "f_max" to FREQUENCY_MAX,
-                    )) {
-                        JetPrefTextField(
-                            value = freq,
-                            onValueChange = { freq = it },
-                        )
-                        Validation(showValidationErrors, freqValidation)
-                    }
-                    DialogProperty(text = stringRes(R.string.settings__udm__dialog__shortcut_label)) {
-                        JetPrefTextField(
-                            value = shortcut,
-                            onValueChange = { shortcut = it },
-                        )
-                        Validation(showValidationErrors, shortcutValidation)
-                    }
-                    DialogProperty(text = stringRes(R.string.settings__udm__dialog__locale_label)) {
-                        JetPrefTextField(
-                            value = locale,
-                            onValueChange = { locale = it },
-                        )
-                        Validation(showValidationErrors, localeValidation)
-                    }
-                }
-            }
+            )
         }
     }
 }

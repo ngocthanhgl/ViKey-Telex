@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -31,12 +33,14 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextButton
 
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -67,6 +71,7 @@ import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.app.apptheme.Shapes
 import dev.ngocthanhgl.vikey.app.ext.ExtensionComponentView
+import dev.ngocthanhgl.vikey.app.settings.components.M3Dropdown
 import dev.ngocthanhgl.vikey.ime.theme.FlorisImeUi
 import dev.ngocthanhgl.vikey.ime.theme.ThemeExtensionComponent
 import dev.ngocthanhgl.vikey.ime.theme.ThemeExtensionComponentEditor
@@ -81,15 +86,13 @@ import dev.ngocthanhgl.vikey.lib.ext.ExtensionValidation
 import dev.ngocthanhgl.vikey.lib.rememberValidationResult
 import dev.ngocthanhgl.vikey.themeManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
-import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
-import dev.patrickgold.jetpref.material.ui.JetPrefDropdown
+
 import dev.patrickgold.jetpref.material.ui.JetPrefTextField
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.florisboard.lib.android.showLongToastSync
 import org.florisboard.lib.color.MaterialYouFlagsSaver
 import org.florisboard.lib.compose.FlorisIconButton
-import org.florisboard.lib.compose.florisVerticalScroll
 import org.florisboard.lib.compose.stringRes
 import org.florisboard.lib.kotlin.io.subFile
 import org.florisboard.lib.snygg.SnyggAnnotationRule
@@ -236,30 +239,41 @@ fun ThemeEditorScreen(
         },
     ) { padding ->
         stylesheetEditorFailure?.let { failure ->
-            JetPrefAlertDialog(
-                title = stringRes(R.string.settings__theme_editor__stylesheet_error_title),
-                confirmLabel = stringRes(R.string.action__yes),
-                onConfirm = {
-                    editor.stylesheetEditor = null
-                    stylesheetLoadingStrategy = StylesheetLoadingStrategy.TRY_LOAD_OR_PARSE_LENIENT
-                },
-                dismissLabel = stringRes(R.string.action__no),
-                onDismiss = {
+            AlertDialog(
+                onDismissRequest = {
                     editor.stylesheetEditor = null
                     stylesheetLoadingStrategy = StylesheetLoadingStrategy.TRY_LOAD_OR_EMPTY
                 },
-            ) {
-                Column {
-                    Text(
-                        modifier = Modifier.padding(bottom = 8.dp),
-                        text = failure.message.toString(),
-                        fontStyle = FontStyle.Italic,
-                    )
-                    Text(
-                        text = stringRes(R.string.settings__theme_editor__stylesheet_error_description),
-                    )
-                }
-            }
+                title = { Text(stringRes(R.string.settings__theme_editor__stylesheet_error_title)) },
+                text = {
+                    Column {
+                        Text(
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            text = failure.message.toString(),
+                            fontStyle = FontStyle.Italic,
+                        )
+                        Text(
+                            text = stringRes(R.string.settings__theme_editor__stylesheet_error_description),
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        editor.stylesheetEditor = null
+                        stylesheetLoadingStrategy = StylesheetLoadingStrategy.TRY_LOAD_OR_PARSE_LENIENT
+                    }) {
+                        Text(stringRes(R.string.action__yes))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        editor.stylesheetEditor = null
+                        stylesheetLoadingStrategy = StylesheetLoadingStrategy.TRY_LOAD_OR_EMPTY
+                    }) {
+                        Text(stringRes(R.string.action__no))
+                    }
+                },
+            )
         }
 
         BackHandler { handleBackPress() }
@@ -567,110 +581,110 @@ private fun ComponentMetaEditorDialog(
     var stylesheetPath by rememberSaveable { mutableStateOf(editor.stylesheetPath) }
     val stylesheetPathValidation = rememberValidationResult(ExtensionValidation.ThemeComponentStylesheetPath, stylesheetPath)
 
-    JetPrefAlertDialog(
-        title = stringRes(R.string.ext__editor__metadata__title),
-        confirmLabel = stringRes(R.string.action__apply),
-        onConfirm = {
-            val allFieldsValid = idValidation.isValid() &&
-                labelValidation.isValid() &&
-                authorsValidation.isValid() &&
-                stylesheetPathValidation.isValid()
-            if (!allFieldsValid) {
-                showValidationErrors = true
-            } else if (id != editor.id && (workspace.editor as? ThemeExtensionEditor)?.themes?.find { it.id == id.trim() } != null) {
-                context.showLongToastSync("A theme with this ID already exists!")
-            } else {
-                workspace.update {
-                    editor.id = id.trim()
-                    editor.label = label.trim()
-                    editor.authors = authors.lines().map { it.trim() }.filter { it.isNotBlank() }
-                    editor.isNightTheme = isNightTheme
-                    editor.stylesheetPath = stylesheetPath.trim()
-                    editor.materialYouFlags = materialYouFlags
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringRes(R.string.ext__editor__metadata__title)) },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                DialogProperty(text = stringRes(R.string.ext__meta__id)) {
+                    JetPrefTextField(
+                        value = id,
+                        onValueChange = { id = it },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+                        singleLine = true,
+                    )
+                    Validation(showValidationErrors, idValidation)
                 }
-                onConfirm()
+                DialogProperty(text = stringRes(R.string.ext__meta__label)) {
+                    JetPrefTextField(
+                        value = label,
+                        onValueChange = { label = it },
+                        singleLine = true,
+                    )
+                    Validation(showValidationErrors, labelValidation)
+                }
+                DialogProperty(text = stringRes(R.string.ext__meta__authors)) {
+                    JetPrefTextField(
+                        value = authors,
+                        onValueChange = { authors = it },
+                    )
+                    Validation(showValidationErrors, authorsValidation)
+                }
+                Text(
+                    modifier = Modifier
+                        .toggleable(isNightTheme) { isNightTheme = it }
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    text = stringRes(R.string.settings__theme_editor__component_meta_is_night_theme),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                DialogProperty(text = stringRes(R.string.settings__theme_editor__component_meta_stylesheet_path)) {
+                    JetPrefTextField(
+                        value = stylesheetPath,
+                        onValueChange = { stylesheetPath = it },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+                        singleLine = true,
+                        placeholderText = if (stylesheetPath.isEmpty()) {
+                            ThemeExtensionComponent.defaultStylesheetPath(id.trim())
+                        } else {
+                            null
+                        },
+                    )
+                    Validation(showValidationErrors, stylesheetPathValidation)
+                }
+
+                DialogProperty(text = stringRes(R.string.settings__theme_editor__component_meta_material_you__title)) {
+                    M3Dropdown(
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        options = PaletteStyle.entries.map { it.name },
+                        selectedOptionIndex = materialYouFlags.paletteStyle.ordinal,
+                        onSelectOption = { materialYouFlags = materialYouFlags.copy(paletteStyle = PaletteStyle.entries[it]) },
+                    )
+                    M3Dropdown(
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        options = Contrast.entries.map { it.name },
+                        selectedOptionIndex = materialYouFlags.contrastLevel.ordinal,
+                        onSelectOption = { materialYouFlags = materialYouFlags.copy(contrastLevel = Contrast.entries[it]) },
+                    )
+                    M3Dropdown(
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        options = ColorSpec.SpecVersion.entries.map { it.name },
+                        selectedOptionIndex = materialYouFlags.specVersion.ordinal,
+                        onSelectOption = { materialYouFlags = materialYouFlags.copy(specVersion = ColorSpec.SpecVersion.entries[it]) },
+                    )
+                }
             }
         },
-        dismissLabel = stringRes(R.string.action__cancel),
-        onDismiss = onDismiss,
-        contentPadding = PaddingValues(horizontal = 8.dp),
-        scrollModifier = Modifier.florisVerticalScroll(),
-    ) {
-        Column {
-            DialogProperty(text = stringRes(R.string.ext__meta__id)) {
-                JetPrefTextField(
-                    value = id,
-                    onValueChange = { id = it },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
-                    singleLine = true,
-                )
-                Validation(showValidationErrors, idValidation)
+        confirmButton = {
+            TextButton(onClick = {
+                val allFieldsValid = idValidation.isValid() &&
+                    labelValidation.isValid() &&
+                    authorsValidation.isValid() &&
+                    stylesheetPathValidation.isValid()
+                if (!allFieldsValid) {
+                    showValidationErrors = true
+                } else if (id != editor.id && (workspace.editor as? ThemeExtensionEditor)?.themes?.find { it.id == id.trim() } != null) {
+                    context.showLongToastSync("A theme with this ID already exists!")
+                } else {
+                    workspace.update {
+                        editor.id = id.trim()
+                        editor.label = label.trim()
+                        editor.authors = authors.lines().map { it.trim() }.filter { it.isNotBlank() }
+                        editor.isNightTheme = isNightTheme
+                        editor.stylesheetPath = stylesheetPath.trim()
+                        editor.materialYouFlags = materialYouFlags
+                    }
+                    onConfirm()
+                }
+            }) {
+                Text(stringRes(R.string.action__apply))
             }
-            DialogProperty(text = stringRes(R.string.ext__meta__label)) {
-                JetPrefTextField(
-                    value = label,
-                    onValueChange = { label = it },
-                    singleLine = true,
-                )
-                Validation(showValidationErrors, labelValidation)
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringRes(R.string.action__cancel))
             }
-            DialogProperty(text = stringRes(R.string.ext__meta__authors)) {
-                JetPrefTextField(
-                    value = authors,
-                    onValueChange = { authors = it },
-                )
-                Validation(showValidationErrors, authorsValidation)
-            }
-            Text(
-                modifier = Modifier
-                    .toggleable(isNightTheme) { isNightTheme = it }
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                text = stringRes(R.string.settings__theme_editor__component_meta_is_night_theme),
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            DialogProperty(text = stringRes(R.string.settings__theme_editor__component_meta_stylesheet_path)) {
-                JetPrefTextField(
-                    value = stylesheetPath,
-                    onValueChange = { stylesheetPath = it },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
-                    singleLine = true,
-                    placeholderText = if (stylesheetPath.isEmpty()) {
-                        ThemeExtensionComponent.defaultStylesheetPath(id.trim())
-                    } else {
-                        null
-                    },
-                )
-                Validation(showValidationErrors, stylesheetPathValidation)
-            }
-
-            DialogProperty(text = stringRes(R.string.settings__theme_editor__component_meta_material_you__title)) {
-                JetPrefDropdown(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    labelText = stringRes(R.string.settings__theme_editor__component_meta_material_you__palette_style),
-                    optionsLabelProvider = { it.name },
-                    options = PaletteStyle.entries,
-                    onSelectOption = { materialYouFlags = materialYouFlags.copy(paletteStyle = PaletteStyle.entries[it]) },
-                    selectedOptionIndex = materialYouFlags.paletteStyle.ordinal,
-                )
-                JetPrefDropdown(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    labelText = stringRes(R.string.settings__theme_editor__component_meta_material_you__color_contrast),
-                    optionsLabelProvider = { it.name },
-                    options = Contrast.entries,
-                    onSelectOption = { materialYouFlags = materialYouFlags.copy(contrastLevel = Contrast.entries[it]) },
-                    selectedOptionIndex = materialYouFlags.contrastLevel.ordinal,
-                )
-                JetPrefDropdown(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    labelText = stringRes(R.string.settings__theme_editor__component_meta_material_you__spec_version),
-                    optionsLabelProvider = { it.name },
-                    options = ColorSpec.SpecVersion.entries,
-                    onSelectOption = { materialYouFlags = materialYouFlags.copy(specVersion = ColorSpec.SpecVersion.entries[it]) },
-                    selectedOptionIndex = materialYouFlags.specVersion.ordinal,
-                )
-            }
-        }
-    }
+        },
+    )
 }
 
 @Composable

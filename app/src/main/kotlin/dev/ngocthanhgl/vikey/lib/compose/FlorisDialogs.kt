@@ -16,11 +16,13 @@
 
 package dev.ngocthanhgl.vikey.lib.compose
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.ngocthanhgl.vikey.R
-import dev.patrickgold.jetpref.material.ui.JetPrefAlertDialog
 import org.florisboard.lib.compose.stringRes
 
 @Composable
@@ -30,16 +32,21 @@ fun FlorisConfirmDeleteDialog(
     onDismiss: () -> Unit,
     what: String,
 ) {
-    JetPrefAlertDialog(
-        modifier = modifier,
-        title = stringRes(R.string.action__delete_confirm_title),
-        confirmLabel = stringRes(R.string.action__delete),
-        onConfirm = onConfirm,
-        dismissLabel = stringRes(R.string.action__cancel),
-        onDismiss = onDismiss,
-    ) {
-        Text(text = stringRes(R.string.action__delete_confirm_message, "name" to what))
-    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringRes(R.string.action__delete_confirm_title)) },
+        text = { Text(stringRes(R.string.action__delete_confirm_message, "name" to what)) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(stringRes(R.string.action__delete))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringRes(R.string.action__cancel))
+            }
+        },
+    )
 }
 
 @Composable
@@ -49,17 +56,22 @@ fun FlorisUnsavedChangesDialog(
     onDiscard: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    JetPrefAlertDialog(
-        modifier = modifier,
-        title = stringRes(R.string.action__discard_confirm_title),
-        confirmLabel = stringRes(R.string.action__save),
-        onConfirm = onSave,
-        dismissLabel = stringRes(R.string.action__discard),
-        onDismiss = onDiscard,
-        onOutsideDismissal = onDismiss,
-        neutralLabel = stringRes(R.string.action__cancel),
-        onNeutral = onDismiss,
-    ) {
-        Text(text = stringRes(R.string.action__discard_confirm_message))
-    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringRes(R.string.action__discard_confirm_title)) },
+        text = { Text(stringRes(R.string.action__discard_confirm_message)) },
+        confirmButton = {
+            TextButton(onClick = onSave) {
+                Text(stringRes(R.string.action__save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDiscard) {
+                Text(
+                    stringRes(R.string.action__discard),
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+        },
+    )
 }
