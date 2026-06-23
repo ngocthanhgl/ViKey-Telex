@@ -28,13 +28,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-context(density: Density)
-fun Offset.toDp(): DpOffset {
-    return with(density) {
-        DpOffset(x.toDp(), y.toDp())
-    }
-}
-
 val DpSizeSaver = Saver<Dp, Float>(
     save = { it.value },
     restore = { it.dp },
