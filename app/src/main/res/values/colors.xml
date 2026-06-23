@@ -11,10 +11,6 @@
     <color name="colorOnSecondaryContainer">#E65100</color>
     <color name="colorTertiary">#8BC34A</color>
 
-    <color name="colorSuccess">@color/colorPrimary</color>
-    <color name="textColorSuccess">#FFFFFF</color>
-    <color name="colorWarning">#FFEB3B</color>
-    <color name="textColorWarning">#000000</color>
     <color name="colorError">#B00020</color>
     <color name="textColorError">#FFFFFF</color>
 
@@ -24,11 +20,6 @@
     <color name="textColorOnSecondaryContainer">@color/colorOnSecondaryContainer</color>
 
     <color name="ic_app_icon_background">#0D1B2A</color>
-
-    <color name="cardViewBackgroundColor">#FFFFFF</color>
-    <color name="navigationBarColor">#000000</color>
-    <color name="toolbarForegroundColor">#000000</color>
-    <color name="windowBackground">#FAFAFA</color>
 
     <color name="florisApp_windowBackground">#FFFFFFFF</color>
 </resources>
