@@ -21,5 +21,9 @@
 
     <color name="ic_app_icon_background">#0D1B2A</color>
 
+    <color name="cardViewBackgroundColor">#FFFFFFFF</color>
+    <color name="toolbarForegroundColor">#FF000000</color>
+    <color name="windowBackground">#FFFAFAFA</color>
+
     <color name="florisApp_windowBackground">#FFFFFFFF</color>
 </resources>
