@@ -140,9 +140,7 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) = FlorisScreen {
                     )
                 }
             }
-            if (extensionId == "dev.ngocthanhgl.vikey.themes.liquidglass") {
-                LiquidGlassSettingsPanel(prefs)
-            }
         }
+        LiquidGlassSettingsPanel(prefs)
     }
 }

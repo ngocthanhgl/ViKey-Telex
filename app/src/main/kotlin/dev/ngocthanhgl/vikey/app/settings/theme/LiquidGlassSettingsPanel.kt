@@ -100,6 +100,14 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
         Spacer(Modifier.height(8.dp))
 
+        PrefSwitch(
+            label = "Enable Liquid Glass effects",
+            checked = prefs.liquidGlass.enabled.collectAsState().value,
+            onCheckedChange = { scope.launch { prefs.liquidGlass.enabled.set(it) } },
+        )
+
+        Spacer(Modifier.height(12.dp))
+
         PrefSlider(
             label = "Lens Idle",
             value = lensIdle / 100f,

@@ -767,6 +767,10 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
 
     val liquidGlass = LiquidGlass()
     inner class LiquidGlass {
+        val enabled = boolean(
+            key = "liquid_glass__enabled",
+            default = false,
+        )
         val lensIdle = int(
             key = "liquid_glass__lens_idle",
             default = 500,

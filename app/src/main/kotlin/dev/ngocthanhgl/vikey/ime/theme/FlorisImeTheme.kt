@@ -74,7 +74,7 @@ fun FlorisImeTheme(content: @Composable () -> Unit) {
         CompositionLocalProvider(
             LocalTextStyle provides TextStyle.Default,
         ) {
-            ProvideLiquidGlassEnabled(activeThemeName) {
+            ProvideLiquidGlassEnabled(activeThemeName, prefs) {
                 ProvideSnyggTheme(
                     snyggTheme = snyggTheme,
                     dynamicAccentColor = accentColor,
