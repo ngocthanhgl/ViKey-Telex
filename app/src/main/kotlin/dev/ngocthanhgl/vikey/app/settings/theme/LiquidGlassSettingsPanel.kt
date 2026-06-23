@@ -446,8 +446,8 @@ private fun CropPhotoDialog(
                                     val contentH = bh * fitScale * scale
                                     val cropW = dw * 0.9f
                                     val cropH = cropW / aspectRatio
-                                    val maxOffX = (contentW - cropW) / 2f
-                                    val maxOffY = (contentH - cropH) / 2f
+                                    val maxOffX = ((contentW - cropW) / 2f).coerceAtLeast(0f)
+                                    val maxOffY = ((contentH - cropH) / 2f).coerceAtLeast(0f)
                                     offsetX = offsetX.coerceIn(-maxOffX, maxOffX)
                                     offsetY = offsetY.coerceIn(-maxOffY, maxOffY)
                                 }
