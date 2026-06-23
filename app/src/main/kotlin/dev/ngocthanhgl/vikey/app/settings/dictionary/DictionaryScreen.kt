@@ -1,70 +1,105 @@
 package dev.ngocthanhgl.vikey.app.settings.dictionary
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.rememberCoroutineScope
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Book
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.LibraryBooks
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
+import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import dev.ngocthanhgl.vikey.app.settings.components.M3ClickablePreference
 import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchPreference
+import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.ime.dictionary.DictionaryManager
-import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
+import dev.patrickgold.jetpref.datastore.model.collectAsState
+import kotlinx.coroutines.launch
 import org.florisboard.lib.compose.stringRes
 import java.io.File
 
 @Composable
-fun DictionaryScreen() = FlorisScreen {
-    title = stringRes(R.string.settings__dictionary__title)
+fun DictionaryScreen() {
     val navController = LocalNavController.current
     val context = LocalContext.current
+    val prefs by FlorisPreferenceStore
     var showClearDialog by remember { mutableStateOf(false) }
 
-    content {
+    SettingsScaffold(title = stringRes(R.string.settings__dictionary__title)) {
         val scope = rememberCoroutineScope()
         val enableSystemUserDictionary by prefs.dictionary.enableSystemUserDictionary.collectAsState()
         val enableFlorisUserDictionary by prefs.dictionary.enableFlorisUserDictionary.collectAsState()
 
-        M3SwitchPreference(
-            checked = enableSystemUserDictionary,
-            onCheckedChange = { scope.launch { prefs.dictionary.enableSystemUserDictionary.set(it) } },
-            title = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__label),
-            summary = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__summary),
-        )
-        M3ClickablePreference(
-            title = stringRes(R.string.pref__dictionary__manage_system_user_dictionary__label),
-            summary = stringRes(R.string.pref__dictionary__manage_system_user_dictionary__summary),
-            onClick = { navController.navigate(Routes.Settings.UserDictionary(UserDictionaryType.SYSTEM)) },
-            enabled = enableSystemUserDictionary,
-        )
-        M3SwitchPreference(
-            checked = enableFlorisUserDictionary,
-            onCheckedChange = { scope.launch { prefs.dictionary.enableFlorisUserDictionary.set(it) } },
-            title = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__label),
-            summary = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__summary),
-        )
-        M3ClickablePreference(
-            title = stringRes(R.string.pref__dictionary__manage_floris_user_dictionary__label),
-            summary = stringRes(R.string.pref__dictionary__manage_floris_user_dictionary__summary),
-            onClick = { navController.navigate(Routes.Settings.UserDictionary(UserDictionaryType.FLORIS)) },
-            enabled = enableFlorisUserDictionary,
-        )
-        M3ClickablePreference(
-            title = stringRes(R.string.pref__dictionary__clear_learned_words__label),
-            summary = stringRes(R.string.pref__dictionary__clear_learned_words__summary),
-            onClick = { showClearDialog = true },
-        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            M3SwitchPreference(
+                icon = Icons.Outlined.LibraryBooks,
+                checked = enableSystemUserDictionary,
+                onCheckedChange = { scope.launch { prefs.dictionary.enableSystemUserDictionary.set(it) } },
+                title = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__label),
+                summary = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__summary),
+            )
+            SettingsDivider()
+            M3ClickablePreference(
+                icon = Icons.Outlined.Edit,
+                title = stringRes(R.string.pref__dictionary__manage_system_user_dictionary__label),
+                summary = stringRes(R.string.pref__dictionary__manage_system_user_dictionary__summary),
+                onClick = { navController.navigate(Routes.Settings.UserDictionary(UserDictionaryType.SYSTEM)) },
+                enabled = enableSystemUserDictionary,
+            )
+            SettingsDivider()
+            M3SwitchPreference(
+                icon = Icons.Outlined.Book,
+                checked = enableFlorisUserDictionary,
+                onCheckedChange = { scope.launch { prefs.dictionary.enableFlorisUserDictionary.set(it) } },
+                title = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__label),
+                summary = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__summary),
+            )
+            SettingsDivider()
+            M3ClickablePreference(
+                icon = Icons.Outlined.Edit,
+                title = stringRes(R.string.pref__dictionary__manage_floris_user_dictionary__label),
+                summary = stringRes(R.string.pref__dictionary__manage_floris_user_dictionary__summary),
+                onClick = { navController.navigate(Routes.Settings.UserDictionary(UserDictionaryType.FLORIS)) },
+                enabled = enableFlorisUserDictionary,
+            )
+            SettingsDivider()
+            M3ClickablePreference(
+                icon = Icons.Outlined.Delete,
+                title = stringRes(R.string.pref__dictionary__clear_learned_words__label),
+                summary = stringRes(R.string.pref__dictionary__clear_learned_words__summary),
+                onClick = { showClearDialog = true },
+            )
+        }
     }
 
     if (showClearDialog) {

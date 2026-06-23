@@ -1,28 +1,43 @@
 package dev.ngocthanhgl.vikey.app.settings.gestures
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.rememberCoroutineScope
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowLeft
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.PanTool
+import androidx.compose.material.icons.outlined.Speed
+import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
+import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.app.enumDisplayEntriesOf
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import dev.ngocthanhgl.vikey.app.settings.components.M3DialogSliderPreference
 import dev.ngocthanhgl.vikey.app.settings.components.M3ListPreference
+import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.ime.text.gestures.SwipeAction
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.patrickgold.jetpref.datastore.model.collectAsState
+import kotlinx.coroutines.launch
 import org.florisboard.lib.compose.FlorisInfoCard
 import org.florisboard.lib.compose.stringRes
 
 @Composable
-fun GesturesScreen() = FlorisScreen {
-    title = stringRes(R.string.settings__gestures__title)
-    content {
+fun GesturesScreen() {
+    val prefs by FlorisPreferenceStore
+
+    SettingsScaffold(title = stringRes(R.string.settings__gestures__title)) {
         val scope = rememberCoroutineScope()
         val swipeUp by prefs.gestures.swipeUp.collectAsState()
         val swipeDown by prefs.gestures.swipeDown.collectAsState()
@@ -38,102 +53,159 @@ fun GesturesScreen() = FlorisScreen {
         val swipeDistanceThreshold by prefs.gestures.swipeDistanceThreshold.collectAsState()
 
         FlorisInfoCard(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
             text = """
                 Glide typing is currently not available and will be re-implemented from the ground up with word suggestions & the new keyboard layout engine. DO NOT file an issue for this missing functionality.
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         Text(
             text = stringRes(R.string.pref__gestures__general_title),
             style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
         )
-        M3ListPreference(
-            value = swipeUp,
-            onSelect = { scope.launch { prefs.gestures.swipeUp.set(SwipeAction.valueOf(it)) } },
-            title = stringRes(R.string.pref__gestures__swipe_up__label),
-            entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
-        )
-        M3ListPreference(
-            value = swipeDown,
-            onSelect = { scope.launch { prefs.gestures.swipeDown.set(SwipeAction.valueOf(it)) } },
-            title = stringRes(R.string.pref__gestures__swipe_down__label),
-            entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
-        )
-        M3ListPreference(
-            value = swipeLeft,
-            onSelect = { scope.launch { prefs.gestures.swipeLeft.set(SwipeAction.valueOf(it)) } },
-            title = stringRes(R.string.pref__gestures__swipe_left__label),
-            entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
-        )
-        M3ListPreference(
-            value = swipeRight,
-            onSelect = { scope.launch { prefs.gestures.swipeRight.set(SwipeAction.valueOf(it)) } },
-            title = stringRes(R.string.pref__gestures__swipe_right__label),
-            entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
-        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            M3ListPreference(
+                icon = Icons.Outlined.KeyboardArrowUp,
+                value = swipeUp,
+                onSelect = { scope.launch { prefs.gestures.swipeUp.set(SwipeAction.valueOf(it)) } },
+                title = stringRes(R.string.pref__gestures__swipe_up__label),
+                entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
+            )
+            SettingsDivider()
+            M3ListPreference(
+                icon = Icons.Outlined.KeyboardArrowDown,
+                value = swipeDown,
+                onSelect = { scope.launch { prefs.gestures.swipeDown.set(SwipeAction.valueOf(it)) } },
+                title = stringRes(R.string.pref__gestures__swipe_down__label),
+                entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
+            )
+            SettingsDivider()
+            M3ListPreference(
+                icon = Icons.Outlined.KeyboardArrowLeft,
+                value = swipeLeft,
+                onSelect = { scope.launch { prefs.gestures.swipeLeft.set(SwipeAction.valueOf(it)) } },
+                title = stringRes(R.string.pref__gestures__swipe_left__label),
+                entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
+            )
+            SettingsDivider()
+            M3ListPreference(
+                icon = Icons.Outlined.KeyboardArrowRight,
+                value = swipeRight,
+                onSelect = { scope.launch { prefs.gestures.swipeRight.set(SwipeAction.valueOf(it)) } },
+                title = stringRes(R.string.pref__gestures__swipe_right__label),
+                entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
+            )
+        }
 
         Text(
             text = stringRes(R.string.pref__gestures__space_bar_title),
             style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
         )
-        M3ListPreference(
-            value = spaceBarSwipeUp,
-            onSelect = { scope.launch { prefs.gestures.spaceBarSwipeUp.set(SwipeAction.valueOf(it)) } },
-            title = stringRes(R.string.pref__gestures__space_bar_swipe_up__label),
-            entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
-        )
-        M3ListPreference(
-            value = spaceBarSwipeLeft,
-            onSelect = { scope.launch { prefs.gestures.spaceBarSwipeLeft.set(SwipeAction.valueOf(it)) } },
-            title = stringRes(R.string.pref__gestures__space_bar_swipe_left__label),
-            entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
-        )
-        M3ListPreference(
-            value = spaceBarSwipeRight,
-            onSelect = { scope.launch { prefs.gestures.spaceBarSwipeRight.set(SwipeAction.valueOf(it)) } },
-            title = stringRes(R.string.pref__gestures__space_bar_swipe_right__label),
-            entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
-        )
-        M3ListPreference(
-            value = spaceBarLongPress,
-            onSelect = { scope.launch { prefs.gestures.spaceBarLongPress.set(SwipeAction.valueOf(it)) } },
-            title = stringRes(R.string.pref__gestures__space_bar_long_press__label),
-            entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
-        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            M3ListPreference(
+                icon = Icons.Outlined.KeyboardArrowUp,
+                value = spaceBarSwipeUp,
+                onSelect = { scope.launch { prefs.gestures.spaceBarSwipeUp.set(SwipeAction.valueOf(it)) } },
+                title = stringRes(R.string.pref__gestures__space_bar_swipe_up__label),
+                entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
+            )
+            SettingsDivider()
+            M3ListPreference(
+                icon = Icons.Outlined.KeyboardArrowLeft,
+                value = spaceBarSwipeLeft,
+                onSelect = { scope.launch { prefs.gestures.spaceBarSwipeLeft.set(SwipeAction.valueOf(it)) } },
+                title = stringRes(R.string.pref__gestures__space_bar_swipe_left__label),
+                entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
+            )
+            SettingsDivider()
+            M3ListPreference(
+                icon = Icons.Outlined.KeyboardArrowRight,
+                value = spaceBarSwipeRight,
+                onSelect = { scope.launch { prefs.gestures.spaceBarSwipeRight.set(SwipeAction.valueOf(it)) } },
+                title = stringRes(R.string.pref__gestures__space_bar_swipe_right__label),
+                entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
+            )
+            SettingsDivider()
+            M3ListPreference(
+                icon = Icons.Outlined.PanTool,
+                value = spaceBarLongPress,
+                onSelect = { scope.launch { prefs.gestures.spaceBarLongPress.set(SwipeAction.valueOf(it)) } },
+                title = stringRes(R.string.pref__gestures__space_bar_long_press__label),
+                entries = enumDisplayEntriesOf(SwipeAction::class, "general").map { it.key.toString() to it.label },
+            )
+        }
 
         Text(
             text = stringRes(R.string.pref__gestures__other_title),
             style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
         )
-        M3ListPreference(
-            value = deleteKeySwipeLeft,
-            onSelect = { scope.launch { prefs.gestures.deleteKeySwipeLeft.set(SwipeAction.valueOf(it)) } },
-            title = stringRes(R.string.pref__gestures__delete_key_swipe_left__label),
-            entries = enumDisplayEntriesOf(SwipeAction::class, "deleteSwipe").map { it.key.toString() to it.label },
-        )
-        M3ListPreference(
-            value = deleteKeyLongPress,
-            onSelect = { scope.launch { prefs.gestures.deleteKeyLongPress.set(SwipeAction.valueOf(it)) } },
-            title = stringRes(R.string.pref__gestures__delete_key_long_press__label),
-            entries = enumDisplayEntriesOf(SwipeAction::class, "deleteLongPress").map { it.key.toString() to it.label },
-        )
-        M3DialogSliderPreference(
-            value = swipeVelocityThreshold,
-            onChange = { scope.launch { prefs.gestures.swipeVelocityThreshold.set(it) } },
-            title = stringRes(R.string.pref__gestures__swipe_velocity_threshold__label),
-            valueLabel = { stringRes(R.string.unit__display_pixel_per_seconds__symbol, "v" to it) },
-            min = 400, max = 4000, stepIncrement = 100,
-        )
-        M3DialogSliderPreference(
-            value = swipeDistanceThreshold,
-            onChange = { scope.launch { prefs.gestures.swipeDistanceThreshold.set(it) } },
-            title = stringRes(R.string.pref__gestures__swipe_distance_threshold__label),
-            valueLabel = { stringRes(R.string.unit__display_pixel__symbol, "v" to it) },
-            min = 12, max = 72, stepIncrement = 1,
-        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            M3ListPreference(
+                icon = Icons.Outlined.KeyboardArrowLeft,
+                value = deleteKeySwipeLeft,
+                onSelect = { scope.launch { prefs.gestures.deleteKeySwipeLeft.set(SwipeAction.valueOf(it)) } },
+                title = stringRes(R.string.pref__gestures__delete_key_swipe_left__label),
+                entries = enumDisplayEntriesOf(SwipeAction::class, "deleteSwipe").map { it.key.toString() to it.label },
+            )
+            SettingsDivider()
+            M3ListPreference(
+                icon = Icons.Outlined.PanTool,
+                value = deleteKeyLongPress,
+                onSelect = { scope.launch { prefs.gestures.deleteKeyLongPress.set(SwipeAction.valueOf(it)) } },
+                title = stringRes(R.string.pref__gestures__delete_key_long_press__label),
+                entries = enumDisplayEntriesOf(SwipeAction::class, "deleteLongPress").map { it.key.toString() to it.label },
+            )
+            SettingsDivider()
+            M3DialogSliderPreference(
+                icon = Icons.Outlined.Speed,
+                value = swipeVelocityThreshold,
+                onChange = { scope.launch { prefs.gestures.swipeVelocityThreshold.set(it) } },
+                title = stringRes(R.string.pref__gestures__swipe_velocity_threshold__label),
+                valueLabel = { stringRes(R.string.unit__display_pixel_per_seconds__symbol, "v" to it) },
+                min = 400, max = 4000, stepIncrement = 100,
+            )
+            SettingsDivider()
+            M3DialogSliderPreference(
+                icon = Icons.Outlined.TouchApp,
+                value = swipeDistanceThreshold,
+                onChange = { scope.launch { prefs.gestures.swipeDistanceThreshold.set(it) } },
+                title = stringRes(R.string.pref__gestures__swipe_distance_threshold__label),
+                valueLabel = { stringRes(R.string.unit__display_pixel__symbol, "v" to it) },
+                min = 12, max = 72, stepIncrement = 1,
+            )
+        }
     }
 }

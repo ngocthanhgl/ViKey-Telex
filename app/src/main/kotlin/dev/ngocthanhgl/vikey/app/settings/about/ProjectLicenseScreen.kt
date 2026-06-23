@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2021-2025 The FlorisBoard Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package dev.ngocthanhgl.vikey.app.settings.about
 
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +12,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import dev.ngocthanhgl.vikey.R
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import dev.ngocthanhgl.vikey.lib.io.FlorisRef
 import dev.ngocthanhgl.vikey.lib.io.loadTextAsset
 import org.florisboard.lib.compose.florisHorizontalScroll
@@ -36,16 +20,13 @@ import org.florisboard.lib.compose.florisVerticalScroll
 import org.florisboard.lib.compose.stringRes
 
 @Composable
-fun ProjectLicenseScreen() = FlorisScreen {
-    title = stringRes(R.string.about__project_license__title)
-    scrollable = false
-
+fun ProjectLicenseScreen() {
     val context = LocalContext.current
 
-    content {
-        // Forcing LTR because the Apache 2.0 License shipped and displayed
-        // is hard to read if rendered in RTL. Also it is in English so forcing
-        // LTR here makes most sense.
+    SettingsScaffold(
+        title = stringRes(R.string.about__project_license__title),
+        scrollable = false,
+    ) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             SelectionContainer(
                 modifier = Modifier

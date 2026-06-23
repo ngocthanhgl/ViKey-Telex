@@ -1,45 +1,61 @@
 package dev.ngocthanhgl.vikey.app.settings.media
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.FormatSize
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Label
+import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.Numbers
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.app.enumDisplayEntriesOf
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import dev.ngocthanhgl.vikey.app.settings.components.M3ClickablePreference
 import dev.ngocthanhgl.vikey.app.settings.components.M3DialogSliderPreference
 import dev.ngocthanhgl.vikey.app.settings.components.M3ListPreference
 import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchPreference
+import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiHistory
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiHistoryHelper
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSkinTone
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSuggestionType
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import kotlinx.coroutines.launch
 import org.florisboard.lib.compose.pluralsRes
 import org.florisboard.lib.compose.stringRes
 
 @Composable
-fun MediaScreen() = FlorisScreen {
-    title = stringRes(R.string.settings__media__title)
+fun MediaScreen() {
     val prefs by FlorisPreferenceStore
-
     var shouldDelete by remember { mutableStateOf<ShouldDelete?>(null) }
     val scope = rememberCoroutineScope()
 
-    content {
+    SettingsScaffold(title = stringRes(R.string.settings__media__title)) {
+        val scope = rememberCoroutineScope()
         val preferredSkinTone by prefs.emoji.preferredSkinTone.collectAsState()
         val historyPinnedUpdateStrategy by prefs.emoji.historyPinnedUpdateStrategy.collectAsState()
         val historyRecentUpdateStrategy by prefs.emoji.historyRecentUpdateStrategy.collectAsState()
@@ -51,117 +67,175 @@ fun MediaScreen() = FlorisScreen {
         val suggestionQueryMinLength by prefs.emoji.suggestionQueryMinLength.collectAsState()
         val suggestionCandidateMaxCount by prefs.emoji.suggestionCandidateMaxCount.collectAsState()
 
-        M3ListPreference(
-            value = preferredSkinTone,
-            onSelect = { scope.launch { prefs.emoji.preferredSkinTone.set(EmojiSkinTone.valueOf(it)) } },
-            title = stringRes(R.string.prefs__media__emoji_preferred_skin_tone),
-            entries = enumDisplayEntriesOf(EmojiSkinTone::class).map { it.key.toString() to it.label },
-        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            M3ListPreference(
+                icon = Icons.Outlined.Palette,
+                value = preferredSkinTone,
+                onSelect = { scope.launch { prefs.emoji.preferredSkinTone.set(EmojiSkinTone.valueOf(it)) } },
+                title = stringRes(R.string.prefs__media__emoji_preferred_skin_tone),
+                entries = enumDisplayEntriesOf(EmojiSkinTone::class).map { it.key.toString() to it.label },
+            )
+        }
 
         Text(
             text = stringRes(R.string.prefs__media__emoji_history__title),
             style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
         )
         val historyEnabled by prefs.emoji.historyEnabled.collectAsState()
-        M3SwitchPreference(
-            checked = historyEnabled,
-            onCheckedChange = { scope.launch { prefs.emoji.historyEnabled.set(it) } },
-            title = stringRes(R.string.prefs__media__emoji_history_enabled),
-            summary = stringRes(R.string.prefs__media__emoji_history_enabled__summary),
-        )
-        M3ListPreference(
-            value = historyPinnedUpdateStrategy,
-            onSelect = { scope.launch { prefs.emoji.historyPinnedUpdateStrategy.set(EmojiHistory.UpdateStrategy.valueOf(it)) } },
-            title = stringRes(R.string.prefs__media__emoji_history_pinned_update_strategy),
-            entries = enumDisplayEntriesOf(EmojiHistory.UpdateStrategy::class).map { it.key.toString() to it.label },
-            enabled = historyEnabled,
-        )
-        M3ListPreference(
-            value = historyRecentUpdateStrategy,
-            onSelect = { scope.launch { prefs.emoji.historyRecentUpdateStrategy.set(EmojiHistory.UpdateStrategy.valueOf(it)) } },
-            title = stringRes(R.string.prefs__media__emoji_history_recent_update_strategy),
-            entries = enumDisplayEntriesOf(EmojiHistory.UpdateStrategy::class).map { it.key.toString() to it.label },
-            enabled = historyEnabled,
-        )
-        M3DialogSliderPreference(
-            primaryValue = historyPinnedMaxSize,
-            onPrimaryChange = { scope.launch { prefs.emoji.historyPinnedMaxSize.set(it) } },
-            secondaryValue = historyRecentMaxSize,
-            onSecondaryChange = { scope.launch { prefs.emoji.historyRecentMaxSize.set(it) } },
-            title = stringRes(R.string.prefs__media__emoji_history_max_size),
-            primaryLabel = stringRes(R.string.emoji__history__pinned),
-            secondaryLabel = stringRes(R.string.emoji__history__recent),
-            valueLabel = { maxSize ->
-                if (maxSize == EmojiHistory.MaxSizeUnlimited) {
-                    stringRes(R.string.general__unlimited)
-                } else {
-                    pluralsRes(R.plurals.unit__items__written, maxSize, "v" to maxSize)
-                }
-            },
-            min = 0, max = 120, stepIncrement = 1,
-            enabled = historyEnabled,
-        )
-        M3ClickablePreference(
-            title = stringRes(R.string.prefs__media__emoji_history_pinned_reset),
-            onClick = { shouldDelete = ShouldDelete(true) },
-            enabled = historyEnabled,
-        )
-        M3ClickablePreference(
-            title = stringRes(R.string.prefs__media__emoji_history_reset),
-            onClick = { shouldDelete = ShouldDelete(false) },
-            enabled = historyEnabled,
-        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            M3SwitchPreference(
+                icon = Icons.Outlined.History,
+                checked = historyEnabled,
+                onCheckedChange = { scope.launch { prefs.emoji.historyEnabled.set(it) } },
+                title = stringRes(R.string.prefs__media__emoji_history_enabled),
+                summary = stringRes(R.string.prefs__media__emoji_history_enabled__summary),
+            )
+            SettingsDivider()
+            M3ListPreference(
+                icon = Icons.Outlined.Bookmark,
+                value = historyPinnedUpdateStrategy,
+                onSelect = { scope.launch { prefs.emoji.historyPinnedUpdateStrategy.set(EmojiHistory.UpdateStrategy.valueOf(it)) } },
+                title = stringRes(R.string.prefs__media__emoji_history_pinned_update_strategy),
+                entries = enumDisplayEntriesOf(EmojiHistory.UpdateStrategy::class).map { it.key.toString() to it.label },
+                enabled = historyEnabled,
+            )
+            SettingsDivider()
+            M3ListPreference(
+                icon = Icons.Outlined.History,
+                value = historyRecentUpdateStrategy,
+                onSelect = { scope.launch { prefs.emoji.historyRecentUpdateStrategy.set(EmojiHistory.UpdateStrategy.valueOf(it)) } },
+                title = stringRes(R.string.prefs__media__emoji_history_recent_update_strategy),
+                entries = enumDisplayEntriesOf(EmojiHistory.UpdateStrategy::class).map { it.key.toString() to it.label },
+                enabled = historyEnabled,
+            )
+            SettingsDivider()
+            M3DialogSliderPreference(
+                icon = Icons.Outlined.Storage,
+                primaryValue = historyPinnedMaxSize,
+                onPrimaryChange = { scope.launch { prefs.emoji.historyPinnedMaxSize.set(it) } },
+                secondaryValue = historyRecentMaxSize,
+                onSecondaryChange = { scope.launch { prefs.emoji.historyRecentMaxSize.set(it) } },
+                title = stringRes(R.string.prefs__media__emoji_history_max_size),
+                primaryLabel = stringRes(R.string.emoji__history__pinned),
+                secondaryLabel = stringRes(R.string.emoji__history__recent),
+                valueLabel = { maxSize ->
+                    if (maxSize == EmojiHistory.MaxSizeUnlimited) {
+                        stringRes(R.string.general__unlimited)
+                    } else {
+                        pluralsRes(R.plurals.unit__items__written, maxSize, "v" to maxSize)
+                    }
+                },
+                min = 0, max = 120, stepIncrement = 1,
+                enabled = historyEnabled,
+            )
+            SettingsDivider()
+            M3ClickablePreference(
+                icon = Icons.Outlined.Delete,
+                title = stringRes(R.string.prefs__media__emoji_history_pinned_reset),
+                onClick = { shouldDelete = ShouldDelete(true) },
+                enabled = historyEnabled,
+            )
+            SettingsDivider()
+            M3ClickablePreference(
+                icon = Icons.Outlined.Delete,
+                title = stringRes(R.string.prefs__media__emoji_history_reset),
+                onClick = { shouldDelete = ShouldDelete(false) },
+                enabled = historyEnabled,
+            )
+        }
 
         Text(
             text = stringRes(R.string.prefs__media__emoji_suggestion__title),
             style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
         )
         val suggestionEnabled by prefs.emoji.suggestionEnabled.collectAsState()
-        M3SwitchPreference(
-            checked = suggestionEnabled,
-            onCheckedChange = { scope.launch { prefs.emoji.suggestionEnabled.set(it) } },
-            title = stringRes(R.string.prefs__media__emoji_suggestion_enabled),
-            summary = stringRes(R.string.prefs__media__emoji_suggestion_enabled__summary),
-        )
-        M3ListPreference(
-            value = suggestionType,
-            onSelect = { scope.launch { prefs.emoji.suggestionType.set(EmojiSuggestionType.valueOf(it)) } },
-            title = stringRes(R.string.prefs__media__emoji_suggestion_type),
-            entries = enumDisplayEntriesOf(EmojiSuggestionType::class).map { it.key.toString() to it.label },
-            enabled = suggestionEnabled,
-        )
-        M3SwitchPreference(
-            checked = suggestionUpdateHistory,
-            onCheckedChange = { scope.launch { prefs.emoji.suggestionUpdateHistory.set(it) } },
-            title = stringRes(R.string.prefs__media__emoji_suggestion_update_history),
-            summary = stringRes(R.string.prefs__media__emoji_suggestion_update_history__summary),
-            enabled = suggestionEnabled && historyEnabled,
-        )
-        M3SwitchPreference(
-            checked = suggestionCandidateShowName,
-            onCheckedChange = { scope.launch { prefs.emoji.suggestionCandidateShowName.set(it) } },
-            title = stringRes(R.string.prefs__media__emoji_suggestion_candidate_show_name),
-            summary = stringRes(R.string.prefs__media__emoji_suggestion_candidate_show_name__summary),
-            enabled = suggestionEnabled,
-        )
-        M3DialogSliderPreference(
-            value = suggestionQueryMinLength,
-            onChange = { scope.launch { prefs.emoji.suggestionQueryMinLength.set(it) } },
-            title = stringRes(R.string.prefs__media__emoji_suggestion_query_min_length),
-            valueLabel = { length -> pluralsRes(R.plurals.unit__characters__written, length, "v" to length) },
-            min = 1, max = 5, stepIncrement = 1,
-            enabled = suggestionEnabled,
-        )
-        M3DialogSliderPreference(
-            value = suggestionCandidateMaxCount,
-            onChange = { scope.launch { prefs.emoji.suggestionCandidateMaxCount.set(it) } },
-            title = stringRes(R.string.prefs__media__emoji_suggestion_candidate_max_count),
-            valueLabel = { count -> pluralsRes(R.plurals.unit__candidates__written, count, "v" to count) },
-            min = 1, max = 10, stepIncrement = 1,
-            enabled = suggestionEnabled,
-        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            M3SwitchPreference(
+                icon = Icons.Outlined.Lightbulb,
+                checked = suggestionEnabled,
+                onCheckedChange = { scope.launch { prefs.emoji.suggestionEnabled.set(it) } },
+                title = stringRes(R.string.prefs__media__emoji_suggestion_enabled),
+                summary = stringRes(R.string.prefs__media__emoji_suggestion_enabled__summary),
+            )
+            SettingsDivider()
+            M3ListPreference(
+                icon = Icons.Outlined.Category,
+                value = suggestionType,
+                onSelect = { scope.launch { prefs.emoji.suggestionType.set(EmojiSuggestionType.valueOf(it)) } },
+                title = stringRes(R.string.prefs__media__emoji_suggestion_type),
+                entries = enumDisplayEntriesOf(EmojiSuggestionType::class).map { it.key.toString() to it.label },
+                enabled = suggestionEnabled,
+            )
+            SettingsDivider()
+            M3SwitchPreference(
+                icon = Icons.Outlined.Sync,
+                checked = suggestionUpdateHistory,
+                onCheckedChange = { scope.launch { prefs.emoji.suggestionUpdateHistory.set(it) } },
+                title = stringRes(R.string.prefs__media__emoji_suggestion_update_history),
+                summary = stringRes(R.string.prefs__media__emoji_suggestion_update_history__summary),
+                enabled = suggestionEnabled && historyEnabled,
+            )
+            SettingsDivider()
+            M3SwitchPreference(
+                icon = Icons.Outlined.Label,
+                checked = suggestionCandidateShowName,
+                onCheckedChange = { scope.launch { prefs.emoji.suggestionCandidateShowName.set(it) } },
+                title = stringRes(R.string.prefs__media__emoji_suggestion_candidate_show_name),
+                summary = stringRes(R.string.prefs__media__emoji_suggestion_candidate_show_name__summary),
+                enabled = suggestionEnabled,
+            )
+            SettingsDivider()
+            M3DialogSliderPreference(
+                icon = Icons.Outlined.FormatSize,
+                value = suggestionQueryMinLength,
+                onChange = { scope.launch { prefs.emoji.suggestionQueryMinLength.set(it) } },
+                title = stringRes(R.string.prefs__media__emoji_suggestion_query_min_length),
+                valueLabel = { length -> pluralsRes(R.plurals.unit__characters__written, length, "v" to length) },
+                min = 1, max = 5, stepIncrement = 1,
+                enabled = suggestionEnabled,
+            )
+            SettingsDivider()
+            M3DialogSliderPreference(
+                icon = Icons.Outlined.Numbers,
+                value = suggestionCandidateMaxCount,
+                onChange = { scope.launch { prefs.emoji.suggestionCandidateMaxCount.set(it) } },
+                title = stringRes(R.string.prefs__media__emoji_suggestion_candidate_max_count),
+                valueLabel = { count -> pluralsRes(R.plurals.unit__candidates__written, count, "v" to count) },
+                min = 1, max = 10, stepIncrement = 1,
+                enabled = suggestionEnabled,
+            )
+        }
     }
 
     DeleteEmojiHistoryConfirmDialog(
@@ -208,5 +282,3 @@ private fun DeleteEmojiHistoryConfirmDialog(
         )
     }
 }
-
-private data class ShouldDelete(val pinned: Boolean)

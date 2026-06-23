@@ -6,11 +6,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Code
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,31 +27,29 @@ import dev.ngocthanhgl.vikey.BuildConfig
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
+import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import dev.ngocthanhgl.vikey.app.settings.components.M3ClickablePreference
+import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.clipboardManager
-import dev.ngocthanhgl.vikey.lib.compose.FlorisScreen
 import dev.ngocthanhgl.vikey.lib.util.launchUrl
 import org.florisboard.lib.android.stringRes
 import org.florisboard.lib.compose.FlorisCanvasIcon
 import org.florisboard.lib.compose.stringRes
 
 @Composable
-fun AboutScreen() = FlorisScreen {
-    title = stringRes(R.string.about__title)
+fun AboutScreen() {
+    SettingsScaffold(title = stringRes(R.string.about__title)) {
+        val context = LocalContext.current
+        val navController = LocalNavController.current
+        val clipboardManager by context.clipboardManager()
+        val appVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
 
-    val navController = LocalNavController.current
-    val context = LocalContext.current
-    val clipboardManager by context.clipboardManager()
-
-    val appVersion = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
-
-    content {
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp, bottom = 32.dp)
+                .padding(top = 24.dp, bottom = 32.dp),
         ) {
             FlorisCanvasIcon(
                 modifier = Modifier.requiredSize(64.dp),
@@ -61,46 +63,62 @@ fun AboutScreen() = FlorisScreen {
                 modifier = Modifier.padding(top = 16.dp),
             )
         }
-        M3ClickablePreference(
-            icon = Icons.Default.Info,
-            title = stringRes(R.string.about__version__title),
-            summary = appVersion,
-            onClick = {
-                try {
-                    clipboardManager.addNewPlaintext(appVersion)
-                    Toast.makeText(context, R.string.about__version_copied__title, Toast.LENGTH_SHORT).show()
-                } catch (e: Throwable) {
-                    Toast.makeText(
-                        context,
-                        context.stringRes(R.string.about__version_copied__error, "error_message" to e.message),
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                }
-            },
-        )
-        M3ClickablePreference(
-            icon = Icons.Default.History,
-            title = stringRes(R.string.about__changelog__title),
-            summary = stringRes(R.string.about__changelog__summary),
-            onClick = { context.launchUrl(R.string.florisboard__changelog_url, "version" to BuildConfig.VERSION_NAME) },
-        )
-        M3ClickablePreference(
-            icon = Icons.Default.Code,
-            title = stringRes(R.string.about__repository__title),
-            summary = stringRes(R.string.about__repository__summary),
-            onClick = { context.launchUrl(R.string.florisboard__repo_url) },
-        )
-        M3ClickablePreference(
-            icon = Icons.Default.Description,
-            title = stringRes(R.string.about__project_license__title),
-            summary = stringRes(R.string.about__project_license__summary, "license_name" to "Apache 2.0"),
-            onClick = { navController.navigate(Routes.Settings.ProjectLicense) },
-        )
-        M3ClickablePreference(
-            icon = Icons.Default.Description,
-            title = stringRes(id = R.string.about__third_party_licenses__title),
-            summary = stringRes(id = R.string.about__third_party_licenses__summary),
-            onClick = { navController.navigate(Routes.Settings.ThirdPartyLicenses) },
-        )
+
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            M3ClickablePreference(
+                icon = Icons.Outlined.Info,
+                title = stringRes(R.string.about__version__title),
+                summary = appVersion,
+                onClick = {
+                    try {
+                        clipboardManager.addNewPlaintext(appVersion)
+                        Toast.makeText(context, R.string.about__version_copied__title, Toast.LENGTH_SHORT).show()
+                    } catch (e: Throwable) {
+                        Toast.makeText(
+                            context,
+                            context.stringRes(R.string.about__version_copied__error, "error_message" to e.message),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    }
+                },
+            )
+            SettingsDivider()
+            M3ClickablePreference(
+                icon = Icons.Outlined.History,
+                title = stringRes(R.string.about__changelog__title),
+                summary = stringRes(R.string.about__changelog__summary),
+                onClick = { context.launchUrl(R.string.florisboard__changelog_url, "version" to BuildConfig.VERSION_NAME) },
+            )
+            SettingsDivider()
+            M3ClickablePreference(
+                icon = Icons.Outlined.Code,
+                title = stringRes(R.string.about__repository__title),
+                summary = stringRes(R.string.about__repository__summary),
+                onClick = { context.launchUrl(R.string.florisboard__repo_url) },
+            )
+            SettingsDivider()
+            M3ClickablePreference(
+                icon = Icons.Outlined.Description,
+                title = stringRes(R.string.about__project_license__title),
+                summary = stringRes(R.string.about__project_license__summary, "license_name" to "Apache 2.0"),
+                onClick = { navController.navigate(Routes.Settings.ProjectLicense) },
+            )
+            SettingsDivider()
+            M3ClickablePreference(
+                icon = Icons.Outlined.Description,
+                title = stringRes(id = R.string.about__third_party_licenses__title),
+                summary = stringRes(id = R.string.about__third_party_licenses__summary),
+                onClick = { navController.navigate(Routes.Settings.ThirdPartyLicenses) },
+            )
+        }
     }
 }

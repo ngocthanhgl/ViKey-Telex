@@ -1,25 +1,28 @@
 package dev.ngocthanhgl.vikey.app.settings.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
@@ -34,31 +37,87 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 @Composable
+private fun SettingsRowLayout(
+    icon: ImageVector,
+    title: String,
+    summary: String?,
+    modifier: Modifier = Modifier,
+    trailing: @Composable () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(24.dp),
+            )
+        }
+        Spacer(Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+            if (summary != null) {
+                Text(
+                    text = summary,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Spacer(Modifier.width(12.dp))
+        trailing()
+    }
+}
+
+@Composable
+fun SettingsDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(start = 72.dp),
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+    )
+}
+
+@Composable
 fun M3SwitchPreference(
+    icon: ImageVector,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    icon: ImageVector? = null,
     title: String,
     summary: String? = null,
     enabled: Boolean = true,
 ) {
-    ListItem(
-        headlineContent = { Text(title, style = MaterialTheme.typography.bodyLarge) },
-        supportingContent = summary?.let { { Text(it, style = MaterialTheme.typography.bodySmall) } },
-        leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
-        trailingContent = { Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled) },
-        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+    SettingsRowLayout(
+        icon = icon,
+        title = title,
+        summary = summary,
+        trailing = {
+            Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
+        },
     )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun M3ClickablePreference(
-    icon: ImageVector? = null,
+    icon: ImageVector,
     title: String,
     summary: String? = null,
     enabled: Boolean = true,
@@ -73,21 +132,27 @@ fun M3ClickablePreference(
         onClick != null -> Modifier.clickable(enabled = enabled, onClick = onClick)
         else -> Modifier
     }
-    ListItem(
-        headlineContent = { Text(title, style = MaterialTheme.typography.bodyLarge) },
-        supportingContent = summary?.let { { Text(it, style = MaterialTheme.typography.bodySmall) } },
-        leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
-        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
-        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+    SettingsRowLayout(
+        icon = icon,
+        title = title,
+        summary = summary,
         modifier = modifier.then(clickModifier),
+        trailing = {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
+                modifier = Modifier.size(24.dp),
+            )
+        },
     )
 }
 
 @Composable
 fun M3ListPreference(
+    icon: ImageVector,
     value: Any,
     onSelect: (String) -> Unit,
-    icon: ImageVector? = null,
     title: String,
     entries: List<Pair<String, String>>,
     enabled: Boolean = true,
@@ -95,13 +160,19 @@ fun M3ListPreference(
     val selectedLabel = entries.find { it.first == value.toString() }?.second ?: value.toString()
     var showDialog by remember { mutableStateOf(false) }
 
-    ListItem(
-        headlineContent = { Text(title, style = MaterialTheme.typography.bodyLarge) },
-        supportingContent = { Text(selectedLabel, style = MaterialTheme.typography.bodySmall) },
-        leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
-        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
-        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+    SettingsRowLayout(
+        icon = icon,
+        title = title,
+        summary = selectedLabel,
         modifier = Modifier.clickable(enabled = enabled, onClick = { showDialog = true }),
+        trailing = {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
+                modifier = Modifier.size(24.dp),
+            )
+        },
     )
 
     if (showDialog) {
@@ -118,8 +189,8 @@ fun M3ListPreference(
                                 .clickable { onSelect(key); showDialog = false }
                                 .padding(horizontal = 8.dp, vertical = 8.dp),
                         ) {
-                                RadioButton(
-                                    selected = value.toString() == key,
+                            RadioButton(
+                                selected = value.toString() == key,
                                 onClick = { onSelect(key); showDialog = false },
                             )
                             Spacer(Modifier.width(8.dp))
@@ -139,11 +210,11 @@ fun M3ListPreference(
 
 @Composable
 fun M3SwitchListPreference(
+    icon: ImageVector,
     switchChecked: Boolean,
     onSwitchChange: (Boolean) -> Unit,
     listValue: Any,
     onListSelect: (String) -> Unit,
-    icon: ImageVector? = null,
     title: String,
     summarySwitchDisabled: String,
     entries: List<Pair<String, String>>,
@@ -152,24 +223,18 @@ fun M3SwitchListPreference(
     val selectedLabel = entries.find { it.first == listValue.toString() }?.second ?: listValue.toString()
     var showDialog by remember { mutableStateOf(false) }
 
-    ListItem(
-        headlineContent = { Text(title, style = MaterialTheme.typography.bodyLarge) },
-        supportingContent = {
-            Text(
-                if (switchChecked) selectedLabel else summarySwitchDisabled,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        },
-        leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
-        trailingContent = {
+    SettingsRowLayout(
+        icon = icon,
+        title = title,
+        summary = if (switchChecked) selectedLabel else summarySwitchDisabled,
+        modifier = Modifier.clickable(enabled = enabled && switchChecked, onClick = { showDialog = true }),
+        trailing = {
             Switch(
                 checked = switchChecked,
                 onCheckedChange = onSwitchChange,
                 enabled = enabled,
             )
         },
-        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
-        modifier = Modifier.clickable(enabled = enabled && switchChecked, onClick = { showDialog = true }),
     )
 
     if (showDialog) {
@@ -207,9 +272,9 @@ fun M3SwitchListPreference(
 
 @Composable
 fun M3DialogSliderPreference(
+    icon: ImageVector,
     value: Int,
     onChange: (Int) -> Unit,
-    icon: ImageVector? = null,
     title: String,
     valueLabel: @Composable (Int) -> String,
     min: Int,
@@ -220,13 +285,19 @@ fun M3DialogSliderPreference(
     var showDialog by remember { mutableStateOf(false) }
     var tmpValue by remember { mutableFloatStateOf(value.toFloat()) }
 
-    ListItem(
-        headlineContent = { Text(title, style = MaterialTheme.typography.bodyLarge) },
-        supportingContent = { Text(valueLabel(value), style = MaterialTheme.typography.bodySmall) },
-        leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
-        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
-        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+    SettingsRowLayout(
+        icon = icon,
+        title = title,
+        summary = valueLabel(value),
         modifier = Modifier.clickable(enabled = enabled, onClick = { tmpValue = value.toFloat(); showDialog = true }),
+        trailing = {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
+                modifier = Modifier.size(24.dp),
+            )
+        },
     )
 
     if (showDialog) {
@@ -260,11 +331,11 @@ fun M3DialogSliderPreference(
 
 @Composable
 fun M3DialogSliderPreference(
+    icon: ImageVector,
     primaryValue: Int,
     onPrimaryChange: (Int) -> Unit,
     secondaryValue: Int,
     onSecondaryChange: (Int) -> Unit,
-    icon: ImageVector? = null,
     title: String,
     primaryLabel: String,
     secondaryLabel: String,
@@ -278,20 +349,21 @@ fun M3DialogSliderPreference(
     var tmpPrimary by remember { mutableFloatStateOf(primaryValue.toFloat()) }
     var tmpSecondary by remember { mutableFloatStateOf(secondaryValue.toFloat()) }
 
-    ListItem(
-        headlineContent = { Text(title, style = MaterialTheme.typography.bodyLarge) },
-        supportingContent = {
-            Text(
-                "${valueLabel(primaryValue)} / ${valueLabel(secondaryValue)}",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        },
-        leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
-        trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
-        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+    SettingsRowLayout(
+        icon = icon,
+        title = title,
+        summary = "${valueLabel(primaryValue)} / ${valueLabel(secondaryValue)}",
         modifier = Modifier.clickable(enabled = enabled, onClick = {
             tmpPrimary = primaryValue.toFloat(); tmpSecondary = secondaryValue.toFloat(); showDialog = true
         }),
+        trailing = {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
+                modifier = Modifier.size(24.dp),
+            )
+        },
     )
 
     if (showDialog) {
