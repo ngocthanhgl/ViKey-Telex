@@ -128,6 +128,14 @@
     <string name="settings__home__ime_not_enabled" comment="Error message shown in Home fragment when ViKey is not enabled in the system">ViKey is not enabled in the system and thus won\'t be available as an input method in the input picker. Click here to resolve this issue.</string>
     <string name="settings__home__ime_not_selected" comment="Warning message shown in Home fragment when ViKey is not selected as the default keyboard">ViKey is not selected as the default input method. Click here to resolve this issue.</string>
 
+    <string name="settings__section__input" comment="Section header for input-related settings">Input</string>
+    <string name="settings__section__personalization" comment="Section header for personalization settings">Personalization</string>
+    <string name="settings__section__features" comment="Section header for feature settings">Features</string>
+    <string name="settings__section__system" comment="Section header for system settings">System</string>
+    <string name="settings__home__search_placeholder" comment="Placeholder text for the search bar on the Home screen">Search settings…</string>
+    <string name="settings__home__keyboard_name" comment="Name of the keyboard shown in the status card">ViKey Keyboard</string>
+    <string name="settings__home__status_active" comment="Status text shown when keyboard is active">Active</string>
+
     <string name="settings__localization__title" comment="Title of languages and Layout screen">Languages &amp; Layouts</string>
     <string name="settings__localization__display_language_names_in__label" comment="Label of Display language names in preference">Display language names in</string>
     <string name="settings__localization__display_keyboard_labels_in_subtype_language" comment="Label of Display keyboard labels in subtype language preference">Display keyboard labels in subtype language</string>
