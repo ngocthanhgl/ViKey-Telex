@@ -55,9 +55,9 @@ import androidx.compose.ui.unit.sp
 
 object FlorisCardDefaults {
     val IconRequiredSize = 24.dp
-    val IconSpacing = 12.dp
+    val IconPadding = PaddingValues(end = 12.dp)
 
-    val ContentPadding = PaddingValues(start = 0.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+    val ContentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
 }
 
 object BoxDefaults {
@@ -99,8 +99,7 @@ fun FlorisSimpleCard(
             }
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(start = if (icon == null) 16.dp else 0.dp),
+                    .weight(1f),
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -134,7 +133,7 @@ fun FlorisErrorCard(
         onClick = onClick,
         icon = if (showIcon) ({ Icon(
             modifier = Modifier
-                .padding(all = FlorisCardDefaults.IconSpacing)
+                .padding(FlorisCardDefaults.IconPadding)
                 .requiredSize(FlorisCardDefaults.IconRequiredSize),
             imageVector = Icons.Default.ErrorOutline,
             contentDescription = null,
@@ -160,7 +159,7 @@ fun FlorisWarningCard(
         onClick = onClick,
         icon = if (showIcon) ({ Icon(
             modifier = Modifier
-                .padding(all = FlorisCardDefaults.IconSpacing)
+                .padding(FlorisCardDefaults.IconPadding)
                 .requiredSize(FlorisCardDefaults.IconRequiredSize),
             imageVector = Icons.Outlined.Warning,
             contentDescription = null,
@@ -186,7 +185,7 @@ fun FlorisInfoCard(
         onClick = onClick,
         icon = if (showIcon) ({ Icon(
             modifier = Modifier
-                .padding(all = FlorisCardDefaults.IconSpacing)
+                .padding(FlorisCardDefaults.IconPadding)
                 .requiredSize(FlorisCardDefaults.IconRequiredSize),
             imageVector = Icons.Default.Info,
             contentDescription = null,

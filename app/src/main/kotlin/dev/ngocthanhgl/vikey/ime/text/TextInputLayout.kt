@@ -109,7 +109,7 @@ fun TextInputLayout(
 
     Box(
         modifier = modifier
-            .wrapContentWidth()
+            .fillMaxWidth()
             .wrapContentHeight()
             .onGloballyPositioned { coords ->
                 photoWindowPos = coords.positionInWindow()

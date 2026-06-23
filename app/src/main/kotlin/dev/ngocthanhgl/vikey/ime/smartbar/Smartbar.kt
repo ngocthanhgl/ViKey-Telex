@@ -169,7 +169,10 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                     prefs.smartbar.sharedActionsExpanded.set(!sharedActionsExpanded)
                 }
             },
-            modifier = Modifier.sizeIn(maxHeight = FlorisImeSizing.smartbarHeight).aspectRatio(1f)
+            modifier = Modifier
+                .padding(horizontal = 4.dp)
+                .sizeIn(maxHeight = FlorisImeSizing.smartbarHeight)
+                .aspectRatio(1f)
         ) {
             val transition = updateTransition(sharedActionsExpanded, label = "sharedActionsExpandedToggleBtn")
             val rotation by transition.animateFloat(
@@ -249,7 +252,10 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                     prefs.smartbar.extendedActionsExpanded.set(!extendedActionsExpanded)
                 }
             },
-            modifier = Modifier.sizeIn(maxHeight = FlorisImeSizing.smartbarHeight).aspectRatio(1f)
+            modifier = Modifier
+                .padding(horizontal = 4.dp)
+                .sizeIn(maxHeight = FlorisImeSizing.smartbarHeight)
+                .aspectRatio(1f)
         ) {
             val transition = updateTransition(extendedActionsExpanded, label = "smartbarSecondaryRowToggleBtn")
             val alpha by transition.animateFloat(label = "alpha") { if (it) 1f else 0f }

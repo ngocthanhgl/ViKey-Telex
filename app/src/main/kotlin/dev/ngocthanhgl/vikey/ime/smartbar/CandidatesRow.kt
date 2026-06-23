@@ -112,8 +112,8 @@ fun CandidatesRow(modifier: Modifier = Modifier) {
                     SnyggSpacer(
                         elementName = FlorisImeUi.SmartbarCandidateSpacer.elementName,
                         modifier = Modifier
-                            .width(1.dp)
-                            .fillMaxHeight(0.6f)
+                            .width(Dp.Hairline)
+                            .fillMaxHeight(0.7f)
                             .align(Alignment.CenterVertically),
                     )
                 }

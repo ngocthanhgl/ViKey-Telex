@@ -228,7 +228,7 @@ private fun ColumnScope.Step(
         val onBackground = MaterialTheme.colorScheme.onSurface
         Box(
             modifier = Modifier
-                .padding(start = 56.dp)
+                .padding(start = StepHeaderNumberBoxPaddingEnd + StepHeaderNumberBoxSize)
                 .drawBehind {
                     val strokeWidth = 2.dp
                     val x = -(StepHeaderNumberBoxPaddingEnd + (StepHeaderNumberBoxSize / 2 - strokeWidth / 2))
