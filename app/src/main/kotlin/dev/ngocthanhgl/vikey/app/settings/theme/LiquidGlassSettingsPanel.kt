@@ -20,10 +20,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -42,12 +46,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -55,6 +61,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceModel
+import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -87,192 +94,257 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     ) { uri ->
         if (uri != null) cropUri = uri
     }
+    val enabled by prefs.liquidGlass.enabled.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-    ) {
+    SettingsSwitch(
+        icon = Icons.Outlined.ToggleOn,
+        label = "Enable Liquid Glass effects",
+        checked = enabled,
+        onCheckedChange = { scope.launch { prefs.liquidGlass.enabled.set(it) } },
+    )
+    SettingsDivider()
+
+    SettingsSlider(
+        icon = Icons.Outlined.BlurOn,
+        label = "Lens Idle",
+        value = lensIdle / 100f,
+        valueRange = 0f..20f,
+        steps = 9,
+        onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.lensIdle.set((v * 100).toInt()) } },
+    )
+    SettingsDivider()
+
+    SettingsSlider(
+        icon = Icons.Outlined.CenterFocusStrong,
+        label = "Lens Peak",
+        value = lensPeak / 100f,
+        valueRange = 0f..30f,
+        steps = 14,
+        onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.lensPeak.set((v * 100).toInt()) } },
+    )
+    SettingsDivider()
+
+    SettingsSlider(
+        icon = Icons.Outlined.LineWeight,
+        label = "Height Multiplier",
+        value = heightMult / 100f,
+        valueRange = 0.5f..5.0f,
+        steps = 8,
+        onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.heightMultiplier.set((v * 100).toInt()) } },
+    )
+    SettingsDivider()
+
+    SettingsSlider(
+        icon = Icons.Outlined.Straighten,
+        label = "Amount Multiplier",
+        value = amountMult / 100f,
+        valueRange = 0.5f..3.0f,
+        steps = 4,
+        onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.amountMultiplier.set((v * 100).toInt()) } },
+    )
+    SettingsDivider()
+
+    SettingsSlider(
+        icon = Icons.Outlined.TextIncrease,
+        label = "Text Lift",
+        value = textLiftVal / 100f,
+        valueRange = 1.0f..2.0f,
+        steps = 4,
+        onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.textLift.set((v * 100).toInt()) } },
+    )
+    SettingsDivider()
+
+    SettingsSlider(
+        icon = Icons.Outlined.ZoomIn,
+        label = "Press Scale",
+        value = pressScaleVal / 100f,
+        valueRange = 1.0f..1.5f,
+        steps = 9,
+        onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.pressScale.set((v * 100).toInt()) } },
+    )
+    SettingsDivider()
+
+    SettingsSlider(
+        icon = Icons.Outlined.Speed,
+        label = "Rebound Damping",
+        value = damping / 100f,
+        valueRange = 0.05f..0.95f,
+        steps = 17,
+        onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.reboundDamping.set((v * 100).toInt()) } },
+    )
+    SettingsDivider()
+
+    SettingsSlider(
+        icon = Icons.Outlined.Bolt,
+        label = "Rebound Stiffness",
+        value = stiffness.toFloat(),
+        valueRange = 50f..500f,
+        steps = 8,
+        formatValue = { it.toInt().toString() },
+        onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.reboundStiffness.set(v.toInt()) } },
+    )
+    SettingsDivider()
+
+    SettingsSwitch(
+        icon = Icons.Outlined.Palette,
+        label = "Chromatic Aberration",
+        checked = chromatic,
+        onCheckedChange = { scope.launch { prefs.liquidGlass.chromaticEnabled.set(it) } },
+    )
+    SettingsDivider()
+
+    SettingsSwitch(
+        icon = Icons.Outlined.Layers,
+        label = "Depth Effect",
+        checked = depth,
+        onCheckedChange = { scope.launch { prefs.liquidGlass.depthEnabled.set(it) } },
+    )
+    SettingsDivider()
+
+    SettingsSwitch(
+        icon = Icons.Outlined.WaterDrop,
+        label = "Ripple Wave",
+        checked = ripple,
+        onCheckedChange = { scope.launch { prefs.liquidGlass.rippleEnabled.set(it) } },
+    )
+
+    Spacer(Modifier.height(16.dp))
+
+    Text(
+        text = "Background Photo",
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = 28.dp, top = 4.dp, bottom = 4.dp),
+    )
+
+    if (bgPath.isNotBlank()) {
         Text(
-            text = "Liquid Glass",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            text = "Photo selected",
+            style = MaterialTheme.typography.bodySmall,
+            color = LocalContentColor.current.copy(alpha = 0.56f),
+            modifier = Modifier.padding(start = 72.dp),
         )
-
-        Spacer(Modifier.height(8.dp))
-
-        PrefSwitch(
-            label = "Enable Liquid Glass effects",
-            checked = prefs.liquidGlass.enabled.collectAsState().value,
-            onCheckedChange = { scope.launch { prefs.liquidGlass.enabled.set(it) } },
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        PrefSlider(
-            label = "Lens Idle",
-            value = lensIdle / 100f,
-            valueRange = 0f..20f,
-            steps = 9,
-            onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.lensIdle.set((v * 100).toInt()) } },
-        )
-        PrefSlider(
-            label = "Lens Peak",
-            value = lensPeak / 100f,
-            valueRange = 0f..30f,
-            steps = 14,
-            onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.lensPeak.set((v * 100).toInt()) } },
-        )
-        PrefSlider(
-            label = "Height Multiplier",
-            value = heightMult / 100f,
-            valueRange = 0.5f..5.0f,
-            steps = 8,
-            onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.heightMultiplier.set((v * 100).toInt()) } },
-        )
-        PrefSlider(
-            label = "Amount Multiplier",
-            value = amountMult / 100f,
-            valueRange = 0.5f..3.0f,
-            steps = 4,
-            onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.amountMultiplier.set((v * 100).toInt()) } },
-        )
-        PrefSlider(
-            label = "Text Lift",
-            value = textLiftVal / 100f,
-            valueRange = 1.0f..2.0f,
-            steps = 4,
-            onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.textLift.set((v * 100).toInt()) } },
-        )
-        PrefSlider(
-            label = "Press Scale",
-            value = pressScaleVal / 100f,
-            valueRange = 1.0f..1.5f,
-            steps = 9,
-            onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.pressScale.set((v * 100).toInt()) } },
-        )
-        PrefSlider(
-            label = "Rebound Damping",
-            value = damping / 100f,
-            valueRange = 0.05f..0.95f,
-            steps = 17,
-            onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.reboundDamping.set((v * 100).toInt()) } },
-        )
-        PrefSlider(
-            label = "Rebound Stiffness",
-            value = stiffness.toFloat(),
-            valueRange = 50f..500f,
-            steps = 8,
-            formatValue = { it.toInt().toString() },
-            onValueChangeFinished = { v -> scope.launch { prefs.liquidGlass.reboundStiffness.set(v.toInt()) } },
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        PrefSwitch(
-            label = "Chromatic Aberration",
-            checked = chromatic,
-            onCheckedChange = { scope.launch { prefs.liquidGlass.chromaticEnabled.set(it) } },
-        )
-        PrefSwitch(
-            label = "Depth Effect",
-            checked = depth,
-            onCheckedChange = { scope.launch { prefs.liquidGlass.depthEnabled.set(it) } },
-        )
-        PrefSwitch(
-            label = "Ripple Wave",
-            checked = ripple,
-            onCheckedChange = { scope.launch { prefs.liquidGlass.rippleEnabled.set(it) } },
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        Text(
-            text = "Background Photo",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        if (bgPath.isNotBlank()) {
-            Text(
-                text = "Photo selected",
-                style = MaterialTheme.typography.bodySmall,
-                color = LocalContentColor.current.copy(alpha = 0.56f),
-            )
-            Spacer(Modifier.height(4.dp))
-            Button(
-                onClick = {
-                    scope.launch {
-                        val file = File(context.filesDir, bgPath)
-                        if (file.exists()) file.delete()
-                        prefs.backgroundPhoto.imagePath.set("")
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                ),
-                shape = RoundedCornerShape(50.dp),
-            ) {
-                Text("Remove Photo")
-            }
-        } else {
-            Button(
-                onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(50.dp),
-            ) {
-                Text("Choose Photo")
-            }
-        }
-
-        cropUri?.let { uri ->
-            CropPhotoDialog(
-                imageUri = uri,
-                context = context,
-                aspectRatio = keyboardAspectRatio,
-                onSave = { path, vis, blur ->
-                    scope.launch {
-                        prefs.backgroundPhoto.imagePath.set(path)
-                        prefs.backgroundPhoto.visibility.set(vis)
-                        prefs.backgroundPhoto.blurRadius.set(blur)
-                    }
-                    cropUri = null
-                },
-                onDismiss = { cropUri = null },
-            )
-        }
-
-        Spacer(Modifier.height(12.dp))
-
+        Spacer(Modifier.height(4.dp))
         Button(
             onClick = {
                 scope.launch {
-                    prefs.liquidGlass.lensIdle.set(500)
-                    prefs.liquidGlass.lensPeak.set(800)
-                    prefs.liquidGlass.heightMultiplier.set(250)
-                    prefs.liquidGlass.amountMultiplier.set(150)
-                    prefs.liquidGlass.textLift.set(140)
-                    prefs.liquidGlass.pressScale.set(108)
-                    prefs.liquidGlass.chromaticEnabled.set(true)
-                    prefs.liquidGlass.depthEnabled.set(true)
-                    prefs.liquidGlass.rippleEnabled.set(true)
-                    prefs.liquidGlass.reboundDamping.set(28)
-                    prefs.liquidGlass.reboundStiffness.set(220)
+                    val file = File(context.filesDir, bgPath)
+                    if (file.exists()) file.delete()
+                    prefs.backgroundPhoto.imagePath.set("")
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+            ),
             shape = RoundedCornerShape(50.dp),
         ) {
-            Text("Reset to Defaults")
+            Text("Remove Photo")
         }
+    } else {
+        Button(
+            onClick = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            shape = RoundedCornerShape(50.dp),
+        ) {
+            Text("Choose Photo")
+        }
+    }
+
+    cropUri?.let { uri ->
+        CropPhotoDialog(
+            imageUri = uri,
+            context = context,
+            aspectRatio = keyboardAspectRatio,
+            onSave = { path, vis, blur ->
+                scope.launch {
+                    prefs.backgroundPhoto.imagePath.set(path)
+                    prefs.backgroundPhoto.visibility.set(vis)
+                    prefs.backgroundPhoto.blurRadius.set(blur)
+                }
+                cropUri = null
+            },
+            onDismiss = { cropUri = null },
+        )
+    }
+
+    Spacer(Modifier.height(12.dp))
+
+    Button(
+        onClick = {
+            scope.launch {
+                prefs.liquidGlass.lensIdle.set(500)
+                prefs.liquidGlass.lensPeak.set(800)
+                prefs.liquidGlass.heightMultiplier.set(250)
+                prefs.liquidGlass.amountMultiplier.set(150)
+                prefs.liquidGlass.textLift.set(140)
+                prefs.liquidGlass.pressScale.set(108)
+                prefs.liquidGlass.chromaticEnabled.set(true)
+                prefs.liquidGlass.depthEnabled.set(true)
+                prefs.liquidGlass.rippleEnabled.set(true)
+                prefs.liquidGlass.reboundDamping.set(28)
+                prefs.liquidGlass.reboundStiffness.set(220)
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(50.dp),
+    ) {
+        Text("Reset to Defaults")
     }
 }
 
 @Composable
-private fun PrefSlider(
+private fun SettingsIconCircle(icon: ImageVector) {
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier.size(24.dp),
+        )
+    }
+}
+
+@Composable
+private fun SettingsSwitch(
+    icon: ImageVector,
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SettingsIconCircle(icon)
+        Spacer(Modifier.width(16.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(Modifier.width(12.dp))
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+}
+
+@Composable
+private fun SettingsSlider(
+    icon: ImageVector,
     label: String,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
@@ -283,31 +355,41 @@ private fun PrefSlider(
     var sliderValue by remember { mutableFloatStateOf(value) }
     LaunchedEffect(value) { sliderValue = value }
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
-        Text(
-            text = label,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Text(
-            text = formatValue(sliderValue),
-            style = MaterialTheme.typography.bodySmall,
-            color = LocalContentColor.current.copy(alpha = 0.56f),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SettingsIconCircle(icon)
+            Spacer(Modifier.width(16.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = formatValue(sliderValue),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Spacer(Modifier.height(4.dp))
+        Slider(
+            value = sliderValue,
+            onValueChange = { sliderValue = it },
+            onValueChangeFinished = { onValueChangeFinished(sliderValue) },
+            valueRange = valueRange,
+            steps = steps,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 56.dp),
         )
     }
-    Slider(
-        value = sliderValue,
-        onValueChange = { sliderValue = it },
-        onValueChangeFinished = { onValueChangeFinished(sliderValue) },
-        valueRange = valueRange,
-        steps = steps,
-        modifier = Modifier.fillMaxWidth(),
-    )
 }
 
 @Composable
@@ -480,28 +562,4 @@ private fun CropPhotoDialog(
             TextButton(onClick = onDismiss) { Text("Cancel") }
         },
     )
-}
-
-@Composable
-private fun PrefSwitch(
-    label: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-        )
-    }
 }
