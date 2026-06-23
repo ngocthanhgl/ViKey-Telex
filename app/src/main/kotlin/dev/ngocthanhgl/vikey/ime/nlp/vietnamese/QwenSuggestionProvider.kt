@@ -39,7 +39,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         private const val CLEARED_MARKER = ".qwen_cleared"
         private const val BIGRAM_BOOST = 5.0
         private const val TRIGRAM_BOOST = 3.0
-        private const val SEED_WORDS = "ime/dict/vi_50k.txt"
+        private const val SEED_WORDS = "ime/dict/vi.json"
 
         private var currentInstance: QwenSuggestionProvider? = null
 
@@ -134,12 +134,12 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     private fun loadSeedWords() {
         try {
-            context.assets.open(SEED_WORDS).bufferedReader().useLines { lines ->
-                for (line in lines) {
-                    val w = line.trim().lowercase()
-                    if (w.isNotEmpty() && w.all { it.isLetter() || it == '\'' }) {
-                        seedWords.add(w)
-                    }
+            val raw = context.assets.open(SEED_WORDS).bufferedReader().use { it.readText() }
+            val json = JSONObject(raw)
+            for (key in json.keys()) {
+                val w = key.lowercase()
+                if (w.isNotEmpty() && w.none { it.isWhitespace() } && w.all { it.isLetter() || it == '\'' }) {
+                    seedWords.add(w)
                 }
             }
             flogDebug { "Qwen: loaded ${seedWords.size} seed words" }
