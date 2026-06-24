@@ -40,7 +40,6 @@ import dev.ngocthanhgl.vikey.ime.nlp.SpellingLanguageMode
 import dev.ngocthanhgl.vikey.lib.compose.FlorisHyperlinkText
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import kotlinx.coroutines.launch
-import org.florisboard.lib.compose.FlorisErrorCard
 import org.florisboard.lib.compose.stringRes
 
 @Composable
@@ -58,14 +57,6 @@ fun TypingScreen() {
         val languageMode by prefs.spelling.languageMode.collectAsState()
         val useContacts by prefs.spelling.useContacts.collectAsState()
         val useUdmEntries by prefs.spelling.useUdmEntries.collectAsState()
-
-        FlorisErrorCard(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-            text = """
-                Spell checking is not available in this release. All
-                preferences in the "Corrections" group are properly implemented though.
-            """.trimIndent().replace('\n', ' '),
-        )
 
         Text(
             text = stringRes(R.string.pref__correction__title),
