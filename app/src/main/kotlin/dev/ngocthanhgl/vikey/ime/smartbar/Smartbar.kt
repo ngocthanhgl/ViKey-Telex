@@ -35,10 +35,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.UnfoldLess
-import androidx.compose.material.icons.filled.UnfoldMore
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.UnfoldLess
+import androidx.compose.material.icons.outlined.UnfoldMore
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -185,9 +185,9 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 if (it) 180f else 0f
             }
             val arrowIcon = if (flipToggles) {
-                Icons.AutoMirrored.Default.KeyboardArrowLeft
+                Icons.AutoMirrored.Outlined.KeyboardArrowLeft
             } else {
-                Icons.AutoMirrored.Default.KeyboardArrowRight
+                Icons.AutoMirrored.Outlined.KeyboardArrowRight
             }
             val incognitoIcon = ImageVector.vectorResource(id = R.drawable.ic_incognito)
             val incognitoDisplayMode = prefs.keyboard.incognitoDisplayMode.collectAsState()
@@ -267,7 +267,7 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .alpha(alpha)
                     .rotate(rotation),
-                imageVector = Icons.Default.UnfoldLess,
+                imageVector = Icons.Outlined.UnfoldLess,
             )
             // Not expanded icon
             SnyggIcon(
@@ -275,7 +275,7 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .alpha(1f - alpha)
                     .rotate(rotation - 180f),
-                imageVector = Icons.Default.UnfoldMore,
+                imageVector = Icons.Outlined.UnfoldMore,
             )
         }
     }
