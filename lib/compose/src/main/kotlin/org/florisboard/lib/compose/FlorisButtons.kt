@@ -185,7 +185,7 @@ fun FlorisIconButton(
     colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = IconButtonDefaults.standardShape,
-    size: DpSize = DpSize(IconButtonDefaults.standardSize, IconButtonDefaults.standardSize),
+    size: DpSize = DpSize(40.dp, 40.dp),
     content: @Composable () -> Unit,
 ) {
     // This is a modified version of https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/material3/material3/src/commonMain/kotlin/androidx/compose/material3/IconButton.kt;l=235-266;drc=e6d33dd5d0a60001a5784d84123b05308d35f410
