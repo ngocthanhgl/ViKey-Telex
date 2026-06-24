@@ -287,6 +287,7 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
             lastAutocorrectUndo = null
         }
         lastCommitWasSuggestion = true
+        autoSpace.setActive()
         val committedText = "$text "
         val result = if (content.composing.isValid) {
             super.finalizeComposingText(committedText)

@@ -537,9 +537,8 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
         val candidate = nlpManager.getAutoCommitCandidate()
         candidate?.let { commitCandidate(it) }
         // Skip handling changing to characters keyboard and double space periods
-        // TODO: this is whether we commit space after selecting candidate. Should be determined by SuggestionProvider
-        if (!subtypeManager.activeSubtype.primaryLocale.supportsAutoSpace &&
-                candidate != null) { /* Do nothing */ } else {
+        // commitCompletion already added trailing space when candidate was committed
+        if (candidate == null) {
             editorInstance.commitText(KeyCode.SPACE.toChar().toString())
         }
     }
@@ -561,7 +560,7 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
                 else -> { /* Do nothing */ }
             }
         }
-        if (prefs.correction.doubleSpacePeriod.get()) {
+        if (candidate == null && prefs.correction.doubleSpacePeriod.get()) {
             if (inputEventDispatcher.isConsecutiveUp(data)) {
                 val text = editorInstance.run { activeContent.getTextBeforeCursor(2) }
                 if (text.length == 2 && DoubleSpacePeriodMatcher.matches(text)) {
@@ -571,9 +570,8 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
                 }
             }
         }
-        // TODO: this is whether we commit space after selecting candidate. Should be determined by SuggestionProvider
-        if (!subtypeManager.activeSubtype.primaryLocale.supportsAutoSpace &&
-                candidate != null) { /* Do nothing */ } else {
+        // commitCompletion already added trailing space when candidate was committed
+        if (candidate == null) {
             editorInstance.commitText(KeyCode.SPACE.toChar().toString())
         }
     }
