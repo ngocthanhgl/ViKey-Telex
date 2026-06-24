@@ -540,6 +540,14 @@ private val ENUM_DISPLAY_ENTRIES = mapOf<Pair<KClass<*>, String>, @Composable ()
                 key = SpaceBarMode.SPACE_BAR_KEY,
                 label = stringRes(R.string.enum__space_bar_mode__space_bar_key),
             )
+            entry(
+                key = SpaceBarMode.ICON_ONLY,
+                label = stringRes(R.string.enum__space_bar_mode__icon_only),
+            )
+            entry(
+                key = SpaceBarMode.TEXT_SPACE,
+                label = stringRes(R.string.enum__space_bar_mode__text_space),
+            )
         }
     },
     SpellingLanguageMode::class to DEFAULT to {
