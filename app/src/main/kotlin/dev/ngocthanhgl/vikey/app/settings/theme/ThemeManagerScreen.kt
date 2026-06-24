@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -108,12 +108,12 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
                 text = ext.meta.title,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
+                modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 8.dp),
             )
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 shape = RoundedCornerShape(28.dp),
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
                 colors = CardDefaults.elevatedCardColors(
@@ -125,7 +125,7 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { setTheme(extensionId, config.id) }
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
@@ -133,7 +133,7 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
                                 activeThemeId?.componentId == config.id,
                             onClick = null,
                         )
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(16.dp))
                         Text(
                             text = config.label,
                             style = MaterialTheme.typography.bodyLarge,
@@ -142,9 +142,9 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
                         Icon(
                             modifier = Modifier.size(ButtonDefaults.IconSize),
                             imageVector = if (config.isNightTheme) {
-                                Icons.Default.DarkMode
+                                Icons.Outlined.DarkMode
                             } else {
-                                Icons.Default.LightMode
+                                Icons.Outlined.WbSunny
                             },
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
