@@ -380,10 +380,10 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
             key = "input_feedback__audio_enabled",
             default = true,
         )
-        val audioActivationMode = enum(
-            key = "input_feedback__audio_activation_mode",
-            default = InputFeedbackActivationMode.RESPECT_SYSTEM_SETTINGS,
-        )
+val audioActivationMode = enum(
+    key = "input_feedback__audio_activation_mode",
+    default = InputFeedbackActivationMode.IGNORE_SYSTEM_SETTINGS,
+)
         val audioVolume = int(
             key = "input_feedback__audio_volume",
             default = 50,
