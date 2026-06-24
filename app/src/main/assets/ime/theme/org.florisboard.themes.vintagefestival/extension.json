@@ -14,7 +14,7 @@
   "themes": [
     {
       "id": "tet_amoled",
-      "label": "🎊 Tết Nguyên Đán AMOLED",
+      "label": "Tết Nguyên Đán AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -26,7 +26,7 @@
     },
     {
       "id": "tet_light",
-      "label": "🎊 Tết Nguyên Đán Light",
+      "label": "Tết Nguyên Đán Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -39,7 +39,7 @@
     },
     {
       "id": "trungThu_amoled",
-      "label": "🥮 Tết Trung Thu AMOLED",
+      "label": "Tết Trung Thu AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -51,7 +51,7 @@
     },
     {
       "id": "trungThu_light",
-      "label": "🥮 Tết Trung Thu Light",
+      "label": "Tết Trung Thu Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -64,7 +64,7 @@
     },
     {
       "id": "halloween_amoled",
-      "label": "🎃 Halloween AMOLED",
+      "label": "Halloween AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -76,7 +76,7 @@
     },
     {
       "id": "halloween_light",
-      "label": "🎃 Halloween Light",
+      "label": "Halloween Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -89,7 +89,7 @@
     },
     {
       "id": "christmas_amoled",
-      "label": "🎄 Christmas AMOLED",
+      "label": "Christmas AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -101,7 +101,7 @@
     },
     {
       "id": "christmas_light",
-      "label": "🎄 Christmas Light",
+      "label": "Christmas Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -114,7 +114,7 @@
     },
     {
       "id": "diwali_amoled",
-      "label": "🪔 Diwali AMOLED",
+      "label": "Diwali AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -126,7 +126,7 @@
     },
     {
       "id": "diwali_light",
-      "label": "🪔 Diwali Light",
+      "label": "Diwali Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -139,7 +139,7 @@
     },
     {
       "id": "holi_amoled",
-      "label": "🎨 Holi Festival AMOLED",
+      "label": "Holi Festival AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -151,7 +151,7 @@
     },
     {
       "id": "holi_light",
-      "label": "🎨 Holi Festival Light",
+      "label": "Holi Festival Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -164,7 +164,7 @@
     },
     {
       "id": "valentine_amoled",
-      "label": "💝 Valentine's Day AMOLED",
+      "label": "Valentine's Day AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -176,7 +176,7 @@
     },
     {
       "id": "valentine_light",
-      "label": "💝 Valentine's Day Light",
+      "label": "Valentine's Day Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -189,7 +189,7 @@
     },
     {
       "id": "sakura_amoled",
-      "label": "🌸 Sakura Hanami AMOLED",
+      "label": "Sakura Hanami AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -201,7 +201,7 @@
     },
     {
       "id": "sakura_light",
-      "label": "🌸 Sakura Hanami Light",
+      "label": "Sakura Hanami Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -214,7 +214,7 @@
     },
     {
       "id": "oktoberfest_amoled",
-      "label": "🍺 Oktoberfest AMOLED",
+      "label": "Oktoberfest AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -226,7 +226,7 @@
     },
     {
       "id": "oktoberfest_light",
-      "label": "🍺 Oktoberfest Light",
+      "label": "Oktoberfest Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -239,7 +239,7 @@
     },
     {
       "id": "carnival_amoled",
-      "label": "🎭 Carnival Mardi Gras AMOLED",
+      "label": "Carnival Mardi Gras AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -251,7 +251,7 @@
     },
     {
       "id": "carnival_light",
-      "label": "🎭 Carnival Mardi Gras Light",
+      "label": "Carnival Mardi Gras Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -264,7 +264,7 @@
     },
     {
       "id": "claude_amoled",
-      "label": "🤖 Claude Anthropic AMOLED",
+      "label": "Claude Anthropic AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -276,7 +276,7 @@
     },
     {
       "id": "claude_light",
-      "label": "🤖 Claude Anthropic Light",
+      "label": "Claude Anthropic Light",
       "authors": [
         "NgocThanhGL"
       ],
@@ -289,7 +289,7 @@
     },
     {
       "id": "vintageGrayGold_amoled",
-      "label": "✨ Vintage Gray Gold AMOLED",
+      "label": "Vintage Gray Gold AMOLED",
       "authors": [
         "NgocThanhGL"
       ],
@@ -301,7 +301,7 @@
     },
     {
       "id": "vintageGrayGold_light",
-      "label": "✨ Vintage Gray Gold Light",
+      "label": "Vintage Gray Gold Light",
       "authors": [
         "NgocThanhGL"
       ],
