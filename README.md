@@ -195,7 +195,7 @@ Tải về từ [Releases](https://github.com/ngocthanhgl/ViKey-Telex/releases).
 
 ## Cảm Ơn
 
-Cảm ơn **OpenCode** và **DeepSeek V4 Flash** — trợ lý AI đã đồng hành viết code, tối ưu thuật toán, sửa lỗi và cải thiện chất lượng cho dự án này.
+ViKey xin gửi lời cảm ơn đến **OpenCode** và **DeepSeek V4 Flash** — công cụ AI đã hỗ trợ viết, tối ưu và sửa lỗi code cho dự án này trong suốt quá trình phát triển.
 
 ## Giấy Phép
 
