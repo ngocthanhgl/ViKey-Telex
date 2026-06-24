@@ -277,13 +277,8 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
         }
         KeyCode.SPACE, KeyCode.CJK_SPACE -> {
             when (evaluator.keyboard.mode) {
-                KeyboardMode.NUMERIC,
-                KeyboardMode.NUMERIC_ADVANCED,
-                KeyboardMode.PHONE,
-                KeyboardMode.PHONE2 -> {
-                    Icons.Outlined.SpaceBar
-                }
-                else -> null
+                KeyboardMode.CHARACTERS -> null
+                else -> Icons.Outlined.SpaceBar
             }
         }
         KeyCode.VIEW_NUMERIC_ADVANCED -> {
