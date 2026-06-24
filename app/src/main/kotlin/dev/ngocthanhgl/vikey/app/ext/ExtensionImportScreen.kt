@@ -46,7 +46,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -179,58 +178,53 @@ fun ExtensionImportScreen(type: ExtensionImportScreenType, initUuid: String?) {
             )
         },
         bottomBar = {
-            Surface(
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    TextButton(onClick = {
-                        importResult?.getOrNull()?.close()
-                        navController.popBackStack()
-                    }) {
-                        Text(stringRes(R.string.action__cancel))
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        onClick = {
-                            val workspace = importResult!!.getOrThrow()
-                            runCatching {
-                                for (fileInfo in workspace.inputFileInfos) {
-                                    if (fileInfo.skipReason != NATIVE_NULLPTR.toInt()) continue
-                                    val ext = fileInfo.ext
-                                    when (type) {
-                                        ExtensionImportScreenType.EXT_ANY -> {
-                                            ext?.let { extensionManager.import(it) }
-                                        }
-                                        ExtensionImportScreenType.EXT_KEYBOARD -> {
-                                            ext.takeIf { it is KeyboardExtension }?.let { extensionManager.import(it) }
-                                        }
-                                        ExtensionImportScreenType.EXT_THEME -> {
-                                            ext.takeIf { it is ThemeExtension }?.let { extensionManager.import(it) }
-                                        }
-                                        ExtensionImportScreenType.EXT_LANGUAGEPACK -> {
-                                            ext.takeIf { it is LanguagePackExtension }?.let { extensionManager.import(it) }
-                                        }
+                TextButton(onClick = {
+                    importResult?.getOrNull()?.close()
+                    navController.popBackStack()
+                }) {
+                    Text(stringRes(R.string.action__cancel))
+                }
+                Spacer(Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        val workspace = importResult!!.getOrThrow()
+                        runCatching {
+                            for (fileInfo in workspace.inputFileInfos) {
+                                if (fileInfo.skipReason != NATIVE_NULLPTR.toInt()) continue
+                                val ext = fileInfo.ext
+                                when (type) {
+                                    ExtensionImportScreenType.EXT_ANY -> {
+                                        ext?.let { extensionManager.import(it) }
+                                    }
+                                    ExtensionImportScreenType.EXT_KEYBOARD -> {
+                                        ext.takeIf { it is KeyboardExtension }?.let { extensionManager.import(it) }
+                                    }
+                                    ExtensionImportScreenType.EXT_THEME -> {
+                                        ext.takeIf { it is ThemeExtension }?.let { extensionManager.import(it) }
+                                    }
+                                    ExtensionImportScreenType.EXT_LANGUAGEPACK -> {
+                                        ext.takeIf { it is LanguagePackExtension }?.let { extensionManager.import(it) }
                                     }
                                 }
-                            }.onSuccess {
-                                workspace.close()
-                                context.showLongToastSync(R.string.ext__import__success)
-                                navController.popBackStack()
-                            }.onFailure { error ->
-                                context.showLongToastSync(R.string.ext__import__failure, "error_message" to error.localizedMessage)
                             }
-                        },
-                        enabled = importEnabled,
-                    ) {
-                        Text(stringRes(R.string.action__import))
-                    }
+                        }.onSuccess {
+                            workspace.close()
+                            context.showLongToastSync(R.string.ext__import__success)
+                            navController.popBackStack()
+                        }.onFailure { error ->
+                            context.showLongToastSync(R.string.ext__import__failure, "error_message" to error.localizedMessage)
+                        }
+                    },
+                    enabled = importEnabled,
+                ) {
+                    Text(stringRes(R.string.action__import))
                 }
             }
         },

@@ -344,24 +344,19 @@ private fun EditScreen(
             )
         },
         bottomBar = {
-            androidx.compose.material3.Surface(
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    TextButton(onClick = { handleBackPress() }) {
-                        Text(stringRes(R.string.action__cancel))
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Button(onClick = { handleSave() }) {
-                        Text(stringRes(R.string.action__save))
-                    }
+                TextButton(onClick = { handleBackPress() }) {
+                    Text(stringRes(R.string.action__cancel))
+                }
+                Spacer(Modifier.width(8.dp))
+                Button(onClick = { handleSave() }) {
+                    Text(stringRes(R.string.action__save))
                 }
             }
         },
@@ -564,24 +559,19 @@ private fun ManageMetaDataScreen(
             )
         },
         bottomBar = {
-            androidx.compose.material3.Surface(
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    TextButton(onClick = { handleBackPress() }) {
-                        Text(stringRes(R.string.action__cancel))
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Button(onClick = { handleApply() }) {
-                        Text(stringRes(R.string.action__apply))
-                    }
+                TextButton(onClick = { handleBackPress() }) {
+                    Text(stringRes(R.string.action__cancel))
+                }
+                Spacer(Modifier.width(8.dp))
+                Button(onClick = { handleApply() }) {
+                    Text(stringRes(R.string.action__apply))
                 }
             }
         },
@@ -876,27 +866,22 @@ private fun <T : ExtensionComponent> CreateComponentScreen(
             )
         },
         bottomBar = {
-            androidx.compose.material3.Surface(
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically,
+                TextButton(onClick = { handleBackPress() }) {
+                    Text(stringRes(R.string.action__cancel))
+                }
+                Spacer(Modifier.width(8.dp))
+                Button(
+                    onClick = { handleCreate() },
+                    enabled = hasSufficientInfoForCreating(),
                 ) {
-                    TextButton(onClick = { handleBackPress() }) {
-                        Text(stringRes(R.string.action__cancel))
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        onClick = { handleCreate() },
-                        enabled = hasSufficientInfoForCreating(),
-                    ) {
-                        Text(stringRes(R.string.action__create))
-                    }
+                    Text(stringRes(R.string.action__create))
                 }
             }
         },
