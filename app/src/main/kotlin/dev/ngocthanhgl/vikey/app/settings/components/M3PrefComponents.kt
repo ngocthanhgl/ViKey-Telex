@@ -32,6 +32,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
@@ -257,6 +258,7 @@ fun M3ListPreference(
                                     onClick = { onSelect(key); showDialog = false },
                                 )
                             },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             modifier = Modifier.fillMaxWidth().clickable { onSelect(key); showDialog = false },
                         )
                     }
@@ -312,6 +314,7 @@ fun M3SwitchListPreference(
                                     onClick = { onListSelect(key); showDialog = false },
                                 )
                             },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             modifier = Modifier.fillMaxWidth().clickable { onListSelect(key); showDialog = false },
                         )
                     }
