@@ -189,7 +189,6 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             dm.loadUserDictionariesIfNecessary()
             val dao = dm.florisUserDictionaryDao() ?: return
             for ((word, pw) in personalDict) {
-                if (pw.count < 3) continue
                 val existing = dao.queryExact(word)
                 val freq = pw.count.coerceIn(1, 255)
                 if (existing.isNotEmpty()) {
@@ -424,7 +423,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         if (learnCounter % 3 != 0) return
         val words = text.trimEnd().split(Regex("\\s+"))
             .map { it.lowercase().trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>') }
-            .filter { it.length >= 2 && !isNoise(it) }
+            .filter { it.isNotEmpty() && !isNoise(it) }
         if (words.size < 2) return
         val recent = words.takeLast(8)
 
@@ -444,11 +443,11 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     }
 
     private fun isNoise(w: String): Boolean {
-        if (w.length < 2 || w.length > 30) return true
+        if (w.length < 1 || w.length > 30) return true
         if (w.contains("@")) return true
         if (w.contains("://") || w.startsWith("www")) return true
         if (w.count { it.isDigit() } > w.length / 2) return true
-        if (!w.all { it.isLetter() || it == '\'' }) return true
+        if (!w.any { it.isLetter() }) return true
         if (w.toSet().size == 1) return true
         if (w.any { c -> w.count { it == c } > w.length * 0.6 }) return true
         return false
@@ -672,7 +671,6 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     override suspend fun notifySuggestionAccepted(subtype: Subtype, candidate: SuggestionCandidate) {
         val word = candidate.text.toString().lowercase().trim()
-        if (word.length < 2) return
         recordWord(word)
         bgScope.launch { savePersonalDict() }
     }
