@@ -658,7 +658,6 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
             key = "smartbar__shared_actions_expanded",
             default = false,
         )
-        @Deprecated("Always enabled due to UX issues")
         val sharedActionsAutoExpandCollapse = boolean(
             key = "smartbar__shared_actions_auto_expand_collapse",
             default = true,

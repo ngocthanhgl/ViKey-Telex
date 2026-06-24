@@ -115,7 +115,7 @@ fun SmartbarScreen() {
                 checked = sharedActionsAutoExpandCollapse,
                 onCheckedChange = { scope.launch { prefs.smartbar.sharedActionsAutoExpandCollapse.set(it) } },
                 title = stringRes(R.string.pref__smartbar__shared_actions_auto_expand_collapse__label),
-                enabled = false,
+                enabled = enabled,
             )
             if (layout == SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED) {
                 SettingsDivider()
