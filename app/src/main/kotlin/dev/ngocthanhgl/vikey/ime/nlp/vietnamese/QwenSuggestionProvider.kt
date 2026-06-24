@@ -382,6 +382,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
                 bgScope.launch { learnFromText(textBefore) }
 
+                var autoCommitWord: String? = null
+
                 val pairs = if (lastChar == ' ' || lastChar == '\t') {
                     val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
@@ -397,16 +399,22 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
                     if (cur.isBlank()) return@withContext emptyList()
+                    autoCommitWord = cur.lowercase()
                     completeCurrentWord(cur, maxCandidateCount, textBefore)
                 }
 
                 pairs.also { result ->
                     lastTopSuggestion = result.firstOrNull()?.first?.lowercase()
-                }.map { (word, _) ->
+                }.mapIndexed { index, (word, _) ->
+                    val lcWord = word.lowercase()
+                    val shouldAutoCommit = autoCommitWord != null && index == 0 &&
+                        lcWord != autoCommitWord &&
+                        !lcWord.startsWith(autoCommitWord!!) &&
+                        !personalDict.containsKey(autoCommitWord)
                     WordSuggestionCandidate(
                         text = word,
                         confidence = 1.0,
-                        isEligibleForAutoCommit = false,
+                        isEligibleForAutoCommit = shouldAutoCommit,
                         sourceProvider = this@QwenSuggestionProvider,
                     )
                 }

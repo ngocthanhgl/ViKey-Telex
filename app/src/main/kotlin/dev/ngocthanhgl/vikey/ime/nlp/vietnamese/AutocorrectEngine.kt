@@ -21,7 +21,7 @@ class AutocorrectEngine(private val seedWords: Set<String>) {
                 continue
             }
             val dist = levenshtein(lcPrefix, word)
-            if (dist <= 2 && word.length >= lcPrefix.length - 1 && word.length <= lcPrefix.length + 3) {
+            if (dist <= 3 && word.length >= lcPrefix.length - 1 && word.length <= lcPrefix.length + 5) {
                 val prox = proximityScore(lcPrefix, word)
                 candidates.add(CorrectionCandidate(word, dist, prox))
             }
@@ -45,7 +45,7 @@ class AutocorrectEngine(private val seedWords: Set<String>) {
         val lengthRatio = lcCandidate.length.toDouble() / max(lcTyped.length, 1).coerceAtLeast(1)
 
         val qwenPart = (qwenScore ?: 0.5) * 0.4
-        val edPart = edScore * 0.3
+        val edPart = edScore * 0.4
         val proxPart = prox * 0.2
         val lenPart = lengthRatio.coerceIn(0.0, 1.0) * 0.1
 
