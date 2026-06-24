@@ -88,7 +88,6 @@ import dev.patrickgold.jetpref.material.ui.ColorRepresentation
 import dev.patrickgold.jetpref.material.ui.ExperimentalJetPrefMaterial3Ui
 import dev.ngocthanhgl.vikey.app.settings.components.M3Dropdown
 import dev.patrickgold.jetpref.material.ui.JetPrefColorPicker
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Color

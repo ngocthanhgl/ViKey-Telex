@@ -176,5 +176,6 @@ fun SpellCheckerServiceSelector(florisSpellCheckerEnabled: MutableState<Boolean>
                     }
                 }
             }
+        }
     }
 }

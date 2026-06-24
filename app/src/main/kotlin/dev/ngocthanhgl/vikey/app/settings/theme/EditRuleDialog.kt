@@ -91,10 +91,7 @@ import dev.ngocthanhgl.vikey.lib.util.InputMethodUtils
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import dev.ngocthanhgl.vikey.app.settings.components.M3Dropdown
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.ui.graphics.Color
 import org.florisboard.lib.android.showShortToastSync
 import org.florisboard.lib.android.stringRes
 import org.florisboard.lib.compose.FlorisChip

@@ -87,7 +87,6 @@ import dev.ngocthanhgl.vikey.lib.rememberValidationResult
 import dev.ngocthanhgl.vikey.themeManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Color
