@@ -62,6 +62,7 @@ import org.florisboard.lib.snygg.ui.SnyggRow
 @Composable
 fun MediaInputLayout(
     modifier: Modifier = Modifier,
+    bottomPaddingDp: Dp = 0.dp,
 ) {
     val context = LocalContext.current
     val keyboardManager by context.keyboardManager()
@@ -75,7 +76,7 @@ fun MediaInputLayout(
         elementName = FlorisImeUi.Media.elementName,
         modifier = modifier
             .fillMaxWidth()
-            .height(FlorisImeSizing.imeUiHeight()),
+            .height(FlorisImeSizing.imeUiHeight() + bottomPaddingDp),
     ) {
         EmojiPaletteView(
             modifier = Modifier.weight(1f),
@@ -107,6 +108,9 @@ fun MediaInputLayout(
             ) {
                 Icon(imageVector = Icons.AutoMirrored.Outlined.Backspace, contentDescription = null)
             }
+        }
+        if (bottomPaddingDp > 0.dp) {
+            Spacer(modifier = Modifier.height(bottomPaddingDp))
         }
     }
 }

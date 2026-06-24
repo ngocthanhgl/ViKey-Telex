@@ -235,7 +235,11 @@ private fun ImeInnerWindow() {
                 ImeUiMode.TEXT -> TextInputLayout(
                     bottomPaddingDp = windowSpec.userPreferredOptions.bottomPaddingDp.dp,
                 )
-                ImeUiMode.MEDIA -> ProvideActualLayoutDirection { MediaInputLayout() }
+                ImeUiMode.MEDIA -> ProvideActualLayoutDirection {
+                    MediaInputLayout(
+                        bottomPaddingDp = windowSpec.userPreferredOptions.bottomPaddingDp.dp,
+                    )
+                }
                 ImeUiMode.CLIPBOARD -> ProvideActualLayoutDirection { ClipboardInputLayout() }
             }
             ImeSystemUiFloating()
