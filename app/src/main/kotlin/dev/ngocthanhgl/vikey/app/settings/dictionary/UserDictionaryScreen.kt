@@ -5,10 +5,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -58,7 +58,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
-import dev.patrickgold.jetpref.material.ui.JetPrefTextField
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.florisboard.lib.android.showLongToastSync
@@ -336,9 +339,18 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
                 text = {
                     Column {
                         DialogProperty(text = stringRes(R.string.settings__udm__dialog__word_label)) {
-                            JetPrefTextField(
+                            OutlinedTextField(
                                 value = word,
                                 onValueChange = { word = it },
+                                singleLine = true,
+                                shape = RoundedCornerShape(28.dp),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Validation(showValidationErrors, wordValidation)
                         }
@@ -346,23 +358,50 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
                             R.string.settings__udm__dialog__freq_label,
                             "f_min" to FREQUENCY_MIN, "f_max" to FREQUENCY_MAX,
                         )) {
-                            JetPrefTextField(
+                            OutlinedTextField(
                                 value = freq,
                                 onValueChange = { freq = it },
+                                singleLine = true,
+                                shape = RoundedCornerShape(28.dp),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Validation(showValidationErrors, freqValidation)
                         }
                         DialogProperty(text = stringRes(R.string.settings__udm__dialog__shortcut_label)) {
-                            JetPrefTextField(
+                            OutlinedTextField(
                                 value = shortcut,
                                 onValueChange = { shortcut = it },
+                                singleLine = true,
+                                shape = RoundedCornerShape(28.dp),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Validation(showValidationErrors, shortcutValidation)
                         }
                         DialogProperty(text = stringRes(R.string.settings__udm__dialog__locale_label)) {
-                            JetPrefTextField(
+                            OutlinedTextField(
                                 value = locale,
                                 onValueChange = { locale = it },
+                                singleLine = true,
+                                shape = RoundedCornerShape(28.dp),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Validation(showValidationErrors, localeValidation)
                         }

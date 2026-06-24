@@ -65,6 +65,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.ngocthanhgl.vikey.R
@@ -90,8 +91,10 @@ import dev.ngocthanhgl.vikey.lib.util.InputMethodUtils
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import dev.ngocthanhgl.vikey.app.settings.components.M3Dropdown
-import dev.patrickgold.jetpref.material.ui.JetPrefTextField
-import dev.patrickgold.jetpref.material.ui.JetPrefTextFieldDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.graphics.Color
 import org.florisboard.lib.android.showShortToastSync
 import org.florisboard.lib.android.stringRes
 import org.florisboard.lib.compose.FlorisChip
@@ -196,13 +199,20 @@ internal fun EditRuleDialog(
 
                 (currentRule as? SnyggAnnotationRule.Font)?.apply {
                     DialogProperty(text = stringRes(R.string.snygg__rule_annotation__font_name)) {
-                        JetPrefTextField(
-                            modifier = Modifier,
+                        OutlinedTextField(
                             value = fontName,
                             onValueChange = {
                                 currentRule = copy(fontName = it)
                             },
                             singleLine = true,
+                            shape = RoundedCornerShape(28.dp),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
                 }
@@ -504,7 +514,7 @@ private fun EditCodeValueDialog(
                         LocalTextSelectionColors.current
                     }
                     CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
-                        JetPrefTextField(
+                        OutlinedTextField(
                             modifier = Modifier
                                 .focusRequester(focusRequester)
                                 .weight(1f),
@@ -513,12 +523,12 @@ private fun EditCodeValueDialog(
                                 inputCodeString = v
                                 showError = false
                             },
-                            placeholderText = when {
+                            placeholder = when {
                                 isRecordingKey -> {
-                                    stringRes(R.string.settings__theme_editor__code_recording_placeholder)
+                                    { Text(stringRes(R.string.settings__theme_editor__code_recording_placeholder)) }
                                 }
                                 inputCodeString.isEmpty() -> {
-                                    stringRes(R.string.settings__theme_editor__code_placeholder)
+                                    { Text(stringRes(R.string.settings__theme_editor__code_placeholder)) }
                                 }
                                 else -> {
                                     null
@@ -526,15 +536,17 @@ private fun EditCodeValueDialog(
                             },
                             isError = showError,
                             singleLine = true,
-                            appearance = JetPrefTextFieldDefaults.filled(
-                                colors = if (isRecordingKey) {
-                                    TextFieldDefaults.colors(
-                                        focusedTextColor = Color.Transparent,
-                                        cursorColor = Color.Transparent,
-                                    )
-                                } else {
-                                    TextFieldDefaults.colors()
-                                }
+                            textStyle = if (isRecordingKey) {
+                                TextStyle(color = Color.Transparent)
+                            } else {
+                                TextStyle.Default
+                            },
+                            shape = RoundedCornerShape(28.dp),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
                             ),
                             trailingIcon = {
                                 FlorisIconButton(

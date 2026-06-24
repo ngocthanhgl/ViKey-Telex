@@ -87,7 +87,10 @@ import dev.ngocthanhgl.vikey.lib.rememberValidationResult
 import dev.ngocthanhgl.vikey.themeManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 
-import dev.patrickgold.jetpref.material.ui.JetPrefTextField
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.florisboard.lib.android.showLongToastSync
@@ -587,26 +590,50 @@ private fun ComponentMetaEditorDialog(
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 DialogProperty(text = stringRes(R.string.ext__meta__id)) {
-                    JetPrefTextField(
+                    OutlinedTextField(
                         value = id,
                         onValueChange = { id = it },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
                         singleLine = true,
+                        shape = RoundedCornerShape(28.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Validation(showValidationErrors, idValidation)
                 }
                 DialogProperty(text = stringRes(R.string.ext__meta__label)) {
-                    JetPrefTextField(
+                    OutlinedTextField(
                         value = label,
                         onValueChange = { label = it },
                         singleLine = true,
+                        shape = RoundedCornerShape(28.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Validation(showValidationErrors, labelValidation)
                 }
                 DialogProperty(text = stringRes(R.string.ext__meta__authors)) {
-                    JetPrefTextField(
+                    OutlinedTextField(
                         value = authors,
                         onValueChange = { authors = it },
+                        shape = RoundedCornerShape(28.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Validation(showValidationErrors, authorsValidation)
                 }
@@ -618,16 +645,24 @@ private fun ComponentMetaEditorDialog(
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 DialogProperty(text = stringRes(R.string.settings__theme_editor__component_meta_stylesheet_path)) {
-                    JetPrefTextField(
+                    OutlinedTextField(
                         value = stylesheetPath,
                         onValueChange = { stylesheetPath = it },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
                         singleLine = true,
-                        placeholderText = if (stylesheetPath.isEmpty()) {
-                            ThemeExtensionComponent.defaultStylesheetPath(id.trim())
+                        placeholder = if (stylesheetPath.isEmpty()) {
+                            { Text(ThemeExtensionComponent.defaultStylesheetPath(id.trim())) }
                         } else {
                             null
                         },
+                        shape = RoundedCornerShape(28.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Validation(showValidationErrors, stylesheetPathValidation)
                 }

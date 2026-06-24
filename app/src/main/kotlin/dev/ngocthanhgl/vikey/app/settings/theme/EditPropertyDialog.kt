@@ -88,7 +88,10 @@ import dev.patrickgold.jetpref.material.ui.ColorRepresentation
 import dev.patrickgold.jetpref.material.ui.ExperimentalJetPrefMaterial3Ui
 import dev.ngocthanhgl.vikey.app.settings.components.M3Dropdown
 import dev.patrickgold.jetpref.material.ui.JetPrefColorPicker
-import dev.patrickgold.jetpref.material.ui.JetPrefTextField
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.graphics.Color
 import dev.patrickgold.jetpref.material.ui.rememberJetPrefColorPickerState
 import java.io.File
 import org.florisboard.lib.color.ColorPalette
@@ -379,14 +382,22 @@ private fun PropertyNameInput(
         )
     } else {
         val focusManager = LocalFocusManager.current
-        JetPrefTextField(
+        OutlinedTextField(
             value = name,
             onValueChange = onNameChange,
             enabled = isAddPropertyDialog,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             singleLine = true,
-            isError = showSelectAsError
+            isError = showSelectAsError,
+            shape = RoundedCornerShape(28.dp),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            modifier = Modifier.fillMaxWidth(),
         )
         Validation(
             showValidationErrors = isAddPropertyDialog && showSelectAsError,
@@ -539,7 +550,7 @@ private fun PropertyValueEditor(
                 mutableStateOf(dp.value.toStringWithoutDotZero())
             }
             Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-                JetPrefTextField(
+                OutlinedTextField(
                     modifier = Modifier.weight(1f),
                     value = sizeStr,
                     onValueChange = { value ->
@@ -548,6 +559,14 @@ private fun PropertyValueEditor(
                         onValueChange(size ?: SnyggDpSizeValue(Dp.Unspecified))
                     },
                     isError = value.dp.isUnspecified || value.dp.value < 0f,
+                    singleLine = true,
+                    shape = RoundedCornerShape(28.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
                 )
                 Text(
                     modifier = Modifier.padding(start = 8.dp),
@@ -563,7 +582,7 @@ private fun PropertyValueEditor(
                 mutableStateOf(sp.value.toStringWithoutDotZero())
             }
             Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-                JetPrefTextField(
+                OutlinedTextField(
                     modifier = Modifier.weight(1f),
                     value = sizeStr,
                     onValueChange = { value ->
@@ -572,6 +591,14 @@ private fun PropertyValueEditor(
                         onValueChange(size ?: SnyggSpSizeValue(TextUnit.Unspecified))
                     },
                     isError = value.sp.isUnspecified || value.sp.value < 1f,
+                    singleLine = true,
+                    shape = RoundedCornerShape(28.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
                 )
                 Text(
                     modifier = Modifier.padding(start = 8.dp),
@@ -586,7 +613,7 @@ private fun PropertyValueEditor(
                 mutableStateOf(value.percentage.toString())
             }
             Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-                JetPrefTextField(
+                OutlinedTextField(
                     modifier = Modifier.weight(1f),
                     value = sizeStr,
                     onValueChange = { value ->
@@ -595,6 +622,14 @@ private fun PropertyValueEditor(
                         onValueChange(size ?: SnyggPercentageSizeValue(0f))
                     },
                     isError = value.percentage < 0f || value.percentage > 1f,
+                    singleLine = true,
+                    shape = RoundedCornerShape(28.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
                 )
                 Text(
                     modifier = Modifier.padding(start = 8.dp),
@@ -620,7 +655,7 @@ private fun PropertyValueEditor(
             var inputStr by rememberSaveable {
                 mutableStateOf(value.encoder().serialize(value).getOrDefault("???"))
             }
-            JetPrefTextField(
+            OutlinedTextField(
                 value = inputStr,
                 onValueChange = { newInputStr ->
                     inputStr = newInputStr
@@ -631,6 +666,14 @@ private fun PropertyValueEditor(
                 },
                 modifier = modifier,
                 isError = isError,
+                singleLine = true,
+                shape = RoundedCornerShape(28.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
             )
         }
 
@@ -712,11 +755,19 @@ private fun PropertyValueEditor(
                         },
                     )
                 }
-                JetPrefTextField(
+                OutlinedTextField(
                     value = inputStr,
                     onValueChange = {},
                     isError = isError,
                     enabled = false,
+                    singleLine = true,
+                    shape = RoundedCornerShape(28.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
                     trailingIcon = {
                         FlorisIconButton(
                             onClick = { showSelectFileDialog = true },
@@ -916,9 +967,18 @@ private fun PaddingValueEditor(
             title = { Text(dialogForPaddingValue.label()) },
             text = {
                 Column {
-                    JetPrefTextField(
+                    OutlinedTextField(
                         value = size,
                         onValueChange = { size = it },
+                        singleLine = true,
+                        shape = RoundedCornerShape(28.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Validation(showValidationErrors, sizeValidation)
                     FlorisTextButton(
@@ -1075,9 +1135,18 @@ private fun ShapeValueEditor(
                     title = { Text(dialogForCorner.label()) },
                     text = {
                         Column {
-                            JetPrefTextField(
+                            OutlinedTextField(
                                 value = size,
                                 onValueChange = { size = it },
+                                singleLine = true,
+                                shape = RoundedCornerShape(28.dp),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Validation(showValidationErrors, sizeValidation)
                             FlorisTextButton(
@@ -1227,9 +1296,18 @@ private fun ShapeValueEditor(
                     title = { Text(dialogForCorner.label()) },
                     text = {
                         Column {
-                            JetPrefTextField(
+                            OutlinedTextField(
                                 value = size,
                                 onValueChange = { size = it },
+                                singleLine = true,
+                                shape = RoundedCornerShape(28.dp),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
                             )
                             Validation(showValidationErrors, sizeValidation)
                             FlorisTextButton(

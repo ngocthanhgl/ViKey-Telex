@@ -37,6 +37,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -259,49 +261,51 @@ fun FlorisOutlinedBox(
     contentPadding: PaddingValues = BoxDefaults.ContentPadding,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Box(
-        modifier = modifier
-            .padding(top = if (title != null) 11.dp else 0.dp),
+    OutlinedCard(
+        modifier = modifier,
+        shape = shape,
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = Color.Transparent,
+        ),
+        border = CardDefaults.outlinedCardBorder().copy(
+            width = borderWidth,
+            brush = androidx.compose.ui.graphics.SolidColor(borderColor),
+        ),
     ) {
-        Column(
-            modifier = Modifier
-                .border(borderWidth, borderColor, shape)
-                .clip(shape)
-                .padding(top = if (title != null) 11.dp else 0.dp),
-        ) {
-            if (title != null && subtitle != null) {
-                Box(
-                    modifier = Modifier
-                        .padding(start = 10.dp, bottom = 4.dp)
-                        .rippleClickable(enabled = onSubtitleClick != null) {
-                            onSubtitleClick!!()
-                        },
-                ) {
-                    subtitle()
-                }
-            }
-            Column(
+        if (title != null) {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(contentPadding),
-                content = content,
-            )
-        }
-        if (title != null) {
-            Box(
-                modifier = Modifier
-                    .height(23.dp)
-                    .offset(x = 10.dp, y = (-12).dp)
-                    .background(MaterialTheme.colorScheme.background)
-                    .rippleClickable(enabled = onTitleClick != null) {
-                        onTitleClick!!()
-                    }
-                    .padding(horizontal = 6.dp),
-                contentAlignment = Alignment.CenterStart,
+                    .padding(start = 16.dp, end = 16.dp, top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                title()
+                Box(
+                    modifier = Modifier
+                        .rippleClickable(enabled = onTitleClick != null) {
+                            onTitleClick!!()
+                        }
+                        .weight(1f),
+                ) {
+                    title()
+                }
+                if (subtitle != null) {
+                    Box(
+                        modifier = Modifier
+                            .rippleClickable(enabled = onSubtitleClick != null) {
+                                onSubtitleClick!!()
+                            },
+                    ) {
+                        subtitle()
+                    }
+                }
             }
         }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(contentPadding),
+            content = content,
+        )
     }
 }
 

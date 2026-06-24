@@ -48,6 +48,9 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -470,30 +473,24 @@ private fun EditorMenuRow(
     title: String,
     onClick: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(end = 16.dp),
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f),
-        )
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
-        )
-    }
+    ListItem(
+        headlineContent = { Text(title) },
+        leadingContent = {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        trailingContent = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
+            )
+        },
+        modifier = Modifier.clickable(onClick = onClick),
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1025,30 +1022,30 @@ private fun EditorSheetTextField(
     validationResult: ValidationResult? = null,
 ) {
     Column(modifier = Modifier.padding(vertical = TextFieldVerticalPadding)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = TextFieldVerticalPadding),
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.titleSmall,
-            )
-            if (isRequired) {
-                Text(
-                    text = "*",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(start = 2.dp),
-                )
-            }
-        }
         OutlinedTextField(
             modifier = modifier.fillMaxWidth(),
             enabled = enabled,
             value = value,
             onValueChange = onValueChange,
             singleLine = singleLine,
+            label = {
+                Row {
+                    Text(label)
+                    if (isRequired) {
+                        Text(
+                            text = "*",
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                }
+            },
+            shape = RoundedCornerShape(28.dp),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
         )
         Validation(showValidationError, validationResult)
     }

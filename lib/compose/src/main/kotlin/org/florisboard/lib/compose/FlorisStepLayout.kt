@@ -39,7 +39,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -257,7 +257,7 @@ private fun ColumnScope.Step(
 private fun StepHeader(
     modifier: Modifier = Modifier,
     backgroundColor: Color,
-    contentColor: Color = contentColorFor(backgroundColor),
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
     step: Int,
     title: String,
 ) {

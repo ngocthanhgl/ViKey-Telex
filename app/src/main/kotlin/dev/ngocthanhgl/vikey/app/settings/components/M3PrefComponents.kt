@@ -24,18 +24,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenu
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -101,6 +100,7 @@ private fun SettingsRowLayout(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3Dropdown(
     modifier: Modifier = Modifier,
@@ -111,29 +111,33 @@ fun M3Dropdown(
     onSelectOption: (Int) -> Unit,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    Box(modifier = modifier) {
-        OutlinedButton(
-            onClick = { isExpanded = true },
-            shape = RoundedCornerShape(28.dp),
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        onExpandedChange = { isExpanded = it },
+        modifier = modifier,
+    ) {
+        OutlinedTextField(
+            value = options.getOrElse(selectedOptionIndex) { "" },
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
             enabled = enabled,
-            colors = if (isError) {
-                ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-            } else {
-                ButtonDefaults.outlinedButtonColors()
+            isError = isError,
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
             },
-        ) {
-            Text(
-                text = options.getOrElse(selectedOptionIndex) { "" },
-                maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-        }
-        DropdownMenu(
+            shape = RoundedCornerShape(28.dp),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            modifier = Modifier.menuAnchor().fillMaxWidth(),
+        )
+        ExposedDropdownMenu(
             expanded = isExpanded,
             onDismissRequest = { isExpanded = false },
-            shape = RoundedCornerShape(28.dp),
         ) {
             options.forEachIndexed { index, option ->
                 DropdownMenuItem(
@@ -243,20 +247,16 @@ fun M3ListPreference(
             text = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     entries.forEach { (key, label) ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onSelect(key); showDialog = false }
-                                .padding(horizontal = 8.dp, vertical = 8.dp),
-                        ) {
-                            RadioButton(
-                                selected = value.toString() == key,
-                                onClick = { onSelect(key); showDialog = false },
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(label, style = MaterialTheme.typography.bodyLarge)
-                        }
+                        ListItem(
+                            headlineContent = { Text(label) },
+                            leadingContent = {
+                                RadioButton(
+                                    selected = value.toString() == key,
+                                    onClick = { onSelect(key); showDialog = false },
+                                )
+                            },
+                            modifier = Modifier.clickable { onSelect(key); showDialog = false },
+                        )
                     }
                 }
             },
@@ -305,20 +305,16 @@ fun M3SwitchListPreference(
             text = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     entries.forEach { (key, label) ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onListSelect(key); showDialog = false }
-                                .padding(horizontal = 8.dp, vertical = 8.dp),
-                        ) {
-                            RadioButton(
-                                selected = listValue.toString() == key,
-                                onClick = { onListSelect(key); showDialog = false },
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(label, style = MaterialTheme.typography.bodyLarge)
-                        }
+                        ListItem(
+                            headlineContent = { Text(label) },
+                            leadingContent = {
+                                RadioButton(
+                                    selected = listValue.toString() == key,
+                                    onClick = { onListSelect(key); showDialog = false },
+                                )
+                            },
+                            modifier = Modifier.clickable { onListSelect(key); showDialog = false },
+                        )
                     }
                 }
             },
@@ -561,6 +557,13 @@ fun M3ColorPickerPreference(
                         },
                         label = { Text("Hex") },
                         singleLine = true,
+                        shape = RoundedCornerShape(28.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
