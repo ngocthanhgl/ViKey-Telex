@@ -101,7 +101,6 @@ private fun SettingsRowLayout(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun M3Dropdown(
     modifier: Modifier = Modifier,
