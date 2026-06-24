@@ -126,17 +126,17 @@ ViKey hội tụ **3 tầng** gợi ý từ:
   <tr>
     <td align="center">
       <figure>
-        <img src="screenshots/screenshot1.jpg" width="220" alt="Screenshot 1">
+        <img src="screenshots/screenshot1-v2.jpg" width="220" alt="Screenshot 1">
       </figure>
     </td>
     <td align="center">
       <figure>
-        <img src="screenshots/screenshot2.jpg" width="220" alt="Screenshot 2">
+        <img src="screenshots/screenshot2-v2.jpg" width="220" alt="Screenshot 2">
       </figure>
     </td>
     <td align="center">
       <figure>
-        <img src="screenshots/screenshot3.jpg" width="220" alt="Screenshot 3">
+        <img src="screenshots/screenshot3-v2.jpg" width="220" alt="Screenshot 3">
       </figure>
     </td>
   </tr>
