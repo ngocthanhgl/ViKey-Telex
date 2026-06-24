@@ -399,8 +399,9 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
                     if (cur.isBlank()) return@withContext emptyList()
-                    autoCommitWord = cur.lowercase()
-                    completeCurrentWord(cur, maxCandidateCount, textBefore)
+                    val stripped = cur.trimEnd { !it.isLetter() }
+                    autoCommitWord = stripped.ifEmpty { null }?.lowercase()
+                    completeCurrentWord(stripped.ifEmpty { cur }, maxCandidateCount, textBefore)
                 }
 
                 pairs.also { result ->
