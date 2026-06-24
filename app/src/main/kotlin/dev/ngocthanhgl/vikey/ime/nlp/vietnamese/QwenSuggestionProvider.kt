@@ -471,15 +471,17 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     private fun computeAlpha(decayedCount: Double, qwenScored: Boolean): Double = when {
         qwenScored -> when {
-            decayedCount < 3.0 -> 0.05
-            decayedCount < 10.0 -> 0.08
-            decayedCount < 30.0 -> 0.12
-            else -> 0.15
+            decayedCount < 1.0 -> 0.15
+            decayedCount < 3.0 -> 0.20
+            decayedCount < 10.0 -> 0.25
+            decayedCount < 30.0 -> 0.30
+            else -> 0.35
         }
         else -> when {
-            decayedCount < 3.0 -> 0.10
-            decayedCount < 10.0 -> 0.25
-            decayedCount < 30.0 -> 0.40
+            decayedCount < 1.0 -> 0.25
+            decayedCount < 3.0 -> 0.35
+            decayedCount < 10.0 -> 0.45
+            decayedCount < 30.0 -> 0.50
             else -> 0.50
         }
     }
@@ -501,7 +503,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         return candidates.map { (word, baseScore) ->
             var score = if (range > 0.0) (baseScore - minScore) / range else 0.5
             val pw = personalDict[word.lowercase()]
-            if (pw != null && pw.count >= 3) {
+            if (pw != null) {
                 val dc = decayedCount(pw)
                 val alpha = computeAlpha(dc, qwenScored)
                 val ps = personalScore(pw)
