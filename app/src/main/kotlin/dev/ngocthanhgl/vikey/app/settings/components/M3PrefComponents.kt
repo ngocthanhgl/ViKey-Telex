@@ -243,6 +243,7 @@ fun M3ListPreference(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
+            confirmButton = {},
             title = { Text(title, style = MaterialTheme.typography.headlineSmall) },
             shape = RoundedCornerShape(28.dp),
             text = {
@@ -297,6 +298,7 @@ fun M3SwitchListPreference(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
+            confirmButton = {},
             title = { Text(title, style = MaterialTheme.typography.headlineSmall) },
             shape = RoundedCornerShape(28.dp),
             text = {
