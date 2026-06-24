@@ -120,6 +120,28 @@ ViKey hội tụ **3 tầng** gợi ý từ:
   </tr>
 </table>
 
+## Screenshots
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <figure>
+        <img src="screenshots/screenshot1.jpg" width="220" alt="Screenshot 1">
+      </figure>
+    </td>
+    <td align="center">
+      <figure>
+        <img src="screenshots/screenshot2.jpg" width="220" alt="Screenshot 2">
+      </figure>
+    </td>
+    <td align="center">
+      <figure>
+        <img src="screenshots/screenshot3.jpg" width="220" alt="Screenshot 3">
+      </figure>
+    </td>
+  </tr>
+</table>
+
 ### 🧠 Tự Nhận Diện Tiếng Anh
 
 Không cần chuyển chế độ thủ công. 3 lớp heuristic:
