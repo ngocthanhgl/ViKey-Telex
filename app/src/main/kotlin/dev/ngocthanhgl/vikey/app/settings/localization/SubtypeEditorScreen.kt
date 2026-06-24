@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -45,6 +46,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -371,10 +373,16 @@ fun SubtypeEditorScreen(id: Long?) {
                     onClick = { navController.navigate(Routes.Settings.SelectLocale) },
                     shape = RoundedCornerShape(28.dp),
                     colors = if (showSelectAsError && primaryLocale == SelectLocale) {
-                        ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            contentColor = MaterialTheme.colorScheme.error,
+                        )
                     } else {
-                        ButtonDefaults.outlinedButtonColors()
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        )
                     },
+                    border = BorderStroke(0.dp, Color.Transparent),
                 ) {
                     Text(
                         text = if (primaryLocale == SelectLocale) selectValue else when (displayLanguageNamesIn) {
