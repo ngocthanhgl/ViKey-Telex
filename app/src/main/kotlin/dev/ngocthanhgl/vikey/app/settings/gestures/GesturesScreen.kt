@@ -30,7 +30,6 @@ import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.ime.text.gestures.SwipeAction
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import kotlinx.coroutines.launch
-import org.florisboard.lib.compose.FlorisInfoCard
 import org.florisboard.lib.compose.stringRes
 
 @Composable
@@ -51,13 +50,6 @@ fun GesturesScreen() {
         val deleteKeyLongPress by prefs.gestures.deleteKeyLongPress.collectAsState()
         val swipeVelocityThreshold by prefs.gestures.swipeVelocityThreshold.collectAsState()
         val swipeDistanceThreshold by prefs.gestures.swipeDistanceThreshold.collectAsState()
-
-        FlorisInfoCard(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-            text = """
-                Glide typing is currently not available and will be re-implemented from the ground up with word suggestions & the new keyboard layout engine. DO NOT file an issue for this missing functionality.
-            """.trimIndent(),
-        )
 
         Text(
             text = stringRes(R.string.pref__gestures__general_title),

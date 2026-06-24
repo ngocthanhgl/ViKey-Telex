@@ -243,7 +243,8 @@ fun M3ListPreference(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(title) },
+            title = { Text(title, style = MaterialTheme.typography.headlineSmall) },
+            shape = RoundedCornerShape(28.dp),
             text = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     entries.forEach { (key, label) ->
@@ -255,14 +256,9 @@ fun M3ListPreference(
                                     onClick = { onSelect(key); showDialog = false },
                                 )
                             },
-                            modifier = Modifier.clickable { onSelect(key); showDialog = false },
+                            modifier = Modifier.fillMaxWidth().clickable { onSelect(key); showDialog = false },
                         )
                     }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__ok))
                 }
             },
         )
@@ -301,7 +297,8 @@ fun M3SwitchListPreference(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(title) },
+            title = { Text(title, style = MaterialTheme.typography.headlineSmall) },
+            shape = RoundedCornerShape(28.dp),
             text = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     entries.forEach { (key, label) ->
@@ -313,14 +310,9 @@ fun M3SwitchListPreference(
                                     onClick = { onListSelect(key); showDialog = false },
                                 )
                             },
-                            modifier = Modifier.clickable { onListSelect(key); showDialog = false },
+                            modifier = Modifier.fillMaxWidth().clickable { onListSelect(key); showDialog = false },
                         )
                     }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__ok))
                 }
             },
         )
