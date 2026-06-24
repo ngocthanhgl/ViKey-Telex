@@ -52,6 +52,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -640,7 +641,7 @@ fun EmojiText(
     text: String,
     emojiCompatInstance: EmojiCompat?,
     modifier: Modifier = Modifier,
-    color: Color = Color.Black,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     fontSize: TextUnit = EmojiDefaultFontSize,
 ) {
     val customTypeface = LocalEmojiTypeface.current
