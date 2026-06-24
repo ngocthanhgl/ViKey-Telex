@@ -27,6 +27,7 @@ import dev.ngocthanhgl.vikey.ime.clipboard.provider.ItemType
 import dev.ngocthanhgl.vikey.ime.core.Subtype
 import dev.ngocthanhgl.vikey.ime.editor.EditorContent
 import dev.ngocthanhgl.vikey.ime.editor.EditorRange
+import dev.ngocthanhgl.vikey.ime.editor.InputAttributes
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSuggestionProvider
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.VietnameseLanguageProvider
@@ -229,10 +230,13 @@ class NlpManager(context: Context) {
         return cachedForcesSuggestionOn!!
     }
 
-    fun isSuggestionOn(): Boolean =
-        prefs.suggestion.enabled.get()
-            || prefs.emoji.suggestionEnabled.get()
-            || providerForcesSuggestionOn(subtypeManager.activeSubtype)
+    fun isSuggestionOn(): Boolean {
+        if (!prefs.suggestion.enabled.get()
+            && !prefs.emoji.suggestionEnabled.get()
+            && !providerForcesSuggestionOn(subtypeManager.activeSubtype)) return false
+        val attrs = editorInstance.activeInfo.inputAttributes
+        return !attrs.flagTextNoSuggestions && attrs.variation != InputAttributes.Variation.URI
+    }
 
     fun liveSuggestionsEnabled(): Boolean {
         if (!isSuggestionOn()) return false
