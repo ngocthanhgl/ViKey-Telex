@@ -408,7 +408,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     lastTopSuggestion = result.firstOrNull()?.first?.lowercase()
                 }.mapIndexed { index, (word, _) ->
                     val lcWord = word.lowercase()
-                    val shouldAutoCommit = autoCommitWord != null && index == 0 &&
+                    val shouldAutoCommit = prefs.correction.autoCorrect.get() &&
+                        autoCommitWord != null && index == 0 &&
                         lcWord != autoCommitWord &&
                         !lcWord.startsWith(autoCommitWord!!) &&
                         !personalDict.containsKey(autoCommitWord)
