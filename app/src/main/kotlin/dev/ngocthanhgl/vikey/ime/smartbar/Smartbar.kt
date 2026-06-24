@@ -146,8 +146,8 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
 
     val inlineSuggestions by NlpInlineAutofill.suggestions.collectAsState()
     val sharedActionsAutoExpandCollapse by prefs.smartbar.sharedActionsAutoExpandCollapse.collectAsState()
-    LaunchedEffect(inlineSuggestions, sharedActionsAutoExpandCollapse) {
-        nlpManager.autoExpandCollapseSmartbarActions(null, inlineSuggestions)
+    LaunchedEffect(sharedActionsAutoExpandCollapse) {
+        nlpManager.autoExpandCollapseSmartbarActions()
     }
     val shouldShowInlineSuggestionsUi = AndroidVersion.ATLEAST_API30_R && inlineSuggestions.isNotEmpty()
 

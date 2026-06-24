@@ -402,18 +402,14 @@ class NlpManager(context: Context) {
             else -> emptyList()
         }
         activeCandidates = candidates
-        autoExpandCollapseSmartbarActions(candidates, NlpInlineAutofill.suggestions.value)
+        autoExpandCollapseSmartbarActions()
     }
 
-    fun autoExpandCollapseSmartbarActions(list1: List<*>?, list2: List<*>?) {
+    fun autoExpandCollapseSmartbarActions() {
         if (!prefs.smartbar.enabled.get()) return
         if (!prefs.smartbar.sharedActionsAutoExpandCollapse.get()) return
-        val hasSuggestions = !list1.isNullOrEmpty() || !list2.isNullOrEmpty()
-        if (hasSuggestions) {
-            scope.launch {
-                prefs.smartbar.sharedActionsExpandWithAnimation.set(false)
-                prefs.smartbar.sharedActionsExpanded.set(false)
-            }
+        scope.launch {
+            prefs.smartbar.sharedActionsExpanded.set(true)
         }
     }
 
