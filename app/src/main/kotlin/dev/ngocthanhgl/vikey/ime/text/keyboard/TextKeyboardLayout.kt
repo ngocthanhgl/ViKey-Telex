@@ -89,6 +89,8 @@ import dev.ngocthanhgl.vikey.ime.input.InputEventDispatcher
 import dev.ngocthanhgl.vikey.ime.keyboard.ComputingEvaluator
 import dev.ngocthanhgl.vikey.ime.keyboard.FlorisImeSizing
 import dev.ngocthanhgl.vikey.ime.keyboard.KeyboardMode
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.SpaceBar
 import dev.ngocthanhgl.vikey.ime.keyboard.SpaceBarMode
 import dev.ngocthanhgl.vikey.ime.popup.ExceptionsForKeyCodes
 import dev.ngocthanhgl.vikey.ime.popup.PopupUiController
@@ -523,6 +525,15 @@ private fun TextKeyButton(
                         SpaceBarMode.NOTHING -> return@let
                         SpaceBarMode.CURRENT_LANGUAGE -> {}
                         SpaceBarMode.SPACE_BAR_KEY -> customLabel = "␣"
+                        SpaceBarMode.ICON_ONLY -> {
+                            SnyggIcon(
+                                modifier = Modifier.align(Alignment.Center),
+                                imageVector = Icons.Outlined.SpaceBar,
+                                contentDescription = null,
+                            )
+                            return@let
+                        }
+                        SpaceBarMode.TEXT_SPACE -> customLabel = "Space"
                     }
                 }
                 Box(

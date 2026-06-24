@@ -19,5 +19,7 @@ package dev.ngocthanhgl.vikey.ime.keyboard
 enum class SpaceBarMode {
     NOTHING,
     CURRENT_LANGUAGE,
-    SPACE_BAR_KEY;
+    SPACE_BAR_KEY,
+    ICON_ONLY,
+    TEXT_SPACE;
 }

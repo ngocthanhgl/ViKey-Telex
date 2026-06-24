@@ -45,6 +45,7 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SelectAll
 import androidx.compose.material.icons.outlined.SentimentSatisfiedAlt
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Numbers
 import androidx.compose.material.icons.outlined.SpaceBar
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.ngocthanhgl.vikey.FlorisImeService
@@ -152,10 +153,10 @@ fun ComputingEvaluator.computeLabel(data: KeyData): String? {
             KeyCode.VIEW_CHARACTERS -> {
                 evaluator.context()?.getString(R.string.key__view_characters)
             }
-            KeyCode.VIEW_NUMERIC,
-            KeyCode.VIEW_NUMERIC_ADVANCED -> {
+            KeyCode.VIEW_NUMERIC -> {
                 evaluator.context()?.getString(R.string.key__view_numeric)
             }
+            KeyCode.VIEW_NUMERIC_ADVANCED -> null
             KeyCode.VIEW_PHONE -> {
                 evaluator.context()?.getString(R.string.key__view_phone)
             }
@@ -284,6 +285,9 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
                 }
                 else -> null
             }
+        }
+        KeyCode.VIEW_NUMERIC_ADVANCED -> {
+            Icons.Outlined.Numbers
         }
         KeyCode.UNDO -> {
             Icons.AutoMirrored.Outlined.Undo
