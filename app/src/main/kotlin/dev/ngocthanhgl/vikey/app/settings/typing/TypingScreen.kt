@@ -37,7 +37,6 @@ import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchPreference
 import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.ime.keyboard.IncognitoMode
 import dev.ngocthanhgl.vikey.ime.nlp.SpellingLanguageMode
-import dev.ngocthanhgl.vikey.lib.compose.FlorisHyperlinkText
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import kotlinx.coroutines.launch
 import org.florisboard.lib.compose.stringRes
@@ -87,31 +86,6 @@ fun TypingScreen() {
                 onCheckedChange = { scope.launch { prefs.correction.autoSpacePunctuation.set(it) } },
                 title = stringRes(R.string.pref__correction__auto_space_punctuation__label),
             )
-            if (autoSpacePunctuationEnabled) {
-                SettingsDivider()
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                    ),
-                ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(
-                            text = """
-                                Auto-space after punctuation is an experimental feature which may break or behave
-                                unexpectedly. If you want, please give feedback about it in below linked feedback
-                                thread. This helps a lot in improving this feature. Thanks!
-                            """.trimIndent().replace('\n', ' '),
-                        )
-                        FlorisHyperlinkText(
-                            text = "Feedback thread (GitHub)",
-                            url = "https://github.com/florisboard/florisboard/discussions/1935",
-                        )
-                    }
-                }
-            }
             SettingsDivider()
             M3SwitchPreference(
                 icon = Icons.Outlined.Lock,
