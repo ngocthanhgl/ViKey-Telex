@@ -446,7 +446,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                         autoCommitWord != null && index == 0 &&
                         lcWord != autoCommitWord &&
                         !lcWord.startsWith(autoCommitWord!!) &&
-                        !personalDict.containsKey(autoCommitWord)
+                        !personalDict.containsKey(autoCommitWord) &&
+                        autoCommitWord!!.let { !(it.any(Char::isLetter) && it.any(Char::isDigit)) }
                     WordSuggestionCandidate(
                         text = word,
                         confidence = 1.0,
@@ -641,6 +642,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val limit = k.coerceIn(1, 15)
         val lcPrefix = prefix.lowercase()
         val resolvedPrefix = resolveTelexPrefix(lcPrefix)
+        val hasMixedAlphaNum = lcPrefix.any { it.isLetter() } && lcPrefix.any { it.isDigit() }
 
         val context = buildString {
             val ctx = textBefore.dropLast(prefix.length).trimEnd()
@@ -667,7 +669,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
         val autoCorrectOn = prefs.correction.autoCorrect.get()
 
-        val mergedPool = if (autoCorrectOn && lcPrefix.length >= 2) {
+        val mergedPool = if (autoCorrectOn && lcPrefix.length >= 2 && !hasMixedAlphaNum) {
             val corrections = autocorrectEngine?.correct(lcPrefix, limit * 2) ?: emptyList()
             val typoCorrections = typoDetector?.detectAndScore(lcPrefix) ?: emptyList()
             (basePool + corrections.map { it.word } + typoCorrections.map { it.first })
@@ -685,7 +687,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             if (scores != null && scores.size == mergedPool.size) {
                 qwenScored = true
                 for (i in mergedPool.indices) {
-                    val base = if (autoCorrectOn) {
+                    val base = if (autoCorrectOn && !hasMixedAlphaNum) {
                         autocorrectEngine?.score(lcPrefix, mergedPool[i], scores[i].toDouble()) ?: scores[i].toDouble()
                     } else {
                         scores[i].toDouble()
@@ -707,7 +709,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     trigrams["$w1|$w2"]?.let { tri -> s += (tri[word]?.toDouble() ?: 0.0) * TRIGRAM_BOOST }
                 }
                 bigrams[w2]?.let { bi -> s += (bi[word]?.toDouble() ?: 0.0) * BIGRAM_BOOST }
-                val base = if (autoCorrectOn) {
+                val base = if (autoCorrectOn && !hasMixedAlphaNum) {
                     autocorrectEngine?.score(lcPrefix, word, s) ?: s
                 } else {
                     s
