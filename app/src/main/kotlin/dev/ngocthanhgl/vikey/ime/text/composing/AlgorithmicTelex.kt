@@ -31,6 +31,9 @@ class AlgorithmicTelex(
     private val telexWEnabled: Boolean
         get() = try { prefs.keyboard.telexWEnabled.get() } catch (_: Exception) { true }
 
+    private val englishFallbackEnabled: Boolean
+        get() = try { prefs.keyboard.englishFallbackEnabled.get() } catch (_: Exception) { true }
+
     // ── Character classification ──────────────────────────────────
 
     private val toneKeys = setOf('s', 'f', 'r', 'x', 'j')
@@ -41,7 +44,7 @@ class AlgorithmicTelex(
     )
 
     private val consonantLetters = setOf(
-        'b', 'c', 'd', 'đ', 'g', 'h', 'k', 'l', 'm', 'n',
+        'b', 'c', 'd', 'đ', 'g', 'h', 'j', 'k', 'l', 'm', 'n',
         'p', 'q', 'r', 's', 't', 'v', 'x',
     )
 
@@ -490,21 +493,57 @@ class AlgorithmicTelex(
         return result
     }
 
-    // ──────────────────────────────────────────────────────────────
-    //  English fallback detection
-    // ──────────────────────────────────────────────────────────────
+    // ── English fallback detection ─────────────────────────────────
+
+    private val vietnameseChars = setOf(
+        'ă', 'â', 'đ', 'ê', 'ô', 'ơ', 'ư',
+        'á', 'à', 'ả', 'ã', 'ạ',
+        'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ',
+        'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ',
+        'é', 'è', 'ẻ', 'ẽ', 'ẹ',
+        'ế', 'ề', 'ể', 'ễ', 'ệ',
+        'í', 'ì', 'ỉ', 'ĩ', 'ị',
+        'ó', 'ò', 'ỏ', 'õ', 'ọ',
+        'ố', 'ồ', 'ổ', 'ỗ', 'ộ',
+        'ớ', 'ờ', 'ở', 'ỡ', 'ợ',
+        'ú', 'ù', 'ủ', 'ũ', 'ụ',
+        'ứ', 'ừ', 'ử', 'ữ', 'ự',
+        'ý', 'ỳ', 'ỷ', 'ỹ', 'ỵ',
+    )
+
+    private val extendedEnglishPatterns = listOf(
+        "ing", "ful", "ive", "ure", "sion", "ist",
+        "ize", "ise", "ward", "wise", "like",
+        "hood", "dom", "ous", "ly", "ed", "er", "est",
+    )
+
+    private val extendedClusters = setOf(
+        "mp", "ld", "nk", "rk", "rm", "rn", "rt", "sk", "sp",
+        "ft", "pt", "ct", "lp", "lf", "lk", "lm", "ln",
+    )
+
+    private val validVietnameseOnsets = setOf("ch", "gh", "gi", "kh", "nh", "ng", "ph", "qu", "th", "tr")
+
+    companion object {
+        private const val VIET_DIGRAPHS =
+            "ưa|ươ|uô|iê|yê|uya|uyê|ươi|ươu|uôi|oai|oay"
+        private val vietDigraphList = VIET_DIGRAPHS.split("|")
+    }
 
     private fun isEnglishLikely(word: String): Boolean {
         val lower = word.lowercase()
 
+        // ── Original checks (run in both modes) ──
         if (englishPatterns.any { lower.contains(it) }) return true
 
         if (lower.length <= 4) {
-            val vietDigraphs = listOf("ưa", "ươ", "uô", "iê", "yê", "uya", "uyê", "ươi", "ươu", "uôi", "oai", "oay")
-            val hasVietDigraph = vietDigraphs.any { lower.contains(it) }
+            val hasVietDigraph = vietDigraphList.any { lower.contains(it) }
             if (!hasVietDigraph) {
-                val englishClusters = listOf("ck", "sh", "ch", "th", "ph", "nd", "nt", "st")
-                if (englishClusters.any { lower.endsWith(it) }) return true
+                if (lower.endsWith("ck") || lower.endsWith("sh") ||
+                    lower.endsWith("ch") || lower.endsWith("th") ||
+                    lower.endsWith("ph") || lower.endsWith("nd") ||
+                    lower.endsWith("nt") || lower.endsWith("st")
+                ) return true
             }
         }
 
@@ -522,6 +561,31 @@ class AlgorithmicTelex(
 
         val vowelCount = lower.count { toBaseForm(it) in baseVowels }
         if (vowelCount == 0 && lower.any { it in consonantLetters }) return true
+
+        // ── Enhanced checks (only when toggle ON) ──
+        if (!englishFallbackEnabled) return false
+
+        // Word already has Vietnamese diacritics → definitely Vietnamese
+        if (lower.any { it in vietnameseChars }) return false
+
+        // Extended English patterns
+        if (extendedEnglishPatterns.any { lower.contains(it) }) return true
+
+        // Extended coda clusters (invalid Vietnamese codas)
+        if (lower.length >= 2) {
+            val suffix2 = lower.takeLast(2)
+            if (suffix2 in extendedClusters) return true
+        }
+
+        // Onset cluster check — start of word has cluster invalid in Vietnamese
+        if (lower.length >= 2) {
+            val firstTwo = lower.take(2)
+            if (firstTwo.all { it in consonantLetters } && firstTwo !in validVietnameseOnsets) return true
+            if (lower.length >= 3) {
+                val firstThree = lower.take(3)
+                if (firstThree.all { it in consonantLetters } && firstThree != "ngh") return true
+            }
+        }
 
         return false
     }

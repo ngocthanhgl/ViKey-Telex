@@ -574,6 +574,10 @@ val audioActivationMode = enum(
             key = "keyboard__telex_w_enabled",
             default = true,
         )
+        val englishFallbackEnabled = boolean(
+            key = "keyboard__english_fallback_enabled",
+            default = true,
+        )
 
         fun keyHintConfiguration(): KeyHintConfiguration {
             return KeyHintConfiguration(

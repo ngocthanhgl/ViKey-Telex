@@ -10,6 +10,7 @@ import androidx.compose.material.icons.outlined.Dialpad
 import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material.icons.outlined.FormatSize
 import androidx.compose.material.icons.outlined.Keyboard
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.PanTool
 import androidx.compose.material.icons.outlined.ScreenRotation
@@ -300,6 +301,13 @@ fun KeyboardScreen() {
                 checked = telexWEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.telexWEnabled.set(it) } },
                 title = "w = ư",
+            )
+            val englishFallbackEnabled by prefs.keyboard.englishFallbackEnabled.collectAsState()
+            M3SwitchPreference(
+                icon = Icons.Outlined.Language,
+                checked = englishFallbackEnabled,
+                onCheckedChange = { scope.launch { prefs.keyboard.englishFallbackEnabled.set(it) } },
+                title = "English fallback",
             )
         }
     }
