@@ -26,9 +26,10 @@ class AlgorithmicTelex(
     override val toRead = 32
 
     @Transient
-    private val telexWEnabled: Boolean by lazy {
-        try { FlorisPreferenceStore.keyboard.telexWEnabled.get() } catch (_: Exception) { true }
-    }
+    private val prefs by FlorisPreferenceStore
+
+    private val telexWEnabled: Boolean
+        get() = try { prefs.keyboard.telexWEnabled.get() } catch (_: Exception) { true }
 
     // ── Character classification ──────────────────────────────────
 
