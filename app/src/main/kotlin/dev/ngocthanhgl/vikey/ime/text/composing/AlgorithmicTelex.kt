@@ -515,6 +515,8 @@ class AlgorithmicTelex(
         "ing", "ful", "ive", "ure", "sion", "ist",
         "ize", "ise", "ward", "wise", "like",
         "hood", "dom", "ous", "ly", "ed", "er", "est",
+        "ex", "ax", "ix", "ox", "ux",
+        "ject", "just",
     )
 
     private val extendedClusters = setOf(
