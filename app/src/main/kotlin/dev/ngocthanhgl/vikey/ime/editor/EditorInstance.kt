@@ -198,9 +198,21 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
                 textBefore
             }
         }
-        return textBefore.isNotEmpty() && !textBefore.last().isWhitespace() &&
-            content.currentWordText.all { !it.isDigit() } &&
-            punctuationRule.symbolsPrecedingAutoSpace.contains(text.first())
+        if (textBefore.isEmpty() || textBefore.last().isWhitespace()) return false
+        if (content.currentWordText.any { it.isDigit() }) return false
+        if (!punctuationRule.symbolsPrecedingAutoSpace.contains(text.first())) return false
+
+        if (text.first() == '.') {
+            val before = content.getTextBeforeCursor(128) ?: ""
+            if (before.contains('@')) return false           // email
+            if (before.contains("://")) return false          // URL protocol
+            if (before.contains("www.")) return false          // www URL
+            if (before.contains('/')) return false             // file path
+            val lastWord = before.substringAfterLast(' ')
+            if (lastWord.contains('.')) return false           // multi-dot: U.S.A., e.g.
+        }
+
+        return true
     }
 
     override fun commitChar(char: String): Boolean {
