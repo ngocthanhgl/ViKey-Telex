@@ -224,10 +224,6 @@ class AlgorithmicTelex(
             return handleTone(word, ch)
         }
 
-        if (lowerCh == 'w' && !telexWEnabled) {
-            return word.length to (word + ch)
-        }
-
         if (lowerCh == 'w' && word.all { it.lowercaseChar() == 'w' }) {
             return word.length to (word + ch)
         }
@@ -244,7 +240,7 @@ class AlgorithmicTelex(
             return doShortcutUndo(word, ch)
         }
 
-        val shortcut = if (telexWEnabled) applyShortcut(word, ch) else null
+        val shortcut = applyShortcut(word, ch)
         if (shortcut != null) {
             return word.length to shortcut
         }
@@ -355,6 +351,7 @@ class AlgorithmicTelex(
 
     private fun handleW(word: String, ch: Char): Pair<Int, String> {
         if (ch.isLetter().not()) return word.length to (word + ch)
+        if (!telexWEnabled) return word.length to (word + ch)
         val last = word.lastOrNull()
 
         if (last?.lowercaseChar() == 'ư' && word.length > 1) {
