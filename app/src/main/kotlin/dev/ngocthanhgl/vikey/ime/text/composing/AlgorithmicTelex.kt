@@ -580,10 +580,10 @@ class AlgorithmicTelex(
         // Onset cluster check — start of word has cluster invalid in Vietnamese
         if (lower.length >= 2) {
             val firstTwo = lower.take(2)
-            if (firstTwo.all { it in consonantLetters } && firstTwo !in validVietnameseOnsets) return true
+            if (firstTwo.all { it.lowercaseChar() !in baseVowels } && firstTwo !in validVietnameseOnsets) return true
             if (lower.length >= 3) {
                 val firstThree = lower.take(3)
-                if (firstThree.all { it in consonantLetters } && firstThree != "ngh") return true
+                if (firstThree.all { it.lowercaseChar() !in baseVowels } && firstThree != "ngh") return true
             }
         }
 
