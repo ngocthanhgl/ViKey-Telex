@@ -277,5 +277,30 @@ fun KeyboardScreen() {
                 title = stringRes(R.string.pref__keyboard__space_bar_switches_to_characters__label),
             )
         }
+
+        Text(
+            text = "Vietnamese Telex",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
+        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            val telexWEnabled by prefs.keyboard.telexWEnabled.collectAsState()
+            M3SwitchPreference(
+                icon = Icons.Outlined.Keyboard,
+                checked = telexWEnabled,
+                onCheckedChange = { scope.launch { prefs.keyboard.telexWEnabled.set(it) } },
+                title = "w = ư",
+            )
+        }
     }
 }

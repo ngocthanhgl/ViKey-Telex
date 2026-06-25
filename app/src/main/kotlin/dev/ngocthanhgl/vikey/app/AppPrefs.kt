@@ -570,6 +570,10 @@ val audioActivationMode = enum(
             key = "keyboard__incognito_indicator",
             default = IncognitoDisplayMode.DISPLAY_BEHIND_KEYBOARD,
         )
+        val telexWEnabled = boolean(
+            key = "keyboard__telex_w_enabled",
+            default = true,
+        )
 
         fun keyHintConfiguration(): KeyHintConfiguration {
             return KeyHintConfiguration(

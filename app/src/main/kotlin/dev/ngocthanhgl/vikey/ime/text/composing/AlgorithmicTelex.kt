@@ -10,9 +10,11 @@
 
 package dev.ngocthanhgl.vikey.ime.text.composing
 
+import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import java.text.Normalizer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 @SerialName("telex-algorithm")
@@ -22,6 +24,11 @@ class AlgorithmicTelex(
 ) : Composer {
 
     override val toRead = 32
+
+    @Transient
+    private val telexWEnabled: Boolean by lazy {
+        try { FlorisPreferenceStore.keyboard.telexWEnabled.get() } catch (_: Exception) { true }
+    }
 
     // ── Character classification ──────────────────────────────────
 
@@ -190,6 +197,7 @@ class AlgorithmicTelex(
 
     private fun firstChar(ch: Char): String {
         if (ch.lowercaseChar() == 'w') {
+            if (!telexWEnabled) return ch.toString()
             return if (ch.isUpperCase()) "Ư" else "ư"
         }
         return ch.toString()
@@ -215,6 +223,10 @@ class AlgorithmicTelex(
             return handleTone(word, ch)
         }
 
+        if (lowerCh == 'w' && !telexWEnabled) {
+            return word.length to (word + ch)
+        }
+
         if (lowerCh == 'w' && word.all { it.lowercaseChar() == 'w' }) {
             return word.length to (word + ch)
         }
@@ -231,7 +243,7 @@ class AlgorithmicTelex(
             return doShortcutUndo(word, ch)
         }
 
-        val shortcut = applyShortcut(word, ch)
+        val shortcut = if (telexWEnabled) applyShortcut(word, ch) else null
         if (shortcut != null) {
             return word.length to shortcut
         }

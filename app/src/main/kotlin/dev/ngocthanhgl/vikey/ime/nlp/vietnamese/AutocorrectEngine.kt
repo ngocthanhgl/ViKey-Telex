@@ -20,7 +20,7 @@ class AutocorrectEngine(private val seedWords: Set<String>) {
                 candidates.add(CorrectionCandidate(word, 0, 1.0))
                 continue
             }
-            val dist = levenshtein(lcPrefix, word)
+            val dist = vietnameseDistance(lcPrefix, word)
             if (dist <= 3 && word.length >= lcPrefix.length - 1 && word.length <= lcPrefix.length + 5) {
                 val prox = proximityScore(lcPrefix, word)
                 candidates.add(CorrectionCandidate(word, dist, prox))
@@ -39,7 +39,7 @@ class AutocorrectEngine(private val seedWords: Set<String>) {
     ): Double {
         val lcTyped = typed.lowercase()
         val lcCandidate = candidate.lowercase()
-        val dist = levenshtein(lcTyped, lcCandidate)
+        val dist = vietnameseDistance(lcTyped, lcCandidate)
         val edScore = 1.0 / (1.0 + dist)
         val prox = proximityScore(lcTyped, lcCandidate)
         val lengthRatio = lcCandidate.length.toDouble() / max(lcTyped.length, 1).coerceAtLeast(1)
@@ -52,13 +52,21 @@ class AutocorrectEngine(private val seedWords: Set<String>) {
         return qwenPart + edPart + proxPart + lenPart
     }
 
-    private fun levenshtein(a: String, b: String): Int {
+    private fun vietnameseDistance(a: String, b: String): Int {
         val dp = Array(a.length + 1) { IntArray(b.length + 1) }
         for (i in 0..a.length) dp[i][0] = i
         for (j in 0..b.length) dp[0][j] = j
         for (i in 1..a.length) {
             for (j in 1..b.length) {
-                val cost = if (a[i - 1] == b[j - 1]) 0 else 1
+                val ca = a[i - 1]
+                val cb = b[j - 1]
+                val cost = when {
+                    ca == cb -> 0
+                    isPureToneDiff(ca, cb) -> 0
+                    isDiacriticDiff(ca, cb) -> 2
+                    isAdjacentKeyError(ca, cb) -> 2
+                    else -> 3
+                }
                 dp[i][j] = minOf(
                     dp[i - 1][j] + 1,
                     dp[i][j - 1] + 1,
@@ -133,5 +141,45 @@ class AutocorrectEngine(private val seedWords: Set<String>) {
             'u' to setOf('y', 'i', 'j', 'h', 'ư'),
             'ư' to setOf('u'),
         )
+
+        private fun toBase(c: Char): Char = when (c.lowercaseChar()) {
+            'a', 'á', 'à', 'ả', 'ã', 'ạ' -> 'a'
+            'ă', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ' -> 'a'
+            'â', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ' -> 'a'
+            'e', 'é', 'è', 'ẻ', 'ẽ', 'ẹ' -> 'e'
+            'ê', 'ế', 'ề', 'ể', 'ễ', 'ệ' -> 'e'
+            'i', 'í', 'ì', 'ỉ', 'ĩ', 'ị' -> 'i'
+            'o', 'ó', 'ò', 'ỏ', 'õ', 'ọ' -> 'o'
+            'ô', 'ố', 'ồ', 'ổ', 'ỗ', 'ộ' -> 'o'
+            'ơ', 'ớ', 'ờ', 'ở', 'ỡ', 'ợ' -> 'o'
+            'u', 'ú', 'ù', 'ủ', 'ũ', 'ụ' -> 'u'
+            'ư', 'ứ', 'ừ', 'ử', 'ữ', 'ự' -> 'u'
+            'y', 'ý', 'ỳ', 'ỷ', 'ỹ', 'ỵ' -> 'y'
+            'đ' -> 'd'
+            else -> c
+        }
+
+        private fun isPureToneDiff(a: Char, b: Char): Boolean {
+            val baseA = toBase(a)
+            val baseB = toBase(b)
+            return baseA == baseB && a != b
+        }
+
+        private fun isDiacriticDiff(a: Char, b: Char): Boolean {
+            val baseA = toBase(a)
+            val baseB = toBase(b)
+            if (baseA != baseB) return false
+            if (a == b) return false
+            val aLow = a.lowercaseChar()
+            val bLow = b.lowercaseChar()
+            if (aLow == bLow) return false
+            val aBase = toBase(aLow)
+            val bBase = toBase(bLow)
+            return aBase == bBase && aLow != bLow
+        }
+
+        private fun isAdjacentKeyError(a: Char, b: Char): Boolean {
+            return adjacency[a.lowercaseChar()]?.contains(b.lowercaseChar()) == true
+        }
     }
 }

@@ -40,6 +40,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         private const val BIGRAM_BOOST = 5.0
         private const val TRIGRAM_BOOST = 3.0
         private const val SEED_WORDS = "ime/dict/vi.json"
+        private const val PHRASES_PATH = "ime/dict/phrases.json"
 
         private var currentInstance: QwenSuggestionProvider? = null
 
@@ -78,7 +79,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private var lastTextLen = 0
     private var pasteUntil = 0L
     private val discourseBuffer = mutableListOf<String>()
-    private val suggestionCache = LruCache<String, List<Pair<String, Double>>>(5)
+    private val phraseMap = mutableMapOf<String, List<String>>()
+    private val suggestionCache = LruCache<String, List<Pair<String, Double>>>(50)
 
     private val bgScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -154,8 +156,25 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             useTrie = true
             autocorrectEngine = AutocorrectEngine(seedWords)
             typoDetector = TypoDetector(seedWords)
+            loadPhrases()
         } catch (e: Exception) {
             flogDebug { "Qwen: seed words load: ${e.message}" }
+        }
+    }
+
+    private fun loadPhrases() {
+        try {
+            val raw = context.assets.open(PHRASES_PATH).bufferedReader().use { it.readText() }
+            val json = JSONObject(raw)
+            for (key in json.keys()) {
+                val arr = json.getJSONArray(key)
+                val phrases = mutableListOf<String>()
+                for (i in 0 until arr.length()) phrases.add(arr.getString(i))
+                phraseMap[key.lowercase()] = phrases
+            }
+            flogDebug { "Qwen: loaded ${phraseMap.size} phrase entries" }
+        } catch (e: Exception) {
+            flogDebug { "Qwen: phrases load: ${e.message}" }
         }
     }
 
@@ -353,6 +372,21 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         try { DictionaryManager.default().florisUserDictionaryDao()?.deleteAll() }
         catch (_: Exception) {}
         flogDebug { "Qwen: processed .cleared marker" }
+    }
+
+    private fun resolveTelexPrefix(raw: String): String {
+        var s = raw.lowercase()
+        s = s.replace("dd", "đ").replace("aa", "â").replace("aw", "ă")
+        s = s.replace("ee", "ê").replace("oo", "ô").replace("ow", "ơ").replace("uw", "ư")
+        s = s.replace("uow", "ươ")
+        if (s.isNotEmpty()) {
+            val last = s.last()
+            if (last in setOf('s', 'f', 'r', 'x', 'j') && s.length > 1) {
+                val base = s.dropLast(1)
+                if (base.any { it in "aeiouyăâêôơ" }) return base
+            }
+        }
+        return s
     }
 
     override suspend fun suggest(
@@ -606,6 +640,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private fun doCompleteCurrentWord(prefix: String, k: Int, textBefore: String): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
         val lcPrefix = prefix.lowercase()
+        val resolvedPrefix = resolveTelexPrefix(lcPrefix)
 
         val context = buildString {
             val ctx = textBefore.dropLast(prefix.length).trimEnd()
@@ -614,8 +649,17 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         }
 
         val basePool = (
-            if (useTrie) prefixTrie[lcPrefix]?.filter { it.length > lcPrefix.length } ?: emptyList()
-            else seedWords.filter { it.startsWith(lcPrefix) && it.length > lcPrefix.length }
+            if (useTrie) {
+                val trieResults = prefixTrie[lcPrefix].orEmpty()
+                val resolvedResults = if (resolvedPrefix != lcPrefix) {
+                    prefixTrie[resolvedPrefix].orEmpty()
+                } else emptyList()
+                (trieResults + resolvedResults).filter { it.length > resolvedPrefix.length }
+            } else {
+                seedWords.filter {
+                    it.startsWith(lcPrefix) || it.startsWith(resolvedPrefix)
+                }.filter { it.length > resolvedPrefix.length }
+            }
         ).union(ngramWords()).union(personalDict.keys)
             .filter { !isNoise(it) }
             .take(200)
@@ -669,6 +713,16 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     s
                 }
                 candidates.add(word to base)
+            }
+        }
+
+        val phraseCandidates = phraseMap[resolvedPrefix].orEmpty()
+            .filter { it.length > resolvedPrefix.length }
+        if (phraseCandidates.isNotEmpty()) {
+            for (phrase in phraseCandidates) {
+                if (candidates.none { it.first == phrase }) {
+                    candidates.add(phrase to 0.9)
+                }
             }
         }
 
