@@ -177,7 +177,7 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
         )
         val autoCorrect = boolean(
             key = "correction__auto_correct",
-            default = true,
+            default = false,
         )
     }
 
@@ -378,7 +378,7 @@ abstract class FlorisPreferenceModel : PreferenceModel() {
     inner class InputFeedback {
         val audioEnabled = boolean(
             key = "input_feedback__audio_enabled",
-            default = true,
+            default = false,
         )
 val audioActivationMode = enum(
     key = "input_feedback__audio_activation_mode",
@@ -488,7 +488,7 @@ val audioActivationMode = enum(
         )
         val numberRow = boolean(
             key = "keyboard__number_row",
-            default = false,
+            default = true,
         )
         val hintedNumberRowEnabled = boolean(
             key = "keyboard__hinted_number_row_enabled",
@@ -716,7 +716,7 @@ val audioActivationMode = enum(
         )
         val blockPossiblyOffensive = boolean(
             key = "suggestion__block_possibly_offensive",
-            default = true,
+            default = false,
         )
         val incognitoMode = enum(
             key = "suggestion__incognito_mode",
