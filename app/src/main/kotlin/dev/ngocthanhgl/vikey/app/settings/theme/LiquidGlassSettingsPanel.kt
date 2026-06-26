@@ -25,18 +25,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Bolt
-import androidx.compose.material.icons.outlined.BlurOn
-import androidx.compose.material.icons.outlined.CenterFocusStrong
-import androidx.compose.material.icons.outlined.Layers
-import androidx.compose.material.icons.outlined.LineWeight
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Speed
-import androidx.compose.material.icons.outlined.Straighten
-import androidx.compose.material.icons.outlined.TextIncrease
-import androidx.compose.material.icons.outlined.ToggleOn
-import androidx.compose.material.icons.outlined.WaterDrop
-import androidx.compose.material.icons.outlined.ZoomIn
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.BlurOn
+import androidx.compose.material.icons.rounded.CenterFocusStrong
+import androidx.compose.material.icons.rounded.Layers
+import androidx.compose.material.icons.rounded.LineWeight
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.Straighten
+import androidx.compose.material.icons.rounded.TextIncrease
+import androidx.compose.material.icons.rounded.ToggleOn
+import androidx.compose.material.icons.rounded.WaterDrop
+import androidx.compose.material.icons.rounded.ZoomIn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -110,7 +110,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     val enabled by prefs.liquidGlass.enabled.collectAsState()
 
     SettingsSwitch(
-        icon = Icons.Outlined.ToggleOn,
+        icon = Icons.Rounded.ToggleOn,
         label = "Enable Liquid Glass effects",
         checked = enabled,
         onCheckedChange = { scope.launch { prefs.liquidGlass.enabled.set(it) } },
@@ -118,7 +118,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSlider(
-        icon = Icons.Outlined.BlurOn,
+        icon = Icons.Rounded.BlurOn,
         label = "Lens Idle",
         value = lensIdle / 100f,
         valueRange = 0f..20f,
@@ -128,7 +128,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSlider(
-        icon = Icons.Outlined.CenterFocusStrong,
+        icon = Icons.Rounded.CenterFocusStrong,
         label = "Lens Peak",
         value = lensPeak / 100f,
         valueRange = 0f..30f,
@@ -138,7 +138,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSlider(
-        icon = Icons.Outlined.LineWeight,
+        icon = Icons.Rounded.LineWeight,
         label = "Height Multiplier",
         value = heightMult / 100f,
         valueRange = 0.5f..5.0f,
@@ -148,7 +148,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSlider(
-        icon = Icons.Outlined.Straighten,
+        icon = Icons.Rounded.Straighten,
         label = "Amount Multiplier",
         value = amountMult / 100f,
         valueRange = 0.5f..3.0f,
@@ -158,7 +158,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSlider(
-        icon = Icons.Outlined.TextIncrease,
+        icon = Icons.Rounded.TextIncrease,
         label = "Text Lift",
         value = textLiftVal / 100f,
         valueRange = 1.0f..2.0f,
@@ -168,7 +168,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSlider(
-        icon = Icons.Outlined.ZoomIn,
+        icon = Icons.Rounded.ZoomIn,
         label = "Press Scale",
         value = pressScaleVal / 100f,
         valueRange = 1.0f..1.5f,
@@ -178,7 +178,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSlider(
-        icon = Icons.Outlined.Speed,
+        icon = Icons.Rounded.Speed,
         label = "Rebound Damping",
         value = damping / 100f,
         valueRange = 0.05f..0.95f,
@@ -188,7 +188,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSlider(
-        icon = Icons.Outlined.Bolt,
+        icon = Icons.Rounded.Bolt,
         label = "Rebound Stiffness",
         value = stiffness.toFloat(),
         valueRange = 50f..500f,
@@ -199,7 +199,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSwitch(
-        icon = Icons.Outlined.Palette,
+        icon = Icons.Rounded.Palette,
         label = "Chromatic Aberration",
         checked = chromatic,
         onCheckedChange = { scope.launch { prefs.liquidGlass.chromaticEnabled.set(it) } },
@@ -207,7 +207,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSwitch(
-        icon = Icons.Outlined.Layers,
+        icon = Icons.Rounded.Layers,
         label = "Depth Effect",
         checked = depth,
         onCheckedChange = { scope.launch { prefs.liquidGlass.depthEnabled.set(it) } },
@@ -215,7 +215,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     SettingsDivider()
 
     SettingsSwitch(
-        icon = Icons.Outlined.WaterDrop,
+        icon = Icons.Rounded.WaterDrop,
         label = "Ripple Wave",
         checked = ripple,
         onCheckedChange = { scope.launch { prefs.liquidGlass.rippleEnabled.set(it) } },

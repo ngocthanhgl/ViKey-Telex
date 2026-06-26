@@ -18,12 +18,12 @@ package dev.ngocthanhgl.vikey.ime.nlp
 
 import android.content.Context
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Assignment
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.automirrored.rounded.Assignment
+import androidx.compose.material.icons.rounded.Email
+import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.Phone
+import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.ngocthanhgl.vikey.ime.clipboard.provider.ClipboardItem
 import dev.ngocthanhgl.vikey.ime.input.InputShiftState
@@ -140,13 +140,13 @@ data class ClipboardSuggestionCandidate(
 
     override val icon: ImageVector = when (clipboardItem.type) {
         ItemType.TEXT -> when {
-            NetworkUtils.isEmailAddress(text) -> Icons.Default.Email
-            NetworkUtils.isUrl(text) -> Icons.Default.Link
-            NetworkUtils.isPhoneNumber(text) -> Icons.Default.Phone
-            else -> Icons.AutoMirrored.Outlined.Assignment
+            NetworkUtils.isEmailAddress(text) -> Icons.Rounded.Email
+            NetworkUtils.isUrl(text) -> Icons.Rounded.Link
+            NetworkUtils.isPhoneNumber(text) -> Icons.Rounded.Phone
+            else -> Icons.AutoMirrored.Rounded.Assignment
         }
-        ItemType.IMAGE -> Icons.Default.Image
-        ItemType.VIDEO -> Icons.Default.Videocam
+        ItemType.IMAGE -> Icons.Rounded.Image
+        ItemType.VIDEO -> Icons.Rounded.Videocam
     }
 }
 

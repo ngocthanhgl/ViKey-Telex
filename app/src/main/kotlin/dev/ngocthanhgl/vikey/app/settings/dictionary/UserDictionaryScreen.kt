@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -188,9 +188,9 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
                     ) {
                         Icon(
                             imageVector = if (currentLocale != null) {
-                                Icons.Default.Close
+                                Icons.Rounded.Close
                             } else {
-                                Icons.AutoMirrored.Filled.ArrowBack
+                                Icons.AutoMirrored.Rounded.ArrowBack
                             },
                             contentDescription = null,
                         )
@@ -199,7 +199,7 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
                 actions = {
                     var expanded by remember { mutableStateOf(false) }
                     IconButton(onClick = { expanded = !expanded }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = null)
+                        Icon(Icons.Rounded.MoreVert, contentDescription = null)
                     }
                     DropdownMenu(
                         expanded = expanded,
@@ -239,7 +239,7 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { userDictionaryEntryForDialog = UserDictionaryEntryToAdd },
-                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
+                icon = { Icon(imageVector = Icons.Rounded.Add, contentDescription = null) },
                 text = { Text(text = stringRes(R.string.settings__udm__dialog__title_add)) },
             )
         },

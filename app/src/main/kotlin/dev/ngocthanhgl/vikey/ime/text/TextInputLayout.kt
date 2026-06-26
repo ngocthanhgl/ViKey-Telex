@@ -46,7 +46,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -168,7 +169,7 @@ fun TextInputLayout(
                             modifier = Modifier
                                 .matchParentSize()
                                 .align(Alignment.Center),
-                            painter = painterResource(R.drawable.ic_incognito),
+                            imageVector = Icons.Rounded.VisibilityOff,
                         )
                     }
                     TextKeyboardLayout(evaluator = evaluator, backgroundPhoto = bgPhotoState)

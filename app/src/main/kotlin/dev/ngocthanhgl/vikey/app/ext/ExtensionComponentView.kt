@@ -24,9 +24,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -148,7 +148,7 @@ fun ExtensionComponentView(
                             ),
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Delete,
+                                imageVector = Icons.Rounded.Delete,
                                 contentDescription = null,
                                 modifier = Modifier.padding(end = 4.dp),
                             )
@@ -159,7 +159,7 @@ fun ExtensionComponentView(
                     if (onEditBtnClick != null) {
                         TextButton(onClick = onEditBtnClick) {
                             Icon(
-                                imageVector = Icons.Default.Edit,
+                                imageVector = Icons.Rounded.Edit,
                                 contentDescription = null,
                                 modifier = Modifier.padding(end = 4.dp),
                             )
@@ -193,7 +193,7 @@ fun <T : ExtensionComponent> ExtensionComponentListView(
                 @Composable {
                     IconButton(onClick = onCreateBtnClick) {
                         Icon(
-                            imageVector = Icons.Default.Add,
+                            imageVector = Icons.Rounded.Add,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.secondary,
                         )

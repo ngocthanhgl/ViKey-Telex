@@ -44,10 +44,10 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -590,14 +590,14 @@ private fun EmojiHistoryPopup(
             ) {
                 if (isCurrentlyPinned) {
                     Action(
-                        icon = Icons.Outlined.PushPin,
+                        icon = Icons.Rounded.PushPin,
                         action = {
                             EmojiHistoryHelper.unpinEmoji(prefs, emoji)
                         },
                     )
                 } else {
                     Action(
-                        icon = Icons.Outlined.PushPin,
+                        icon = Icons.Rounded.PushPin,
                         action = {
                             EmojiHistoryHelper.pinEmoji(prefs, emoji)
                         },
@@ -605,7 +605,7 @@ private fun EmojiHistoryPopup(
                 }
                 if (showMoveLeft) {
                     Action(
-                        icon = Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                        icon = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
                         action = {
                             EmojiHistoryHelper.moveEmoji(prefs, emoji, -1)
                         },
@@ -613,14 +613,14 @@ private fun EmojiHistoryPopup(
                 }
                 if (showMoveRight) {
                     Action(
-                        icon = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                        icon = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                         action = {
                             EmojiHistoryHelper.moveEmoji(prefs, emoji, 1)
                         },
                     )
                 }
                 Action(
-                    icon = Icons.Outlined.Delete,
+                    icon = Icons.Rounded.Delete,
                     action = {
                         EmojiHistoryHelper.removeEmoji(prefs, emoji)
                         context.showShortToast(

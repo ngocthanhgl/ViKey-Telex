@@ -4,14 +4,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.PanTool
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material.icons.outlined.VolumeDown
-import androidx.compose.material.icons.outlined.VolumeUp
+import androidx.compose.material.icons.rounded.Keyboard
+import androidx.compose.material.icons.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.PanTool
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material.icons.rounded.VolumeDown
+import androidx.compose.material.icons.rounded.VolumeUp
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -85,7 +85,7 @@ fun InputFeedbackScreen() {
             ),
         ) {
             M3SwitchListPreference(
-                icon = Icons.Outlined.VolumeUp,
+                icon = Icons.Rounded.VolumeUp,
                 switchChecked = audioEnabled,
                 onSwitchChange = { scope.launch { prefs.inputFeedback.audioEnabled.set(it) } },
                 listValue = audioActivationMode,
@@ -96,7 +96,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3DialogSliderPreference(
-                icon = Icons.Outlined.VolumeDown,
+                icon = Icons.Rounded.VolumeDown,
                 value = audioVolume,
                 onChange = { scope.launch { prefs.inputFeedback.audioVolume.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_volume__label),
@@ -106,7 +106,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 checked = audioFeatKeyPress,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatKeyPress.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_feat_key_press__label),
@@ -114,7 +114,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 checked = audioFeatKeyLongPress,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatKeyLongPress.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_feat_key_long_press__label),
@@ -122,7 +122,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 checked = audioFeatKeyRepeatedAction,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatKeyRepeatedAction.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_feat_key_repeated_action__label),
@@ -130,7 +130,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.KeyboardArrowRight,
+                icon = Icons.Rounded.KeyboardArrowRight,
                 checked = audioFeatGestureSwipe,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatGestureSwipe.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_feat_gesture_swipe__label),
@@ -138,7 +138,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.KeyboardArrowRight,
+                icon = Icons.Rounded.KeyboardArrowRight,
                 checked = audioFeatGestureMovingSwipe,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.audioFeatGestureMovingSwipe.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__audio_feat_gesture_moving_swipe__label),
@@ -163,7 +163,7 @@ fun InputFeedbackScreen() {
             ),
         ) {
             M3SwitchListPreference(
-                icon = Icons.Outlined.PanTool,
+                icon = Icons.Rounded.PanTool,
                 switchChecked = hapticEnabled,
                 onSwitchChange = { scope.launch { prefs.inputFeedback.hapticEnabled.set(it) } },
                 listValue = hapticActivationMode,
@@ -174,7 +174,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.Settings,
+                icon = Icons.Rounded.Settings,
                 value = hapticVibrationMode,
                 onSelect = { scope.launch { prefs.inputFeedback.hapticVibrationMode.set(HapticVibrationMode.valueOf(it)) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_vibration_mode__label),
@@ -184,7 +184,7 @@ fun InputFeedbackScreen() {
             if (hapticEnabled && hapticVibrationMode == HapticVibrationMode.USE_VIBRATOR_DIRECTLY && hasVibrator) {
                 SettingsDivider()
                 M3DialogSliderPreference(
-                    icon = Icons.Outlined.Timer,
+                    icon = Icons.Rounded.Timer,
                     value = hapticVibrationDuration,
                     onChange = { scope.launch { prefs.inputFeedback.hapticVibrationDuration.set(it) } },
                     title = stringRes(R.string.pref__input_feedback__haptic_vibration_duration__label),
@@ -195,7 +195,7 @@ fun InputFeedbackScreen() {
             if (hapticEnabled && hapticVibrationMode == HapticVibrationMode.USE_VIBRATOR_DIRECTLY && hasVibrator && hasAmplitudeControl) {
                 SettingsDivider()
                 M3DialogSliderPreference(
-                    icon = Icons.Outlined.Star,
+                    icon = Icons.Rounded.Star,
                     value = hapticVibrationStrength,
                     onChange = { scope.launch { prefs.inputFeedback.hapticVibrationStrength.set(it) } },
                     title = stringRes(R.string.pref__input_feedback__haptic_vibration_strength__label),
@@ -205,7 +205,7 @@ fun InputFeedbackScreen() {
             }
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 checked = hapticFeatKeyPress,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatKeyPress.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_feat_key_press__label),
@@ -213,7 +213,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 checked = hapticFeatKeyLongPress,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatKeyLongPress.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_feat_key_long_press__label),
@@ -221,7 +221,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 checked = hapticFeatKeyRepeatedAction,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatKeyRepeatedAction.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_feat_key_repeated_action__label),
@@ -229,7 +229,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.KeyboardArrowRight,
+                icon = Icons.Rounded.KeyboardArrowRight,
                 checked = hapticFeatGestureSwipe,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatGestureSwipe.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_feat_gesture_swipe__label),
@@ -237,7 +237,7 @@ fun InputFeedbackScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.KeyboardArrowRight,
+                icon = Icons.Rounded.KeyboardArrowRight,
                 checked = hapticFeatGestureMovingSwipe,
                 onCheckedChange = { scope.launch { prefs.inputFeedback.hapticFeatGestureMovingSwipe.set(it) } },
                 title = stringRes(R.string.pref__input_feedback__haptic_feat_gesture_moving_swipe__label),

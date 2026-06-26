@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -142,9 +142,9 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
                         Icon(
                             modifier = Modifier.size(ButtonDefaults.IconSize),
                             imageVector = if (config.isNightTheme) {
-                                Icons.Outlined.DarkMode
+                                Icons.Rounded.DarkMode
                             } else {
-                                Icons.Outlined.WbSunny
+                                Icons.Rounded.WbSunny
                             },
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),

@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
@@ -81,7 +81,7 @@ fun PopupBaseBox(
                 elementName = FlorisImeUi.KeyPopupExtendedIndicator.elementName,
                 attributes = attributes,
                 modifier = Modifier.align(Alignment.CenterEnd),
-                imageVector = Icons.Default.MoreHoriz,
+                imageVector = Icons.Rounded.MoreHoriz,
             )
         }
     }

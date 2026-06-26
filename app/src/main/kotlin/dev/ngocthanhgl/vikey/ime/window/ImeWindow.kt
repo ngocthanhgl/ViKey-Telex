@@ -74,7 +74,11 @@ import kotlinx.coroutines.delay
 import org.florisboard.lib.compose.ProvideActualLayoutDirection
 import org.florisboard.lib.compose.conditional
 import org.florisboard.lib.compose.drawBorder
-import org.florisboard.lib.compose.drawableRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ChevronLeft
+import androidx.compose.material.icons.automirrored.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.AspectRatio
+import androidx.compose.material.icons.rounded.ZoomOutMap
 import org.florisboard.lib.compose.fold
 import org.florisboard.lib.compose.ifIsInstance
 import org.florisboard.lib.snygg.ui.SnyggBox
@@ -368,7 +372,7 @@ private fun BoxScope.OneHandedPanel(spec: ImeWindowSpec.Fixed) {
                 ) {
                     SnyggIcon(
                         attributes = attributes,
-                        imageVector = drawableRes(R.drawable.ic_zoom_out_map),
+                        imageVector = Icons.Rounded.ZoomOutMap,
                     )
                 }
                 SnyggIconButton(
@@ -380,13 +384,13 @@ private fun BoxScope.OneHandedPanel(spec: ImeWindowSpec.Fixed) {
                 ) {
                     if (spec.props.paddingLeft > spec.props.paddingRight) {
                         SnyggIcon(
-                            imageVector = drawableRes(R.drawable.ic_chevron_left),
+                            imageVector = Icons.AutoMirrored.Rounded.ChevronLeft,
                             attributes = attributes,
                         )
                     } else {
                         SnyggIcon(
                             attributes = attributes,
-                            imageVector = drawableRes(R.drawable.ic_chevron_right),
+                            imageVector = Icons.AutoMirrored.Rounded.ChevronRight,
                         )
                     }
                 }
@@ -398,7 +402,7 @@ private fun BoxScope.OneHandedPanel(spec: ImeWindowSpec.Fixed) {
                     },
                 ) {
                     SnyggIcon(
-                        imageVector = drawableRes(R.drawable.ic_resize),
+                        imageVector = Icons.Rounded.AspectRatio,
                         attributes = attributes,
                     )
                 }

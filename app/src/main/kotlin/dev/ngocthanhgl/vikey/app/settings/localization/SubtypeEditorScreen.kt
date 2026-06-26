@@ -17,10 +17,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.FileDownload
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -82,7 +82,7 @@ import kotlinx.coroutines.launch
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import java.io.File
 import org.florisboard.lib.compose.stringRes
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import dev.ngocthanhgl.vikey.app.settings.components.M3Dropdown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -276,7 +276,7 @@ fun SubtypeEditorScreen(id: Long?) {
                     }
                 }) {
                     Icon(
-                        imageVector = Icons.Default.Delete,
+                        imageVector = Icons.Rounded.Delete,
                         contentDescription = null,
                     )
                 }
@@ -392,7 +392,7 @@ fun SubtypeEditorScreen(id: Long?) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                    Icon(Icons.Rounded.ArrowDropDown, contentDescription = null)
                 }
             }
             SettingsDivider()
@@ -493,7 +493,7 @@ fun SubtypeEditorScreen(id: Long?) {
                     if (modelExists) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                imageVector = Icons.Default.CheckCircle,
+                                imageVector = Icons.Rounded.CheckCircle,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(18.dp),
@@ -511,7 +511,7 @@ fun SubtypeEditorScreen(id: Long?) {
                                 }
                             }) {
                                 Icon(
-                                    imageVector = Icons.Default.Delete,
+                                    imageVector = Icons.Rounded.Delete,
                                     contentDescription = "Remove model",
                                     tint = MaterialTheme.colorScheme.error,
                                 )
@@ -520,7 +520,7 @@ fun SubtypeEditorScreen(id: Long?) {
                     } else {
                         Column {
                             Button(onClick = { importLauncher.launch("application/octet-stream") }) {
-                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text("Select GGUF file")
                             }
@@ -532,7 +532,7 @@ fun SubtypeEditorScreen(id: Long?) {
                                 )
                                 context.startActivity(intent)
                             }) {
-                                Icon(Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Rounded.FileDownload, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text("Download from GitHub")
                             }

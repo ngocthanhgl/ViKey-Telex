@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Extension
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.Extension
+import androidx.compose.material.icons.rounded.Keyboard
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -67,7 +67,7 @@ fun LocalizationScreen() {
             ExtendedFloatingActionButton(
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.Add,
+                        imageVector = Icons.Rounded.Add,
                         contentDescription = stringRes(R.string.settings__localization__subtype_add_title),
                     )
                 },
@@ -94,7 +94,7 @@ fun LocalizationScreen() {
             ),
         ) {
             M3ListPreference(
-                icon = Icons.Outlined.Language,
+                icon = Icons.Rounded.Language,
                 value = displayLanguageNamesIn,
                 onSelect = { scope.launch { prefs.localization.displayLanguageNamesIn.set(DisplayLanguageNamesIn.valueOf(it)) } },
                 title = stringRes(R.string.settings__localization__display_language_names_in__label),
@@ -102,14 +102,14 @@ fun LocalizationScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 checked = displayKeyboardLabelsInSubtypeLanguage,
                 onCheckedChange = { scope.launch { prefs.localization.displayKeyboardLabelsInSubtypeLanguage.set(it) } },
                 title = stringRes(R.string.settings__localization__display_keyboard_labels_in_subtype_language),
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.Extension,
+                icon = Icons.Rounded.Extension,
                 title = stringRes(R.string.settings__localization__language_pack_title),
                 onClick = {
                     navController.navigate(Routes.Settings.LanguagePackManager(LanguagePackManagerScreenAction.MANAGE))
@@ -144,7 +144,7 @@ fun LocalizationScreen() {
             ) {
                 subtypes.forEachIndexed { index, subtype ->
                     M3ClickablePreference(
-                        icon = Icons.Outlined.Language,
+                        icon = Icons.Rounded.Language,
                         title = when (displayLanguageNamesIn) {
                             DisplayLanguageNamesIn.SYSTEM_LOCALE -> subtype.primaryLocale.displayName()
                             DisplayLanguageNamesIn.NATIVE_LOCALE -> subtype.primaryLocale.displayName(subtype.primaryLocale)

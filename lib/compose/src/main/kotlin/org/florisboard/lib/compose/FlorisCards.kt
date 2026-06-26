@@ -30,9 +30,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -137,7 +137,7 @@ fun FlorisErrorCard(
             modifier = Modifier
                 .padding(FlorisCardDefaults.IconPadding)
                 .requiredSize(FlorisCardDefaults.IconRequiredSize),
-            imageVector = Icons.Default.ErrorOutline,
+            imageVector = Icons.Rounded.ErrorOutline,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onErrorContainer,
         ) }) else null,
@@ -163,7 +163,7 @@ fun FlorisWarningCard(
             modifier = Modifier
                 .padding(FlorisCardDefaults.IconPadding)
                 .requiredSize(FlorisCardDefaults.IconRequiredSize),
-            imageVector = Icons.Outlined.Warning,
+            imageVector = Icons.Rounded.Warning,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onTertiaryContainer,
         ) }) else null,
@@ -189,7 +189,7 @@ fun FlorisInfoCard(
             modifier = Modifier
                 .padding(FlorisCardDefaults.IconPadding)
                 .requiredSize(FlorisCardDefaults.IconRequiredSize),
-            imageVector = Icons.Default.Info,
+            imageVector = Icons.Rounded.Info,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSecondaryContainer,
         ) }) else null,

@@ -26,22 +26,22 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.FormatAlignLeft
-import androidx.compose.material.icons.automirrored.filled.FormatAlignRight
-import androidx.compose.material.icons.filled.FormatAlignCenter
-import androidx.compose.material.icons.filled.FormatAlignJustify
-import androidx.compose.material.icons.filled.AttachFile
-import androidx.compose.material.icons.filled.CloseFullscreen
-import androidx.compose.material.icons.filled.FormatBold
-import androidx.compose.material.icons.filled.FormatItalic
-import androidx.compose.material.icons.filled.FormatStrikethrough
-import androidx.compose.material.icons.filled.FormatUnderlined
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.OpenInFull
-import androidx.compose.material.icons.filled.Straighten
-import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.TextFields
-import androidx.compose.material.icons.filled.WrapText
+import androidx.compose.material.icons.automirrored.rounded.FormatAlignLeft
+import androidx.compose.material.icons.automirrored.rounded.FormatAlignRight
+import androidx.compose.material.icons.rounded.FormatAlignCenter
+import androidx.compose.material.icons.rounded.FormatAlignJustify
+import androidx.compose.material.icons.rounded.AttachFile
+import androidx.compose.material.icons.rounded.CloseFullscreen
+import androidx.compose.material.icons.rounded.FormatBold
+import androidx.compose.material.icons.rounded.FormatItalic
+import androidx.compose.material.icons.rounded.FormatStrikethrough
+import androidx.compose.material.icons.rounded.FormatUnderlined
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.OpenInFull
+import androidx.compose.material.icons.rounded.Straighten
+import androidx.compose.material.icons.rounded.Stop
+import androidx.compose.material.icons.rounded.TextFields
+import androidx.compose.material.icons.rounded.WrapText
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -140,21 +140,21 @@ internal fun SnyggValueIcon(
         is SnyggGenericFontFamilyValue, is SnyggCustomFontFamilyValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.TextFields,
+                imageVector = Icons.Rounded.TextFields,
                 contentDescription = null,
             )
         }
         is SnyggFontStyleValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.FormatItalic,
+                imageVector = Icons.Rounded.FormatItalic,
                 contentDescription = null,
             )
         }
         is SnyggFontWeightValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.FormatBold,
+                imageVector = Icons.Rounded.FormatBold,
                 contentDescription = null,
             )
         }
@@ -162,7 +162,7 @@ internal fun SnyggValueIcon(
         is SnyggPaddingValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.CloseFullscreen,
+                imageVector = Icons.Rounded.CloseFullscreen,
                 contentDescription = null,
             )
         }
@@ -178,14 +178,14 @@ internal fun SnyggValueIcon(
         is SnyggDpSizeValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.Straighten,
+                imageVector = Icons.Rounded.Straighten,
                 contentDescription = null,
             )
         }
         is SnyggSpSizeValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.TextFields,
+                imageVector = Icons.Rounded.TextFields,
                 contentDescription = null,
             )
         }
@@ -194,10 +194,10 @@ internal fun SnyggValueIcon(
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
                 imageVector = when (value.textAlign) {
-                    TextAlign.Left, TextAlign.Start -> Icons.AutoMirrored.Filled.FormatAlignLeft
-                    TextAlign.Right, TextAlign.End -> Icons.AutoMirrored.Filled.FormatAlignRight
-                    TextAlign.Justify -> Icons.Default.FormatAlignJustify
-                    else -> Icons.Default.FormatAlignCenter
+                    TextAlign.Left, TextAlign.Start -> Icons.AutoMirrored.Rounded.FormatAlignLeft
+                    TextAlign.Right, TextAlign.End -> Icons.AutoMirrored.Rounded.FormatAlignRight
+                    TextAlign.Justify -> Icons.Rounded.FormatAlignJustify
+                    else -> Icons.Rounded.FormatAlignCenter
                 },
                 contentDescription = null,
             )
@@ -206,8 +206,8 @@ internal fun SnyggValueIcon(
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
                 imageVector = when (value.textDecoration) {
-                    TextDecoration.LineThrough -> Icons.Default.FormatStrikethrough
-                    else -> Icons.Default.FormatUnderlined
+                    TextDecoration.LineThrough -> Icons.Rounded.FormatStrikethrough
+                    else -> Icons.Rounded.FormatUnderlined
                 },
                 contentDescription = null,
             )
@@ -215,7 +215,7 @@ internal fun SnyggValueIcon(
         is SnyggTextOverflowValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.WrapText,
+                imageVector = Icons.Rounded.WrapText,
                 contentDescription = null,
             )
         }
@@ -225,7 +225,7 @@ internal fun SnyggValueIcon(
             if (realValue == null) {
                 Icon(
                     modifier = modifier.requiredSize(spec.iconSize),
-                    imageVector = Icons.Default.Link,
+                    imageVector = Icons.Rounded.Link,
                     contentDescription = null,
                 )
             } else {
@@ -248,7 +248,7 @@ internal fun SnyggValueIcon(
                     )
                     Icon(
                         modifier = Modifier.requiredSize(smallSpec.iconSize),
-                        imageVector = Icons.Default.Link,
+                        imageVector = Icons.Rounded.Link,
                         contentDescription = null,
                     )
                 }
@@ -258,14 +258,14 @@ internal fun SnyggValueIcon(
         is SnyggUriValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.AttachFile,
+                imageVector = Icons.Rounded.AttachFile,
                 contentDescription = null,
             )
         }
         is SnyggContentScaleValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.OpenInFull,
+                imageVector = Icons.Rounded.OpenInFull,
                 contentDescription = null,
             )
         }
@@ -273,14 +273,14 @@ internal fun SnyggValueIcon(
         is SnyggYesValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.FormatBold,
+                imageVector = Icons.Rounded.FormatBold,
                 contentDescription = null,
             )
         }
         is SnyggNoValue -> {
             Icon(
                 modifier = modifier.requiredSize(spec.iconSize),
-                imageVector = Icons.Default.Stop,
+                imageVector = Icons.Rounded.Stop,
                 contentDescription = null,
             )
         }

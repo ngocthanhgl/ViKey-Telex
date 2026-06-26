@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Code
-import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -75,7 +75,7 @@ fun AboutScreen() {
             ),
         ) {
             M3ClickablePreference(
-                icon = Icons.Outlined.Info,
+                icon = Icons.Rounded.Info,
                 title = stringRes(R.string.about__version__title),
                 onClick = {
                     try {
@@ -92,25 +92,25 @@ fun AboutScreen() {
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.History,
+                icon = Icons.Rounded.History,
                 title = stringRes(R.string.about__changelog__title),
                 onClick = { context.launchUrl(R.string.florisboard__changelog_url, "version" to BuildConfig.VERSION_NAME) },
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.Code,
+                icon = Icons.Rounded.Code,
                 title = stringRes(R.string.about__repository__title),
                 onClick = { context.launchUrl(R.string.florisboard__repo_url) },
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.Description,
+                icon = Icons.Rounded.Description,
                 title = stringRes(R.string.about__project_license__title),
                 onClick = { navController.navigate(Routes.Settings.ProjectLicense) },
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.Description,
+                icon = Icons.Rounded.Description,
                 title = stringRes(id = R.string.about__third_party_licenses__title),
                 onClick = { navController.navigate(Routes.Settings.ThirdPartyLicenses) },
             )

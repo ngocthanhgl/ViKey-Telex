@@ -36,8 +36,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,7 +60,6 @@ import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.ime.theme.FlorisImeUi
 import org.florisboard.lib.android.AndroidVersion
 import org.florisboard.lib.compose.FlorisIconButton
-import org.florisboard.lib.compose.drawableRes
 import org.florisboard.lib.compose.stringRes
 import org.florisboard.lib.snygg.ui.SnyggButton
 import org.florisboard.lib.snygg.ui.SnyggIcon
@@ -172,7 +172,7 @@ fun ImeSystemUiFloating() {
                             FlorisImeService.hideUi()
                         }
                     ) {
-                        Icon(imageVector = Icons.Default.KeyboardArrowDown, null)
+                        Icon(imageVector = Icons.Rounded.KeyboardArrowDown, null)
                     }
                 }
             } else {
@@ -199,7 +199,7 @@ fun ImeSystemUiFloating() {
                             FlorisImeService.showImePicker()
                         }
                     ) {
-                        Icon(imageVector = Icons.Default.Language, null)
+                        Icon(imageVector = Icons.Rounded.Language, null)
                     }
                 }
             } else {
@@ -216,7 +216,7 @@ fun ImeSystemUiFloating() {
                                 windowController.actions.resetFloatingSize()
                             }
                         ) {
-                            SnyggIcon(imageVector = drawableRes(R.drawable.ic_restart_alt))
+                            SnyggIcon(imageVector = Icons.Rounded.RestartAlt)
                             SnyggText(text = stringRes(R.string.action__reset))
                         }
                     }

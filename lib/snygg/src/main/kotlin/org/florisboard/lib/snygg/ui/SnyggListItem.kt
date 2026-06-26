@@ -21,7 +21,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -142,19 +142,19 @@ private fun SimpleSnyggListItem() {
     ProvideSnyggTheme(theme) {
         SnyggColumn("preview") {
             SnyggListItem("preview-list-item",
-                leadingImageVector = Icons.Default.Search,
+                leadingImageVector = Icons.Rounded.Search,
                 onClick = {},
                 text = "hello",
             )
             SnyggListItem("preview-list-item",
                 mapOf("layout" to "center"),
-                leadingImageVector = Icons.Default.Search,
+                leadingImageVector = Icons.Rounded.Search,
                 onClick = {},
                 text = "hello",
             )
             SnyggListItem("preview-list-item",
                 mapOf("layout" to "long"),
-                leadingImageVector = Icons.Default.Search,
+                leadingImageVector = Icons.Rounded.Search,
                 onClick = {},
                 text = "hello world this is a very long list item text label",
             )

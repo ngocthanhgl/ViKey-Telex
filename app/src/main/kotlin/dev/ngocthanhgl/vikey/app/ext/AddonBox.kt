@@ -22,9 +22,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Input
-import androidx.compose.material.icons.filled.Shop
-import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.automirrored.rounded.Input
+import androidx.compose.material.icons.rounded.Shop
+import androidx.compose.material.icons.rounded.FileDownload
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -74,7 +74,7 @@ fun ImportExtensionBox(navController: NavController) {
                 },
             ) {
                 androidx.compose.material3.Icon(
-                    imageVector = Icons.Default.Shop,
+                    imageVector = Icons.Rounded.Shop,
                     contentDescription = null,
                     modifier = Modifier.padding(end = 4.dp),
                 )
@@ -87,7 +87,7 @@ fun ImportExtensionBox(navController: NavController) {
                 },
             ) {
                 androidx.compose.material3.Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Input,
+                    imageVector = Icons.AutoMirrored.Rounded.Input,
                     contentDescription = null,
                     modifier = Modifier.padding(end = 4.dp),
                 )
@@ -126,7 +126,7 @@ fun UpdateBox(extensionIndex: List<Extension>) {
                 },
             ) {
                 androidx.compose.material3.Icon(
-                    imageVector = Icons.Outlined.FileDownload,
+                    imageVector = Icons.Rounded.FileDownload,
                     contentDescription = null,
                     modifier = Modifier.padding(end = 4.dp),
                 )
@@ -178,7 +178,7 @@ fun AddonManagementReferenceBox(
                 },
             ) {
                 androidx.compose.material3.Icon(
-                    imageVector = Icons.Default.Shop,
+                    imageVector = Icons.Rounded.Shop,
                     contentDescription = null,
                     modifier = Modifier.padding(end = 4.dp),
                 )

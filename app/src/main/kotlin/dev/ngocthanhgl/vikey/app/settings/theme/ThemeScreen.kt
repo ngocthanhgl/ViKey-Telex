@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BrightnessAuto
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material.icons.rounded.BrightnessAuto
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -60,7 +60,7 @@ fun ThemeScreen() {
             ),
         ) {
             M3ListPreference(
-                icon = Icons.Outlined.BrightnessAuto,
+                icon = Icons.Rounded.BrightnessAuto,
                 value = themeMode,
                 onSelect = { scope.launch { prefs.theme.mode.set(ThemeMode.valueOf(it)) } },
                 title = stringRes(R.string.pref__theme__mode__label),
@@ -68,7 +68,7 @@ fun ThemeScreen() {
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.WbSunny,
+                icon = Icons.Rounded.WbSunny,
                 title = stringRes(R.string.pref__theme__day),
                 enabled = themeMode != ThemeMode.ALWAYS_NIGHT,
                 onClick = {
@@ -77,7 +77,7 @@ fun ThemeScreen() {
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.DarkMode,
+                icon = Icons.Rounded.DarkMode,
                 title = stringRes(R.string.pref__theme__night),
                 enabled = themeMode != ThemeMode.ALWAYS_DAY,
                 onClick = {
@@ -86,7 +86,7 @@ fun ThemeScreen() {
             )
             SettingsDivider()
             M3LocalTimePickerPreference(
-                icon = Icons.Outlined.WbSunny,
+                icon = Icons.Rounded.WbSunny,
                 title = stringRes(R.string.pref__theme__sunrise_time__label),
                 currentHour = sunriseTime.hour,
                 currentMinute = sunriseTime.minute,
@@ -96,7 +96,7 @@ fun ThemeScreen() {
             )
             SettingsDivider()
             M3LocalTimePickerPreference(
-                icon = Icons.Outlined.WbSunny,
+                icon = Icons.Rounded.WbSunny,
                 title = stringRes(R.string.pref__theme__sunset_time__label),
                 currentHour = sunsetTime.hour,
                 currentMinute = sunsetTime.minute,
@@ -106,7 +106,7 @@ fun ThemeScreen() {
             )
             SettingsDivider()
             M3ColorPickerPreference(
-                icon = Icons.Outlined.Palette,
+                icon = Icons.Rounded.Palette,
                 title = stringRes(R.string.pref__theme__theme_accent_color__label),
                 currentColor = accentColor,
                 onColorSelected = { scope.launch { prefs.theme.accentColor.set(it) } },

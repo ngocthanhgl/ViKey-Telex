@@ -49,6 +49,7 @@ import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material.icons.rounded.SentimentSatisfiedAlt
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Numbers
+import androidx.compose.material.icons.rounded.AccessibilityNew
 import androidx.compose.material.icons.rounded.SpaceBar
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.ngocthanhgl.vikey.R
@@ -214,7 +215,7 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
         KeyCode.COMPACT_LAYOUT_TO_LEFT,
         KeyCode.COMPACT_LAYOUT_TO_RIGHT,
         KeyCode.TOGGLE_COMPACT_LAYOUT -> {
-            context()?.vectorResource(id = R.drawable.ic_accessibility_one_handed)
+            Icons.Rounded.AccessibilityNew
         }
         KeyCode.TOGGLE_FLOATING_WINDOW -> {
             Icons.Rounded.PictureInPictureAlt

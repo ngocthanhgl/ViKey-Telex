@@ -21,13 +21,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -215,12 +215,12 @@ fun ThemeEditorScreen(
                 title = { Text(stringRes(R.string.ext__editor__edit_component__title_theme)) },
                 navigationIcon = {
                     IconButton(onClick = { handleBackPress() }) {
-                        Icon(Icons.Default.Close, contentDescription = null)
+                        Icon(Icons.Rounded.Close, contentDescription = null)
                     }
                 },
                 actions = {
                     IconButton(onClick = { showFineTuneDialog = true }) {
-                        Icon(Icons.Outlined.Tune, contentDescription = null)
+                        Icon(Icons.Rounded.Tune, contentDescription = null)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -231,7 +231,7 @@ fun ThemeEditorScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
+                icon = { Icon(imageVector = Icons.Rounded.Add, contentDescription = null) },
                 text = { Text(text = stringRes(R.string.settings__theme_editor__add_rule)) },
                 onClick = { snyggRuleToEdit = SnyggEmptyRuleForAdding },
             )
@@ -430,7 +430,7 @@ fun ThemeEditorScreen(
                                                             }
                                                         }
                                                     },
-                                                    icon = Icons.Default.KeyboardArrowUp,
+                                                    icon = Icons.Rounded.KeyboardArrowUp,
                                                     iconColor = MaterialTheme.colorScheme.primary,
                                                     iconModifier = Modifier.size(ButtonDefaults.IconSize),
                                                     enabled = propertySetIndex > 0,
@@ -444,14 +444,14 @@ fun ThemeEditorScreen(
                                                             }
                                                         }
                                                     },
-                                                    icon = Icons.Default.KeyboardArrowDown,
+                                                    icon = Icons.Rounded.KeyboardArrowDown,
                                                     iconColor = MaterialTheme.colorScheme.primary,
                                                     iconModifier = Modifier.size(ButtonDefaults.IconSize),
                                                     enabled = propertySetIndex + 1 < sets.size,
                                                 )
                                                 FlorisIconButton(
                                                     onClick = { workspace.update { sets.removeAt(propertySetIndex) } },
-                                                    icon = Icons.Default.Delete,
+                                                    icon = Icons.Rounded.Delete,
                                                     iconColor = MaterialTheme.colorScheme.primary,
                                                     iconModifier = Modifier.size(ButtonDefaults.IconSize),
                                                 )
@@ -460,7 +460,7 @@ fun ThemeEditorScreen(
                                                         snyggPropertySetForEditing = ps
                                                         snyggPropertyToEdit = SnyggEmptyPropertyInfoForAdding.copy(rule = rule)
                                                     },
-                                                    icon = Icons.Default.Add,
+                                                    icon = Icons.Rounded.Add,
                                                     iconColor = MaterialTheme.colorScheme.primary,
                                                     iconModifier = Modifier.size(ButtonDefaults.IconSize),
                                                 )
@@ -799,14 +799,14 @@ private fun SnyggRuleRow(
         if (showEditBtn) {
             FlorisIconButton(
                 onClick = onEditRuleBtnClick,
-                icon = Icons.Outlined.Edit,
+                icon = Icons.Rounded.Edit,
                 iconColor = MaterialTheme.colorScheme.primary,
                 iconModifier = Modifier.size(ButtonDefaults.IconSize),
             )
         }
         FlorisIconButton(
             onClick = onAddPropertyBtnClick,
-            icon = Icons.Default.Add,
+            icon = Icons.Rounded.Add,
             iconColor = MaterialTheme.colorScheme.secondary,
             iconModifier = Modifier.size(ButtonDefaults.IconSize),
         )

@@ -29,10 +29,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Keyboard
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.Keyboard
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -79,7 +79,7 @@ fun ExtensionHomeScreen() {
             ),
         ) {
             ExtensionNavItem(
-                icon = Icons.Default.Palette,
+                icon = Icons.Rounded.Palette,
                 title = stringRes(R.string.ext__list__ext_theme),
                 onClick = {
                     navController.navigate(Routes.Ext.List(ExtensionListScreenType.EXT_THEME, false))
@@ -87,7 +87,7 @@ fun ExtensionHomeScreen() {
             )
             SettingsDivider()
             ExtensionNavItem(
-                icon = Icons.Default.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 title = stringRes(R.string.ext__list__ext_keyboard),
                 onClick = {
                     navController.navigate(Routes.Ext.List(ExtensionListScreenType.EXT_KEYBOARD, false))
@@ -95,7 +95,7 @@ fun ExtensionHomeScreen() {
             )
             SettingsDivider()
             ExtensionNavItem(
-                icon = Icons.Default.Language,
+                icon = Icons.Rounded.Language,
                 title = stringRes(R.string.ext__list__ext_languagepack),
                 onClick = {
                     navController.navigate(Routes.Ext.List(ExtensionListScreenType.EXT_LANGUAGEPACK, false))
@@ -141,7 +141,7 @@ private fun ExtensionNavItem(
         )
         Spacer(Modifier.width(12.dp))
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
             modifier = Modifier.size(24.dp),

@@ -17,7 +17,7 @@
 package org.florisboard.lib.snygg.ui
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -162,7 +162,7 @@ private fun SimpleSnyggIcon() {
     ProvideSnyggTheme(theme) {
         SnyggColumn("preview-column") {
             SnyggText("preview-text", text = "blue text")
-            SnyggIcon("preview-icon", imageVector = Icons.Default.Search)
+            SnyggIcon("preview-icon", imageVector = Icons.Rounded.Search)
         }
     }
 }

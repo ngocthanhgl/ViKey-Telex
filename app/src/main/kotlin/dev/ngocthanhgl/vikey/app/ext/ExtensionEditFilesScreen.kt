@@ -29,10 +29,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Photo
-import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Photo
+import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -152,7 +152,7 @@ fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) {
                 )
                 Spacer(Modifier.width(24.dp))
                 IconButton(onClick = onAdd) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(Icons.Rounded.Add, contentDescription = null)
                 }
             }
             for (file in files) {
@@ -247,7 +247,7 @@ fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) {
 
         FileList(
             title = stringRes(R.string.ext__editor__files__type_fonts),
-            icon = Icons.Default.TextFields,
+            icon = Icons.Rounded.TextFields,
             files = fontFiles,
         ) {
             currentImportDest = FONTS
@@ -256,7 +256,7 @@ fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) {
 
         FileList(
             title = stringRes(R.string.ext__editor__files__type_images),
-            icon = Icons.Default.Photo,
+            icon = Icons.Rounded.Photo,
             files = imageFiles,
         ) {
             currentImportDest = IMAGES

@@ -35,10 +35,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.UnfoldLess
-import androidx.compose.material.icons.outlined.UnfoldMore
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.UnfoldLess
+import androidx.compose.material.icons.rounded.UnfoldMore
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -185,11 +186,11 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 if (it) 180f else 0f
             }
             val arrowIcon = if (flipToggles) {
-                Icons.AutoMirrored.Outlined.KeyboardArrowLeft
+                Icons.AutoMirrored.Rounded.KeyboardArrowLeft
             } else {
-                Icons.AutoMirrored.Outlined.KeyboardArrowRight
+                Icons.AutoMirrored.Rounded.KeyboardArrowRight
             }
-            val incognitoIcon = ImageVector.vectorResource(id = R.drawable.ic_incognito)
+            val incognitoIcon = Icons.Rounded.VisibilityOff
             val incognitoDisplayMode = prefs.keyboard.incognitoDisplayMode.collectAsState()
             val isIncognitoMode = keyboardManager.activeState.isIncognitoMode
             val icon = if (isIncognitoMode) {
@@ -267,7 +268,7 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .alpha(alpha)
                     .rotate(rotation),
-                imageVector = Icons.Outlined.UnfoldLess,
+                imageVector = Icons.Rounded.UnfoldLess,
             )
             // Not expanded icon
             SnyggIcon(
@@ -275,7 +276,7 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .alpha(1f - alpha)
                     .rotate(rotation - 180f),
-                imageVector = Icons.Outlined.UnfoldMore,
+                imageVector = Icons.Rounded.UnfoldMore,
             )
         }
     }

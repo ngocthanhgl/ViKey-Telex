@@ -23,8 +23,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.RadioButtonChecked
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.rounded.RadioButtonChecked
+import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -84,8 +84,8 @@ fun SelectSubtypePanel(modifier: Modifier = Modifier) {
                             keyboardManager.activeState.isSubtypeSelectionVisible = false
                         },
                         leadingImageVector = when {
-                            currentlySelected == it.id -> Icons.Default.RadioButtonChecked
-                            else -> Icons.Default.RadioButtonUnchecked
+                            currentlySelected == it.id -> Icons.Rounded.RadioButtonChecked
+                            else -> Icons.Rounded.RadioButtonUnchecked
                         },
                         text = it.primaryLocale.displayName(),
                     )

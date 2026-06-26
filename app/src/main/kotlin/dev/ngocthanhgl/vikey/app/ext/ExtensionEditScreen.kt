@@ -37,10 +37,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.LibraryBooks
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -334,7 +335,7 @@ private fun EditScreen(
                 title = { Text(title) },
                 navigationIcon = {
                     IconButton(onClick = { handleBackPress() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -377,7 +378,7 @@ private fun EditScreen(
                 ),
             ) {
                 EditorMenuRow(
-                    icon = Icons.Default.Code,
+                    icon = Icons.Rounded.Code,
                     title = stringRes(R.string.ext__editor__metadata__title),
                     onClick = { workspace.currentAction = EditorAction.ManageMetaData },
                 )
@@ -386,7 +387,7 @@ private fun EditScreen(
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                 )
                 EditorMenuRow(
-                    icon = Icons.AutoMirrored.Outlined.LibraryBooks,
+                    icon = Icons.AutoMirrored.Rounded.LibraryBooks,
                     title = stringRes(R.string.ext__editor__dependencies__title),
                     onClick = { workspace.currentAction = EditorAction.ManageDependencies },
                 )
@@ -395,7 +396,7 @@ private fun EditScreen(
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                 )
                 EditorMenuRow(
-                    icon = ImageVector.vectorResource(R.drawable.ic_file_blank),
+                    icon = Icons.Rounded.Description,
                     title = stringRes(R.string.ext__editor__files__title),
                     onClick = { workspace.currentAction = EditorAction.ManageFiles },
                 )
@@ -479,7 +480,7 @@ private fun EditorMenuRow(
         },
         trailingContent = {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
             )
@@ -549,7 +550,7 @@ private fun ManageMetaDataScreen(
                 title = { Text(stringRes(R.string.ext__editor__metadata__title)) },
                 navigationIcon = {
                     IconButton(onClick = { handleBackPress() }) {
-                        Icon(Icons.Default.Close, contentDescription = null)
+                        Icon(Icons.Rounded.Close, contentDescription = null)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -664,7 +665,7 @@ private fun ManageDependenciesScreen(workspace: CacheManager.ExtEditorWorkspace<
                 title = { Text(stringRes(R.string.ext__editor__dependencies__title)) },
                 navigationIcon = {
                     IconButton(onClick = { handleBackPress() }) {
-                        Icon(Icons.Default.Close, contentDescription = null)
+                        Icon(Icons.Rounded.Close, contentDescription = null)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -856,7 +857,7 @@ private fun <T : ExtensionComponent> CreateComponentScreen(
                 title = { Text(title) },
                 navigationIcon = {
                     IconButton(onClick = { handleBackPress() }) {
-                        Icon(Icons.Default.Close, contentDescription = null)
+                        Icon(Icons.Rounded.Close, contentDescription = null)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

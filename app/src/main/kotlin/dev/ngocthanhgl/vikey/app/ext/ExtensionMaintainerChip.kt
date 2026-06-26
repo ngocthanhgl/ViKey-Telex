@@ -26,8 +26,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.outlined.Mail
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.Mail
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -78,7 +78,7 @@ fun ExtensionMaintainerChip(
                 Spacer(Modifier.width(4.dp))
                 if (hasEmail) {
                     Icon(
-                        imageVector = Icons.Outlined.Mail,
+                        imageVector = Icons.Rounded.Mail,
                         contentDescription = null,
                         modifier = Modifier.size(12.dp),
                         tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
@@ -87,7 +87,7 @@ fun ExtensionMaintainerChip(
                 if (hasUrl) {
                     Spacer(Modifier.width(2.dp))
                     Icon(
-                        imageVector = Icons.Default.Link,
+                        imageVector = Icons.Rounded.Link,
                         contentDescription = null,
                         modifier = Modifier.size(12.dp),
                         tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
@@ -112,7 +112,7 @@ fun ExtensionMaintainerChip(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
-                                imageVector = Icons.Outlined.Mail,
+                                imageVector = Icons.Rounded.Mail,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp),
                                 tint = MaterialTheme.colorScheme.primary,
@@ -134,7 +134,7 @@ fun ExtensionMaintainerChip(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Link,
+                                imageVector = Icons.Rounded.Link,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp),
                                 tint = MaterialTheme.colorScheme.primary,

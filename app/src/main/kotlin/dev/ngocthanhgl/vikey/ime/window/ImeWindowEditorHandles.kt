@@ -62,7 +62,10 @@ import dev.ngocthanhgl.vikey.ime.theme.FlorisImeUi
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import kotlinx.coroutines.delay
 import org.florisboard.lib.compose.conditional
-import org.florisboard.lib.compose.drawableRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.PanTool
+import androidx.compose.material.icons.rounded.RestartAlt
 import org.florisboard.lib.compose.toDp
 import org.florisboard.lib.snygg.ui.SnyggIcon
 import org.florisboard.lib.snygg.ui.SnyggIconButton
@@ -241,7 +244,7 @@ fun BoxScope.ImeWindowResizeHandlesFixed() {
             ) {
                 SnyggIcon(
                     elementName = FlorisImeUi.WindowResizeAction.elementName,
-                    imageVector = drawableRes(R.drawable.ic_restart_alt),
+                    imageVector = Icons.Rounded.RestartAlt,
                 )
             }
 
@@ -252,7 +255,7 @@ fun BoxScope.ImeWindowResizeHandlesFixed() {
             ) {
                 SnyggIcon(
                     elementName = FlorisImeUi.WindowMoveHandle.elementName,
-                    imageVector = drawableRes(R.drawable.ic_drag_pan),
+                    imageVector = Icons.Rounded.PanTool,
                     modifier = Modifier.imeWindowMoveHandle(windowController),
                 )
             }
@@ -264,7 +267,7 @@ fun BoxScope.ImeWindowResizeHandlesFixed() {
             ) {
                 SnyggIcon(
                     elementName = FlorisImeUi.WindowResizeAction.elementName,
-                    imageVector = drawableRes(R.drawable.ic_check),
+                    imageVector = Icons.Rounded.Check,
                 )
             }
         }

@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -156,7 +156,7 @@ fun SpellCheckerServiceSelector(florisSpellCheckerEnabled: MutableState<Boolean>
                             )
                         } else {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.HelpOutline,
+                                imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
                                 contentDescription = null,
                                 modifier = Modifier.requiredSize(32.dp),
                             )

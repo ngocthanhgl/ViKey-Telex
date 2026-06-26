@@ -49,23 +49,23 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.Backspace
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DeleteSweep
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.FilterListOff
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.TextFields
-import androidx.compose.material.icons.filled.ToggleOff
-import androidx.compose.material.icons.filled.ToggleOn
-import androidx.compose.material.icons.filled.Videocam
-import androidx.compose.material.icons.outlined.ContentPasteGo
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Backspace
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.rounded.FilterListOff
+import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.Movie
+import androidx.compose.material.icons.rounded.Phone
+import androidx.compose.material.icons.rounded.TextFields
+import androidx.compose.material.icons.rounded.ToggleOff
+import androidx.compose.material.icons.rounded.ToggleOn
+import androidx.compose.material.icons.rounded.Videocam
+import androidx.compose.material.icons.rounded.ContentPasteGo
+import androidx.compose.material.icons.rounded.Email
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -196,7 +196,7 @@ fun ClipboardInputLayout(
                 modifier = sizeModifier,
             ) {
                 SnyggIcon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 )
             }
             SnyggText(
@@ -212,9 +212,9 @@ fun ClipboardInputLayout(
             ) {
                 SnyggIcon(
                     imageVector = if (historyEnabled) {
-                        Icons.Default.ToggleOn
+                        Icons.Rounded.ToggleOn
                     } else {
-                        Icons.Default.ToggleOff
+                        Icons.Rounded.ToggleOff
                     },
                 )
             }
@@ -225,7 +225,7 @@ fun ClipboardInputLayout(
                 enabled = !deviceLocked && historyEnabled && filteredHistory.all.isNotEmpty() && !isPopupSurfaceActive(),
             ) {
                 SnyggIcon(
-                    imageVector = Icons.Default.DeleteSweep,
+                    imageVector = Icons.Rounded.DeleteSweep,
                 )
             }
             SnyggIconButton(
@@ -236,9 +236,9 @@ fun ClipboardInputLayout(
             ) {
                 SnyggIcon(
                     imageVector = if (!isFilterRowShown) {
-                        Icons.Default.FilterList
+                        Icons.Rounded.FilterList
                     } else {
-                        Icons.Default.FilterListOff
+                        Icons.Rounded.FilterListOff
                     },
                 )
             }
@@ -248,7 +248,7 @@ fun ClipboardInputLayout(
                 keyData = TextKeyData.DELETE,
                 elementName = FlorisImeUi.ClipboardHeaderButton.elementName,
             ) {
-                SnyggIcon(imageVector = Icons.AutoMirrored.Outlined.Backspace)
+                SnyggIcon(imageVector = Icons.AutoMirrored.Rounded.Backspace)
             }
         }
     }
@@ -335,7 +335,7 @@ fun ClipboardInputLayout(
                             .align(Alignment.BottomStart)
                             .padding(start = 4.dp, bottom = 4.dp)
                             .background(Color.White, CircleShape),
-                        imageVector = Icons.Default.Videocam,
+                        imageVector = Icons.Rounded.Videocam,
                         contentDescription = null,
                         tint = Color.Black,
                     )
@@ -440,17 +440,17 @@ fun ClipboardInputLayout(
                         }
 
                         FilterChip(
-                            imageVector = Icons.Default.TextFields,
+                            imageVector = Icons.Rounded.TextFields,
                             text = "Text",
                             itemType = ItemType.TEXT,
                         )
                         FilterChip(
-                            imageVector = Icons.Default.Image,
+                            imageVector = Icons.Rounded.Image,
                             text = "Images",
                             itemType = ItemType.IMAGE,
                         )
                         FilterChip(
-                            imageVector = Icons.Default.Movie,
+                            imageVector = Icons.Rounded.Movie,
                             text = "Videos",
                             itemType = ItemType.VIDEO,
                         )
@@ -515,7 +515,7 @@ fun ClipboardInputLayout(
                     SnyggColumn(modifier = Modifier.weight(0.5f)) {
                         SnyggColumn(FlorisImeUi.ClipboardItemActions.elementName) {
                             PopupAction(
-                                icon = Icons.Outlined.PushPin,
+                                icon = Icons.Rounded.PushPin,
                                 text = stringRes(if (popupItem!!.isPinned) {
                                     R.string.clip__unpin_item
                                 } else {
@@ -530,14 +530,14 @@ fun ClipboardInputLayout(
                                 popupItem = null
                             }
                             PopupAction(
-                                icon = Icons.Default.Delete,
+                                icon = Icons.Rounded.Delete,
                                 text = stringRes(R.string.clip__delete_item),
                             ) {
                                 clipboardManager.deleteClip(popupItem!!, onlyIfUnpinned = false)
                                 popupItem = null
                             }
                             PopupAction(
-                                icon = Icons.Outlined.ContentPasteGo,
+                                icon = Icons.Rounded.ContentPasteGo,
                                 text = stringRes(R.string.clip__paste_item),
                             ) {
                                 clipboardManager.pasteItem(popupItem!!)
@@ -710,15 +710,15 @@ private fun ClipTextItemDescription(
     val description: String?
     when {
         NetworkUtils.isEmailAddress(text) -> {
-            icon = Icons.Outlined.Email
+            icon = Icons.Rounded.Email
             description = stringRes(R.string.clipboard__item_description_email)
         }
         NetworkUtils.isUrl(text) -> {
-            icon = Icons.Default.Link
+            icon = Icons.Rounded.Link
             description = stringRes(R.string.clipboard__item_description_url)
         }
         NetworkUtils.isPhoneNumber(text) -> {
-            icon = Icons.Default.Phone
+            icon = Icons.Rounded.Phone
             description = stringRes(R.string.clipboard__item_description_phone)
         }
         else -> {

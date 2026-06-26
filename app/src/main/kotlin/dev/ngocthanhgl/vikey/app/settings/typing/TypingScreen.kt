@@ -5,14 +5,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Bookmark
-import androidx.compose.material.icons.outlined.Contacts
-import androidx.compose.material.icons.outlined.FormatAlignLeft
-import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.MenuBook
-import androidx.compose.material.icons.outlined.Spellcheck
-import androidx.compose.material.icons.outlined.TextFormat
+import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.Contacts
+import androidx.compose.material.icons.rounded.FormatAlignLeft
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.MenuBook
+import androidx.compose.material.icons.rounded.Spellcheck
+import androidx.compose.material.icons.rounded.TextFormat
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -74,35 +74,35 @@ fun TypingScreen() {
             ),
         ) {
             M3SwitchPreference(
-                icon = Icons.Outlined.TextFormat,
+                icon = Icons.Rounded.TextFormat,
                 checked = autoCapitalization,
                 onCheckedChange = { scope.launch { prefs.correction.autoCapitalization.set(it) } },
                 title = stringRes(R.string.pref__correction__auto_capitalization__label),
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.FormatAlignLeft,
+                icon = Icons.Rounded.FormatAlignLeft,
                 checked = autoSpacePunctuationEnabled,
                 onCheckedChange = { scope.launch { prefs.correction.autoSpacePunctuation.set(it) } },
                 title = stringRes(R.string.pref__correction__auto_space_punctuation__label),
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Lock,
+                icon = Icons.Rounded.Lock,
                 checked = rememberCapsLockState,
                 onCheckedChange = { scope.launch { prefs.correction.rememberCapsLockState.set(it) } },
                 title = stringRes(R.string.pref__correction__remember_caps_lock_state__label),
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.FormatAlignLeft,
+                icon = Icons.Rounded.FormatAlignLeft,
                 checked = doubleSpacePeriod,
                 onCheckedChange = { scope.launch { prefs.correction.doubleSpacePeriod.set(it) } },
                 title = stringRes(R.string.pref__correction__double_space_period__label),
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Spellcheck,
+                icon = Icons.Rounded.Spellcheck,
                 checked = autoCorrect,
                 onCheckedChange = { scope.launch { prefs.correction.autoCorrect.set(it) } },
                 title = stringRes(R.string.pref__correction__auto_correct__label),
@@ -129,7 +129,7 @@ fun TypingScreen() {
             SpellCheckerServiceSelector(florisSpellCheckerEnabled)
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.Language,
+                icon = Icons.Rounded.Language,
                 value = languageMode,
                 onSelect = { scope.launch { prefs.spelling.languageMode.set(SpellingLanguageMode.valueOf(it)) } },
                 title = stringRes(R.string.pref__spelling__language_mode__label),
@@ -138,7 +138,7 @@ fun TypingScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Contacts,
+                icon = Icons.Rounded.Contacts,
                 checked = useContacts,
                 onCheckedChange = { scope.launch { prefs.spelling.useContacts.set(it) } },
                 title = stringRes(R.string.pref__spelling__use_contacts__label),
@@ -146,7 +146,7 @@ fun TypingScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Bookmark,
+                icon = Icons.Rounded.Bookmark,
                 checked = useUdmEntries,
                 onCheckedChange = { scope.launch { prefs.spelling.useUdmEntries.set(it) } },
                 title = stringRes(R.string.pref__spelling__use_udm_entries__label),
@@ -171,7 +171,7 @@ fun TypingScreen() {
             ),
         ) {
             M3ClickablePreference(
-                icon = Icons.Outlined.MenuBook,
+                icon = Icons.Rounded.MenuBook,
                 title = stringRes(R.string.settings__dictionary__title),
                 onClick = { navController.navigate(Routes.Settings.Dictionary) },
             )

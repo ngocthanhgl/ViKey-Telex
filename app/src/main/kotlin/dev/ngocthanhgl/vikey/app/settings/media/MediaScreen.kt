@@ -4,17 +4,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Bookmark
-import androidx.compose.material.icons.outlined.Category
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.FormatSize
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Label
-import androidx.compose.material.icons.outlined.Lightbulb
-import androidx.compose.material.icons.outlined.Numbers
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Storage
-import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.Category
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.FormatSize
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Label
+import androidx.compose.material.icons.rounded.Lightbulb
+import androidx.compose.material.icons.rounded.Numbers
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Storage
+import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -77,7 +77,7 @@ fun MediaScreen() {
             ),
         ) {
             M3ListPreference(
-                icon = Icons.Outlined.Palette,
+                icon = Icons.Rounded.Palette,
                 value = preferredSkinTone,
                 onSelect = { scope.launch { prefs.emoji.preferredSkinTone.set(EmojiSkinTone.valueOf(it)) } },
                 title = stringRes(R.string.prefs__media__emoji_preferred_skin_tone),
@@ -103,14 +103,14 @@ fun MediaScreen() {
             ),
         ) {
             M3SwitchPreference(
-                icon = Icons.Outlined.History,
+                icon = Icons.Rounded.History,
                 checked = historyEnabled,
                 onCheckedChange = { scope.launch { prefs.emoji.historyEnabled.set(it) } },
                 title = stringRes(R.string.prefs__media__emoji_history_enabled),
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.Bookmark,
+                icon = Icons.Rounded.Bookmark,
                 value = historyPinnedUpdateStrategy,
                 onSelect = { scope.launch { prefs.emoji.historyPinnedUpdateStrategy.set(EmojiHistory.UpdateStrategy.valueOf(it)) } },
                 title = stringRes(R.string.prefs__media__emoji_history_pinned_update_strategy),
@@ -119,7 +119,7 @@ fun MediaScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.History,
+                icon = Icons.Rounded.History,
                 value = historyRecentUpdateStrategy,
                 onSelect = { scope.launch { prefs.emoji.historyRecentUpdateStrategy.set(EmojiHistory.UpdateStrategy.valueOf(it)) } },
                 title = stringRes(R.string.prefs__media__emoji_history_recent_update_strategy),
@@ -128,7 +128,7 @@ fun MediaScreen() {
             )
             SettingsDivider()
             M3DialogSliderPreference(
-                icon = Icons.Outlined.Storage,
+                icon = Icons.Rounded.Storage,
                 primaryValue = historyPinnedMaxSize,
                 onPrimaryChange = { scope.launch { prefs.emoji.historyPinnedMaxSize.set(it) } },
                 secondaryValue = historyRecentMaxSize,
@@ -148,14 +148,14 @@ fun MediaScreen() {
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.Delete,
+                icon = Icons.Rounded.Delete,
                 title = stringRes(R.string.prefs__media__emoji_history_pinned_reset),
                 onClick = { shouldDelete = ShouldDelete(true) },
                 enabled = historyEnabled,
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.Delete,
+                icon = Icons.Rounded.Delete,
                 title = stringRes(R.string.prefs__media__emoji_history_reset),
                 onClick = { shouldDelete = ShouldDelete(false) },
                 enabled = historyEnabled,
@@ -180,14 +180,14 @@ fun MediaScreen() {
             ),
         ) {
             M3SwitchPreference(
-                icon = Icons.Outlined.Lightbulb,
+                icon = Icons.Rounded.Lightbulb,
                 checked = suggestionEnabled,
                 onCheckedChange = { scope.launch { prefs.emoji.suggestionEnabled.set(it) } },
                 title = stringRes(R.string.prefs__media__emoji_suggestion_enabled),
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.Category,
+                icon = Icons.Rounded.Category,
                 value = suggestionType,
                 onSelect = { scope.launch { prefs.emoji.suggestionType.set(EmojiSuggestionType.valueOf(it)) } },
                 title = stringRes(R.string.prefs__media__emoji_suggestion_type),
@@ -196,7 +196,7 @@ fun MediaScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Sync,
+                icon = Icons.Rounded.Sync,
                 checked = suggestionUpdateHistory,
                 onCheckedChange = { scope.launch { prefs.emoji.suggestionUpdateHistory.set(it) } },
                 title = stringRes(R.string.prefs__media__emoji_suggestion_update_history),
@@ -204,7 +204,7 @@ fun MediaScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Label,
+                icon = Icons.Rounded.Label,
                 checked = suggestionCandidateShowName,
                 onCheckedChange = { scope.launch { prefs.emoji.suggestionCandidateShowName.set(it) } },
                 title = stringRes(R.string.prefs__media__emoji_suggestion_candidate_show_name),
@@ -212,7 +212,7 @@ fun MediaScreen() {
             )
             SettingsDivider()
             M3DialogSliderPreference(
-                icon = Icons.Outlined.FormatSize,
+                icon = Icons.Rounded.FormatSize,
                 value = suggestionQueryMinLength,
                 onChange = { scope.launch { prefs.emoji.suggestionQueryMinLength.set(it) } },
                 title = stringRes(R.string.prefs__media__emoji_suggestion_query_min_length),
@@ -222,7 +222,7 @@ fun MediaScreen() {
             )
             SettingsDivider()
             M3DialogSliderPreference(
-                icon = Icons.Outlined.Numbers,
+                icon = Icons.Rounded.Numbers,
                 value = suggestionCandidateMaxCount,
                 onChange = { scope.launch { prefs.emoji.suggestionCandidateMaxCount.set(it) } },
                 title = stringRes(R.string.prefs__media__emoji_suggestion_candidate_max_count),

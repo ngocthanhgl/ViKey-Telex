@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Backspace
+import androidx.compose.material.icons.automirrored.rounded.Backspace
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -108,7 +108,7 @@ fun MediaInputLayout(
                 keyData = TextKeyData.DELETE,
                 modifier = Modifier.fillMaxHeight(),
             ) {
-                Icon(imageVector = Icons.AutoMirrored.Outlined.Backspace, contentDescription = null)
+                Icon(imageVector = Icons.AutoMirrored.Rounded.Backspace, contentDescription = null)
             }
         }
         if (bottomPaddingDp > 0.dp) {

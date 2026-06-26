@@ -40,9 +40,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Pageview
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Pageview
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -295,7 +295,7 @@ internal fun EditRuleDialog(
                         trailingIconTitle = {
                             FlorisIconButton(
                                 onClick = { editCodeDialogValue = KeyCode.UNSPECIFIED.toString() },
-                                icon = Icons.Default.Add,
+                                icon = Icons.Rounded.Add,
                             )
                         },
                     ) {
@@ -484,7 +484,7 @@ private fun EditCodeValueDialog(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     FlorisIconButton(
                         onClick = { showKeyCodesHelp = !showKeyCodesHelp },
-                        icon = Icons.AutoMirrored.Filled.HelpOutline,
+                        icon = Icons.AutoMirrored.Rounded.HelpOutline,
                     )
                 }
                 AnimatedVisibility(visible = showKeyCodesHelp) {
@@ -549,7 +549,7 @@ private fun EditCodeValueDialog(
                             trailingIcon = {
                                 FlorisIconButton(
                                     onClick = { requestStartRecording() },
-                                    icon = Icons.Default.Pageview,
+                                    icon = Icons.Rounded.Pageview,
                                     iconColor = recordingKeyColor,
                                 )
                             }
@@ -719,7 +719,7 @@ private fun <V : Any> EnumLikeAttributeBox(
         trailingIconTitle = {
             FlorisIconButton(
                 onClick = { showAddDialog = true },
-                icon = Icons.Default.Add,
+                icon = Icons.Rounded.Add,
             )
         },
     ) {

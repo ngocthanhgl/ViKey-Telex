@@ -4,23 +4,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AlternateEmail
-import androidx.compose.material.icons.outlined.CallMerge
-import androidx.compose.material.icons.outlined.Dialpad
-import androidx.compose.material.icons.outlined.Extension
-import androidx.compose.material.icons.outlined.FormatSize
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.OpenInNew
-import androidx.compose.material.icons.outlined.PanTool
-import androidx.compose.material.icons.outlined.ScreenRotation
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.SwapHoriz
-import androidx.compose.material.icons.outlined.TextFormat
-import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material.icons.outlined.VerticalAlignBottom
-import androidx.compose.material.icons.outlined.ViewColumn
-import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material.icons.rounded.AlternateEmail
+import androidx.compose.material.icons.rounded.CallMerge
+import androidx.compose.material.icons.rounded.Dialpad
+import androidx.compose.material.icons.rounded.Extension
+import androidx.compose.material.icons.rounded.FormatSize
+import androidx.compose.material.icons.rounded.Keyboard
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.OpenInNew
+import androidx.compose.material.icons.rounded.PanTool
+import androidx.compose.material.icons.rounded.ScreenRotation
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.SwapHoriz
+import androidx.compose.material.icons.rounded.TextFormat
+import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material.icons.rounded.VerticalAlignBottom
+import androidx.compose.material.icons.rounded.ViewColumn
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -92,14 +92,14 @@ fun KeyboardScreen() {
             ),
         ) {
             M3SwitchPreference(
-                icon = Icons.Outlined.Dialpad,
+                icon = Icons.Rounded.Dialpad,
                 checked = numberRow,
                 onCheckedChange = { scope.launch { prefs.keyboard.numberRow.set(it) } },
                 title = stringRes(R.string.pref__keyboard__number_row__label),
             )
             SettingsDivider()
             M3SwitchListPreference(
-                icon = Icons.Outlined.Dialpad,
+                icon = Icons.Rounded.Dialpad,
                 switchChecked = hintedNumberRowEnabled,
                 onSwitchChange = { scope.launch { prefs.keyboard.hintedNumberRowEnabled.set(it) } },
                 listValue = hintedNumberRowMode,
@@ -111,7 +111,7 @@ fun KeyboardScreen() {
             )
             SettingsDivider()
             M3SwitchListPreference(
-                icon = Icons.Outlined.AlternateEmail,
+                icon = Icons.Rounded.AlternateEmail,
                 switchChecked = hintedSymbolsEnabled,
                 onSwitchChange = { scope.launch { prefs.keyboard.hintedSymbolsEnabled.set(it) } },
                 listValue = hintedSymbolsMode,
@@ -122,14 +122,14 @@ fun KeyboardScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 checked = utilityKeyEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.utilityKeyEnabled.set(it) } },
                 title = stringRes(R.string.pref__keyboard__utility_key_enabled__label),
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.Settings,
+                icon = Icons.Rounded.Settings,
                 value = utilityKeyAction,
                 onSelect = { scope.launch { prefs.keyboard.utilityKeyAction.set(UtilityKeyAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__keyboard__utility_key_action__label),
@@ -138,7 +138,7 @@ fun KeyboardScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 value = spaceBarMode,
                 onSelect = { scope.launch { prefs.keyboard.spaceBarMode.set(SpaceBarMode.valueOf(it)) } },
                 title = stringRes(R.string.pref__keyboard__space_bar_mode__label),
@@ -146,7 +146,7 @@ fun KeyboardScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.TextFormat,
+                icon = Icons.Rounded.TextFormat,
                 value = capitalizationBehavior,
                 onSelect = { scope.launch { prefs.keyboard.capitalizationBehavior.set(CapitalizationBehavior.valueOf(it)) } },
                 title = stringRes(R.string.pref__keyboard__capitalization_behavior__label),
@@ -154,7 +154,7 @@ fun KeyboardScreen() {
             )
             SettingsDivider()
             M3DialogSliderPreference(
-                icon = Icons.Outlined.FormatSize,
+                icon = Icons.Rounded.FormatSize,
                 primaryValue = fontSizeMultiplierPortrait,
                 onPrimaryChange = { scope.launch { prefs.keyboard.fontSizeMultiplierPortrait.set(it) } },
                 secondaryValue = fontSizeMultiplierLandscape,
@@ -167,7 +167,7 @@ fun KeyboardScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.VisibilityOff,
+                icon = Icons.Rounded.VisibilityOff,
                 value = incognitoDisplayMode,
                 onSelect = { scope.launch { prefs.keyboard.incognitoDisplayMode.set(IncognitoDisplayMode.valueOf(it)) } },
                 title = stringRes(R.string.pref__keyboard__incognito_indicator__label),
@@ -192,7 +192,7 @@ fun KeyboardScreen() {
             ),
         ) {
             M3ListPreference(
-                icon = Icons.Outlined.ScreenRotation,
+                icon = Icons.Rounded.ScreenRotation,
                 value = landscapeInputUiMode,
                 onSelect = { scope.launch { prefs.keyboard.landscapeInputUiMode.set(LandscapeInputUiMode.valueOf(it)) } },
                 title = stringRes(R.string.pref__keyboard__landscape_input_ui_mode__label),
@@ -200,7 +200,7 @@ fun KeyboardScreen() {
             )
             SettingsDivider()
             M3DialogSliderPreference(
-                icon = Icons.Outlined.ViewColumn,
+                icon = Icons.Rounded.ViewColumn,
                 primaryValue = keySpacingVertical,
                 onPrimaryChange = { scope.launch { prefs.keyboard.keySpacingVertical.set(it) } },
                 secondaryValue = keySpacingHorizontal,
@@ -213,7 +213,7 @@ fun KeyboardScreen() {
             )
             SettingsDivider()
             M3DialogSliderPreference(
-                icon = Icons.Outlined.VerticalAlignBottom,
+                icon = Icons.Rounded.VerticalAlignBottom,
                 primaryValue = bottomPaddingPortrait,
                 onPrimaryChange = { scope.launch { prefs.keyboard.bottomPaddingPortrait.set(it) } },
                 secondaryValue = bottomPaddingLandscape,
@@ -243,27 +243,27 @@ fun KeyboardScreen() {
             ),
         ) {
             M3ClickablePreference(
-                icon = Icons.Outlined.PanTool,
+                icon = Icons.Rounded.PanTool,
                 title = stringRes(R.string.settings__input_feedback__title),
                 onClick = { navController.navigate(Routes.Settings.InputFeedback) },
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.OpenInNew,
+                icon = Icons.Rounded.OpenInNew,
                 checked = popupEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.popupEnabled.set(it) } },
                 title = stringRes(R.string.pref__keyboard__popup_enabled__label),
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.CallMerge,
+                icon = Icons.Rounded.CallMerge,
                 checked = mergeHintPopupsEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.mergeHintPopupsEnabled.set(it) } },
                 title = stringRes(R.string.pref__keyboard__merge_hint_popups_enabled__label),
             )
             SettingsDivider()
             M3DialogSliderPreference(
-                icon = Icons.Outlined.Timer,
+                icon = Icons.Rounded.Timer,
                 value = longPressDelay,
                 onChange = { scope.launch { prefs.keyboard.longPressDelay.set(it) } },
                 title = stringRes(R.string.pref__keyboard__long_press_delay__label),
@@ -272,7 +272,7 @@ fun KeyboardScreen() {
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.SwapHoriz,
+                icon = Icons.Rounded.SwapHoriz,
                 checked = spaceBarSwitchesToCharacters,
                 onCheckedChange = { scope.launch { prefs.keyboard.spaceBarSwitchesToCharacters.set(it) } },
                 title = stringRes(R.string.pref__keyboard__space_bar_switches_to_characters__label),
@@ -297,14 +297,14 @@ fun KeyboardScreen() {
         ) {
             val telexWEnabled by prefs.keyboard.telexWEnabled.collectAsState()
             M3SwitchPreference(
-                icon = Icons.Outlined.Keyboard,
+                icon = Icons.Rounded.Keyboard,
                 checked = telexWEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.telexWEnabled.set(it) } },
                 title = "w = ư",
             )
             val englishFallbackEnabled by prefs.keyboard.englishFallbackEnabled.collectAsState()
             M3SwitchPreference(
-                icon = Icons.Outlined.Language,
+                icon = Icons.Rounded.Language,
                 checked = englishFallbackEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.englishFallbackEnabled.set(it) } },
                 title = "English fallback",

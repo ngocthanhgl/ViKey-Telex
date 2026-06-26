@@ -4,13 +4,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.KeyboardArrowLeft
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material.icons.outlined.PanTool
-import androidx.compose.material.icons.outlined.Speed
-import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.PanTool
+import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -68,7 +68,7 @@ fun GesturesScreen() {
             ),
         ) {
             M3ListPreference(
-                icon = Icons.Outlined.KeyboardArrowUp,
+                icon = Icons.Rounded.KeyboardArrowUp,
                 value = swipeUp,
                 onSelect = { scope.launch { prefs.gestures.swipeUp.set(SwipeAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__gestures__swipe_up__label),
@@ -76,7 +76,7 @@ fun GesturesScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.KeyboardArrowDown,
+                icon = Icons.Rounded.KeyboardArrowDown,
                 value = swipeDown,
                 onSelect = { scope.launch { prefs.gestures.swipeDown.set(SwipeAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__gestures__swipe_down__label),
@@ -84,7 +84,7 @@ fun GesturesScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.KeyboardArrowLeft,
+                icon = Icons.Rounded.KeyboardArrowLeft,
                 value = swipeLeft,
                 onSelect = { scope.launch { prefs.gestures.swipeLeft.set(SwipeAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__gestures__swipe_left__label),
@@ -92,7 +92,7 @@ fun GesturesScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.KeyboardArrowRight,
+                icon = Icons.Rounded.KeyboardArrowRight,
                 value = swipeRight,
                 onSelect = { scope.launch { prefs.gestures.swipeRight.set(SwipeAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__gestures__swipe_right__label),
@@ -117,7 +117,7 @@ fun GesturesScreen() {
             ),
         ) {
             M3ListPreference(
-                icon = Icons.Outlined.KeyboardArrowUp,
+                icon = Icons.Rounded.KeyboardArrowUp,
                 value = spaceBarSwipeUp,
                 onSelect = { scope.launch { prefs.gestures.spaceBarSwipeUp.set(SwipeAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__gestures__space_bar_swipe_up__label),
@@ -125,7 +125,7 @@ fun GesturesScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.KeyboardArrowLeft,
+                icon = Icons.Rounded.KeyboardArrowLeft,
                 value = spaceBarSwipeLeft,
                 onSelect = { scope.launch { prefs.gestures.spaceBarSwipeLeft.set(SwipeAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__gestures__space_bar_swipe_left__label),
@@ -133,7 +133,7 @@ fun GesturesScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.KeyboardArrowRight,
+                icon = Icons.Rounded.KeyboardArrowRight,
                 value = spaceBarSwipeRight,
                 onSelect = { scope.launch { prefs.gestures.spaceBarSwipeRight.set(SwipeAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__gestures__space_bar_swipe_right__label),
@@ -141,7 +141,7 @@ fun GesturesScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.PanTool,
+                icon = Icons.Rounded.PanTool,
                 value = spaceBarLongPress,
                 onSelect = { scope.launch { prefs.gestures.spaceBarLongPress.set(SwipeAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__gestures__space_bar_long_press__label),
@@ -166,7 +166,7 @@ fun GesturesScreen() {
             ),
         ) {
             M3ListPreference(
-                icon = Icons.Outlined.KeyboardArrowLeft,
+                icon = Icons.Rounded.KeyboardArrowLeft,
                 value = deleteKeySwipeLeft,
                 onSelect = { scope.launch { prefs.gestures.deleteKeySwipeLeft.set(SwipeAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__gestures__delete_key_swipe_left__label),
@@ -174,7 +174,7 @@ fun GesturesScreen() {
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.PanTool,
+                icon = Icons.Rounded.PanTool,
                 value = deleteKeyLongPress,
                 onSelect = { scope.launch { prefs.gestures.deleteKeyLongPress.set(SwipeAction.valueOf(it)) } },
                 title = stringRes(R.string.pref__gestures__delete_key_long_press__label),
@@ -182,7 +182,7 @@ fun GesturesScreen() {
             )
             SettingsDivider()
             M3DialogSliderPreference(
-                icon = Icons.Outlined.Speed,
+                icon = Icons.Rounded.Speed,
                 value = swipeVelocityThreshold,
                 onChange = { scope.launch { prefs.gestures.swipeVelocityThreshold.set(it) } },
                 title = stringRes(R.string.pref__gestures__swipe_velocity_threshold__label),
@@ -191,7 +191,7 @@ fun GesturesScreen() {
             )
             SettingsDivider()
             M3DialogSliderPreference(
-                icon = Icons.Outlined.TouchApp,
+                icon = Icons.Rounded.TouchApp,
                 value = swipeDistanceThreshold,
                 onChange = { scope.launch { prefs.gestures.swipeDistanceThreshold.set(it) } },
                 title = stringRes(R.string.pref__gestures__swipe_distance_threshold__label),

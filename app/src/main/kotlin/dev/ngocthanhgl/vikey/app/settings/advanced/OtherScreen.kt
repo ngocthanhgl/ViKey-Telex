@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.WaterDrop
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -47,7 +47,7 @@ fun OtherScreen() {
             ),
         ) {
             M3ListPreference(
-                icon = Icons.Outlined.Palette,
+                icon = Icons.Rounded.Palette,
                 value = settingsTheme,
                 onSelect = { scope.launch { prefs.other.settingsTheme.set(AppTheme.valueOf(it)) } },
                 title = stringRes(R.string.pref__other__settings_theme__label),
@@ -55,7 +55,7 @@ fun OtherScreen() {
             )
             SettingsDivider()
             M3ColorPickerPreference(
-                icon = Icons.Outlined.WaterDrop,
+                icon = Icons.Rounded.WaterDrop,
                 title = stringRes(R.string.pref__other__settings_accent_color__label),
                 currentColor = accentColor,
                 onColorSelected = { scope.launch { prefs.other.accentColor.set(it) } },

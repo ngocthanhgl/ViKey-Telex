@@ -46,20 +46,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.EmojiEmotions
-import androidx.compose.material.icons.outlined.Extension
-import androidx.compose.material.icons.outlined.FormatListBulleted
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Keyboard
-import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.PanTool
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Spellcheck
-import androidx.compose.material.icons.outlined.Widgets
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.EmojiEmotions
+import androidx.compose.material.icons.rounded.Extension
+import androidx.compose.material.icons.rounded.FormatListBulleted
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Keyboard
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.PanTool
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Spellcheck
+import androidx.compose.material.icons.rounded.Widgets
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.LocalNavController
 import dev.ngocthanhgl.vikey.app.Routes
@@ -109,16 +109,16 @@ fun HomeScreen() {
             SettingsSection(
                 header = sectionInput,
                 items = listOf(
-                    SettingsItem(Icons.Outlined.Keyboard, titleKeyboard, null) {
+                    SettingsItem(Icons.Rounded.Keyboard, titleKeyboard, null) {
                         navController.navigate(Routes.Settings.Keyboard)
                     },
-                    SettingsItem(Icons.Outlined.Spellcheck, titleTyping, null) {
+                    SettingsItem(Icons.Rounded.Spellcheck, titleTyping, null) {
                         navController.navigate(Routes.Settings.Typing)
                     },
-                    SettingsItem(Icons.Outlined.PanTool, titleGestures, null) {
+                    SettingsItem(Icons.Rounded.PanTool, titleGestures, null) {
                         navController.navigate(Routes.Settings.Gestures)
                     },
-                    SettingsItem(Icons.Outlined.Language, titleLocalization, null) {
+                    SettingsItem(Icons.Rounded.Language, titleLocalization, null) {
                         navController.navigate(Routes.Settings.Localization)
                     },
                 ),
@@ -126,10 +126,10 @@ fun HomeScreen() {
             SettingsSection(
                 header = sectionPersonalization,
                 items = listOf(
-                    SettingsItem(Icons.Outlined.Palette, titleTheme, null) {
+                    SettingsItem(Icons.Rounded.Palette, titleTheme, null) {
                         navController.navigate(Routes.Settings.Theme)
                     },
-                    SettingsItem(Icons.Outlined.Widgets, titleSmartbar, null) {
+                    SettingsItem(Icons.Rounded.Widgets, titleSmartbar, null) {
                         navController.navigate(Routes.Settings.Smartbar)
                     },
                 ),
@@ -137,10 +137,10 @@ fun HomeScreen() {
             SettingsSection(
                 header = sectionFeatures,
                 items = listOf(
-                    SettingsItem(Icons.Outlined.FormatListBulleted, titleClipboard, null) {
+                    SettingsItem(Icons.Rounded.FormatListBulleted, titleClipboard, null) {
                         navController.navigate(Routes.Settings.Clipboard)
                     },
-                    SettingsItem(Icons.Outlined.EmojiEmotions, titleMedia, null) {
+                    SettingsItem(Icons.Rounded.EmojiEmotions, titleMedia, null) {
                         navController.navigate(Routes.Settings.Media)
                     },
                 ),
@@ -148,13 +148,13 @@ fun HomeScreen() {
             SettingsSection(
                 header = sectionSystem,
                 items = listOf(
-                    SettingsItem(Icons.Outlined.Extension, titleExt, null) {
+                    SettingsItem(Icons.Rounded.Extension, titleExt, null) {
                         navController.navigate(Routes.Ext.Home)
                     },
-                    SettingsItem(Icons.Outlined.Settings, titleOther, null) {
+                    SettingsItem(Icons.Rounded.Settings, titleOther, null) {
                         navController.navigate(Routes.Settings.Other)
                     },
-                    SettingsItem(Icons.Outlined.Info, titleAbout, null) {
+                    SettingsItem(Icons.Rounded.Info, titleAbout, null) {
                         navController.navigate(Routes.Settings.About)
                     },
                 ),
@@ -273,7 +273,7 @@ private fun ImeStatusHero() {
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Keyboard,
+                        imageVector = Icons.Rounded.Keyboard,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(28.dp),
@@ -315,11 +315,11 @@ private fun SettingsSearchBar(
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         placeholder = { Text(stringRes(R.string.settings__home__search_placeholder)) },
-        leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+        leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
         trailingIcon = {
             if (query.isNotEmpty()) {
                 IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Outlined.Close, contentDescription = null)
+                    Icon(Icons.Rounded.Close, contentDescription = null)
                 }
             }
         },
@@ -386,7 +386,7 @@ private fun SettingsEntryItem(item: SettingsItem) {
         }
         Spacer(Modifier.width(12.dp))
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
             modifier = Modifier.size(24.dp),

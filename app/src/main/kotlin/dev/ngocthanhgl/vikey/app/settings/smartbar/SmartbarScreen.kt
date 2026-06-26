@@ -4,12 +4,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Extension
-import androidx.compose.material.icons.outlined.SwapHoriz
-import androidx.compose.material.icons.outlined.UnfoldMore
-import androidx.compose.material.icons.outlined.ViewList
-import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material.icons.outlined.Widgets
+import androidx.compose.material.icons.rounded.Extension
+import androidx.compose.material.icons.rounded.SwapHoriz
+import androidx.compose.material.icons.rounded.UnfoldMore
+import androidx.compose.material.icons.rounded.ViewList
+import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.Widgets
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -57,14 +57,14 @@ fun SmartbarScreen() {
             ),
         ) {
             M3SwitchPreference(
-                icon = Icons.Outlined.Widgets,
+                icon = Icons.Rounded.Widgets,
                 checked = enabled,
                 onCheckedChange = { scope.launch { prefs.smartbar.enabled.set(it) } },
                 title = stringRes(R.string.pref__smartbar__enabled__label),
             )
             SettingsDivider()
             M3ListPreference(
-                icon = Icons.Outlined.ViewList,
+                icon = Icons.Rounded.ViewList,
                 value = layout,
                 onSelect = { scope.launch { prefs.smartbar.layout.set(SmartbarLayout.valueOf(it)) } },
                 title = stringRes(R.string.pref__smartbar__layout__label),
@@ -91,7 +91,7 @@ fun SmartbarScreen() {
         ) {
             if (layout != SmartbarLayout.ACTIONS_ONLY) {
                 M3ListPreference(
-                    icon = Icons.Outlined.Visibility,
+                    icon = Icons.Rounded.Visibility,
                     value = displayMode,
                     onSelect = { scope.launch { prefs.suggestion.displayMode.set(CandidatesDisplayMode.valueOf(it)) } },
                     title = stringRes(R.string.pref__suggestion__display_mode__label),
@@ -102,7 +102,7 @@ fun SmartbarScreen() {
             }
             if (layout == SmartbarLayout.SUGGESTIONS_ACTIONS_SHARED || layout == SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED) {
                 M3SwitchPreference(
-                    icon = Icons.Outlined.SwapHoriz,
+                    icon = Icons.Rounded.SwapHoriz,
                     checked = flipToggles,
                     onCheckedChange = { scope.launch { prefs.smartbar.flipToggles.set(it) } },
                     title = stringRes(R.string.pref__smartbar__flip_toggles__label),
@@ -111,7 +111,7 @@ fun SmartbarScreen() {
                 SettingsDivider()
             }
             M3SwitchPreference(
-                icon = Icons.Outlined.UnfoldMore,
+                icon = Icons.Rounded.UnfoldMore,
                 checked = sharedActionsAutoExpandCollapse,
                 onCheckedChange = { scope.launch { prefs.smartbar.sharedActionsAutoExpandCollapse.set(it) } },
                 title = stringRes(R.string.pref__smartbar__shared_actions_auto_expand_collapse__label),
@@ -120,7 +120,7 @@ fun SmartbarScreen() {
             if (layout == SmartbarLayout.SUGGESTIONS_ACTIONS_EXTENDED) {
                 SettingsDivider()
                 M3ListPreference(
-                    icon = Icons.Outlined.Extension,
+                    icon = Icons.Rounded.Extension,
                     value = extendedActionsPlacement,
                     onSelect = { scope.launch { prefs.smartbar.extendedActionsPlacement.set(ExtendedActionsPlacement.valueOf(it)) } },
                     title = stringRes(R.string.pref__smartbar__extended_actions_placement__label),

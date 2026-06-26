@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Book
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.LibraryBooks
+import androidx.compose.material.icons.rounded.Book
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.LibraryBooks
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -62,35 +62,35 @@ fun DictionaryScreen() {
             ),
         ) {
             M3SwitchPreference(
-                icon = Icons.Outlined.LibraryBooks,
+                icon = Icons.Rounded.LibraryBooks,
                 checked = enableSystemUserDictionary,
                 onCheckedChange = { scope.launch { prefs.dictionary.enableSystemUserDictionary.set(it) } },
                 title = stringRes(R.string.pref__dictionary__enable_system_user_dictionary__label),
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.Edit,
+                icon = Icons.Rounded.Edit,
                 title = stringRes(R.string.pref__dictionary__manage_system_user_dictionary__label),
                 onClick = { navController.navigate(Routes.Settings.UserDictionary(UserDictionaryType.SYSTEM)) },
                 enabled = enableSystemUserDictionary,
             )
             SettingsDivider()
             M3SwitchPreference(
-                icon = Icons.Outlined.Book,
+                icon = Icons.Rounded.Book,
                 checked = enableFlorisUserDictionary,
                 onCheckedChange = { scope.launch { prefs.dictionary.enableFlorisUserDictionary.set(it) } },
                 title = stringRes(R.string.pref__dictionary__enable_internal_user_dictionary__label),
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.Edit,
+                icon = Icons.Rounded.Edit,
                 title = stringRes(R.string.pref__dictionary__manage_floris_user_dictionary__label),
                 onClick = { navController.navigate(Routes.Settings.UserDictionary(UserDictionaryType.FLORIS)) },
                 enabled = enableFlorisUserDictionary,
             )
             SettingsDivider()
             M3ClickablePreference(
-                icon = Icons.Outlined.Delete,
+                icon = Icons.Rounded.Delete,
                 title = stringRes(R.string.pref__dictionary__clear_learned_words__label),
                 onClick = { showClearDialog = true },
             )
