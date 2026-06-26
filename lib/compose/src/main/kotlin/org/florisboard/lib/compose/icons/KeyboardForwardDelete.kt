@@ -24,12 +24,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 // Adapted from original androidx.compose.material.icons.automirrored.filled Backspace icon
 // Changes: manually inverted path
 @Suppress("UnusedReceiverParameter")
-val Icons.AutoMirrored.Filled.ForwardDelete: ImageVector
+val Icons.AutoMirrored.Rounded.ForwardDelete: ImageVector
     get() {
         if (_forwardDelete != null) {
             return _forwardDelete!!
         }
-        _forwardDelete = materialIcon(name = "AutoMirrored.Filled.ForwardDelete", autoMirror = true) {
+        _forwardDelete = materialIcon(name = "AutoMirrored.Rounded.ForwardDelete", autoMirror = true) {
             materialPath {
                 moveTo(2.0f, 3.0f)
                 lineTo(17.0f, 3.0f)

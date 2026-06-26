@@ -18,37 +18,40 @@ package dev.ngocthanhgl.vikey.ime.keyboard
 
 import android.content.Context
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowRightAlt
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.outlined.KeyboardReturn
-import androidx.compose.material.icons.automirrored.outlined.Redo
-import androidx.compose.material.icons.automirrored.outlined.Send
-import androidx.compose.material.icons.automirrored.outlined.Undo
-import androidx.compose.material.icons.automirrored.outlined.Assignment
-import androidx.compose.material.icons.automirrored.outlined.Backspace
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.ContentCopy
-import androidx.compose.material.icons.outlined.ContentCut
-import androidx.compose.material.icons.outlined.ContentPasteGo
-import androidx.compose.material.icons.outlined.DeleteSweep
-import androidx.compose.material.icons.outlined.Done
-import androidx.compose.material.icons.outlined.FontDownload
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material.icons.outlined.KeyboardCapslock
-import androidx.compose.material.icons.outlined.KeyboardHide
-import androidx.compose.material.icons.outlined.KeyboardVoice
-import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.SelectAll
-import androidx.compose.material.icons.outlined.SentimentSatisfiedAlt
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Numbers
-import androidx.compose.material.icons.outlined.SpaceBar
+import androidx.compose.material.icons.automirrored.rounded.ArrowRightAlt
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.KeyboardReturn
+import androidx.compose.material.icons.automirrored.rounded.Redo
+import androidx.compose.material.icons.automirrored.rounded.Send
+import androidx.compose.material.icons.automirrored.rounded.Undo
+import androidx.compose.material.icons.automirrored.rounded.Assignment
+import androidx.compose.material.icons.automirrored.rounded.Backspace
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.ContentCut
+import androidx.compose.material.icons.rounded.ContentPasteGo
+import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.Done
+import androidx.compose.material.icons.rounded.AspectRatio
+import androidx.compose.material.icons.rounded.CapsLock
+import androidx.compose.material.icons.rounded.Incognito
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.PictureInPictureAlt
+import androidx.compose.material.icons.rounded.Shift
+import androidx.compose.material.icons.rounded.Spellcheck
+import androidx.compose.material.icons.rounded.KeyboardHide
+import androidx.compose.material.icons.rounded.KeyboardVoice
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.MoreHoriz
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.SelectAll
+import androidx.compose.material.icons.rounded.SentimentSatisfiedAlt
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Numbers
+import androidx.compose.material.icons.rounded.SpaceBar
 import androidx.compose.ui.graphics.vector.ImageVector
-import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.ime.core.DisplayLanguageNamesIn
 import dev.ngocthanhgl.vikey.ime.core.Subtype
@@ -57,7 +60,6 @@ import dev.ngocthanhgl.vikey.ime.editor.ImeOptions
 import dev.ngocthanhgl.vikey.ime.input.InputShiftState
 import dev.ngocthanhgl.vikey.ime.text.key.KeyCode
 import dev.ngocthanhgl.vikey.ime.text.key.KeyType
-import dev.ngocthanhgl.vikey.ime.window.ImeWindowMode
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
 import dev.ngocthanhgl.vikey.lib.compose.vectorResource
 import org.florisboard.lib.compose.icons.ForwardDelete
@@ -184,31 +186,31 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
     val evaluator = this
     return when (data.code) {
         KeyCode.ARROW_LEFT -> {
-            Icons.AutoMirrored.Outlined.KeyboardArrowLeft
+            Icons.AutoMirrored.Rounded.KeyboardArrowLeft
         }
         KeyCode.ARROW_RIGHT -> {
-            Icons.AutoMirrored.Outlined.KeyboardArrowRight
+            Icons.AutoMirrored.Rounded.KeyboardArrowRight
         }
         KeyCode.ARROW_UP -> {
-            Icons.Outlined.KeyboardArrowUp
+            Icons.Rounded.KeyboardArrowUp
         }
         KeyCode.ARROW_DOWN -> {
-            Icons.Outlined.KeyboardArrowDown
+            Icons.Rounded.KeyboardArrowDown
         }
         KeyCode.CLIPBOARD_COPY -> {
-            Icons.Outlined.ContentCopy
+            Icons.Rounded.ContentCopy
         }
         KeyCode.CLIPBOARD_CUT -> {
-            Icons.Outlined.ContentCut
+            Icons.Rounded.ContentCut
         }
         KeyCode.CLIPBOARD_PASTE -> {
-            Icons.Outlined.ContentPasteGo
+            Icons.Rounded.ContentPasteGo
         }
         KeyCode.CLIPBOARD_SELECT_ALL -> {
-            Icons.Outlined.SelectAll
+            Icons.Rounded.SelectAll
         }
         KeyCode.CLIPBOARD_CLEAR_PRIMARY_CLIP -> {
-            Icons.Outlined.DeleteSweep
+            Icons.Rounded.DeleteSweep
         }
         KeyCode.COMPACT_LAYOUT_TO_LEFT,
         KeyCode.COMPACT_LAYOUT_TO_RIGHT,
@@ -216,92 +218,82 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
             context()?.vectorResource(id = R.drawable.ic_accessibility_one_handed)
         }
         KeyCode.TOGGLE_FLOATING_WINDOW -> {
-            val enabledIcon = context()?.vectorResource(id = R.drawable.ic_floating_keyboard)
-            val disabledIcon = context()?.vectorResource(id = R.drawable.ic_floating_keyboard_disable)
-            val windowController = FlorisImeService.windowControllerOrNull() ?: return enabledIcon
-            when (windowController.activeWindowConfig.value.mode) {
-                ImeWindowMode.FIXED -> enabledIcon
-                ImeWindowMode.FLOATING -> disabledIcon
-            }
+            Icons.Rounded.PictureInPictureAlt
         }
         KeyCode.TOGGLE_RESIZE_MODE -> {
-            context()?.vectorResource(id = R.drawable.ic_resize)
+            Icons.Rounded.AspectRatio
         }
         KeyCode.VOICE_INPUT -> {
-            Icons.Outlined.KeyboardVoice
+            Icons.Rounded.KeyboardVoice
         }
         KeyCode.IME_HIDE_UI -> {
-            Icons.Outlined.KeyboardHide
+            Icons.Rounded.KeyboardHide
         }
         KeyCode.DELETE -> {
-            Icons.AutoMirrored.Outlined.Backspace
+            Icons.AutoMirrored.Rounded.Backspace
         }
         KeyCode.ENTER -> {
             val imeOptions = evaluator.editorInfo.imeOptions
             val inputAttributes = evaluator.editorInfo.inputAttributes
             if (imeOptions.flagNoEnterAction || inputAttributes.flagTextMultiLine) {
-                Icons.AutoMirrored.Outlined.KeyboardReturn
+                Icons.AutoMirrored.Rounded.KeyboardReturn
             } else {
                 when (imeOptions.action) {
-                    ImeOptions.Action.DONE -> Icons.Outlined.Done
-                    ImeOptions.Action.GO -> Icons.AutoMirrored.Outlined.ArrowRightAlt
-                    ImeOptions.Action.NEXT -> Icons.AutoMirrored.Outlined.ArrowRightAlt
-                    ImeOptions.Action.NONE -> Icons.AutoMirrored.Outlined.KeyboardReturn
-                    ImeOptions.Action.PREVIOUS -> Icons.AutoMirrored.Outlined.ArrowRightAlt
-                    ImeOptions.Action.SEARCH -> Icons.Outlined.Search
-                    ImeOptions.Action.SEND -> Icons.AutoMirrored.Outlined.Send
-                    ImeOptions.Action.UNSPECIFIED -> Icons.AutoMirrored.Outlined.KeyboardReturn
+                    ImeOptions.Action.DONE -> Icons.Rounded.Done
+                    ImeOptions.Action.GO -> Icons.AutoMirrored.Rounded.ArrowRightAlt
+                    ImeOptions.Action.NEXT -> Icons.AutoMirrored.Rounded.ArrowRightAlt
+                    ImeOptions.Action.NONE -> Icons.AutoMirrored.Rounded.KeyboardReturn
+                    ImeOptions.Action.PREVIOUS -> Icons.AutoMirrored.Rounded.ArrowRightAlt
+                    ImeOptions.Action.SEARCH -> Icons.Rounded.Search
+                    ImeOptions.Action.SEND -> Icons.AutoMirrored.Rounded.Send
+                    ImeOptions.Action.UNSPECIFIED -> Icons.AutoMirrored.Rounded.KeyboardReturn
                 }
             }
         }
         KeyCode.FORWARD_DELETE -> {
-            Icons.AutoMirrored.Filled.ForwardDelete
+            Icons.AutoMirrored.Rounded.ForwardDelete
         }
         KeyCode.IME_UI_MODE_MEDIA -> {
-            Icons.Outlined.SentimentSatisfiedAlt
+            Icons.Rounded.SentimentSatisfiedAlt
         }
         KeyCode.IME_UI_MODE_CLIPBOARD -> {
-            Icons.AutoMirrored.Outlined.Assignment
+            Icons.AutoMirrored.Rounded.Assignment
         }
         KeyCode.LANGUAGE_SWITCH -> {
-            Icons.Outlined.Language
+            Icons.Rounded.Language
         }
         KeyCode.SETTINGS -> {
-            Icons.Outlined.Settings
+            Icons.Rounded.Settings
         }
         KeyCode.SHIFT -> {
             when (evaluator.state.inputShiftState != InputShiftState.UNSHIFTED) {
-                true -> Icons.Outlined.KeyboardCapslock
-                else -> Icons.Outlined.KeyboardArrowUp
+                true -> Icons.Rounded.CapsLock
+                else -> Icons.Rounded.Shift
             }
         }
         KeyCode.SPACE, KeyCode.CJK_SPACE -> {
             when (evaluator.keyboard.mode) {
                 KeyboardMode.CHARACTERS -> null
-                else -> Icons.Outlined.SpaceBar
+                else -> Icons.Rounded.SpaceBar
             }
         }
         KeyCode.VIEW_NUMERIC_ADVANCED -> {
-            Icons.Outlined.Numbers
+            Icons.Rounded.Numbers
         }
         KeyCode.UNDO -> {
-            Icons.AutoMirrored.Outlined.Undo
+            Icons.AutoMirrored.Rounded.Undo
         }
         KeyCode.REDO -> {
-            Icons.AutoMirrored.Outlined.Redo
+            Icons.AutoMirrored.Rounded.Redo
         }
         KeyCode.TOGGLE_ACTIONS_OVERFLOW -> {
-            Icons.Outlined.MoreHoriz
+            Icons.Rounded.MoreHoriz
         }
         KeyCode.TOGGLE_INCOGNITO_MODE -> {
-            if (evaluator.state.isIncognitoMode) {
-                this.context()?.vectorResource(id = R.drawable.ic_incognito)
-            } else {
-                this.context()?.vectorResource(id = R.drawable.ic_incognito_off)
-            }
+            Icons.Rounded.Incognito
         }
         KeyCode.TOGGLE_AUTOCORRECT -> {
-            Icons.Outlined.FontDownload
+            Icons.Rounded.Spellcheck
         }
         KeyCode.KANA_SWITCHER -> {
             if (evaluator.state.isKanaKata) {
@@ -324,10 +316,10 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
             this.context()?.vectorResource(R.drawable.ic_keyboard_char_width_switcher_half)
         }
         KeyCode.DRAG_MARKER -> {
-            if (evaluator.state.debugShowDragAndDropHelpers) Icons.Outlined.Close else null
+            if (evaluator.state.debugShowDragAndDropHelpers) Icons.Rounded.Close else null
         }
         KeyCode.NOOP -> {
-            Icons.Outlined.Close
+            Icons.Rounded.Close
         }
         else -> null
     }
