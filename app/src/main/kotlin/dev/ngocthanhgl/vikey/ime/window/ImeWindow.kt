@@ -75,8 +75,8 @@ import org.florisboard.lib.compose.ProvideActualLayoutDirection
 import org.florisboard.lib.compose.conditional
 import org.florisboard.lib.compose.drawBorder
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ChevronLeft
-import androidx.compose.material.icons.automirrored.rounded.ChevronRight
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.AspectRatio
 import androidx.compose.material.icons.rounded.ZoomOutMap
 import org.florisboard.lib.compose.fold
@@ -384,13 +384,13 @@ private fun BoxScope.OneHandedPanel(spec: ImeWindowSpec.Fixed) {
                 ) {
                     if (spec.props.paddingLeft > spec.props.paddingRight) {
                         SnyggIcon(
-                            imageVector = Icons.AutoMirrored.Rounded.ChevronLeft,
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                             attributes = attributes,
                         )
                     } else {
                         SnyggIcon(
                             attributes = attributes,
-                            imageVector = Icons.AutoMirrored.Rounded.ChevronRight,
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
                         )
                     }
                 }
