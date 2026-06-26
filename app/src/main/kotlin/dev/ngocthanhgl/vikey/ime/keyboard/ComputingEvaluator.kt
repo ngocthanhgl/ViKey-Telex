@@ -34,12 +34,11 @@ import androidx.compose.material.icons.rounded.ContentPasteGo
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.icons.rounded.AspectRatio
-import androidx.compose.material.icons.rounded.CapsLock
-import androidx.compose.material.icons.rounded.Incognito
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.KeyboardCapslock
 import androidx.compose.material.icons.rounded.PictureInPictureAlt
-import androidx.compose.material.icons.rounded.Shift
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.rounded.Spellcheck
 import androidx.compose.material.icons.rounded.KeyboardHide
 import androidx.compose.material.icons.rounded.KeyboardVoice
@@ -267,8 +266,8 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
         }
         KeyCode.SHIFT -> {
             when (evaluator.state.inputShiftState != InputShiftState.UNSHIFTED) {
-                true -> Icons.Rounded.CapsLock
-                else -> Icons.Rounded.Shift
+                true -> Icons.Rounded.KeyboardCapslock
+                else -> Icons.Rounded.KeyboardArrowUp
             }
         }
         KeyCode.SPACE, KeyCode.CJK_SPACE -> {
@@ -290,7 +289,7 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
             Icons.Rounded.MoreHoriz
         }
         KeyCode.TOGGLE_INCOGNITO_MODE -> {
-            Icons.Rounded.Incognito
+            Icons.Rounded.VisibilityOff
         }
         KeyCode.TOGGLE_AUTOCORRECT -> {
             Icons.Rounded.Spellcheck

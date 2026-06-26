@@ -620,8 +620,8 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 .sortedByDescending { it.value }
                 .take(limit * 3)
             val maxFreq = sorted.first().value.toDouble()
-            for ((idx, (word, freq)) in sorted.withIndex()) {
-                scored[word] = (freq.toDouble() / maxFreq) * 100.0 * (1.0 - idx * 0.005)
+            for ((idx, entry) in sorted.withIndex()) {
+                scored[entry.key] = (entry.value.toDouble() / maxFreq) * 100.0 * (1.0 - idx * 0.005)
             }
         }
 

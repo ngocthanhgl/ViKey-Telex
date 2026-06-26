@@ -8,10 +8,10 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntOffset
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import org.florisboard.lib.color.Hsv
@@ -65,7 +66,7 @@ fun HueSlider(
     modifier: Modifier = Modifier,
 ) {
     val fraction = (hue / 360f).coerceIn(0f, 1f)
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .height(28.dp)
@@ -80,14 +81,14 @@ fun HueSlider(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawRoundRect(
-                brush = Brush.horizontalGradient(hueGradientStops),
+                brush = Brush.horizontalGradient(*hueGradientStops.toTypedArray()),
                 cornerRadius = CornerRadius(14.dp.toPx()),
                 size = size,
             )
         }
         Box(
             modifier = Modifier
-                .offset { IntOffset(((size.width - 20.dp.toPx()) * fraction).roundToInt(), 0) }
+                .offset(x = (maxWidth * fraction - 10.dp).coerceAtLeast(0.dp))
                 .padding(2.dp)
                 .size(20.dp)
                 .clip(CircleShape)
@@ -106,6 +107,7 @@ fun SatBrightPanel(
     modifier: Modifier = Modifier,
 ) {
     val hueColor = remember(hue) { Hsv(hue, 1f, 1f).toColor() }
+    val density = LocalDensity.current
     Box(
         modifier = modifier
             .size(200.dp)
@@ -139,8 +141,8 @@ fun SatBrightPanel(
                 size = size,
             )
         }
-        val cx = saturation * 200.dp.toPx()
-        val cy = (1f - value) * 200.dp.toPx()
+        val cx = with(density) { saturation * 200.dp.toPx() }
+        val cy = with(density) { (1f - value) * 200.dp.toPx() }
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawCircle(Color.White, 7.dp.toPx(), Offset(cx, cy), style = Stroke(2.5.dp.toPx()))
             drawCircle(Color.Black, 7.dp.toPx(), Offset(cx, cy), style = Stroke(1.dp.toPx()))
