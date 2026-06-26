@@ -22,9 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.AlertDialog
+import dev.ngocthanhgl.vikey.app.settings.theme.ColorPickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -466,7 +464,6 @@ fun M3DialogSliderPreference(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun M3ColorPickerPreference(
     icon: ImageVector,
@@ -480,8 +477,6 @@ fun M3ColorPickerPreference(
 ) {
     val displayColor = colorOverride?.invoke(currentColor) ?: currentColor
     var showDialog by remember { mutableStateOf(false) }
-    var tmpColor by remember { mutableStateOf(displayColor) }
-    var hexInput by remember { mutableStateOf("") }
 
     SettingsRowLayout(
         icon = icon,
@@ -501,82 +496,19 @@ fun M3ColorPickerPreference(
     )
 
     if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text(title) },
-            text = {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        for (color in defaultColors) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .border(
-                                        width = if (tmpColor == color) 2.dp else 0.dp,
-                                        color = if (tmpColor == color) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                        shape = RoundedCornerShape(8.dp),
-                                    )
-                                    .background(color)
-                                    .clickable {
-                                        tmpColor = color
-                                        hexInput = "#${color.value.toHexString().takeLast(6).uppercase()}"
-                                    },
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                if (tmpColor == color) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                        contentDescription = null,
-                                        tint = if (color == Color.Black || color == Color.DarkGray) Color.White else Color.Black,
-                                        modifier = Modifier.size(20.dp),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    Spacer(Modifier.height(16.dp))
-                    HorizontalDivider()
-                    Spacer(Modifier.height(12.dp))
-                    OutlinedTextField(
-                        value = hexInput,
-                        onValueChange = { input ->
-                            hexInput = input
-                            runCatching {
-                                val hex = input.removePrefix("#")
-                                if (hex.length == 6) {
-                                    tmpColor = Color(hex.toLong(16) or 0xFF000000UL.toLong())
-                                }
-                            }
-                        },
-                        label = { Text("Hex") },
-                        singleLine = true,
-                        shape = RoundedCornerShape(28.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                        ),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+        ColorPickerDialog(
+            title = title,
+            initialColor = displayColor,
+            defaultColors = defaultColors,
+            defaultValueLabel = defaultValueLabel,
+            onDismiss = { showDialog = false },
+            onConfirm = { color ->
+                onColorSelected(color)
+                showDialog = false
             },
-            confirmButton = {
-                TextButton(onClick = {
-                    onColorSelected(tmpColor)
-                    showDialog = false
-                }) {
-                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text(org.florisboard.lib.compose.stringRes(dev.ngocthanhgl.vikey.R.string.action__cancel))
-                }
+            onResetDefault = {
+                onColorSelected(Color.Unspecified)
+                showDialog = false
             },
         )
     }
