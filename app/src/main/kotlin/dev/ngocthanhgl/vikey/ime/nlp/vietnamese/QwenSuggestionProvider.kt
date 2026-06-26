@@ -71,6 +71,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private var lastTopSuggestion: String? = null
 
     private val seedWords = mutableSetOf<String>()
+    private val seedWordFrequencies = mutableMapOf<String, Int>()
     private var prefixTrie: Map<String, List<String>> = mapOf()
     private var useTrie = false
     private var bigrams = mutableMapOf<String, MutableMap<String, Int>>()
@@ -142,6 +143,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 val w = key.lowercase()
                 if (w.isNotEmpty() && w.none { it.isWhitespace() } && w.all { it.isLetter() || it == '\'' }) {
                     seedWords.add(w)
+                    seedWordFrequencies[w] = json.getInt(key)
                 }
             }
             flogDebug { "Qwen: loaded ${seedWords.size} seed words" }
@@ -402,6 +404,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             try {
                 val textBefore = content.textBeforeSelection
                 if (textBefore.isBlank()) return@withContext emptyList()
+                if (textBefore.none { it.isLetter() }) return@withContext emptyList()
                 val now = System.currentTimeMillis()
                 if (textBefore.length > lastTextLen + 1) pasteUntil = now + 500
                 lastTextLen = textBefore.length
@@ -609,6 +612,16 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 if (next !in scored) {
                     scored[next] = (scored[next] ?: 0.0) + freq * BIGRAM_BOOST
                 }
+            }
+        }
+
+        if (scored.isEmpty() && seedWordFrequencies.isNotEmpty()) {
+            val sorted = seedWordFrequencies.entries
+                .sortedByDescending { it.value }
+                .take(limit * 3)
+            val maxFreq = sorted.first().value.toDouble()
+            for ((idx, (word, freq)) in sorted.withIndex()) {
+                scored[word] = (freq.toDouble() / maxFreq) * 100.0 * (1.0 - idx * 0.005)
             }
         }
 
