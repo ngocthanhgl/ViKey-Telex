@@ -282,6 +282,10 @@ class FlorisLocale private constructor(val base: Locale) {
      */
     fun displayVariant(locale: FlorisLocale = default()): String = base.getDisplayVariant(locale.base)
 
+    private val customDisplayNames = mapOf(
+        "vi" to "Tiếng Việt",
+    )
+
     /**
      * Returns the display name for this locale, localized to [locale] in
      * the format `Language`, `Language (Country)` or `Language (Country) \[VARIANT]`.
@@ -292,7 +296,7 @@ class FlorisLocale private constructor(val base: Locale) {
      * @return The display name for this locale. May be an empty string if
      *  [language], [country] and [variant] are not specified.
      */
-    fun displayName(locale: FlorisLocale = default()) = buildString {
+    fun displayName(locale: FlorisLocale = default()) = customDisplayNames[base.language] ?: buildString {
         val languageName = displayLanguage(locale).ifBlank { base.language }
         val countryName = displayCountry(locale).ifBlank { base.country }
         val variantName = displayVariant(locale).ifBlank { base.variant }
