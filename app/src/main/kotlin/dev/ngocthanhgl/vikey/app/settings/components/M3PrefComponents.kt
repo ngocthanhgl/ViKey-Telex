@@ -24,7 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import dev.ngocthanhgl.vikey.app.settings.theme.ColorPickerDialog
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -206,7 +206,7 @@ fun M3ClickablePreference(
         modifier = modifier.then(clickModifier),
         trailing = {
             Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
                 modifier = Modifier.size(24.dp),
@@ -234,7 +234,7 @@ fun M3ListPreference(
         modifier = Modifier.clickable(enabled = enabled, onClick = { showDialog = true }),
         trailing = {
             Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
                 modifier = Modifier.size(24.dp),
@@ -347,7 +347,7 @@ fun M3DialogSliderPreference(
         modifier = Modifier.clickable(enabled = enabled, onClick = { tmpValue = value.toFloat(); showDialog = true }),
         trailing = {
             Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
                 modifier = Modifier.size(24.dp),
@@ -413,7 +413,7 @@ fun M3DialogSliderPreference(
         }),
         trailing = {
             Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
                 modifier = Modifier.size(24.dp),
@@ -536,7 +536,7 @@ fun M3LocalTimePickerPreference(
         modifier = Modifier.clickable(enabled = enabled, onClick = { showDialog = true }),
         trailing = {
             Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.56f),
                 modifier = Modifier.size(24.dp),
