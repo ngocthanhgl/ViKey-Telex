@@ -53,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -195,11 +196,21 @@ fun BoxScope.ImeWindow() {
                         .width(props.keyboardWidth)
                 }
                 .wrapContentHeight()
-                .offset(y = { 40.dp * (1f - windowAnim) })
-                .graphicsLayer(alpha = windowAnim)
+                .graphicsLayer(
+                    alpha = windowAnim,
+                    translationY = with(density) { (1f - windowAnim) * 40.dp.toPx() },
+                )
                 .onGloballyPositioned { coords ->
-                    val boundsPx = coords.boundsInRoot().roundToIntRect()
-                    val newInsets = with(density) { ImeInsets.Window.of(boundsPx) }
+                    val fullBoundsPx = coords.boundsInRoot()
+                    val translationYPx = with(density) { (1f - windowAnim) * 40.dp.toPx() }
+                    val visibleHeightPx = (fullBoundsPx.height - translationYPx).coerceAtLeast(0f)
+                    val animatedBounds = Rect(
+                        left = fullBoundsPx.left,
+                        top = fullBoundsPx.top + fullBoundsPx.height - visibleHeightPx,
+                        right = fullBoundsPx.right,
+                        bottom = fullBoundsPx.bottom
+                    )
+                    val newInsets = with(density) { ImeInsets.Window.of(animatedBounds.roundToIntRect()) }
                     windowController.updateWindowInsets(newInsets)
                 },
             supportsBackgroundImage = true,
