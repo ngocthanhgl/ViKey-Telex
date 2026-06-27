@@ -45,7 +45,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.clickable
-import androidx.compose.animation.core.animateColorAsState
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
