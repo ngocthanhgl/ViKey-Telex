@@ -83,9 +83,6 @@ const val AnimationDuration = 200
 val VerticalEnterTransition = EnterTransition.verticalTween(AnimationDuration)
 val VerticalExitTransition = ExitTransition.verticalTween(AnimationDuration)
 
-private val HorizontalEnterTransition = EnterTransition.horizontalTween(AnimationDuration)
-private val HorizontalExitTransition = ExitTransition.horizontalTween(AnimationDuration)
-
 private val NoEnterTransition = EnterTransition.horizontalTween(0)
 private val NoExitTransition = ExitTransition.horizontalTween(0)
 
@@ -216,8 +213,13 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 .weight(1f)
                 .fillMaxHeight(),
         ) {
-            val enterTransition = if (shouldAnimate) HorizontalEnterTransition else NoEnterTransition
-            val exitTransition = if (shouldAnimate) HorizontalExitTransition else NoExitTransition
+            val expandFrom = if (flipToggles) Alignment.End else Alignment.Start
+            val enterTransition = if (shouldAnimate) {
+                EnterTransition.horizontalTween(AnimationDuration, expandFrom = expandFrom)
+            } else NoEnterTransition
+            val exitTransition = if (shouldAnimate) {
+                ExitTransition.horizontalTween(AnimationDuration, shrinkTowards = expandFrom)
+            } else NoExitTransition
             this@CenterContent.AnimatedVisibility(
                 visible = !expanded,
                 enter = enterTransition,
