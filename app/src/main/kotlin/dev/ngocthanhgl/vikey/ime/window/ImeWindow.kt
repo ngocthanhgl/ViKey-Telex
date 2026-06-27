@@ -173,7 +173,7 @@ fun BoxScope.ImeWindow() {
         label = "windowAnim",
     )
 
-    var fullKeyboardBounds by remember { mutableStateOf(IntRect.Zero) }
+    val fullKeyboardBounds = remember { mutableStateOf(IntRect.Zero) }
 
     val attributes = remember(windowConfig.mode) {
         mapOf(
@@ -204,7 +204,7 @@ fun BoxScope.ImeWindow() {
                     translationY = with(density) { (1f - windowAnim) * 40.dp.toPx() },
                 )
                 .onGloballyPositioned { coords ->
-                    fullKeyboardBounds = coords.boundsInRoot().roundToIntRect()
+                    fullKeyboardBounds.value = coords.boundsInRoot().roundToIntRect()
                 },
             supportsBackgroundImage = true,
             allowClip = false,
@@ -219,18 +219,18 @@ fun BoxScope.ImeWindow() {
 
     LaunchedEffect(windowController) {
         snapshotFlow { windowAnim }.collect { anim ->
-            if (fullKeyboardBounds == IntRect.Zero) return@collect
+            if (fullKeyboardBounds.value == IntRect.Zero) return@collect
             val translationYPx = with(density) { (1f - anim) * 40.dp.toPx() }
-            val fullH = fullKeyboardBounds.height
+            val fullH = fullKeyboardBounds.value.height
             val visibleH = (fullH.toFloat() - translationYPx).coerceAtLeast(0f).toInt()
             windowController.updateWindowInsets(
                 with(density) {
                     ImeInsets.Window.of(
                         IntRect(
-                            fullKeyboardBounds.left,
-                            fullKeyboardBounds.top + fullH - visibleH,
-                            fullKeyboardBounds.right,
-                            fullKeyboardBounds.bottom,
+                            fullKeyboardBounds.value.left,
+                            fullKeyboardBounds.value.top + fullH - visibleH,
+                            fullKeyboardBounds.value.right,
+                            fullKeyboardBounds.value.bottom,
                         )
                     )
                 }
