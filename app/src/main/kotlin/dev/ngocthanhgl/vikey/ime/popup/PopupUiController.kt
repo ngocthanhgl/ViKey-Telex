@@ -25,6 +25,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.requiredSize
@@ -465,9 +466,9 @@ class PopupUiController(
         AnimatedContent(
             targetState = baseRenderInfo,
             transitionSpec = {
-                scaleIn(initialScale = 0.85f, animationSpec = popupAnim) + fadeIn(popupAnim)
-                    togetherWith scaleOut(targetScale = 0.85f, animationSpec = popupFadeOut) + fadeOut(popupFadeOut)
-                using SizeTransform(clip = false)
+                val enter = scaleIn(initialScale = 0.85f, animationSpec = popupAnim) + fadeIn(popupAnim)
+                val exit = scaleOut(targetScale = 0.85f, animationSpec = popupFadeOut) + fadeOut(popupFadeOut)
+                enter togetherWith exit using SizeTransform(clip = false)
             },
             label = "basePopup",
         ) { renderInfo ->
@@ -485,9 +486,9 @@ class PopupUiController(
         AnimatedContent(
             targetState = extRenderInfo,
             transitionSpec = {
-                scaleIn(initialScale = 0.85f, animationSpec = popupAnim) + fadeIn(popupAnim)
-                    togetherWith scaleOut(targetScale = 0.85f, animationSpec = popupFadeOut) + fadeOut(popupFadeOut)
-                using SizeTransform(clip = false)
+                val enter = scaleIn(initialScale = 0.85f, animationSpec = popupAnim) + fadeIn(popupAnim)
+                val exit = scaleOut(targetScale = 0.85f, animationSpec = popupFadeOut) + fadeOut(popupFadeOut)
+                enter togetherWith exit using SizeTransform(clip = false)
             },
             label = "extPopup",
         ) { renderInfo ->

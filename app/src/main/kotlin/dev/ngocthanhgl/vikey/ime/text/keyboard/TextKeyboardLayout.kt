@@ -54,6 +54,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -389,8 +390,9 @@ fun TextKeyboardLayout(
         AnimatedContent(
             targetState = keyboard.mode,
             transitionSpec = {
-                fadeIn(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f)) + fadeOut(animationSpec = tween(120))
-                using SizeTransform(clip = false)
+                val enter = fadeIn(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f))
+                val exit = fadeOut(animationSpec = tween(120))
+                enter togetherWith exit using SizeTransform(clip = false)
             },
             label = "keyboardMode",
         ) {
