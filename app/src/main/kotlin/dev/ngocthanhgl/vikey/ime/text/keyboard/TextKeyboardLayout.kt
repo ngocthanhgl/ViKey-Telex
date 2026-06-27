@@ -46,15 +46,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -387,26 +382,16 @@ fun TextKeyboardLayout(
             rippleOrigin = null
         }
 
-        AnimatedContent(
-            targetState = keyboard.mode,
-            transitionSpec = {
-                val enter = fadeIn(animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f))
-                val exit = fadeOut(animationSpec = tween(120))
-                enter togetherWith exit using SizeTransform(clip = false)
-            },
-            label = "keyboardMode",
-        ) {
-            for (textKey in keyboard.keys()) {
-                TextKeyButton(
-                    textKey, evaluator, desiredKey,
-                    debugShowTouchBoundaries,
-                    lqConfig = lqConfig,
-                    backgroundPhoto = backgroundPhoto,
-                    rippleOrigin = rippleOrigin,
-                    rippleProgress = rippleRadius.value,
-                    onRipple = { center -> rippleOrigin = center },
-                )
-            }
+        for (textKey in keyboard.keys()) {
+            TextKeyButton(
+                textKey, evaluator, desiredKey,
+                debugShowTouchBoundaries,
+                lqConfig = lqConfig,
+                backgroundPhoto = backgroundPhoto,
+                rippleOrigin = rippleOrigin,
+                rippleProgress = rippleRadius.value,
+                onRipple = { center -> rippleOrigin = center },
+            )
         }
 
         popupUiController.RenderPopups()
