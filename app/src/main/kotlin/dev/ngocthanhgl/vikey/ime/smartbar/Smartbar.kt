@@ -45,6 +45,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -220,26 +221,30 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
             val exitTransition = if (shouldAnimate) {
                 ExitTransition.horizontalTween(AnimationDuration, shrinkTowards = expandFrom)
             } else NoExitTransition
-            this@CenterContent.AnimatedVisibility(
-                visible = !expanded,
-                enter = enterTransition,
-                exit = exitTransition,
-            ) {
-                if (shouldShowInlineSuggestionsUi) {
-                    InlineSuggestionsUi(inlineSuggestions)
-                } else {
-                    CandidatesRow()
+            key(flipToggles) {
+                this@CenterContent.AnimatedVisibility(
+                    visible = !expanded,
+                    enter = enterTransition,
+                    exit = exitTransition,
+                ) {
+                    if (shouldShowInlineSuggestionsUi) {
+                        InlineSuggestionsUi(inlineSuggestions)
+                    } else {
+                        CandidatesRow()
+                    }
                 }
             }
-            this@CenterContent.AnimatedVisibility(
-                visible = expanded,
-                enter = enterTransition,
-                exit = exitTransition,
-            ) {
-                QuickActionsRow(
-                    FlorisImeUi.SmartbarSharedActionsRow.elementName,
-                    modifier = modifier.fillMaxSize(),
-                )
+            key(flipToggles) {
+                this@CenterContent.AnimatedVisibility(
+                    visible = expanded,
+                    enter = enterTransition,
+                    exit = exitTransition,
+                ) {
+                    QuickActionsRow(
+                        FlorisImeUi.SmartbarSharedActionsRow.elementName,
+                        modifier = modifier.fillMaxSize(),
+                    )
+                }
             }
         }
     }
