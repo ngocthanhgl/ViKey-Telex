@@ -45,8 +45,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -247,23 +249,25 @@ fun EmojiPaletteView(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(40.dp)
-                .padding(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                .height(40.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             for (category in EmojiCategoryValues) {
                 if (category == EmojiCategory.RECENTLY_USED && !emojiHistoryEnabled) continue
                 val isSelected = activeCategory == category
+                val bgColor by animateColorAsState(
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+                                  else Color.Transparent,
+                    animationSpec = tween(200),
+                    label = "chipBg",
+                )
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(26.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            if (isSelected) MaterialTheme.colorScheme.secondaryContainer
-                            else Color.Transparent
-                        )
+                        .background(bgColor)
                         .clickable {
                             inputFeedbackController.keyPress(TextKeyData.UNSPECIFIED)
                             onCategoryChange(category)
