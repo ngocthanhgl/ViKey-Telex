@@ -70,6 +70,7 @@ fun PresetSwatches(
 }
 
 @Composable
+@Composable
 fun ColorPickerDialog(
     title: String,
     initialColor: Color,
