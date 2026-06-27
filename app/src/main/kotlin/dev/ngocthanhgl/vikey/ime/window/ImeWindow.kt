@@ -16,7 +16,6 @@
 
 package dev.ngocthanhgl.vikey.ime.window
 
-import android.inputmethodservice.InputMethodService
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -44,13 +43,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,7 +63,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.roundToIntRect
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.ime.ImeUiMode
@@ -168,14 +163,11 @@ fun BoxScope.ImeWindow() {
     val liquidGlassEnabled = LocalLiquidGlassEnabled.current
     val windowVisible by windowController.isWindowShown.collectAsState()
 
-    val windowAnim by animateFloatAsState(
+    val windowAlpha by animateFloatAsState(
         targetValue = if (windowVisible) 1f else 0f,
         animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
-        label = "windowAnim",
+        label = "windowAlpha",
     )
-
-    val fullKeyboardBounds = remember { mutableStateOf(IntRect.Zero) }
-    val decorView = (LocalContext.current as? InputMethodService)?.window?.window?.decorView
 
     val attributes = remember(windowConfig.mode) {
         mapOf(
@@ -201,12 +193,10 @@ fun BoxScope.ImeWindow() {
                         .width(props.keyboardWidth)
                 }
                 .wrapContentHeight()
-                .graphicsLayer(
-                    alpha = windowAnim,
-                    translationY = with(density) { (1f - windowAnim) * 40.dp.toPx() },
-                )
+                .graphicsLayer(alpha = windowAlpha)
                 .onGloballyPositioned { coords ->
-                    fullKeyboardBounds.value = coords.boundsInRoot().roundToIntRect()
+                    val newInsets = with(density) { ImeInsets.Window.of(coords.boundsInRoot().roundToIntRect()) }
+                    windowController.updateWindowInsets(newInsets)
                 },
             supportsBackgroundImage = true,
             allowClip = false,
@@ -216,28 +206,6 @@ fun BoxScope.ImeWindow() {
                 ImeInnerWindow()
             }
             ImeWindowResizeHandlesFloating()
-        }
-    }
-
-    LaunchedEffect(windowController) {
-        snapshotFlow { windowAnim }.collect { anim ->
-            if (fullKeyboardBounds.value == IntRect.Zero) return@collect
-            val translationYPx = with(density) { (1f - anim) * 40.dp.toPx() }
-            val fullH = fullKeyboardBounds.value.height
-            val visibleH = (fullH.toFloat() - translationYPx).coerceAtLeast(0f).toInt()
-            windowController.updateWindowInsets(
-                with(density) {
-                    ImeInsets.Window.of(
-                        IntRect(
-                            fullKeyboardBounds.value.left,
-                            fullKeyboardBounds.value.top + fullH - visibleH,
-                            fullKeyboardBounds.value.right,
-                            fullKeyboardBounds.value.bottom,
-                        )
-                    )
-                }
-            )
-            decorView?.requestApplyInsets()
         }
     }
 }
