@@ -117,6 +117,7 @@ import org.florisboard.lib.snygg.ui.SnyggBox
 import org.florisboard.lib.snygg.ui.SnyggIcon
 import org.florisboard.lib.snygg.ui.SnyggRow
 import org.florisboard.lib.snygg.ui.SnyggText
+import org.florisboard.lib.snygg.ui.rememberSnyggThemeQuery
 import kotlin.math.ceil
 
 private val EmojiCategoryValues = EmojiCategory.entries
@@ -363,6 +364,14 @@ fun EmojiPaletteView(
             ),
         )
 
+        val pagerState = rememberPagerState(
+            pageCount = { calculatePageNumbers() }
+        )
+
+        LaunchedEffect(emojiHistoryEnabled) {
+            pagerState.animateScrollToPage(0)
+        }
+
         EmojiCategoryChips(
             activeCategory = activeCategory,
             onCategoryChange = { category ->
@@ -387,14 +396,6 @@ fun EmojiPaletteView(
                 }
             }
         } else {
-            val pagerState = rememberPagerState(
-                pageCount = { calculatePageNumbers() }
-            )
-
-            LaunchedEffect(emojiHistoryEnabled) {
-                pagerState.animateScrollToPage(0)
-            }
-
             HorizontalPager(pagerState, beyondViewportPageCount = 1) { page ->
                 val lazyGridState = rememberLazyGridState()
 
