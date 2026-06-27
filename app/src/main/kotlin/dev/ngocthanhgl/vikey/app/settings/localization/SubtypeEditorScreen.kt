@@ -436,7 +436,7 @@ fun SubtypeEditorScreen(id: Long?) {
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_suggestion_provider)) {
                 val nlpProviderMappings = mapOf(
                     FallbackNlpProvider.providerId to "None",
-                    QwenSuggestionProvider.ProviderId to "Vietnamese (Qwen)"
+                    QwenSuggestionProvider.ProviderId to "English/Vietnamese"
                 )
 
                 val nlpProviderMappingIds = remember(nlpProviderMappings) {
