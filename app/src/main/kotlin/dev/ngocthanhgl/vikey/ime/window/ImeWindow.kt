@@ -195,7 +195,7 @@ fun BoxScope.ImeWindow() {
                         .width(props.keyboardWidth)
                 }
                 .wrapContentHeight()
-                .offset(y = (1f - windowAnim) * 40.dp)
+                .offset(y = { 40.dp * (1f - windowAnim) })
                 .graphicsLayer(alpha = windowAnim)
                 .onGloballyPositioned { coords ->
                     val boundsPx = coords.boundsInRoot().roundToIntRect()
