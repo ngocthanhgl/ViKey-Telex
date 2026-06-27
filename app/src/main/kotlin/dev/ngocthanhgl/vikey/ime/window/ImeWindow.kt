@@ -46,14 +46,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -64,8 +65,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.roundToIntRect
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.ime.ImeUiMode
@@ -130,9 +131,30 @@ fun ImeRootWindow() {
                 Modifier.pointerInput(isEditorEnabled, activeKeyboardState.imeUiMode) {
                     detectTapGestures {
                         windowController.editor.disableIfNoGestureInProgress()
-                    }
+        }
+    }
+
+    LaunchedEffect(windowController) {
+        snapshotFlow { windowAnim }.collect { anim ->
+            if (fullKeyboardBounds == IntRect.Zero) return@collect
+            val translationYPx = with(density) { (1f - anim) * 40.dp.toPx() }
+            val fullH = fullKeyboardBounds.height
+            val visibleH = (fullH.toFloat() - translationYPx).coerceAtLeast(0f).toInt()
+            windowController.updateWindowInsets(
+                with(density) {
+                    ImeInsets.Window.of(
+                        IntRect(
+                            fullKeyboardBounds.left,
+                            fullKeyboardBounds.top + fullH - visibleH,
+                            fullKeyboardBounds.right,
+                            fullKeyboardBounds.bottom,
+                        )
+                    )
                 }
-            }
+            )
+        }
+    }
+}
             .onGloballyPositioned { coords ->
                 val boundsPx = coords.boundsInRoot().roundToIntRect()
                 val newInsets = with(density) { ImeInsets.Root.of(boundsPx) }
@@ -172,6 +194,8 @@ fun BoxScope.ImeWindow() {
         label = "windowAnim",
     )
 
+    var fullKeyboardBounds by remember { mutableStateOf(IntRect.Zero) }
+
     val attributes = remember(windowConfig.mode) {
         mapOf(
             FlorisImeUi.Attr.WindowMode to windowConfig.mode.toString(),
@@ -201,17 +225,7 @@ fun BoxScope.ImeWindow() {
                     translationY = with(density) { (1f - windowAnim) * 40.dp.toPx() },
                 )
                 .onGloballyPositioned { coords ->
-                    val fullBoundsPx = coords.boundsInRoot()
-                    val translationYPx = with(density) { (1f - windowAnim) * 40.dp.toPx() }
-                    val visibleHeightPx = (fullBoundsPx.height - translationYPx).coerceAtLeast(0f)
-                    val animatedBounds = Rect(
-                        left = fullBoundsPx.left,
-                        top = fullBoundsPx.top + fullBoundsPx.height - visibleHeightPx,
-                        right = fullBoundsPx.right,
-                        bottom = fullBoundsPx.bottom
-                    )
-                    val newInsets = with(density) { ImeInsets.Window.of(animatedBounds.roundToIntRect()) }
-                    windowController.updateWindowInsets(newInsets)
+                    fullKeyboardBounds = coords.boundsInRoot().roundToIntRect()
                 },
             supportsBackgroundImage = true,
             allowClip = false,
