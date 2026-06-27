@@ -92,7 +92,7 @@ fun QuickActionsRow(
             if (showOverflowAction && flipToggles) {
                 QuickActionButton(ToggleOverflowPanelAction, evaluator)
             }
-            for (action in visibleActions) {
+            for (action in if (flipToggles) visibleActions.reversed() else visibleActions) {
                 QuickActionButton(action, evaluator)
             }
             if (showOverflowAction && !flipToggles) {
