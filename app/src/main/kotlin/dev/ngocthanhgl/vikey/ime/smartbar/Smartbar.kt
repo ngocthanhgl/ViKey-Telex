@@ -70,7 +70,7 @@ import dev.ngocthanhgl.vikey.nlpManager
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import kotlinx.coroutines.launch
 import org.florisboard.lib.android.AndroidVersion
-import org.florisboard.lib.compose.horizontalTween
+
 import org.florisboard.lib.compose.verticalTween
 import org.florisboard.lib.snygg.ui.SnyggBox
 import org.florisboard.lib.snygg.ui.SnyggColumn
@@ -84,8 +84,8 @@ const val AnimationDuration = 200
 val VerticalEnterTransition = EnterTransition.verticalTween(AnimationDuration)
 val VerticalExitTransition = ExitTransition.verticalTween(AnimationDuration)
 
-private val NoEnterTransition = EnterTransition.horizontalTween(0)
-private val NoExitTransition = ExitTransition.horizontalTween(0)
+private val NoEnterTransition = fadeIn(tween(0)) + slideInHorizontally(tween(0)) { 0 }
+private val NoExitTransition = fadeOut(tween(0)) + slideOutHorizontally(tween(0)) { 0 }
 
 private val AnimationTween = tween<Float>(AnimationDuration)
 private val NoAnimationTween = tween<Float>(0)
@@ -214,12 +214,19 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 .weight(1f)
                 .fillMaxHeight(),
         ) {
-            val expandFrom = if (flipToggles) Alignment.End else Alignment.Start
             val enterTransition = if (shouldAnimate) {
-                EnterTransition.horizontalTween(AnimationDuration, expandFrom = expandFrom)
+                fadeIn(tween(AnimationDuration)) +
+                    slideInHorizontally(
+                        animationSpec = tween(AnimationDuration),
+                        initialOffsetX = { if (flipToggles) it else -it },
+                    )
             } else NoEnterTransition
             val exitTransition = if (shouldAnimate) {
-                ExitTransition.horizontalTween(AnimationDuration, shrinkTowards = expandFrom)
+                fadeOut(tween(AnimationDuration)) +
+                    slideOutHorizontally(
+                        animationSpec = tween(AnimationDuration),
+                        targetOffsetX = { if (flipToggles) it else -it },
+                    )
             } else NoExitTransition
             key(flipToggles) {
                 this@CenterContent.AnimatedVisibility(
