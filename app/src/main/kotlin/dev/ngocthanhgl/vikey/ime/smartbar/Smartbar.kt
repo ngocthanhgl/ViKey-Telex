@@ -222,14 +222,14 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 fadeIn(tween(AnimationDuration)) +
                     slideInHorizontally(
                         animationSpec = tween(AnimationDuration),
-                        initialOffsetX = { if (flipToggles) it else -it },
+                        initialOffsetX = { if (flipToggles) it / 6 else -it / 6 },
                     )
             } else NoEnterTransition
             val exitTransition = if (shouldAnimate) {
                 fadeOut(tween(AnimationDuration)) +
                     slideOutHorizontally(
                         animationSpec = tween(AnimationDuration),
-                        targetOffsetX = { if (flipToggles) it else -it },
+                        targetOffsetX = { if (flipToggles) it / 6 else -it / 6 },
                     )
             } else NoExitTransition
             key(flipToggles) {
