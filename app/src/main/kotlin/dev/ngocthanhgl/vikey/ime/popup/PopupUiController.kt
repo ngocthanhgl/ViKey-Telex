@@ -17,6 +17,14 @@
 package dev.ngocthanhgl.vikey.ime.popup
 
 import android.content.Context
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.requiredSize
@@ -452,35 +460,57 @@ class PopupUiController(
             FlorisImeUi.Attr.Mode to evaluator.keyboard.mode.toString(),
             FlorisImeUi.Attr.ShiftState to evaluator.state.inputShiftState.toString(),
         )
-        baseRenderInfo?.let { renderInfo ->
-            PopupBaseBox(
-                modifier = Modifier
-                    .requiredSize(renderInfo.bounds.size.toDpSize())
-                    .absoluteOffset { renderInfo.bounds.topLeft.toIntOffset() },
-                attributes = attributes,
-                key = renderInfo.key,
-                shouldIndicateExtendedPopups = renderInfo.shouldIndicateExtendedPopups && extRenderInfo == null,
-            )
+        val popupAnim = spring(dampingRatio = 0.6f, stiffness = 400f)
+        val popupFadeOut = tween<Float>(80)
+        AnimatedContent(
+            targetState = baseRenderInfo,
+            transitionSpec = {
+                scaleIn(initialScale = 0.85f, animationSpec = popupAnim) + fadeIn(popupAnim)
+                    togetherWith scaleOut(targetScale = 0.85f, animationSpec = popupFadeOut) + fadeOut(popupFadeOut)
+                using SizeTransform(clip = false)
+            },
+            label = "basePopup",
+        ) { renderInfo ->
+            renderInfo?.let { info ->
+                PopupBaseBox(
+                    modifier = Modifier
+                        .requiredSize(info.bounds.size.toDpSize())
+                        .absoluteOffset { info.bounds.topLeft.toIntOffset() },
+                    attributes = attributes,
+                    key = info.key,
+                    shouldIndicateExtendedPopups = info.shouldIndicateExtendedPopups && extRenderInfo == null,
+                )
+            }
         }
-        extRenderInfo?.let { renderInfo ->
-            val baseBounds = renderInfo.baseBounds
-            val elemWidth = baseBounds.width
-            val elemHeight = baseBounds.height * 0.4f
-            PopupExtBox(
-                modifier = Modifier
-                    .requiredSize(renderInfo.bounds.size.toDpSize())
-                    .absoluteOffset { renderInfo.bounds.topLeft.toIntOffset() },
-                attributes = attributes,
-                elements = renderInfo.elements,
-                elemArrangement = if (renderInfo.anchorLeft) {
-                    Arrangement.Start
-                } else {
-                    Arrangement.End
-                },
-                elemWidth = elemWidth.toDp(),
-                elemHeight = elemHeight.toDp(),
-                activeElementIndex = activeElementIndex,
-            )
+        AnimatedContent(
+            targetState = extRenderInfo,
+            transitionSpec = {
+                scaleIn(initialScale = 0.85f, animationSpec = popupAnim) + fadeIn(popupAnim)
+                    togetherWith scaleOut(targetScale = 0.85f, animationSpec = popupFadeOut) + fadeOut(popupFadeOut)
+                using SizeTransform(clip = false)
+            },
+            label = "extPopup",
+        ) { renderInfo ->
+            renderInfo?.let { info ->
+                val baseBounds = info.baseBounds
+                val elemWidth = baseBounds.width
+                val elemHeight = baseBounds.height * 0.4f
+                PopupExtBox(
+                    modifier = Modifier
+                        .requiredSize(info.bounds.size.toDpSize())
+                        .absoluteOffset { info.bounds.topLeft.toIntOffset() },
+                    attributes = attributes,
+                    elements = info.elements,
+                    elemArrangement = if (info.anchorLeft) {
+                        Arrangement.Start
+                    } else {
+                        Arrangement.End
+                    },
+                    elemWidth = elemWidth.toDp(),
+                    elemHeight = elemHeight.toDp(),
+                    activeElementIndex = activeElementIndex,
+                )
+            }
         }
     }
 

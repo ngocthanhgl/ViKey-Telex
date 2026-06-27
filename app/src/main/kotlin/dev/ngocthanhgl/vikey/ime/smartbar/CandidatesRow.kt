@@ -16,6 +16,8 @@
 
 package dev.ngocthanhgl.vikey.ime.smartbar
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -34,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
@@ -153,6 +156,11 @@ private fun CandidateItem(
     longPressDelay: Long,
 ) = with(LocalDensity.current) {
     var isPressed by remember { mutableStateOf(false) }
+    val pressScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 500f),
+        label = "candidatePress",
+    )
 
     val elementName = if (candidate is ClipboardSuggestionCandidate) {
         FlorisImeUi.SmartbarCandidateClip
@@ -167,6 +175,10 @@ private fun CandidateItem(
         attributes = attributes,
         selector = selector,
         modifier = modifier
+            .graphicsLayer(
+                scaleX = pressScale,
+                scaleY = pressScale,
+            )
             .pointerInput(Unit) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
