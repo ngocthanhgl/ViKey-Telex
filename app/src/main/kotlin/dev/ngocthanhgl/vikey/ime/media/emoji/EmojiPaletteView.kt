@@ -397,7 +397,6 @@ fun EmojiPaletteView(
             }
         }
     }
-    }
 }
 
 @Composable
