@@ -131,30 +131,9 @@ fun ImeRootWindow() {
                 Modifier.pointerInput(isEditorEnabled, activeKeyboardState.imeUiMode) {
                     detectTapGestures {
                         windowController.editor.disableIfNoGestureInProgress()
-        }
-    }
-
-    LaunchedEffect(windowController) {
-        snapshotFlow { windowAnim }.collect { anim ->
-            if (fullKeyboardBounds == IntRect.Zero) return@collect
-            val translationYPx = with(density) { (1f - anim) * 40.dp.toPx() }
-            val fullH = fullKeyboardBounds.height
-            val visibleH = (fullH.toFloat() - translationYPx).coerceAtLeast(0f).toInt()
-            windowController.updateWindowInsets(
-                with(density) {
-                    ImeInsets.Window.of(
-                        IntRect(
-                            fullKeyboardBounds.left,
-                            fullKeyboardBounds.top + fullH - visibleH,
-                            fullKeyboardBounds.right,
-                            fullKeyboardBounds.bottom,
-                        )
-                    )
+                    }
                 }
-            )
-        }
-    }
-}
+            }
             .onGloballyPositioned { coords ->
                 val boundsPx = coords.boundsInRoot().roundToIntRect()
                 val newInsets = with(density) { ImeInsets.Root.of(boundsPx) }
@@ -235,6 +214,27 @@ fun BoxScope.ImeWindow() {
                 ImeInnerWindow()
             }
             ImeWindowResizeHandlesFloating()
+        }
+    }
+
+    LaunchedEffect(windowController) {
+        snapshotFlow { windowAnim }.collect { anim ->
+            if (fullKeyboardBounds == IntRect.Zero) return@collect
+            val translationYPx = with(density) { (1f - anim) * 40.dp.toPx() }
+            val fullH = fullKeyboardBounds.height
+            val visibleH = (fullH.toFloat() - translationYPx).coerceAtLeast(0f).toInt()
+            windowController.updateWindowInsets(
+                with(density) {
+                    ImeInsets.Window.of(
+                        IntRect(
+                            fullKeyboardBounds.left,
+                            fullKeyboardBounds.top + fullH - visibleH,
+                            fullKeyboardBounds.right,
+                            fullKeyboardBounds.bottom,
+                        )
+                    )
+                }
+            )
         }
     }
 }
