@@ -19,7 +19,7 @@ package dev.ngocthanhgl.vikey.ime.window
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
@@ -165,10 +165,10 @@ fun BoxScope.ImeWindow() {
     val liquidGlassEnabled = LocalLiquidGlassEnabled.current
     val windowVisible by windowController.isWindowShown.collectAsState()
 
-    val windowAlpha by animateFloatAsState(
+    val windowAnim by animateFloatAsState(
         targetValue = if (windowVisible) 1f else 0f,
-        animationSpec = spring(dampingRatio = 0.5f, stiffness = 300f),
-        label = "windowAlpha",
+        animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
+        label = "windowAnim",
     )
 
     val attributes = remember(windowConfig.mode) {
@@ -195,7 +195,10 @@ fun BoxScope.ImeWindow() {
                         .width(props.keyboardWidth)
                 }
                 .wrapContentHeight()
-                .graphicsLayer(alpha = windowAlpha)
+                .graphicsLayer(
+                    alpha = windowAnim,
+                    translationY = with(density) { (1f - windowAnim) * 40.dp.toPx() },
+                )
                 .onGloballyPositioned { coords ->
                     val boundsPx = coords.boundsInRoot().roundToIntRect()
                     val newInsets = with(density) { ImeInsets.Window.of(boundsPx) }
