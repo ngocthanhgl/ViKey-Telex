@@ -16,6 +16,7 @@
 
 package dev.ngocthanhgl.vikey.ime.window
 
+import android.inputmethodservice.InputMethodService
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -174,6 +175,7 @@ fun BoxScope.ImeWindow() {
     )
 
     val fullKeyboardBounds = remember { mutableStateOf(IntRect.Zero) }
+    val decorView = (LocalContext.current as? InputMethodService)?.window?.window?.decorView
 
     val attributes = remember(windowConfig.mode) {
         mapOf(
@@ -235,6 +237,7 @@ fun BoxScope.ImeWindow() {
                     )
                 }
             )
+            decorView?.requestApplyInsets()
         }
     }
 }
