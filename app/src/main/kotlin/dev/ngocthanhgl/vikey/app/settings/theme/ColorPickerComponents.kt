@@ -70,7 +70,6 @@ fun PresetSwatches(
 }
 
 @Composable
-@Composable
 fun ColorPickerDialog(
     title: String,
     initialColor: Color,
@@ -90,6 +89,7 @@ fun ColorPickerDialog(
                 onColorSelected = onConfirm,
             )
         },
+        confirmButton = {},
         dismissButton = {
             Row {
                 if (defaultValueLabel != null) {
