@@ -27,17 +27,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -55,20 +53,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.PushPin
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -252,40 +244,38 @@ fun EmojiPaletteView(
         onCategoryChange: (EmojiCategory) -> Unit,
     ) {
         val inputFeedbackController = LocalInputFeedbackController.current
-        LazyRow(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp),
+                .height(40.dp)
+                .padding(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             for (category in EmojiCategoryValues) {
                 if (category == EmojiCategory.RECENTLY_USED && !emojiHistoryEnabled) continue
-                item {
-                    val isSelected = activeCategory == category
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                if (isSelected) MaterialTheme.colorScheme.secondaryContainer
-                                else Color.Transparent
-                            )
-                            .clickable {
-                                inputFeedbackController.keyPress(TextKeyData.UNSPECIFIED)
-                                onCategoryChange(category)
-                            },
-                    ) {
-                        Icon(
-                            imageVector = category.icon(),
-                            contentDescription = null,
-                            tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
-                                   else MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(22.dp),
+                val isSelected = activeCategory == category
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(26.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+                            else Color.Transparent
                         )
-                    }
+                        .clickable {
+                            inputFeedbackController.keyPress(TextKeyData.UNSPECIFIED)
+                            onCategoryChange(category)
+                        },
+                ) {
+                    Icon(
+                        imageVector = category.icon(),
+                        contentDescription = null,
+                        tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
+                               else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp),
+                    )
                 }
             }
         }
@@ -294,75 +284,7 @@ fun EmojiPaletteView(
     Column(
         modifier = modifier
     ) {
-        var searchQuery by remember { mutableStateOf("") }
 
-        val allSearchable = remember(emojiMappings) {
-            emojiMappings.entries.flatMap { (category, emojiSets) ->
-                emojiSets.map { emojiSet -> category to emojiSet }
-            }
-        }
-
-        val searchResults by remember(searchQuery, allSearchable) {
-            derivedStateOf {
-                val q = searchQuery.trim().lowercase()
-                if (q.isEmpty()) emptyList()
-                else allSearchable
-                    .filter { (_, emojiSet) ->
-                        val base = emojiSet.emojis.first()
-                        base.name.lowercase().contains(q) ||
-                        base.keywords.any { it.contains(q) }
-                    }
-                    .sortedByDescending { (_, emojiSet) ->
-                        val base = emojiSet.emojis.first()
-                        val nw = if (base.name.lowercase().contains(q))
-                            q.length.toDouble() / base.name.length else 0.0
-                        val kw = if (base.keywords.any { it.contains(q) }) 1.0 else 0.0
-                        nw * 0.7 + kw * 0.3
-                    }
-                    .map { it.second }
-            }
-        }
-
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 4.dp)
-                .heightIn(min = 40.dp),
-            placeholder = {
-                Text(
-                    text = stringRes(R.string.emoji__search__hint),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Rounded.Search,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                )
-            },
-            trailingIcon = {
-                if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { searchQuery = "" }) {
-                        Icon(
-                            imageVector = Icons.Rounded.Clear,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                        )
-                    }
-                }
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-            ),
-        )
 
         val pagerState = rememberPagerState(
             pageCount = { calculatePageNumbers() }
@@ -382,21 +304,7 @@ fun EmojiPaletteView(
             },
         )
 
-        if (searchQuery.isNotEmpty()) {
-            val searchLazyGridState = rememberLazyGridState()
-            LazyVerticalGrid(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .florisScrollbar(searchLazyGridState),
-                columns = GridCells.Adaptive(minSize = EmojiBaseWidth),
-                state = searchLazyGridState,
-            ) {
-                items(searchResults) { emojiSet ->
-                    EmojiKeyWrapper(emojiSet)
-                }
-            }
-        } else {
-            HorizontalPager(pagerState, beyondViewportPageCount = 1) { page ->
+        HorizontalPager(pagerState, beyondViewportPageCount = 1) { page ->
                 val lazyGridState = rememberLazyGridState()
 
                 LaunchedEffect(pagerState) {
