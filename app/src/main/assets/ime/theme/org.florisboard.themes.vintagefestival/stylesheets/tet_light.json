@@ -547,12 +547,6 @@
   "media-emoji-key-popup-extended-indicator": {
     "foreground": "inherit"
   },
-  "media-emoji-tab": {
-    "foreground": "var(--t-bg)"
-  },
-  "media-emoji-tab:focus": {
-    "foreground": "var(--enter)"
-  },
   "media-bottom-row-button": {
     "padding": "16dp 0dp 16dp 0dp",
     "shape": "var(--shape)"

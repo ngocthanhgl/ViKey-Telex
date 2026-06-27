@@ -448,12 +448,6 @@
     "background": "var(--focused-popup-surface)",
     "shape": "var(--shape)"
   },
-  "media-emoji-tab": {
-    "foreground": "var(--on-background)"
-  },
-  "media-emoji-tab:focus": {
-    "foreground": "var(--primary)"
-  },
   "media-bottom-row-button": {
     "padding": "16dp 0dp",
     "shape": "var(--shape)"

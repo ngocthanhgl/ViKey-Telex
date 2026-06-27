@@ -235,11 +235,6 @@ enum class FlorisImeUi(val elementName: String, val resId: Int?) {
         elementName = "media-emoji-key-popup-extended-indicator",
         resId = R.string.snygg__rule_element__media_emoji_key_popup_extended_indicator,
     ),
-    MediaEmojiTab(
-        elementName = "media-emoji-tab",
-        resId = R.string.snygg__rule_element__media_emoji_tab,
-    ),
-
     MediaBottomRow(
         elementName = "media-bottom-row",
         resId = R.string.snygg__rule_element__media_bottom_row,

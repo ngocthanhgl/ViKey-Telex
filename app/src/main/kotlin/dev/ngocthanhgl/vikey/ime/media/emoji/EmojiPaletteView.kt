@@ -26,14 +26,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -42,22 +46,29 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.PushPin
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -67,8 +78,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -100,12 +113,10 @@ import org.florisboard.lib.android.systemService
 import org.florisboard.lib.compose.florisScrollbar
 import org.florisboard.lib.compose.header
 import org.florisboard.lib.compose.stringRes
-import org.florisboard.lib.snygg.SnyggSelector
 import org.florisboard.lib.snygg.ui.SnyggBox
 import org.florisboard.lib.snygg.ui.SnyggIcon
 import org.florisboard.lib.snygg.ui.SnyggRow
 import org.florisboard.lib.snygg.ui.SnyggText
-import org.florisboard.lib.snygg.ui.rememberSnyggThemeQuery
 import kotlin.math.ceil
 
 private val EmojiCategoryValues = EmojiCategory.entries
@@ -235,49 +246,46 @@ fun EmojiPaletteView(
 
 
     @Composable
-    fun EmojiCategoriesTabRow(
+    fun EmojiCategoryChips(
         activeCategory: EmojiCategory,
         onCategoryChange: (EmojiCategory) -> Unit,
     ) {
         val inputFeedbackController = LocalInputFeedbackController.current
-        val selectedTabIndex = categoryToPageNumber(activeCategory)
-        val style = rememberSnyggThemeQuery(FlorisImeUi.MediaEmojiTab.elementName)
-        PrimaryTabRow(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(FlorisImeSizing.smartbarHeight),
-            selectedTabIndex = selectedTabIndex,
-            containerColor = Color.Transparent,
-            contentColor = style.foreground(),
-            indicator = {
-                val style = rememberSnyggThemeQuery(
-                    elementName = FlorisImeUi.MediaEmojiTab.elementName,
-                    selector = SnyggSelector.FOCUS,
-                )
-                TabRowDefaults.PrimaryIndicator(
-                    Modifier.tabIndicatorOffset(selectedTabIndex),
-                    height = 4.dp,
-                    color = style.foreground(),
-                )
-            },
+                .height(48.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             for (category in EmojiCategoryValues) {
-                if (category == EmojiCategory.RECENTLY_USED && !emojiHistoryEnabled) {
-                    continue
+                if (category == EmojiCategory.RECENTLY_USED && !emojiHistoryEnabled) continue
+                item {
+                    val isSelected = activeCategory == category
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                if (isSelected) MaterialTheme.colorScheme.secondaryContainer
+                                else Color.Transparent
+                            )
+                            .clickable {
+                                inputFeedbackController.keyPress(TextKeyData.UNSPECIFIED)
+                                onCategoryChange(category)
+                            },
+                    ) {
+                        Icon(
+                            imageVector = category.icon(),
+                            contentDescription = null,
+                            tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
+                                   else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
                 }
-                Tab(
-                    onClick = {
-                        inputFeedbackController.keyPress(TextKeyData.UNSPECIFIED)
-                        onCategoryChange(category)
-                    },
-                    selected = activeCategory == category,
-                    icon = { SnyggIcon(
-                        elementName = FlorisImeUi.MediaEmojiTab.elementName,
-                        selector = if (activeCategory == category) SnyggSelector.FOCUS else SnyggSelector.NONE,
-                        modifier = Modifier.size(ButtonDefaults.IconSize),
-                        imageVector = category.icon(),
-                    ) },
-                )
             }
         }
     }
@@ -285,111 +293,194 @@ fun EmojiPaletteView(
     Column(
         modifier = modifier
     ) {
-        val pagerState = rememberPagerState(
-            pageCount = { calculatePageNumbers() }
-        )
+        var searchQuery by remember { mutableStateOf("") }
 
-        // Reset the pager to the first page when emojiHistory is enabled
-        LaunchedEffect(emojiHistoryEnabled) {
-            pagerState.animateScrollToPage(0)
+        val allSearchable = remember(emojiMappings) {
+            emojiMappings.entries.flatMap { (category, emojiSets) ->
+                emojiSets.map { emojiSet -> category to emojiSet }
+            }
         }
 
-        EmojiCategoriesTabRow(
+        val searchResults by remember(searchQuery, allSearchable) {
+            derivedStateOf {
+                val q = searchQuery.trim().lowercase()
+                if (q.isEmpty()) emptyList()
+                else allSearchable
+                    .filter { (_, emojiSet) ->
+                        val base = emojiSet.emojis.first()
+                        base.name.lowercase().contains(q) ||
+                        base.keywords.any { it.contains(q) }
+                    }
+                    .sortedByDescending { (_, emojiSet) ->
+                        val base = emojiSet.emojis.first()
+                        val nw = if (base.name.lowercase().contains(q))
+                            q.length.toDouble() / base.name.length else 0.0
+                        val kw = if (base.keywords.any { it.contains(q) }) 1.0 else 0.0
+                        nw * 0.7 + kw * 0.3
+                    }
+                    .map { it.second }
+            }
+        }
+
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 4.dp)
+                .heightIn(min = 40.dp),
+            placeholder = {
+                Text(
+                    text = stringRes(R.string.emoji__search__hint),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                )
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(
+                            imageVector = Icons.Rounded.Clear,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+        )
+
+        EmojiCategoryChips(
             activeCategory = activeCategory,
             onCategoryChange = { category ->
                 activeCategory = category
-                scope.launch { pagerState.animateScrollToPage(categoryToPageNumber(activeCategory)) }
+                scope.launch {
+                    pagerState.animateScrollToPage(categoryToPageNumber(activeCategory))
+                }
             },
         )
-        HorizontalPager(pagerState, beyondViewportPageCount = 1) { page ->
-            // Every page needs its own lazyGridState in order to scroll correctly
-            val lazyGridState = rememberLazyGridState()
 
-            // Update the lazyGridState and active category on scroll
-            LaunchedEffect(pagerState) {
-                snapshotFlow { pagerState.currentPage }.collect { page ->
-                    lazyGridState.scrollToItem(0)
-                    activeCategory = pageNumberToCategory(page)
-                    recentlyUsedVersion++
+        if (searchQuery.isNotEmpty()) {
+            val searchLazyGridState = rememberLazyGridState()
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .florisScrollbar(searchLazyGridState),
+                columns = GridCells.Adaptive(minSize = EmojiBaseWidth),
+                state = searchLazyGridState,
+            ) {
+                items(searchResults) { emojiSet ->
+                    EmojiKeyWrapper(emojiSet)
                 }
             }
+        } else {
+            val pagerState = rememberPagerState(
+                pageCount = { calculatePageNumbers() }
+            )
 
-            val category = pageNumberToCategory(page)
-            val emojiMapping = if (category == EmojiCategory.RECENTLY_USED) {
-                // Purposely using remember here to prevent recomposition, as this would cause rapid
-                // emoji changes for the user when in recently used category.
-                remember(recentlyUsedVersion) {
-                    val data = prefs.emoji.historyData.get()
+            LaunchedEffect(emojiHistoryEnabled) {
+                pagerState.animateScrollToPage(0)
+            }
+
+            HorizontalPager(pagerState, beyondViewportPageCount = 1) { page ->
+                val lazyGridState = rememberLazyGridState()
+
+                LaunchedEffect(pagerState) {
+                    snapshotFlow { pagerState.currentPage }.collect { page ->
+                        lazyGridState.scrollToItem(0)
+                        activeCategory = pageNumberToCategory(page)
+                        recentlyUsedVersion++
+                    }
+                }
+
+                val category = pageNumberToCategory(page)
+                val emojiMapping = if (category == EmojiCategory.RECENTLY_USED) {
+                    remember(recentlyUsedVersion) {
+                        val data = prefs.emoji.historyData.get()
+                        EmojiMappingForView(
+                            pinned = data.pinned.map { EmojiSet(listOf(it)) },
+                            recent = data.recent.map { EmojiSet(listOf(it)) },
+                            simple = emptyList(),
+                        )
+                    }
+                } else {
                     EmojiMappingForView(
-                        pinned = data.pinned.map { EmojiSet(listOf(it)) },
-                        recent = data.recent.map { EmojiSet(listOf(it)) },
-                        simple = emptyList(),
+                        pinned = emptyList(),
+                        recent = emptyList(),
+                        simple = emojiMappings[category]!!,
                     )
                 }
-            } else {
-                EmojiMappingForView(
-                    pinned = emptyList(),
-                    recent = emptyList(),
-                    simple = emojiMappings[category]!!,
-                )
-            }
 
-            val isEmojiHistoryEmpty = emojiMapping.pinned.isEmpty() && emojiMapping.recent.isEmpty()
-            when (category) {
-                EmojiCategory.RECENTLY_USED if deviceLocked -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(all = 8.dp),
-                    ) {
-                        Text(
-                            text = stringRes(R.string.emoji__history__phone_locked_message),
-                        )
-                    }
-                }
-                EmojiCategory.RECENTLY_USED if isEmojiHistoryEmpty -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(all = 8.dp),
-                    ) {
-                        Text(
-                            text = stringRes(R.string.emoji__history__empty_message),
-                        )
-                        Text(
-                            modifier = Modifier.padding(top = 8.dp),
-                            text = stringRes(R.string.emoji__history__usage_tip),
-                            fontStyle = FontStyle.Italic,
-                        )
-                    }
-                }
-                else -> key(emojiMapping) {
-                    LazyVerticalGrid(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .florisScrollbar(lazyGridState),
-                        columns = GridCells.Adaptive(minSize = EmojiBaseWidth),
-                        state = lazyGridState,
-                    ) {
-                        if (emojiMapping.pinned.isNotEmpty()) {
-                            header("header_pinned") {
-                                GridHeader(text = stringRes(R.string.emoji__history__pinned))
-                            }
-                            items(emojiMapping.pinned) { emojiSet ->
-                                EmojiKeyWrapper(emojiSet, isPinned = true)
-                            }
+                val isEmojiHistoryEmpty = emojiMapping.pinned.isEmpty() && emojiMapping.recent.isEmpty()
+                when (category) {
+                    EmojiCategory.RECENTLY_USED if deviceLocked -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(all = 8.dp),
+                        ) {
+                            Text(
+                                text = stringRes(R.string.emoji__history__phone_locked_message),
+                            )
                         }
-                        if (emojiMapping.recent.isNotEmpty()) {
-                            header("header_recent") {
-                                GridHeader(text = stringRes(R.string.emoji__history__recent))
-                            }
-                            items(emojiMapping.recent) { emojiSet ->
-                                EmojiKeyWrapper(emojiSet, isRecent = true)
-                            }
+                    }
+                    EmojiCategory.RECENTLY_USED if isEmojiHistoryEmpty -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(all = 8.dp),
+                        ) {
+                            Text(
+                                text = stringRes(R.string.emoji__history__empty_message),
+                            )
+                            Text(
+                                modifier = Modifier.padding(top = 8.dp),
+                                text = stringRes(R.string.emoji__history__usage_tip),
+                                fontStyle = FontStyle.Italic,
+                            )
                         }
-                        if (emojiMapping.simple.isNotEmpty()) {
-                            items(emojiMapping.simple) { emojiSet ->
-                                EmojiKeyWrapper(emojiSet)
+                    }
+                    else -> key(emojiMapping) {
+                        LazyVerticalGrid(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .florisScrollbar(lazyGridState),
+                            columns = GridCells.Adaptive(minSize = EmojiBaseWidth),
+                            state = lazyGridState,
+                        ) {
+                            if (emojiMapping.pinned.isNotEmpty()) {
+                                header("header_pinned") {
+                                    GridHeader(text = stringRes(R.string.emoji__history__pinned))
+                                }
+                                items(emojiMapping.pinned) { emojiSet ->
+                                    EmojiKeyWrapper(emojiSet, isPinned = true)
+                                }
+                            }
+                            if (emojiMapping.recent.isNotEmpty()) {
+                                header("header_recent") {
+                                    GridHeader(text = stringRes(R.string.emoji__history__recent))
+                                }
+                                items(emojiMapping.recent) { emojiSet ->
+                                    EmojiKeyWrapper(emojiSet, isRecent = true)
+                                }
+                            }
+                            if (emojiMapping.simple.isNotEmpty()) {
+                                items(emojiMapping.simple) { emojiSet ->
+                                    EmojiKeyWrapper(emojiSet)
+                                }
                             }
                         }
                     }
@@ -414,14 +505,24 @@ private fun EmojiKey(
     val base = emojiSet.base(withSkinTone = preferredSkinTone)
     val variations = emojiSet.variations(withoutSkinTone = preferredSkinTone)
     var showVariantsBox by remember { mutableStateOf(false) }
+    var isPressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.9f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 800f),
+        label = "emojiKeyScale",
+    )
 
     SnyggBox(FlorisImeUi.MediaEmojiKey.elementName,
         modifier = Modifier
+            .scale(scale)
             .aspectRatio(1f)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
+                        isPressed = true
                         inputFeedbackController.keyPress(TextKeyData.UNSPECIFIED)
+                        tryAwaitRelease()
+                        isPressed = false
                     },
                     onTap = {
                         onEmojiInput(base)

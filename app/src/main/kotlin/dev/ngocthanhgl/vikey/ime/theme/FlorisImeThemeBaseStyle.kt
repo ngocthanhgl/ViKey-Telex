@@ -324,12 +324,6 @@ val FlorisImeThemeBaseStyle = SnyggStylesheet.v2 {
         fontSize = fontSize(13.sp)
         padding = padding(12.dp, 0.dp)
     }
-    FlorisImeUi.MediaEmojiTab.elementName {
-        foreground = `var`("--on-surface-variant")
-    }
-    FlorisImeUi.MediaEmojiTab.elementName(selector = SnyggSelector.FOCUS) {
-        foreground = `var`("--primary")
-    }
     FlorisImeUi.MediaEmojiKeyPopupBox.elementName {
         background = `var`("--surface-container-high")
         shape = roundedCornerShape(12.dp)
