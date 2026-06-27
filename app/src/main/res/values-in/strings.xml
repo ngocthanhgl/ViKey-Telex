@@ -136,7 +136,6 @@ Klik di sini untuk menyelesaikan masalah ini.</string>
     <string name="settings__localization__subtype_numeric_row_layout" comment="Label for layout dropdown in subtype dialog">Tata letak baris nomor</string>
     <string name="settings__localization__subtype_phone_layout" comment="Label for layout dropdown in subtype dialog">Tata letak utama telepon</string>
     <string name="settings__localization__subtype_phone2_layout" comment="Label for layout dropdown in subtype dialog">Tata letak sekunder telepon</string>
-    <string name="settings__localization__subtype_select_locale" comment="Subtype select language title">Pilih bahasa</string>
     <string name="settings__localization__subtype_search_locale_placeholder" comment="Subtype search language placeholder">Cari bahasa</string>
     <string name="settings__localization__subtype_search_locale_not_found" comment="Subtype search language not found">Tidak dapat menemukan bahasa yang cocok dengan \"{search_term}\".</string>
     <string name="settings__localization__subtype_select_placeholder" comment="Subtype dialog select value placeholder (&amp;#8210; is a hyphen character)">&#8210; pilih &#8210;</string>

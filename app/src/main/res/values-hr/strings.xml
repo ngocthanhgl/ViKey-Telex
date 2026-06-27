@@ -53,7 +53,6 @@
     <string name="settings__localization__subtype_numeric_row_layout" comment="Label for layout dropdown in subtype dialog">Poredak brojčanog niza</string>
     <string name="settings__localization__subtype_phone_layout" comment="Label for layout dropdown in subtype dialog">Primarni raspored telefonskog brojčanika</string>
     <string name="settings__localization__subtype_phone2_layout" comment="Label for layout dropdown in subtype dialog">Sekundarni raspored telefonskog brojčanika</string>
-    <string name="settings__localization__subtype_select_locale" comment="Subtype select language title">Odaberite jezik</string>
     <string name="settings__localization__subtype_search_locale_placeholder" comment="Subtype search language placeholder">Pretražite jezik</string>
     <string name="settings__localization__subtype_search_locale_not_found" comment="Subtype search language not found">Traženi jezik \"{search_term}\" nije moguće pronaći.</string>
     <string name="settings__localization__subtype_select_placeholder" comment="Subtype dialog select value placeholder (&amp;#8210; is a hyphen character)">&#8210; odaberi &#8210;</string>

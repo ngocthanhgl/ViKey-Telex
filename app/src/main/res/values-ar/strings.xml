@@ -132,7 +132,6 @@
     <string name="settings__localization__subtype_numeric_row_layout" comment="Label for layout dropdown in subtype dialog">تخطيط صف الأرقام</string>
     <string name="settings__localization__subtype_phone_layout" comment="Label for layout dropdown in subtype dialog">التخطيط الأساسي للهاتف</string>
     <string name="settings__localization__subtype_phone2_layout" comment="Label for layout dropdown in subtype dialog">التخطيط الثانوي للهاتف</string>
-    <string name="settings__localization__subtype_select_locale" comment="Subtype select language title">اختر اللغة</string>
     <string name="settings__localization__subtype_search_locale_placeholder" comment="Subtype search language placeholder">ابحث عن لغة</string>
     <string name="settings__localization__subtype_search_locale_not_found" comment="Subtype search language not found">تعذر العثور على لغة مطابقة\"{search_term}\".</string>
     <string name="settings__localization__subtype_select_placeholder" comment="Subtype dialog select value placeholder (&amp;#8210; is a hyphen character)">&#8210; اختيار &#8210;</string>

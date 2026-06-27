@@ -133,7 +133,6 @@
     <string name="settings__localization__subtype_numeric_row_layout" comment="Label for layout dropdown in subtype dialog">数字行レイアウト</string>
     <string name="settings__localization__subtype_phone_layout" comment="Label for layout dropdown in subtype dialog">電話レイアウト（プライマリ）</string>
     <string name="settings__localization__subtype_phone2_layout" comment="Label for layout dropdown in subtype dialog">電話レイアウト（セカンダリ）</string>
-    <string name="settings__localization__subtype_select_locale" comment="Subtype select language title">言語を選択</string>
     <string name="settings__localization__subtype_search_locale_placeholder" comment="Subtype search language placeholder">言語を検索</string>
     <string name="settings__localization__subtype_search_locale_not_found" comment="Subtype search language not found">「{search_term}」に一致する言語が見つかりませんでした。</string>
     <string name="settings__localization__subtype_select_placeholder" comment="Subtype dialog select value placeholder (&amp;#8210; is a hyphen character)">&#8210; 選択してください &#8210;</string>

@@ -53,7 +53,6 @@
     <string name="settings__localization__subtype_numeric_row_layout" comment="Label for layout dropdown in subtype dialog">Rêzeya rêza hejmar</string>
     <string name="settings__localization__subtype_phone_layout" comment="Label for layout dropdown in subtype dialog">Rêza sereke ya telefonê</string>
     <string name="settings__localization__subtype_phone2_layout" comment="Label for layout dropdown in subtype dialog">Rêza duyemîn a telefonê</string>
-    <string name="settings__localization__subtype_select_locale" comment="Subtype select language title">Ziman hilbijêre</string>
     <string name="settings__localization__subtype_search_locale_placeholder" comment="Subtype search language placeholder">Li zimanekî bigere</string>
     <string name="settings__localization__subtype_search_locale_not_found" comment="Subtype search language not found">Zimanekî ku bi \"{search_term}\" re têkildar e nehat dîtin.</string>
     <string name="settings__localization__subtype_select_placeholder" comment="Subtype dialog select value placeholder (&amp;#8210; is a hyphen character)">&#8210; bijartin &#8210;</string>

@@ -136,7 +136,6 @@
     <string name="settings__localization__subtype_numeric_row_layout" comment="Label for layout dropdown in subtype dialog">Disposición de la fila de números</string>
     <string name="settings__localization__subtype_phone_layout" comment="Label for layout dropdown in subtype dialog">Disposición primaria del teléfono</string>
     <string name="settings__localization__subtype_phone2_layout" comment="Label for layout dropdown in subtype dialog">Disposición secundaria del teléfono</string>
-    <string name="settings__localization__subtype_select_locale" comment="Subtype select language title">Seleccionar idioma</string>
     <string name="settings__localization__subtype_search_locale_placeholder" comment="Subtype search language placeholder">Buscar un idioma</string>
     <string name="settings__localization__subtype_search_locale_not_found" comment="Subtype search language not found">No se pudo encontrar un idioma que coincida con \"{search_term}\".</string>
     <string name="settings__localization__subtype_select_placeholder" comment="Subtype dialog select value placeholder (&amp;#8210; is a hyphen character)">&#8210; seleccionar &#8210;</string>

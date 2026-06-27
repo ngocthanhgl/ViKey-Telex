@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,7 +31,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -52,12 +50,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Observer
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.app.LocalNavController
-import dev.ngocthanhgl.vikey.app.Routes
 import dev.ngocthanhgl.vikey.app.settings.SettingsScaffold
 import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.ime.core.DisplayLanguageNamesIn
@@ -82,10 +77,8 @@ import kotlinx.coroutines.launch
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import java.io.File
 import org.florisboard.lib.compose.stringRes
-import androidx.compose.material.icons.rounded.ArrowDropDown
 import dev.ngocthanhgl.vikey.app.settings.components.M3Dropdown
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextButton
 
 
@@ -185,7 +178,6 @@ fun SubtypeEditorScreen(id: Long?) {
     val navController = LocalNavController.current
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
-    val lifecycleOwner = LocalLifecycleOwner.current
     val keyboardManager by context.keyboardManager()
     val subtypeManager by context.subtypeManager()
 
@@ -210,20 +202,6 @@ fun SubtypeEditorScreen(id: Long?) {
     var showSubtypePresetsDialog by rememberSaveable { mutableStateOf(id == null) }
     var showSelectAsError by rememberSaveable { mutableStateOf(false) }
     var errorDialogStrId by rememberSaveable { mutableStateOf<Int?>(null) }
-
-    val selectLocaleScreenResult = navController.currentBackStackEntry
-        ?.savedStateHandle
-        ?.getLiveData<String>(SelectLocaleScreenResultLanguageTag)
-    DisposableEffect(selectLocaleScreenResult, lifecycleOwner) {
-        val observer = Observer<String> { languageTag ->
-            val locale = FlorisLocale.fromTag(languageTag)
-            primaryLocale = locale
-            val preset = subtypeManager.getSubtypePresetForLocale(locale)
-            popupMapping = preset?.popupMapping ?: extCorePopupMapping("default")
-        }
-        selectLocaleScreenResult?.observe(lifecycleOwner, observer)
-        onDispose { selectLocaleScreenResult?.removeObserver(observer) }
-    }
 
 
     @Composable
@@ -369,31 +347,38 @@ fun SubtypeEditorScreen(id: Long?) {
             ),
         ) {
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_locale)) {
-                OutlinedButton(
-                    onClick = { navController.navigate(Routes.Settings.SelectLocale) },
-                    shape = RoundedCornerShape(28.dp),
-                    colors = if (showSelectAsError && primaryLocale == SelectLocale) {
-                        ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            contentColor = MaterialTheme.colorScheme.error,
-                        )
-                    } else {
-                        ButtonDefaults.outlinedButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        )
-                    },
-                    border = BorderStroke(0.dp, Color.Transparent),
-                ) {
-                    Text(
-                        text = if (primaryLocale == SelectLocale) selectValue else when (displayLanguageNamesIn) {
-                            DisplayLanguageNamesIn.SYSTEM_LOCALE -> primaryLocale.displayName()
-                            DisplayLanguageNamesIn.NATIVE_LOCALE -> primaryLocale.displayName(primaryLocale)
-                        },
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Icon(Icons.Rounded.ArrowDropDown, contentDescription = null)
+                val localeIds = remember(displayLanguageNamesIn) {
+                    listOf(SelectLocale) + FlorisLocale.extendedAvailableLocales(context)
+                        .filter { it.language == "en" || it.language == "vi" }
+                        .sortedBy { locale ->
+                            when (displayLanguageNamesIn) {
+                                DisplayLanguageNamesIn.SYSTEM_LOCALE -> locale.displayName()
+                                DisplayLanguageNamesIn.NATIVE_LOCALE -> locale.displayName(locale)
+                            }.lowercase()
+                        }
                 }
+                val localeLabels = remember(localeIds, displayLanguageNamesIn) {
+                    selectListValues + localeIds.drop(1).map { locale ->
+                        when (displayLanguageNamesIn) {
+                            DisplayLanguageNamesIn.SYSTEM_LOCALE -> locale.displayName()
+                            DisplayLanguageNamesIn.NATIVE_LOCALE -> locale.displayName(locale)
+                        }
+                    }
+                }
+                val selectedIndex = localeIds.indexOf(primaryLocale).coerceAtLeast(0)
+                M3Dropdown(
+                    options = localeLabels,
+                    selectedOptionIndex = selectedIndex,
+                    isError = showSelectAsError && selectedIndex == 0,
+                    onSelectOption = {
+                        val locale = localeIds[it]
+                        primaryLocale = locale
+                        if (locale != SelectLocale) {
+                            val preset = subtypeManager.getSubtypePresetForLocale(locale)
+                            popupMapping = preset?.popupMapping ?: extCorePopupMapping("default")
+                        }
+                    },
+                )
             }
             SettingsDivider()
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_popup_mapping)) {

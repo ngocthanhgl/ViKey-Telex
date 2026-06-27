@@ -124,7 +124,6 @@
     <string name="settings__localization__subtype_numeric_row_layout" comment="Label for layout dropdown in subtype dialog">숫자 행 레이아웃</string>
     <string name="settings__localization__subtype_phone_layout" comment="Label for layout dropdown in subtype dialog">주 다이얼 레이아웃</string>
     <string name="settings__localization__subtype_phone2_layout" comment="Label for layout dropdown in subtype dialog">부 다이얼 레이아웃</string>
-    <string name="settings__localization__subtype_select_locale" comment="Subtype select language title">언어 선택</string>
     <string name="settings__localization__subtype_search_locale_placeholder" comment="Subtype search language placeholder">언어 검색</string>
     <string name="settings__localization__subtype_search_locale_not_found" comment="Subtype search language not found">\"{search_term}\" 검색어와 일치하는 언어를 찾을 수 없습니다.</string>
     <string name="settings__localization__subtype_select_placeholder" comment="Subtype dialog select value placeholder (&amp;#8210; is a hyphen character)">&#8210; 선택 &#8210;</string>

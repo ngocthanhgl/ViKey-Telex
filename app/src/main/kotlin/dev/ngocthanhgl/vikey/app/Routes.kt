@@ -58,7 +58,6 @@ import dev.ngocthanhgl.vikey.app.settings.keyboard.KeyboardScreen
 import dev.ngocthanhgl.vikey.app.settings.localization.LanguagePackManagerScreen
 import dev.ngocthanhgl.vikey.app.settings.localization.LanguagePackManagerScreenAction
 import dev.ngocthanhgl.vikey.app.settings.localization.LocalizationScreen
-import dev.ngocthanhgl.vikey.app.settings.localization.SelectLocaleScreen
 import dev.ngocthanhgl.vikey.app.settings.localization.SubtypeEditorScreen
 import dev.ngocthanhgl.vikey.app.settings.media.MediaScreen
 import dev.ngocthanhgl.vikey.app.settings.smartbar.SmartbarScreen
@@ -102,10 +101,6 @@ object Routes {
         @Serializable
         @Deeplink("settings/localization")
         object Localization
-
-        @Serializable
-        @Deeplink("settings/localization/select-locale")
-        object SelectLocale
 
         @Serializable
         @Deeplink("settings/localization/language-pack-manage")
@@ -238,7 +233,6 @@ object Routes {
             composableWithDeepLink(Settings.Home::class) { HomeScreen() }
 
             composableWithDeepLink(Settings.Localization::class) { LocalizationScreen() }
-            composableWithDeepLink(Settings.SelectLocale::class) { SelectLocaleScreen() }
             composableWithDeepLink(Settings.LanguagePackManager::class) { navBackStack ->
                 val payload = navBackStack.toRoute<Settings.LanguagePackManager>()
                 LanguagePackManagerScreen(payload.action)

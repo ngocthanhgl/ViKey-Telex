@@ -138,7 +138,6 @@
     <string name="settings__localization__subtype_numeric_row_layout" comment="Label for layout dropdown in subtype dialog">Настройка цифрового ряда</string>
     <string name="settings__localization__subtype_phone_layout" comment="Label for layout dropdown in subtype dialog">Основная телефонная раскладка</string>
     <string name="settings__localization__subtype_phone2_layout" comment="Label for layout dropdown in subtype dialog">Дополнительная телефонная раскладка</string>
-    <string name="settings__localization__subtype_select_locale" comment="Subtype select language title">Выберите язык</string>
     <string name="settings__localization__subtype_search_locale_placeholder" comment="Subtype search language placeholder">Поиск языка</string>
     <string name="settings__localization__subtype_search_locale_not_found" comment="Subtype search language not found">Не удалось найти соответствие языка \"{search_term}\".</string>
     <string name="settings__localization__subtype_select_placeholder" comment="Subtype dialog select value placeholder (&amp;#8210; is a hyphen character)">&#8210; не выбрано &#8210;</string>

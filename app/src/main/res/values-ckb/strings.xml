@@ -122,7 +122,6 @@
     <string name="settings__localization__subtype_numeric_row_layout" comment="Label for layout dropdown in subtype dialog">لیستی ژمارەکانی بەشی سەرەوە</string>
     <string name="settings__localization__subtype_phone_layout" comment="Label for layout dropdown in subtype dialog">شێوازی بنەڕەتی ژمارەکان (تەلەفۆن)</string>
     <string name="settings__localization__subtype_phone2_layout" comment="Label for layout dropdown in subtype dialog">شێوازی دووەمی ژمارەکان (تەلەفۆن)</string>
-    <string name="settings__localization__subtype_select_locale" comment="Subtype select language title">زمان دیاریبکە</string>
     <string name="settings__localization__subtype_search_locale_placeholder" comment="Subtype search language placeholder">گەڕان بۆ زمان</string>
     <string name="settings__localization__subtype_search_locale_not_found" comment="Subtype search language not found">هیچ زمانێک نەدۆزرایەوە بەناوی \"{search_term}\".</string>
     <string name="settings__localization__subtype_select_placeholder" comment="Subtype dialog select value placeholder (&amp;#8210; is a hyphen character)">&#8210; دیارینەکراوە &#8210;</string>
