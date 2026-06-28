@@ -1246,7 +1246,7 @@
     <string name="media__switch_to_abc">ABC</string>
 
     <!-- Theme Editor -->
-    <string name="theme_editor__required_property_missing">Required property '%1$s' does not exist</string>
+    <string name="theme_editor__required_property_missing">Required property &apos;%1$s&apos; does not exist</string>
     <string name="theme_editor__source_set">Source set</string>
     <string name="theme_editor__duplicate_id">A theme with this ID already exists!</string>
 

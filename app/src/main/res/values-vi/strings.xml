@@ -1242,7 +1242,7 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <string name="media__switch_to_abc">ABC</string>
 
     <!-- Theme Editor -->
-    <string name="theme_editor__required_property_missing">Thuộc tính bắt buộc \'%1$s\' không tồn tại</string>
+    <string name="theme_editor__required_property_missing">Thuộc tính bắt buộc &apos;%1$s&apos; không tồn tại</string>
     <string name="theme_editor__source_set">Bộ nguồn</string>
     <string name="theme_editor__duplicate_id">ID chủ đề đã tồn tại!</string>
 
