@@ -220,15 +220,17 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
             val content = activeContent
             val textBefore = content.textBeforeSelection
             if (textBefore.lastOrNull() == ' ') {
-                scope.launch {
-                    val ic = currentInputConnection() ?: return@launch
-                    ic.beginBatchEdit()
-                    ic.deleteSurroundingText(1, 0)
-                    ic.commitText(char, 1)
-                    ic.endBatchEdit()
+                val ic = currentInputConnection()
+                if (ic != null) {
+                    scope.launch {
+                        ic.beginBatchEdit()
+                        ic.deleteSurroundingText(1, 0)
+                        ic.commitText(char, 1)
+                        ic.endBatchEdit()
+                    }
+                    lastCommitWasSuggestion = false
+                    return true
                 }
-                lastCommitWasSuggestion = false
-                return true
             }
         }
         lastCommitWasSuggestion = false

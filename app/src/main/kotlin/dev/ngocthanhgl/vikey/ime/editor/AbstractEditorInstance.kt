@@ -373,7 +373,7 @@ abstract class AbstractEditorInstance(context: Context) {
         }
 
         if (rm <= 0) {
-            commitTextInternal(finalText)
+            return commitTextInternal(finalText)
         } else {
             runBlocking {
                 val newSelection = EditorRange.cursor(selection.start - rm + finalText.length)
@@ -388,7 +388,6 @@ abstract class AbstractEditorInstance(context: Context) {
                 expectedContentQueue.push(newContent)
             }
             scope.launch {
-                val ic = currentInputConnection() ?: return@launch
                 InputConnectionDispatcher.fire {
                     ic.beginBatchEdit()
                     ic.deleteSurroundingText(rm, 0)
@@ -414,6 +413,7 @@ abstract class AbstractEditorInstance(context: Context) {
             }
             return true
         }
+        val ic = currentInputConnection() ?: return false
         runBlocking {
             val newSelection = EditorRange.cursor(selection.start + text.length)
             val newContent = content.generateCopy(
@@ -427,7 +427,6 @@ abstract class AbstractEditorInstance(context: Context) {
             expectedContentQueue.push(newContent)
         }
         scope.launch {
-            val ic = currentInputConnection() ?: return@launch
             InputConnectionDispatcher.fire {
                 ic.beginBatchEdit()
                 if (content.composingText.isNotEmpty()) {
@@ -446,6 +445,7 @@ abstract class AbstractEditorInstance(context: Context) {
         if (activeInfo.isRawInputEditor || composing.isNotValid) {
             return false
         }
+        val ic = currentInputConnection() ?: return false
         runBlocking {
             val newSelection = EditorRange.cursor(composing.end + (text.length - content.composingText.length))
             val newContent = content.generateCopy(
@@ -460,7 +460,6 @@ abstract class AbstractEditorInstance(context: Context) {
             _lastCommitPosition.handleCommit(newContent.selection)
         }
         scope.launch {
-            val ic = currentInputConnection() ?: return@launch
             InputConnectionDispatcher.fire {
                 ic.beginBatchEdit()
                 ic.deleteSurroundingText(content.composingText.length, 0)
@@ -551,8 +550,8 @@ abstract class AbstractEditorInstance(context: Context) {
             }
         }
         if (!shouldSet) return
+        val ic = currentInputConnection() ?: return
         scope.launch {
-            val ic = currentInputConnection() ?: return@launch
             val newContent = content.generateCopy()
             InputConnectionDispatcher.fire {
                 ic.setComposingRegion(newContent.composing)
