@@ -131,7 +131,7 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
                 UserDictionaryType.SYSTEM -> dictionaryManager.systemUserDictionaryDatabase()
             }
             if (db == null) {
-                context.showLongToastSync("Database handle is null, failed to import")
+                context.showLongToastSync(R.string.user_dict__import_db_null)
                 return@rememberLauncherForActivityResult
             }
             runCatching {
@@ -140,7 +140,7 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
                 buildUi()
                 context.showLongToastSync(R.string.settings__udm__dictionary_import_success)
             }.onFailure { error ->
-                context.showLongToastSync("Error: ${error.localizedMessage}")
+                context.showLongToastSync(context.getString(R.string.user_dict__error_format, error.localizedMessage))
             }
         },
     )
@@ -154,7 +154,7 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
                 UserDictionaryType.SYSTEM -> dictionaryManager.systemUserDictionaryDatabase()
             }
             if (db == null) {
-                context.showLongToastSync("Database handle is null, failed to export")
+                context.showLongToastSync(R.string.user_dict__export_db_null)
                 return@rememberLauncherForActivityResult
             }
             runCatching {
@@ -163,7 +163,7 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
                 buildUi()
                 context.showLongToastSync(R.string.settings__udm__dictionary_export_success)
             }.onFailure { error ->
-                context.showLongToastSync("Error: ${error.localizedMessage}")
+                context.showLongToastSync(context.getString(R.string.user_dict__error_format, error.localizedMessage))
             }
         },
     )
@@ -214,7 +214,7 @@ fun UserDictionaryScreen(type: UserDictionaryType) {
                         )
                         DropdownMenuItem(
                             onClick = {
-                                exportDictionary.launch("my-personal-dictionary.clb")
+                                exportDictionary.launch(context.getString(R.string.user_dict__export_filename))
                                 expanded = false
                             },
                             text = { Text(text = stringRes(R.string.action__export)) },

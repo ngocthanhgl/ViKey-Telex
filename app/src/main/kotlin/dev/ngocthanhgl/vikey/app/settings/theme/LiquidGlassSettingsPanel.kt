@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.dp
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceModel
 import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
+import org.florisboard.lib.compose.stringRes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -111,7 +112,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSwitch(
         icon = Icons.Rounded.ToggleOn,
-        label = "Enable Liquid Glass effects",
+        label = stringRes(R.string.liquid_glass__enable),
         checked = enabled,
         onCheckedChange = { scope.launch { prefs.liquidGlass.enabled.set(it) } },
     )
@@ -119,7 +120,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSlider(
         icon = Icons.Rounded.BlurOn,
-        label = "Lens Idle",
+        label = stringRes(R.string.liquid_glass__lens_idle),
         value = lensIdle / 100f,
         valueRange = 0f..20f,
         steps = 9,
@@ -129,7 +130,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSlider(
         icon = Icons.Rounded.CenterFocusStrong,
-        label = "Lens Peak",
+        label = stringRes(R.string.liquid_glass__lens_peak),
         value = lensPeak / 100f,
         valueRange = 0f..30f,
         steps = 14,
@@ -139,7 +140,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSlider(
         icon = Icons.Rounded.LineWeight,
-        label = "Height Multiplier",
+        label = stringRes(R.string.liquid_glass__height_multiplier),
         value = heightMult / 100f,
         valueRange = 0.5f..5.0f,
         steps = 8,
@@ -149,7 +150,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSlider(
         icon = Icons.Rounded.Straighten,
-        label = "Amount Multiplier",
+        label = stringRes(R.string.liquid_glass__amount_multiplier),
         value = amountMult / 100f,
         valueRange = 0.5f..3.0f,
         steps = 4,
@@ -159,7 +160,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSlider(
         icon = Icons.Rounded.TextIncrease,
-        label = "Text Lift",
+        label = stringRes(R.string.liquid_glass__text_lift),
         value = textLiftVal / 100f,
         valueRange = 1.0f..2.0f,
         steps = 4,
@@ -169,7 +170,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSlider(
         icon = Icons.Rounded.ZoomIn,
-        label = "Press Scale",
+        label = stringRes(R.string.liquid_glass__press_scale),
         value = pressScaleVal / 100f,
         valueRange = 1.0f..1.5f,
         steps = 9,
@@ -179,7 +180,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSlider(
         icon = Icons.Rounded.Speed,
-        label = "Rebound Damping",
+        label = stringRes(R.string.liquid_glass__rebound_damping),
         value = damping / 100f,
         valueRange = 0.05f..0.95f,
         steps = 17,
@@ -189,7 +190,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSlider(
         icon = Icons.Rounded.Bolt,
-        label = "Rebound Stiffness",
+        label = stringRes(R.string.liquid_glass__rebound_stiffness),
         value = stiffness.toFloat(),
         valueRange = 50f..500f,
         steps = 8,
@@ -200,7 +201,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSwitch(
         icon = Icons.Rounded.Palette,
-        label = "Chromatic Aberration",
+        label = stringRes(R.string.liquid_glass__chromatic_aberration),
         checked = chromatic,
         onCheckedChange = { scope.launch { prefs.liquidGlass.chromaticEnabled.set(it) } },
     )
@@ -208,7 +209,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSwitch(
         icon = Icons.Rounded.Layers,
-        label = "Depth Effect",
+        label = stringRes(R.string.liquid_glass__depth_effect),
         checked = depth,
         onCheckedChange = { scope.launch { prefs.liquidGlass.depthEnabled.set(it) } },
     )
@@ -216,7 +217,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     SettingsSwitch(
         icon = Icons.Rounded.WaterDrop,
-        label = "Ripple Wave",
+        label = stringRes(R.string.liquid_glass__ripple_wave),
         checked = ripple,
         onCheckedChange = { scope.launch { prefs.liquidGlass.rippleEnabled.set(it) } },
     )
@@ -224,7 +225,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     Spacer(Modifier.height(16.dp))
 
     Text(
-        text = "Background Photo",
+        text = stringRes(R.string.liquid_glass__background_photo),
         style = MaterialTheme.typography.titleSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(start = 28.dp, top = 4.dp, bottom = 4.dp),
@@ -232,7 +233,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
 
     if (bgPath.isNotBlank()) {
         Text(
-            text = "Photo selected",
+            text = stringRes(R.string.liquid_glass__photo_selected),
             style = MaterialTheme.typography.bodySmall,
             color = LocalContentColor.current.copy(alpha = 0.56f),
             modifier = Modifier.padding(start = 72.dp),
@@ -254,7 +255,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
             ),
             shape = RoundedCornerShape(50.dp),
         ) {
-            Text("Remove Photo")
+            Text(stringRes(R.string.liquid_glass__remove_photo))
         }
     } else {
         Button(
@@ -264,7 +265,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
                 .padding(horizontal = 16.dp),
             shape = RoundedCornerShape(50.dp),
         ) {
-            Text("Choose Photo")
+            Text(stringRes(R.string.liquid_glass__choose_photo))
         }
     }
 
@@ -308,7 +309,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
             .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(50.dp),
     ) {
-        Text("Reset to Defaults")
+        Text(stringRes(R.string.liquid_glass__reset_to_defaults))
     }
 }
 
@@ -433,7 +434,7 @@ private fun CropPhotoDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Crop Photo") },
+        title = { Text(stringRes(R.string.liquid_glass__crop_photo)) },
         text = {
             Column {
                 Box(
@@ -506,7 +507,7 @@ private fun CropPhotoDialog(
                     }
                 }
                 Spacer(Modifier.height(8.dp))
-                Text("Visibility", style = MaterialTheme.typography.bodySmall)
+                Text(stringRes(R.string.liquid_glass__visibility), style = MaterialTheme.typography.bodySmall)
                 Slider(
                     value = visibility,
                     onValueChange = { visibility = it },
@@ -514,7 +515,7 @@ private fun CropPhotoDialog(
                     steps = 19,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Text("Blur", style = MaterialTheme.typography.bodySmall)
+                Text(stringRes(R.string.liquid_glass__blur), style = MaterialTheme.typography.bodySmall)
                 Slider(
                     value = blurRadius,
                     onValueChange = { blurRadius = it },
@@ -569,10 +570,10 @@ private fun CropPhotoDialog(
                     }
                 },
                 shape = RoundedCornerShape(50.dp),
-            ) { Text("Apply") }
+            ) { Text(stringRes(R.string.action__apply)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringRes(R.string.action__cancel)) }
         },
     )
 }

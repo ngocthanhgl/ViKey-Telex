@@ -251,7 +251,7 @@ class FlorisImeService : LifecycleInputMethodService() {
                 }
             }
         }
-        showShortToastSync("Failed to find voice IME, do you have one installed?")
+        showShortToastSync(getString(R.string.floris_ime__voice_ime_not_found))
         return false
     }
 

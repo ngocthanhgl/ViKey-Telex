@@ -105,7 +105,7 @@ fun SpellCheckerServiceSelector(florisSpellCheckerEnabled: MutableState<Boolean>
                 }
             } else {
                 var spellCheckerIcon: Drawable?
-                var spellCheckerLabel = "Unknown"
+                var spellCheckerLabel = stringRes(R.string.spell_checker__unknown)
                 try {
                     val pm = context.packageManager
                     val remoteAppInfo = pm.getApplicationInfo(systemSpellCheckerPkgName, 0)

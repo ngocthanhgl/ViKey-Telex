@@ -59,6 +59,7 @@ import org.florisboard.lib.snygg.SnyggSelector
 import org.florisboard.lib.snygg.ui.SnyggBox
 import org.florisboard.lib.snygg.ui.SnyggColumn
 import org.florisboard.lib.snygg.ui.SnyggRow
+import org.florisboard.lib.compose.stringRes
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
@@ -97,7 +98,7 @@ fun MediaInputLayout(
                 modifier = Modifier.fillMaxHeight(),
             ) {
                 Text(
-                    text = "ABC",
+                    text = stringRes(R.string.media__switch_to_abc),
                     fontWeight = FontWeight.Bold,
                 )
             }

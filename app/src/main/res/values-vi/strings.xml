@@ -1175,4 +1175,127 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
 
     <string name="pref__dictionary__clear_learned_words__confirm_body" comment="Confirm dialog body">Thao tác này sẽ xóa tất cả từ cá nhân đã học và không thể hoàn tác.</string>
 
+    <!-- Liquid Glass -->
+    <string name="liquid_glass__enable">Bật hiệu ứng Liquid Glass</string>
+    <string name="liquid_glass__lens_idle">Idle ống kính</string>
+    <string name="liquid_glass__lens_peak">Cực đại ống kính</string>
+    <string name="liquid_glass__height_multiplier">Hệ số chiều cao</string>
+    <string name="liquid_glass__amount_multiplier">Hệ số lượng</string>
+    <string name="liquid_glass__text_lift">Nâng chữ</string>
+    <string name="liquid_glass__press_scale">Tỷ lệ nhấn</string>
+    <string name="liquid_glass__rebound_damping">Giảm chấn</string>
+    <string name="liquid_glass__rebound_stiffness">Độ cứng</string>
+    <string name="liquid_glass__chromatic_aberration">Quang sai màu</string>
+    <string name="liquid_glass__depth_effect">Hiệu ứng chiều sâu</string>
+    <string name="liquid_glass__ripple_wave">Sóng gợn</string>
+    <string name="liquid_glass__background_photo">Ảnh nền</string>
+    <string name="liquid_glass__photo_selected">Đã chọn ảnh</string>
+    <string name="liquid_glass__remove_photo">Xóa ảnh</string>
+    <string name="liquid_glass__choose_photo">Chọn ảnh</string>
+    <string name="liquid_glass__crop_photo">Cắt ảnh</string>
+    <string name="liquid_glass__visibility">Hiển thị</string>
+    <string name="liquid_glass__blur">Mờ</string>
+    <string name="liquid_glass__reset_to_defaults">Đặt lại mặc định</string>
+
+    <!-- Subtype Editor -->
+    <string name="subtype_editor__model">Mô hình</string>
+    <string name="subtype_editor__model_format">Mô hình: %1$s</string>
+    <string name="subtype_editor__unknown">không xác định</string>
+    <string name="subtype_editor__remove_model">Xóa mô hình</string>
+    <string name="subtype_editor__select_gguf">Chọn tệp GGUF</string>
+    <string name="subtype_editor__download_github">Tải từ GitHub</string>
+    <string name="subtype_editor__section_layouts">Bố cục</string>
+    <string name="subtype_editor__section_numeric">Số</string>
+    <string name="subtype_editor__section_phone">Điện thoại</string>
+    <string name="subtype_editor__suggestion_english_vietnamese">English/Vietnamese</string>
+
+    <!-- Keyboard -->
+    <string name="keyboard__vietnamese_telex">Telex Việt</string>
+    <string name="keyboard__w_equals_u_u">w = ư</string>
+    <string name="keyboard__english_fallback">Dự phòng English</string>
+    <string name="keyboard__value_label_px">%1$s px</string>
+
+    <!-- Edit Property -->
+    <string name="edit_property__select">--select--</string>
+    <string name="edit_property__top">Trên</string>
+    <string name="edit_property__bottom">Dưới</string>
+    <string name="edit_property__start">Đầu</string>
+    <string name="edit_property__end">Cuối</string>
+    <string name="edit_property__unit_dp">dp</string>
+    <string name="edit_property__unit_sp">sp</string>
+    <string name="edit_property__unit_percent">%</string>
+    <string name="edit_property__apply_for_all">Áp dụng tất cả</string>
+    <string name="edit_property__select_font">-select-</string>
+
+    <!-- Edit Rule -->
+    <string name="edit_rule__select">--select--</string>
+    <string name="edit_rule__target_ime_window">Chế độ cửa sổ IME đích</string>
+    <string name="edit_rule__characters_link">Ký tự (unicode-table.com)</string>
+
+    <!-- Clipboard -->
+    <string name="clipboard__filter_text">Văn bản</string>
+    <string name="clipboard__filter_images">Hình ảnh</string>
+    <string name="clipboard__filter_videos">Video</string>
+    <string name="clipboard__error_unknown">Lỗi không xác định</string>
+
+    <!-- Media -->
+    <string name="media__switch_to_abc">ABC</string>
+
+    <!-- Theme Editor -->
+    <string name="theme_editor__required_property_missing">Thuộc tính bắt buộc \'%1$s\' không tồn tại</string>
+    <string name="theme_editor__source_set">Bộ nguồn</string>
+    <string name="theme_editor__duplicate_id">ID chủ đề đã tồn tại!</string>
+
+    <!-- Theme Manager -->
+    <string name="theme_manager__liquid_glass">Liquid Glass</string>
+
+    <!-- Swipe Action Enum -->
+    <string name="enum__swipe_action__show_subtype_picker">Chọn kiểu con</string>
+
+    <!-- Currency Set -->
+    <string name="currency_set__fallback">Dự phòng</string>
+
+    <!-- Punctuation Rule -->
+    <string name="punctuation_rule__fallback">Dự phòng</string>
+    <string name="punctuation_rule__authors_unspecified">không xác định</string>
+
+    <!-- Editor Instance -->
+    <string name="editor__cut_failed">Không thể cắt văn bản.</string>
+    <string name="editor__copy_failed">Không thể sao chép văn bản.</string>
+    <string name="editor__paste_failed">Không thể dán.</string>
+
+    <!-- User Dictionary -->
+    <string name="user_dict__import_db_null">Lỗi CSDL, nhập thất bại</string>
+    <string name="user_dict__error_format">Lỗi: %1$s</string>
+    <string name="user_dict__export_db_null">Lỗi CSDL, xuất thất bại</string>
+    <string name="user_dict__export_filename">my-personal-dictionary.clb</string>
+
+    <!-- Floris IME Service -->
+    <string name="floris_ime__voice_ime_not_found">Không tìm thấy IME giọng nói. Bạn đã cài chưa?</string>
+
+    <!-- Extension Files -->
+    <string name="ext__file_deleted_success">Đã xóa thành công</string>
+    <string name="ext__file_deleted_failure">Xóa thất bại</string>
+    <string name="ext__file_invalid_name">Tên tệp không hợp lệ!</string>
+    <string name="ext__file_name_exists">Tên tệp đã tồn tại.</string>
+    <string name="ext__file_renamed_success">Đã đổi tên thành công</string>
+    <string name="ext__file_renamed_failure">Đổi tên thất bại.</string>
+    <string name="ext__import_invalid_name">Tên tệp không hợp lệ</string>
+    <string name="ext__import_file_exists">Tệp đã tồn tại</string>
+    <string name="ext__import_rename_failed">Đổi tên thất bại</string>
+
+    <!-- Extension Edit -->
+    <string name="ext__default_title">Chủ đề của tôi</string>
+    <string name="ext__default_maintainer">Cục bộ</string>
+    <string name="ext__default_license">(không có)</string>
+    <string name="ext__deps_not_implemented">Phụ thuộc chưa được triển khai.</string>
+    <string name="ext__no_deps_found">không có phụ thuộc</string>
+
+    <!-- Extension Import -->
+    <string name="ext__fallback_null">null</string>
+    <string name="ext__unknown_media_type">application/unknown</string>
+
+    <!-- Spell Checker -->
+    <string name="spell_checker__unknown">Không xác định</string>
+
 </resources>

@@ -221,7 +221,7 @@ fun KeyboardScreen() {
                 title = stringRes(R.string.pref__keyboard__bottom_padding__label),
                 primaryLabel = stringRes(R.string.screen_orientation__portrait),
                 secondaryLabel = stringRes(R.string.screen_orientation__landscape),
-                valueLabel = { v: Int -> "$v px" },
+                valueLabel = { v: Int -> stringRes(R.string.keyboard__value_label_px, v) },
                 min = 0, max = 200, stepIncrement = 5,
             )
         }
@@ -280,7 +280,7 @@ fun KeyboardScreen() {
         }
 
         Text(
-            text = "Vietnamese Telex",
+            text = stringRes(R.string.keyboard__vietnamese_telex),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
@@ -300,14 +300,14 @@ fun KeyboardScreen() {
                 icon = Icons.Rounded.Keyboard,
                 checked = telexWEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.telexWEnabled.set(it) } },
-                title = "w = ư",
+                title = stringRes(R.string.keyboard__w_equals_u_u),
             )
             val englishFallbackEnabled by prefs.keyboard.englishFallbackEnabled.collectAsState()
             M3SwitchPreference(
                 icon = Icons.Rounded.Language,
                 checked = englishFallbackEnabled,
                 onCheckedChange = { scope.launch { prefs.keyboard.englishFallbackEnabled.set(it) } },
-                title = "English fallback",
+                title = stringRes(R.string.keyboard__english_fallback),
             )
         }
     }

@@ -378,7 +378,7 @@ fun ThemeEditorScreen(
                                     ) {
                                         Text(
                                             modifier = Modifier.padding(12.dp),
-                                            text = "Required property '$propertyName' does not exist",
+                                            text = stringRes(R.string.theme_editor__required_property_missing, propertyName),
                                             color = MaterialTheme.colorScheme.error,
                                             style = MaterialTheme.typography.bodyMedium,
                                         )
@@ -416,7 +416,7 @@ fun ThemeEditorScreen(
                                         ) {
                                             Row {
                                                 Text(
-                                                    "Source set",
+                                                    stringRes(R.string.theme_editor__source_set),
                                                     modifier = Modifier.padding(start = 16.dp).align(Alignment.CenterVertically),
                                                     style = MaterialTheme.typography.bodySmall,
                                                 )
@@ -697,7 +697,7 @@ private fun ComponentMetaEditorDialog(
                 if (!allFieldsValid) {
                     showValidationErrors = true
                 } else if (id != editor.id && (workspace.editor as? ThemeExtensionEditor)?.themes?.find { it.id == id.trim() } != null) {
-                    context.showLongToastSync("A theme with this ID already exists!")
+                    context.showLongToastSync(stringRes(R.string.theme_editor__duplicate_id))
                 } else {
                     workspace.update {
                         editor.id = id.trim()

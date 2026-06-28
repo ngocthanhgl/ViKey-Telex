@@ -690,16 +690,13 @@ private fun ManageDependenciesScreen(workspace: CacheManager.ExtEditorWorkspace<
             ) {
                 Text(
                     modifier = Modifier.padding(16.dp),
-                    text = """
-                        Dependencies are currently not implemented, but are already somewhat
-                        integrated as a placeholder for the future.
-                    """.trimIndent().replace('\n', ' '),
+                    text = stringRes(R.string.ext__deps_not_implemented),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
             if (dependencyList.isEmpty()) {
                 Text(
-                    text = "no deps found",
+                    text = stringRes(R.string.ext__no_deps_found),
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -779,7 +776,7 @@ private fun <T : ExtensionComponent> CreateComponentScreen(
                     when (createFrom) {
                         CreateFrom.EMPTY -> {
                             if (editor.themes.any { it.id == newId.trim() }) {
-                                context.showLongToastSync("A theme with this ID already exists!")
+                                context.showLongToastSync(R.string.ext__duplicate_theme_id)
                             } else {
                                 val componentEditor = ThemeExtensionComponentEditor(
                                     id = newId.trim(),

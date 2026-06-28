@@ -54,7 +54,7 @@ fun AboutScreen() {
             FlorisCanvasIcon(
                 modifier = Modifier.requiredSize(64.dp),
                 iconId = R.mipmap.floris_app_icon,
-                contentDescription = "ViKey app icon",
+                contentDescription = stringRes(R.string.about__app_icon_content_description),
             )
             Text(
                 text = stringRes(R.string.floris_app_name),

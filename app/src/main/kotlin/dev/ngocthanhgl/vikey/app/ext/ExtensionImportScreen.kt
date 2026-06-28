@@ -270,7 +270,7 @@ fun ExtensionImportScreen(type: ExtensionImportScreenType, initUuid: String?) {
                     )
                     SelectionContainer {
                         Text(
-                            text = result.exceptionOrNull()?.stackTraceToString() ?: "null",
+                            text = result.exceptionOrNull()?.stackTraceToString() ?: stringRes(R.string.ext__fallback_null),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
                             fontStyle = FontStyle.Italic,
@@ -309,7 +309,7 @@ private fun FileInfoView(
                 style = MaterialTheme.typography.titleMedium,
             )
             Text(
-                text = fileInfo.mediaType ?: "application/unknown",
+                text = fileInfo.mediaType ?: stringRes(R.string.ext__unknown_media_type),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

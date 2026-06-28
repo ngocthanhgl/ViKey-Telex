@@ -1179,4 +1179,127 @@
 
     <string name="pref__dictionary__clear_learned_words__confirm_body" comment="Confirm dialog body">This will remove all personal learned words. This action cannot be undone.</string>
 
+    <!-- Liquid Glass -->
+    <string name="liquid_glass__enable">Enable Liquid Glass effects</string>
+    <string name="liquid_glass__lens_idle">Lens Idle</string>
+    <string name="liquid_glass__lens_peak">Lens Peak</string>
+    <string name="liquid_glass__height_multiplier">Height Multiplier</string>
+    <string name="liquid_glass__amount_multiplier">Amount Multiplier</string>
+    <string name="liquid_glass__text_lift">Text Lift</string>
+    <string name="liquid_glass__press_scale">Press Scale</string>
+    <string name="liquid_glass__rebound_damping">Rebound Damping</string>
+    <string name="liquid_glass__rebound_stiffness">Rebound Stiffness</string>
+    <string name="liquid_glass__chromatic_aberration">Chromatic Aberration</string>
+    <string name="liquid_glass__depth_effect">Depth Effect</string>
+    <string name="liquid_glass__ripple_wave">Ripple Wave</string>
+    <string name="liquid_glass__background_photo">Background Photo</string>
+    <string name="liquid_glass__photo_selected">Photo selected</string>
+    <string name="liquid_glass__remove_photo">Remove Photo</string>
+    <string name="liquid_glass__choose_photo">Choose Photo</string>
+    <string name="liquid_glass__crop_photo">Crop Photo</string>
+    <string name="liquid_glass__visibility">Visibility</string>
+    <string name="liquid_glass__blur">Blur</string>
+    <string name="liquid_glass__reset_to_defaults">Reset to Defaults</string>
+
+    <!-- Subtype Editor -->
+    <string name="subtype_editor__model">Model</string>
+    <string name="subtype_editor__model_format">Model: %1$s</string>
+    <string name="subtype_editor__unknown">unknown</string>
+    <string name="subtype_editor__remove_model">Remove model</string>
+    <string name="subtype_editor__select_gguf">Select GGUF file</string>
+    <string name="subtype_editor__download_github">Download from GitHub</string>
+    <string name="subtype_editor__section_layouts">Layouts</string>
+    <string name="subtype_editor__section_numeric">Numeric</string>
+    <string name="subtype_editor__section_phone">Phone</string>
+    <string name="subtype_editor__suggestion_english_vietnamese">English/Vietnamese</string>
+
+    <!-- Keyboard -->
+    <string name="keyboard__vietnamese_telex">Vietnamese Telex</string>
+    <string name="keyboard__w_equals_u_u">w = ư</string>
+    <string name="keyboard__english_fallback">English fallback</string>
+    <string name="keyboard__value_label_px">%1$s px</string>
+
+    <!-- Edit Property -->
+    <string name="edit_property__select">--select--</string>
+    <string name="edit_property__top">Top</string>
+    <string name="edit_property__bottom">Bottom</string>
+    <string name="edit_property__start">Start</string>
+    <string name="edit_property__end">End</string>
+    <string name="edit_property__unit_dp">dp</string>
+    <string name="edit_property__unit_sp">sp</string>
+    <string name="edit_property__unit_percent">%</string>
+    <string name="edit_property__apply_for_all">Apply for all</string>
+    <string name="edit_property__select_font">-select-</string>
+
+    <!-- Edit Rule -->
+    <string name="edit_rule__select">--select--</string>
+    <string name="edit_rule__target_ime_window">Target ime window mode</string>
+    <string name="edit_rule__characters_link">Characters (unicode-table.com)</string>
+
+    <!-- Clipboard -->
+    <string name="clipboard__filter_text">Text</string>
+    <string name="clipboard__filter_images">Images</string>
+    <string name="clipboard__filter_videos">Videos</string>
+    <string name="clipboard__error_unknown">Unknown error</string>
+
+    <!-- Media -->
+    <string name="media__switch_to_abc">ABC</string>
+
+    <!-- Theme Editor -->
+    <string name="theme_editor__required_property_missing">Required property '%1$s' does not exist</string>
+    <string name="theme_editor__source_set">Source set</string>
+    <string name="theme_editor__duplicate_id">A theme with this ID already exists!</string>
+
+    <!-- Theme Manager -->
+    <string name="theme_manager__liquid_glass">Liquid Glass</string>
+
+    <!-- Swipe Action Enum -->
+    <string name="enum__swipe_action__show_subtype_picker">Show subtype picker</string>
+
+    <!-- Currency Set -->
+    <string name="currency_set__fallback">Fallback</string>
+
+    <!-- Punctuation Rule -->
+    <string name="punctuation_rule__fallback">Fallback</string>
+    <string name="punctuation_rule__authors_unspecified">unspecified</string>
+
+    <!-- Editor Instance -->
+    <string name="editor__cut_failed">Failed to cut selected text.</string>
+    <string name="editor__copy_failed">Failed to copy selected text.</string>
+    <string name="editor__paste_failed">Failed to paste item.</string>
+
+    <!-- User Dictionary -->
+    <string name="user_dict__import_db_null">Database handle is null, failed to import</string>
+    <string name="user_dict__error_format">Error: %1$s</string>
+    <string name="user_dict__export_db_null">Database handle is null, failed to export</string>
+    <string name="user_dict__export_filename">my-personal-dictionary.clb</string>
+
+    <!-- Floris IME Service -->
+    <string name="floris_ime__voice_ime_not_found">Failed to find voice IME, do you have one installed?</string>
+
+    <!-- Extension Files -->
+    <string name="ext__file_deleted_success">Successfully deleted</string>
+    <string name="ext__file_deleted_failure">Failed to delete</string>
+    <string name="ext__file_invalid_name">Invalid file name!</string>
+    <string name="ext__file_name_exists">Filename already exists.</string>
+    <string name="ext__file_renamed_success">Successfully renamed</string>
+    <string name="ext__file_renamed_failure">Failed to rename the file.</string>
+    <string name="ext__import_invalid_name">Invalid file name</string>
+    <string name="ext__import_file_exists">File already exists</string>
+    <string name="ext__import_rename_failed">Failed to rename file</string>
+
+    <!-- Extension Edit -->
+    <string name="ext__default_title">My themes</string>
+    <string name="ext__default_maintainer">Local</string>
+    <string name="ext__default_license">(none specified)</string>
+    <string name="ext__deps_not_implemented">Dependencies are currently not implemented.</string>
+    <string name="ext__no_deps_found">no deps found</string>
+
+    <!-- Extension Import -->
+    <string name="ext__fallback_null">null</string>
+    <string name="ext__unknown_media_type">application/unknown</string>
+
+    <!-- Spell Checker -->
+    <string name="spell_checker__unknown">Unknown</string>
+
 </resources>

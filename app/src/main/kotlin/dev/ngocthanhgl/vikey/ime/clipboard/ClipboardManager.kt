@@ -379,7 +379,7 @@ class ClipboardManager(
         val editorInstance by appContext.editorInstance()
         editorInstance.commitClipboardItem(item).also { result ->
             if (!result) {
-                appContext.showShortToastSync("Failed to paste item.")
+                appContext.showShortToastSync(appContext.getString(R.string.editor__paste_failed))
             }
         }
     }

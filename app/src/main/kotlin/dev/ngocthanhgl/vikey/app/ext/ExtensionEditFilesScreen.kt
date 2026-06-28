@@ -199,9 +199,9 @@ fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) {
                             )
                             TextButton(onClick = {
                                 if (file.delete()) {
-                                    context.showShortToastSync("Successfully deleted")
+                                    context.showShortToastSync(R.string.ext__file_deleted_success)
                                 } else {
-                                    context.showShortToastSync("Failed to delete")
+                                    context.showShortToastSync(R.string.ext__file_deleted_failure)
                                 }
                                 dialogFile = null
                                 version++
@@ -217,18 +217,18 @@ fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) {
                         TextButton(onClick = {
                             val newFile = file.parentFile!!.subFile(fileNameInput).canonicalFile
                             if (newFile.parentFile != file.canonicalFile.parentFile) {
-                                context.showLongToastSync("Invalid file name!")
+                                context.showLongToastSync(R.string.ext__file_invalid_name)
                                 return@TextButton
                             }
                             if (newFile.exists()) {
-                                context.showShortToastSync("Filename already exists.")
+                                context.showShortToastSync(R.string.ext__file_name_exists)
                                 return@TextButton
                             }
                             val success = file.renameTo(newFile)
                             if (success) {
-                                context.showShortToastSync("Successfully renamed")
+                                context.showShortToastSync(R.string.ext__file_renamed_success)
                             } else {
-                                context.showShortToastSync("Failed to rename the file.")
+                                context.showShortToastSync(R.string.ext__file_renamed_failure)
                             }
                             dialogFile = null
                             version++
@@ -289,13 +289,13 @@ fun ExtensionEditFilesScreen(workspace: CacheManager.ExtEditorWorkspace<*>) {
                         dir.mkdirs()
                         val file = dir.subFile(fileName)
                         if (file.parentDir != workspace.extDir.subDir(dest)) {
-                            context.showShortToastSync("Invalid file name")
+                            context.showShortToastSync(R.string.ext__import_invalid_name)
                         } else if (file.exists()) {
-                            context.showShortToastSync("File already exists")
+                            context.showShortToastSync(R.string.ext__import_file_exists)
                         } else {
                             val tempFile = result.first
                             if (!tempFile.renameTo(file)) {
-                                context.showShortToastSync("Failed to rename file")
+                                context.showShortToastSync(R.string.ext__import_rename_failed)
                                 tempFile.delete()
                             }
                             currentImportDest = null

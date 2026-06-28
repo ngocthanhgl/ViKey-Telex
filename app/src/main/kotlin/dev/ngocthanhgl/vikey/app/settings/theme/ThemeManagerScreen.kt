@@ -158,7 +158,7 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
         }
 
         Text(
-            text = "Liquid Glass",
+            text = stringRes(R.string.theme_manager__liquid_glass),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),

@@ -420,8 +420,8 @@ fun SubtypeEditorScreen(id: Long?) {
         ) {
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_suggestion_provider)) {
                 val nlpProviderMappings = mapOf(
-                    FallbackNlpProvider.providerId to "None",
-                    QwenSuggestionProvider.ProviderId to "English/Vietnamese"
+                    FallbackNlpProvider.providerId to stringRes(R.string.quick_action__noop),
+                    QwenSuggestionProvider.ProviderId to stringRes(R.string.subtype_editor__suggestion_english_vietnamese)
                 )
 
                 val nlpProviderMappingIds = remember(nlpProviderMappings) {
@@ -474,7 +474,7 @@ fun SubtypeEditorScreen(id: Long?) {
                 }
 
                 SettingsDivider()
-                SubtypeProperty("Model") {
+                SubtypeProperty(stringRes(R.string.subtype_editor__model)) {
                     if (modelExists) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -485,7 +485,7 @@ fun SubtypeEditorScreen(id: Long?) {
                             )
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                text = "Model: ${modelFile.value?.name ?: "unknown"}",
+                                text = stringRes(R.string.subtype_editor__model_format, modelFile.value?.name ?: stringRes(R.string.subtype_editor__unknown)),
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.weight(1f),
                             )
@@ -497,7 +497,7 @@ fun SubtypeEditorScreen(id: Long?) {
                             }) {
                                 Icon(
                                     imageVector = Icons.Rounded.Delete,
-                                    contentDescription = "Remove model",
+                                    contentDescription = stringRes(R.string.subtype_editor__remove_model),
                                     tint = MaterialTheme.colorScheme.error,
                                 )
                             }
@@ -507,7 +507,7 @@ fun SubtypeEditorScreen(id: Long?) {
                             Button(onClick = { importLauncher.launch("application/octet-stream") }) {
                                 Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("Select GGUF file")
+                                Text(stringRes(R.string.subtype_editor__select_gguf))
                             }
                             Spacer(Modifier.height(4.dp))
                             OutlinedButton(onClick = {
@@ -519,7 +519,7 @@ fun SubtypeEditorScreen(id: Long?) {
                             }) {
                                 Icon(Icons.Rounded.FileDownload, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("Download from GitHub")
+                                Text(stringRes(R.string.subtype_editor__download_github))
                             }
                         }
                     }
@@ -530,7 +530,7 @@ fun SubtypeEditorScreen(id: Long?) {
         GroupSpacer()
 
         Text(
-            text = "Layouts",
+            text = stringRes(R.string.subtype_editor__section_layouts),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
@@ -583,7 +583,7 @@ fun SubtypeEditorScreen(id: Long?) {
         GroupSpacer()
 
         Text(
-            text = "Numeric",
+            text = stringRes(R.string.subtype_editor__section_numeric),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
@@ -608,7 +608,7 @@ fun SubtypeEditorScreen(id: Long?) {
         GroupSpacer()
 
         Text(
-            text = "Phone",
+            text = stringRes(R.string.subtype_editor__section_phone),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),

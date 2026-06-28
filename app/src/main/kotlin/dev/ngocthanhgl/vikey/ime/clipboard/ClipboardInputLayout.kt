@@ -128,6 +128,7 @@ import org.florisboard.lib.snygg.ui.SnyggIcon
 import org.florisboard.lib.snygg.ui.SnyggIconButton
 import org.florisboard.lib.snygg.ui.SnyggRow
 import org.florisboard.lib.snygg.ui.SnyggText
+import org.florisboard.lib.compose.stringRes
 
 private val ItemWidth = 200.dp
 private val DialogWidth = 240.dp
@@ -284,9 +285,9 @@ fun ClipboardInputLayout(
                 val file = ClipboardFileStorage.getFileForId(context, id)
                 val bitmap = remember(id) {
                     runCatching {
-                        check(file.exists()) { "Unable to resolve image at ${file.absolutePath}" }
+                        check(file.exists()) { stringRes(R.string.clipboard__error_resolve_image, file.absolutePath) }
                         val rawBitmap = BitmapFactory.decodeFile(file.absolutePath)
-                        checkNotNull(rawBitmap) { "Unable to decode image at ${file.absolutePath}" }
+                        checkNotNull(rawBitmap) { stringRes(R.string.clipboard__error_decode_image, file.absolutePath) }
                         rawBitmap.asImageBitmap()
                     }
                 }
@@ -300,7 +301,7 @@ fun ClipboardInputLayout(
                 } else {
                     SnyggText(
                         modifier = Modifier.fillMaxWidth(),
-                        text = bitmap.exceptionOrNull()?.message ?: "Unknown error",
+                        text = bitmap.exceptionOrNull()?.message ?: stringRes(R.string.clipboard__error_unknown),
                     )
                 }
             } else if (item.type == ItemType.VIDEO) {
@@ -308,7 +309,7 @@ fun ClipboardInputLayout(
                 val file = ClipboardFileStorage.getFileForId(context, id)
                 val bitmap = remember(id) {
                     runCatching {
-                        check(file.exists()) { "Unable to resolve video at ${file.absolutePath}" }
+                        check(file.exists()) { stringRes(R.string.clipboard__error_resolve_video, file.absolutePath) }
                         val rawBitmap = if (AndroidVersion.ATLEAST_API29_Q) {
                             val dataRetriever = MediaMetadataRetriever()
                             dataRetriever.setDataSource(file.absolutePath)
@@ -319,7 +320,7 @@ fun ClipboardInputLayout(
                             @Suppress("DEPRECATION")
                             ThumbnailUtils.createVideoThumbnail(file.absolutePath, MediaStore.Video.Thumbnails.MINI_KIND)
                         }
-                        checkNotNull(rawBitmap) { "Unable to decode video at ${file.absolutePath}" }
+                        checkNotNull(rawBitmap) { stringRes(R.string.clipboard__error_decode_video, file.absolutePath) }
                         rawBitmap.asImageBitmap()
                     }
                 }
@@ -342,7 +343,7 @@ fun ClipboardInputLayout(
                 } else {
                     SnyggText(
                         modifier = Modifier.fillMaxWidth(),
-                        text = bitmap.exceptionOrNull()?.message ?: "Unknown error",
+                        text = bitmap.exceptionOrNull()?.message ?: stringRes(R.string.clipboard__error_unknown),
                     )
                 }
             } else {
@@ -441,17 +442,17 @@ fun ClipboardInputLayout(
 
                         FilterChip(
                             imageVector = Icons.Rounded.TextFields,
-                            text = "Text",
+                            text = stringRes(R.string.clipboard__filter_text),
                             itemType = ItemType.TEXT,
                         )
                         FilterChip(
                             imageVector = Icons.Rounded.Image,
-                            text = "Images",
+                            text = stringRes(R.string.clipboard__filter_images),
                             itemType = ItemType.IMAGE,
                         )
                         FilterChip(
                             imageVector = Icons.Rounded.Movie,
-                            text = "Videos",
+                            text = stringRes(R.string.clipboard__filter_videos),
                             itemType = ItemType.VIDEO,
                         )
                     }

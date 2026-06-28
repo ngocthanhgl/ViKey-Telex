@@ -176,12 +176,14 @@ private enum class PaddingValue {
 
     @Composable
     fun label(): String {
-        return when (this) {
-            TOP -> "Top"
-            BOTTOM -> "Bottom"
-            START -> "Start"
-            END -> "End"
-        }
+        return stringRes(
+            when (this) {
+                TOP -> R.string.edit_property__top
+                BOTTOM -> R.string.edit_property__bottom
+                START -> R.string.edit_property__start
+                END -> R.string.edit_property__end
+            }
+        )
     }
 }
 
@@ -569,7 +571,7 @@ private fun PropertyValueEditor(
                 )
                 Text(
                     modifier = Modifier.padding(start = 8.dp),
-                    text = "dp",
+                    text = stringRes(R.string.edit_property__unit_dp),
                     fontFamily = FontFamily.Monospace,
                 )
             }
@@ -601,7 +603,7 @@ private fun PropertyValueEditor(
                 )
                 Text(
                     modifier = Modifier.padding(start = 8.dp),
-                    text = "sp",
+                    text = stringRes(R.string.edit_property__unit_sp),
                     fontFamily = FontFamily.Monospace,
                 )
             }
@@ -632,7 +634,7 @@ private fun PropertyValueEditor(
                 )
                 Text(
                     modifier = Modifier.padding(start = 8.dp),
-                    text = "%",
+                    text = stringRes(R.string.edit_property__unit_percent),
                     fontFamily = FontFamily.Monospace,
                 )
             }
@@ -994,7 +996,7 @@ private fun PaddingValueEditor(
                             }
                         },
                         modifier = Modifier.align(Alignment.End),
-                        text = "Apply for all",
+                        text = stringRes(R.string.edit_property__apply_for_all),
                     )
                 }
             },

@@ -336,7 +336,7 @@ internal fun EditRuleDialog(
                     )
 
                     EnumLikeAttributeBox(
-                        text = "Target ime window mode",
+                        text = stringRes(R.string.edit_rule__target_ime_window),
                         enumClass = ImeWindowMode::class,
                         attribute = FlorisImeUi.Attr.WindowMode,
                         attributes = attributes,
@@ -492,7 +492,7 @@ private fun EditCodeValueDialog(
                         Text(text = stringRes(R.string.settings__theme_editor__code_recording_help_text))
                         Text(text = stringRes(R.string.settings__theme_editor__code_help_text))
                         FlorisHyperlinkText(
-                            text = "Characters (unicode-table.com)",
+                            text = stringRes(R.string.edit_rule__characters_link),
                             url = stringRes(R.string.florisboard__character_key_codes_url),
                         )
 
