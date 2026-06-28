@@ -873,7 +873,7 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <string name="ext__validation__enter_positive_number">Vui lòng nhập số dương (&gt;=0)</string>
     <string name="ext__validation__enter_percent_size">Vui lòng nhập phần trăm</string>
     <string name="ext__validation__enter_number_between_0_100">Vui lòng nhập số từ 0 đến 100</string>
-    <string name="ext__validation__hint_value_above_50_percent">Giá trị trên 50% sẽ hoạt động như 50%, hãy cân nhắc giảm xuống</string>
+    <string name="ext__validation__hint_value_above_50_percent">Giá trị trên 50%% sẽ hoạt động như 50%%, hãy cân nhắc giảm xuống</string>
     <string name="ext__update_box__internet_permission_hint">Ứng dụng không có quyền Internet, cần kiểm tra cập nhật thủ công.</string>
     <string name="ext__update_box__search_for_updates">Tìm cập nhật</string>
     <string name="ext__addon_management_box__managing_placeholder">Đang quản lý {extensions}</string>
@@ -1242,7 +1242,7 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <string name="media__switch_to_abc">ABC</string>
 
     <!-- Theme Editor -->
-    <string name="theme_editor__required_property_missing">Thuộc tính bắt buộc &apos;%1$s&apos; không tồn tại</string>
+    <string name="theme_editor__required_property_missing">Thuộc tính bắt buộc \'%1$s\' không tồn tại</string>
     <string name="theme_editor__source_set">Bộ nguồn</string>
     <string name="theme_editor__duplicate_id">ID chủ đề đã tồn tại!</string>
 
