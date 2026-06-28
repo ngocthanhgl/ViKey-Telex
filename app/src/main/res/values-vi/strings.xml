@@ -1,0 +1,1178 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="app_name">ViKey</string>
+
+    <string name="key__phone_pause" comment="Label for the Pause key in the telephone keyboard layout">Tạm dừng</string>
+    <string name="key__phone_wait" comment="Label for the Wait key in the telephone keyboard layout">Chờ</string>
+    <string name="key_popup__threedots_alt" comment="Content description for the three-dots icon in a key popup">Biểu tượng ba chấm. Nếu hiển thị, cho biết có thể nhấn giữ để xem thêm ký tự.</string>
+
+    <!-- One-handed strings -->
+    <string name="one_handed__close_btn_content_description" comment="Content description for the one-handed close button">Đóng chế độ một tay.</string>
+    <string name="one_handed__move_start_btn_content_description" comment="Content description for the one-handed move to left button">Di chuyển bàn phím sang trái.</string>
+    <string name="one_handed__move_end_btn_content_description" comment="Content description for the one-handed move to right button">Di chuyển bàn phím sang phải.</string>
+
+    <!-- Media strings -->
+    <string name="settings__media__title">Biểu tượng cảm xúc</string>
+    <string name="media__tab__emojis" comment="Tab description for emojis in the media UI">Biểu tượng cảm xúc</string>
+    <string name="media__tab__emoticons" comment="Tab description for emoticons in the media UI">Mặt cười</string>
+    <string name="media__tab__kaomoji" comment="Tab description for kaomoji in the media UI">Kaomoji</string>
+    <string name="prefs__media__emoji_preferred_skin_tone">Tông màu emojis</string>
+    <string name="prefs__media__emoji_preferred_hair_style">Kiểu tóc ưa thích</string>
+    <string name="prefs__media__emoji_history__title" comment="Preference group title">Lịch sử biểu tượng cảm xúc</string>
+    <string name="prefs__media__emoji_history_enabled" comment="Preference title">Bật lịch sử biểu tượng cảm xúc</string>
+    <string name="prefs__media__emoji_history_enabled__summary" comment="Preference summary">Giữ lại biểu tượng cảm xúc đã dùng gần đây để truy cập nhanh</string>
+    <string name="prefs__media__emoji_history_pinned_update_strategy" comment="Preference title">Chiến lược cập nhật (Đã ghim)</string>
+    <string name="prefs__media__emoji_history_recent_update_strategy" comment="Preference title">Chiến lược cập nhật (Gần đây)</string>
+    <string name="prefs__media__emoji_history_max_size">Số lượng tối đa</string>
+    <string name="prefs__media__emoji_history_pinned_reset">Đặt lại biểu tượng đã ghim</string>
+    <string name="prefs__media__emoji_history_reset">Đặt lại biểu tượng gần đây</string>
+    <string name="prefs__media__emoji_suggestion__title" comment="Preference group title">Gợi ý biểu tượng cảm xúc</string>
+    <string name="prefs__media__emoji_suggestion_enabled" comment="Preference title">Bật gợi ý biểu tượng cảm xúc</string>
+    <string name="prefs__media__emoji_suggestion_enabled__summary" comment="Preference summary">Cung cấp gợi ý biểu tượng cảm xúc khi bạn gõ</string>
+    <string name="prefs__media__emoji_font" comment="Preference title">Phông chữ biểu tượng cảm xúc</string>
+    <string name="prefs__media__emoji_suggestion_type" comment="Preference title">Loại kích hoạt</string>
+    <string name="prefs__media__emoji_suggestion_update_history" comment="Preference title">Cập nhật lịch sử biểu tượng cảm xúc</string>
+    <string name="prefs__media__emoji_suggestion_update_history__summary" comment="Preference summary">Chấp nhận gợi ý sẽ thêm vào lịch sử</string>
+    <string name="prefs__media__emoji_suggestion_candidate_show_name" comment="Preference title">Hiện tên biểu tượng</string>
+    <string name="prefs__media__emoji_suggestion_candidate_show_name__summary" comment="Preference summary">Gợi ý hiển thị tên kèm biểu tượng</string>
+    <string name="prefs__media__emoji_suggestion_query_min_length" comment="Preference title">Độ dài truy vấn tối thiểu</string>
+    <string name="prefs__media__emoji_suggestion_candidate_max_count" comment="Preference title">Số lượng đề xuất tối đa</string>
+
+    <!-- Emoji strings -->
+    <string name="emoji__category__smileys_emotion" comment="Emoji category name">Smileys &amp; Emotions</string>
+    <string name="emoji__category__people_body" comment="Emoji category name">People &amp; Body</string>
+    <string name="emoji__category__animals_nature" comment="Emoji category name">Animals &amp; Nature</string>
+    <string name="emoji__category__food_drink" comment="Emoji category name">Food &amp; Drink</string>
+    <string name="emoji__category__travel_places" comment="Emoji category name">Travel &amp; Places</string>
+    <string name="emoji__category__activities" comment="Emoji category name">Activities</string>
+    <string name="emoji__category__objects" comment="Emoji category name">Objects</string>
+    <string name="emoji__category__symbols" comment="Emoji category name">Symbols</string>
+    <string name="emoji__category__flags" comment="Emoji category name">Flags</string>
+    <string name="emoji__history__empty_message" comment="Message if the emoji history is empty">Không tìm thấy biểu tượng gần đây. Khi bạn bắt đầu sử dụng, chúng sẽ tự động xuất hiện ở đây.</string>
+    <string name="emoji__history__phone_locked_message" comment="Message to show if phone is locked">Để truy cập lịch sử, vui lòng mở khóa thiết bị trước.</string>
+    <string name="emoji__history__usage_tip" comment="Feature discoverability for actions of emoji history">Mẹo: Nhấn giữ biểu tượng trong lịch sử để ghim hoặc xóa!</string>
+    <string name="emoji__history__removal_success_message" comment="Toast message if user has used the delete action on an emoji in the emoji history">Đã xóa {emoji} khỏi lịch sử</string>
+    <string name="emoji__history__pinned">Đã ghim</string>
+    <string name="emoji__history__recent">Gần đây</string>
+
+    <!-- Quick action strings -->
+    <string name="quick_action__arrow_up" comment="Please mind the limited available space for the quick action strings">Mũi tên lên</string>
+    <string name="quick_action__arrow_up__tooltip">Di chuyển lên</string>
+    <string name="quick_action__arrow_down" comment="Please mind the limited available space for the quick action strings">Mũi tên xuống</string>
+    <string name="quick_action__arrow_down__tooltip">Di chuyển xuống</string>
+    <string name="quick_action__arrow_left" comment="Please mind the limited available space for the quick action strings">Mũi tên trái</string>
+    <string name="quick_action__arrow_left__tooltip">Di chuyển trái</string>
+    <string name="quick_action__arrow_right" comment="Please mind the limited available space for the quick action strings">Mũi tên phải</string>
+    <string name="quick_action__arrow_right__tooltip">Di chuyển phải</string>
+    <string name="quick_action__ime_hide_ui" comment="Please mind the limited available space for the quick action strings">Ẩn bàn phím</string>
+    <string name="quick_action__ime_hide_ui__tooltip">Ẩn bàn phím</string>
+    <string name="quick_action__clipboard_clear_primary_clip" comment="Please mind the limited available space for the quick action strings">Xóa clipboard</string>
+    <string name="quick_action__clipboard_clear_primary_clip__tooltip">Xóa clipboard</string>
+    <string name="quick_action__clipboard_copy" comment="Please mind the limited available space for the quick action strings">Sao chép</string>
+    <string name="quick_action__clipboard_copy__tooltip">Sao chép vào bảng nhớ tạm</string>
+    <string name="quick_action__clipboard_cut" comment="Please mind the limited available space for the quick action strings">Cắt</string>
+    <string name="quick_action__clipboard_cut__tooltip">Cắt vào bảng nhớ tạm</string>
+    <string name="quick_action__clipboard_paste" comment="Please mind the limited available space for the quick action strings">Dán</string>
+    <string name="quick_action__clipboard_paste__tooltip">Dán từ bảng nhớ tạm</string>
+    <string name="quick_action__clipboard_select_all" comment="Please mind the limited available space for the quick action strings">Chọn tất cả</string>
+    <string name="quick_action__clipboard_select_all__tooltip">Chọn tất cả</string>
+    <string name="quick_action__forward_delete" comment="Please mind the limited available space for the quick action strings">Xóa xuôi</string>
+    <string name="quick_action__ime_ui_mode_clipboard" comment="Please mind the limited available space for the quick action strings">Bảng nhớ tạm</string>
+    <string name="quick_action__ime_ui_mode_clipboard__tooltip">Mở lịch sử bảng nhớ tạm</string>
+    <string name="quick_action__ime_ui_mode_media" comment="Please mind the limited available space for the quick action strings">Biểu tượng cảm xúc</string>
+    <string name="quick_action__ime_ui_mode_media__tooltip">Mở bảng biểu tượng cảm xúc</string>
+    <string name="quick_action__language_switch" comment="Please mind the limited available space for the quick action strings">Chuyển ngôn ngữ</string>
+    <string name="quick_action__language_switch__tooltip">Chuyển đổi ngôn ngữ</string>
+    <string name="quick_action__settings" comment="Please mind the limited available space for the quick action strings">Cài đặt</string>
+    <string name="quick_action__settings__tooltip">Mở cài đặt</string>
+    <string name="quick_action__undo" comment="Please mind the limited available space for the quick action strings">Hoàn tác</string>
+    <string name="quick_action__undo__tooltip">Hoàn tác thao tác cuối</string>
+    <string name="quick_action__redo" comment="Please mind the limited available space for the quick action strings">Làm lại</string>
+    <string name="quick_action__redo__tooltip">Làm lại thao tác cuối</string>
+    <string name="quick_action__toggle_actions_overflow" comment="Please mind the limited available space for the quick action strings">Thêm hành động</string>
+    <string name="quick_action__toggle_actions_overflow__tooltip">Hiện hoặc ẩn hành động bổ sung</string>
+    <string name="quick_action__toggle_incognito_mode" comment="Please mind the limited available space for the quick action strings">Ẩn danh</string>
+    <string name="quick_action__toggle_incognito_mode__tooltip">Bật/tắt ẩn danh</string>
+    <string name="quick_action__toggle_autocorrect" comment="Please mind the limited available space for the quick action strings">Tự động sửa</string>
+    <string name="quick_action__toggle_autocorrect__tooltip">Bật/tắt tự sửa</string>
+    <string name="quick_action__voice_input" comment="Please mind the limited available space for the quick action strings">Nhập giọng nói</string>
+    <string name="quick_action__voice_input__tooltip" comment="IME stands for Input Method Editor and is indirectly equivalent to 'keyboard'.">Mở công cụ nhập giọng nói</string>
+    <string name="quick_action__floating_window_mode" comment="Please mind the limited available space for the quick action strings">Nổi</string>
+    <string name="quick_action__floating_window_mode__tooltip">Bật/tắt bàn phím nổi</string>
+    <string name="quick_action__one_handed_mode" comment="Please mind the limited available space for the quick action strings">Một tay</string>
+    <string name="quick_action__one_handed_mode__tooltip">Bật/tắt một tay</string>
+    <string name="quick_action__resize_mode" comment="Please mind the limited available space for the quick action strings">Kích thước</string>
+    <string name="quick_action__resize_mode__tooltip">Bật/tắt thay đổi kích thước</string>
+    <string name="quick_action__drag_marker" comment="This action is only used as a placeholder in the actions editor drag and drop screen and only visible in debug mode">Điểm kéo</string>
+    <string name="quick_action__drag_marker__tooltip" comment="This action is only used as a placeholder in the actions editor drag and drop screen and only visible in debug mode">Vị trí điểm kéo hiện tại</string>
+    <string name="quick_action__noop" comment="Noop=no operation; this action is only used as a placeholder in the actions editor drag and drop screen">Không</string>
+    <string name="quick_action__noop__tooltip" comment="Noop=no operation; this action is only used as a placeholder in the actions editor drag and drop screen">Không thực hiện</string>
+    <string name="quick_actions_overflow__customize_actions_button">Sắp xếp lại hành động</string>
+    <string name="quick_actions_editor__header">Tùy chỉnh thứ tự hành động</string>
+    <string name="quick_actions_editor__subheader_sticky_action">Hành động cố định ({n})</string>
+    <string name="quick_actions_editor__subheader_dynamic_actions">Hành động linh hoạt ({n})</string>
+    <string name="quick_actions_editor__subheader_hidden_actions">Hành động ẩn ({n})</string>
+    <string name="select_subtype_panel__header">Chọn kiểu con</string>
+
+    <!-- Incognito mode strings -->
+    <string name="incognito_mode__toast_after_enabled">Chế độ ẩn danh đã được bật
+
+ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
+    <string name="incognito_mode__toast_after_disabled">Chế độ ẩn danh đã tắt</string>
+
+    <!-- Settings UI strings -->
+    <string name="settings__title" comment="Title of Settings">Cài đặt</string>
+    <string name="settings__preview_keyboard" comment="Hint for try your setup box">Gõ thử</string>
+    <string name="settings__help" comment="General label for help buttons in Settings">Trợ giúp</string>
+    <string name="settings__default" comment="General string which is used when a preference has the default value set">Mặc định</string>
+    <string name="settings__system_default" comment="General string which is used when a preference has the system default value set">Mặc định hệ thống</string>
+
+    <string name="settings__home__title" comment="Title of the Home screen">Chào mừng bạn</string>
+    <string name="settings__home__ime_not_enabled" comment="Error message shown in Home fragment when ViKey is not enabled in the system">ViKey chưa được bật. Nhấn vào đây.</string>
+    <string name="settings__home__ime_not_selected" comment="Warning message shown in Home fragment when ViKey is not selected as the default keyboard">ViKey chưa được chọn. Nhấn vào đây.</string>
+
+    <string name="settings__section__input" comment="Section header for input-related settings">Nhập liệu</string>
+    <string name="settings__section__personalization" comment="Section header for personalization settings">Cá nhân hóa</string>
+    <string name="settings__section__features" comment="Section header for feature settings">Tính năng</string>
+    <string name="settings__section__system" comment="Section header for system settings">Hệ thống</string>
+    <string name="settings__home__search_placeholder" comment="Placeholder text for the search bar on the Home screen">Tìm kiếm…</string>
+    <string name="settings__home__keyboard_name" comment="Name of the keyboard shown in the status card">Bàn phím ViKey</string>
+    <string name="settings__home__status_active" comment="Status text shown when keyboard is active">Đang hoạt động</string>
+
+    <string name="settings__localization__title" comment="Title of languages and Layout screen">Ngôn ngữ &amp; Bố cục</string>
+    <string name="settings__localization__display_language_names_in__label" comment="Label of Display language names in preference">Tên ngôn ngữ</string>
+    <string name="settings__localization__display_keyboard_labels_in_subtype_language" comment="Label of Display keyboard labels in subtype language preference">Hiển thị nhãn bàn phím</string>
+    <string name="settings__localization__group_subtypes__label" comment="Label of subtypes group">Ngôn ngữ</string>
+    <string name="settings__localization__subtype_add_title" comment="Title of subtype dialog when adding a new subtype">Thêm ngôn ngữ</string>
+    <string name="settings__localization__language_pack_title" comment="Title of the language pack manager screen for managing installed and custom language packs">Gói ngôn ngữ</string>
+    <string name="settings__localization__language_pack_summary" comment="Summary of preference item for adding a new language pack">Thử nghiệm: Phần mở rộng ngôn ngữ</string>
+    <string name="settings__localization__subtype_edit_title" comment="Title of subtype dialog when editing an existing subtype">Sửa ngôn ngữ</string>
+    <string name="settings__localization__subtype_locale" comment="Label for locale dropdown in subtype dialog">Ngôn ngữ chính</string>
+    <string name="settings__localization__subtype_popup_mapping" comment="Label for popup mapping dropdown in subtype screen">Kiểu popup</string>
+    <string name="settings__localization__subtype_characters_layout" comment="Label for layout dropdown in subtype dialog">Bố cục phím</string>
+    <string name="settings__localization__subtype_suggestion_provider" comment="Label for suggestion provider dropdown in subtype dialog">Gợi ý</string>
+    <string name="settings__localization__subtype_symbols_layout" comment="Label for layout dropdown in subtype dialog">Bố cục ký hiệu chính</string>
+    <string name="settings__localization__subtype_symbols2_layout" comment="Label for layout dropdown in subtype dialog">Bố cục ký hiệu phụ</string>
+    <string name="settings__localization__subtype_composer" comment="Label for composer dropdown in subtype dialog.">Bộ gõ</string>
+    <string name="settings__localization__subtype_currency_set" comment="Label for currency set dropdown in subtype dialog. 'set' is used as a noun here and can be compared to a group of elements (in this case currency symbols).">Bộ tiền tệ</string>
+    <string name="settings__localization__subtype_numeric_layout" comment="Label for layout dropdown in subtype dialog">Bố cục số</string>
+    <string name="settings__localization__subtype_numeric_advanced_layout" comment="Label for layout dropdown in subtype dialog">Bố cục số (nâng cao)</string>
+    <string name="settings__localization__subtype_numeric_row_layout" comment="Label for layout dropdown in subtype dialog">Bố cục hàng số</string>
+    <string name="settings__localization__subtype_phone_layout" comment="Label for layout dropdown in subtype dialog">Bố cục điện thoại chính</string>
+    <string name="settings__localization__subtype_phone2_layout" comment="Label for layout dropdown in subtype dialog">Bố cục điện thoại phụ</string>
+    <string name="settings__localization__subtype_search_locale_placeholder" comment="Subtype search language placeholder">Tìm ngôn ngữ</string>
+    <string name="settings__localization__subtype_search_locale_not_found" comment="Subtype search language not found">Không tìm thấy ngôn ngữ phù hợp với "{search_term}".</string>
+    <string name="settings__localization__subtype_select_placeholder" comment="Subtype dialog select value placeholder (&amp;#8210; is a hyphen character)">Không</string>
+    <string name="settings__localization__subtype_summary" comment="Subtype summary">{characters_name} / {symbols_name} / {currency_set_name}</string>
+    <string name="settings__localization__suggested_subtype_presets" comment="Suggested presets title">Ngôn ngữ có sẵn</string>
+    <string name="settings__localization__suggested_subtype_presets_none_found" comment="Suggested presets none found">Không có ngôn ngữ. Dùng nút bên dưới để xem tất cả.</string>
+    <string name="settings__localization__subtype_presets" comment="Subtype presets dialog title">Ngôn ngữ có sẵn</string>
+    <string name="settings__localization__subtype_presets_view_all" comment="View all presets button">Hiện tất cả</string>
+    <string name="settings__localization__subtype_no_subtypes_configured_warning" comment="Warning message that no subtype has been defined">Bạn chưa cấu hình ngôn ngữ. Sẽ dùng Vietnamese/QWERTY mặc định!</string>
+    <string name="settings__localization__subtype_error_already_exists" comment="Error message shown in subtype dialog when a subtype to add already exists">Ngôn ngữ đã tồn tại!</string>
+    <string name="settings__localization__subtype_error_fields_no_value" comment="Error message shown in subtype editor if at least one field is set to '- select -' (means no value specified)">Không được bỏ trống. Vui lòng chọn!</string>
+    <string name="settings__localization__subtype_error_layout_not_installed" comment="Error message shown in subtype list when a layout is not installed, where %s will be replaced by the layout ID">{layout_id} (chưa cài đặt)</string>
+    <string name="settings__localization__group_layouts__label" comment="Label of layouts group">Bố cục</string>
+    <string name="settings__localization__subtype_delete_confirmation_title" comment="Title of the subtype delete confirmation dialog">Xác nhận xóa</string>
+    <string name="settings__localization__subtype_delete_confirmation_warning" comment="Warning message in the confirmation dialog to confirm the user's intent to delete">Bạn có chắc muốn xoá ngôn ngữ này?</string>
+
+    <string name="settings__theme__title" comment="Title of the Theme screen">Chủ đề</string>
+    <string name="pref__theme__mode__label" comment="Label of the theme mode preference">Chế độ chủ đề</string>
+    <string name="pref__theme__sunrise_time__label" comment="Label of the sunrise time preference">Mặt trời mọc</string>
+    <string name="pref__theme__sunset_time__label" comment="Label of the sunset time preference">Mặt trời lặn</string>
+    <string name="pref__theme__day" comment="Label of the day group (day means light theme)">Ban ngày</string>
+    <string name="pref__theme__night" comment="Label of the night group (night means dark theme)">Ban đêm</string>
+    <string name="pref__theme__theme_accent_color__label" comment="Label of accent color preference in Theme">Màu nhấn</string>
+    <string name="settings__theme_manager__title_manage" comment="Title of the theme manager screen for managing installed and custom themes">Quản lý chủ đề</string>
+    <string name="pref__theme__source_assets" comment="Label for the theme source field">Tài nguyên ViKey</string>
+    <string name="pref__theme__source_internal" comment="Label for the theme source field">Bộ nhớ trong</string>
+    <string name="pref__theme__source_external" comment="Label for the theme source field">Nguồn bên ngoài</string>
+
+    <string name="settings__theme_manager__title_day" comment="Title of the theme manager screen for day theme selection">Chủ đề sáng</string>
+    <string name="settings__theme_manager__title_night" comment="Title of the theme manager screen for night theme selection">Chủ đề tối</string>
+
+    <string name="settings__theme_editor__fine_tune__title">Tinh chỉnh chủ đề</string>
+    <string name="settings__theme_editor__fine_tune__level">Mức chỉnh sửa</string>
+    <string name="settings__theme_editor__fine_tune__color_representation">Biểu diễn màu sắc</string>
+    <string name="settings__theme_editor__fine_tune__display_kbd_after_dialogs">Hiện bàn phím sau hộp thoại</string>
+    <string name="settings__theme_editor__add_rule">Thêm quy tắc</string>
+    <string name="settings__theme_editor__edit_rule">Sửa quy tắc</string>
+    <string name="settings__theme_editor__no_rules_defined">Bảng định kiểu này chưa có quy tắc nào. Thêm quy tắc để bắt đầu tùy chỉnh.</string>
+    <string name="settings__theme_editor__rule_already_exists">Quy tắc này đã được định nghĩa.</string>
+    <string name="settings__theme_editor__rule_name">Thành phần / Chú thích</string>
+    <string name="settings__theme_editor__rule_codes">Mã phím đích</string>
+    <string name="settings__theme_editor__rule_groups">Nhóm</string>
+    <string name="settings__theme_editor__rule_modes">Chế độ đích (lớp)</string>
+    <string name="settings__theme_editor__rule_shift_states">Trạng thái Shift</string>
+    <string name="settings__theme_editor__rule_selectors">Bộ chọn</string>
+    <string name="settings__theme_editor__add_code">Thêm mã phím</string>
+    <string name="settings__theme_editor__edit_code">Sửa mã phím</string>
+    <string name="settings__theme_editor__no_codes_defined">Áp dụng quy tắc cho tất cả thành phần đích.</string>
+    <string name="settings__theme_editor__no_enum_value_to_add_anymore">Tất cả giá trị đã được thêm.</string>
+    <string name="settings__theme_editor__code_already_exists">Mã phím này đã được định nghĩa.</string>
+    <string name="settings__theme_editor__code_invalid">Mã phím không hợp lệ. Đảm bảo mã nằm trong khoảng {c_min}–{c_max} cho ký tự hoặc {i_min}–{i_max} cho phím đặc biệt.</string>
+    <string name="settings__theme_editor__code_help_text">Ngoài ra, các liên kết sau sẽ giúp bạn tìm mã phím tương ứng:</string>
+    <string name="settings__theme_editor__code_placeholder">Mã</string>
+    <string name="settings__theme_editor__code_recording_help_text">Để tìm mã phím, dùng nút bên cạnh ô nhập. Sau khi kích hoạt, nó sẽ ghi lại lần nhấn phím tiếp theo.</string>
+    <string name="settings__theme_editor__code_recording_started">Đã bắt đầu ghi mã phím</string>
+    <string name="settings__theme_editor__code_recording_stopped">Đã dừng ghi mã phím</string>
+    <string name="settings__theme_editor__code_recording_requires_default_ime_floris">ViKey cần là bàn phím mặc định để ghi mã phím</string>
+    <string name="settings__theme_editor__code_recording_placeholder">Đang ghi…</string>
+    <string name="settings__theme_editor__add_property">Thêm thuộc tính</string>
+    <string name="settings__theme_editor__edit_property">Sửa thuộc tính</string>
+    <string name="settings__theme_editor__property_already_exists">Thuộc tính này đã tồn tại trong quy tắc hiện tại.</string>
+    <string name="settings__theme_editor__property_name">Tên thuộc tính</string>
+    <string name="settings__theme_editor__property_value">Giá trị thuộc tính</string>
+    <string name="settings__theme_editor__property_value_shape_apply_for_all_corners">Áp dụng cho tất cả góc</string>
+    <string name="settings__theme_editor__property_value_color_dialog_title">Sửa chuỗi màu</string>
+    <string name="settings__theme_editor__file_selector_dialog_title">Chọn tệp</string>
+    <string name="settings__theme_editor__file_selector_no_files_text">Chưa có tệp nào được thêm vào tiện ích này. Dùng "{action_title}" ở màn hình trước để nhập tệp.</string>
+    <string name="settings__theme_editor__component_meta_is_night_theme">Là chủ đề tối</string>
+    <string name="settings__theme_editor__component_meta_is_borderless">Không viền</string>
+    <string name="settings__theme_editor__component_meta_stylesheet_path">Đường dẫn bảng định kiểu</string>
+    <string name="settings__theme_editor__component_meta_material_you__title">Material You</string>
+    <string name="settings__theme_editor__stylesheet_error_title">Lỗi bảng định kiểu</string>
+    <string name="settings__theme_editor__stylesheet_error_description">ViKey có thể cố gắng tải bảng định kiểu và sửa lỗi. Bạn có muốn áp dụng không?</string>
+    <string name="settings__theme_editor__component_meta_material_you__palette_style">Kiểu bảng màu</string>
+    <string name="settings__theme_editor__component_meta_material_you__color_contrast">Tương phản màu</string>
+    <string name="settings__theme_editor__component_meta_material_you__spec_version">Phiên bản spec</string>
+
+    <string name="snygg__rule_annotation__defines">Variables</string>
+    <string name="snygg__rule_annotation__defines_description">Define variables within this rule to re-use common colors or sizes in your stylesheet.</string>
+    <string name="snygg__rule_annotation__font">Font</string>
+    <string name="snygg__rule_annotation__font_name">Font name</string>
+
+    <string name="snygg__rule_element__root">Root</string>
+    <string name="snygg__rule_element__window">Window</string>
+    <string name="snygg__rule_element__window_inner">Window Inner</string>
+
+    <string name="snygg__rule_element__window_move_handle">Window move handle</string>
+    <string name="snygg__rule_element__window_resize_action">Window resize action</string>
+    <string name="snygg__rule_element__window_resize_handle">Window resize handle</string>
+    <string name="snygg__rule_element__window_resize_overlay_fixed">Window resize overlay fixed</string>
+    <string name="snygg__rule_element__floating_dock_to_fixed_indicator">Floating dock to fixed indicator</string>
+
+    <string name="snygg__rule_element__key">Key</string>
+    <string name="snygg__rule_element__key_hint">Key hint</string>
+    <string name="snygg__rule_element__key_popup_box">Key popup box</string>
+    <string name="snygg__rule_element__key_popup_element">Key popup element</string>
+    <string name="snygg__rule_element__key_popup_extended_indicator">Key popup extended indicator</string>
+
+    <string name="snygg__rule_element__clipboard_header">Clipboard header</string>
+    <string name="snygg__rule_element__clipboard_header_button">Clipboard header button</string>
+    <string name="snygg__rule_element__clipboard_header_text">Clipboard header text</string>
+    <string name="snygg__rule_element__clipboard_subheader">Clipboard subheader</string>
+    <string name="snygg__rule_element__clipboard_content">Clipboard content</string>
+    <string name="snygg__rule_element__clipboard_filter_row">Clipboard filter row</string>
+    <string name="snygg__rule_element__clipboard_filter_chip">Clipboard filter chip</string>
+    <string name="snygg__rule_element__clipboard_filter_chip_icon">Clipboard filter chip icon</string>
+    <string name="snygg__rule_element__clipboard_filter_chip_text">Clipboard filter chip text</string>
+    <string name="snygg__rule_element__clipboard_grid">Clipboard grid</string>
+    <string name="snygg__rule_element__clipboard_item">Clipboard item</string>
+    <string name="snygg__rule_element__clipboard_item_description">Clipboard item description</string>
+    <string name="snygg__rule_element__clipboard_item_popup">Clipboard item popup</string>
+    <string name="snygg__rule_element__clipboard_item_timestamp">Clipboard item timestamp</string>
+    <string name="snygg__rule_element__clipboard_item_actions">Clipboard item actions</string>
+    <string name="snygg__rule_element__clipboard_item_action">Clipboard item action</string>
+    <string name="snygg__rule_element__clipboard_item_action_icon">Clipboard item action icon</string>
+    <string name="snygg__rule_element__clipboard_item_action_text">Clipboard item action text</string>
+    <string name="snygg__rule_element__clipboard_clear_all_dialog">Clipboard clear all dialog</string>
+    <string name="snygg__rule_element__clipboard_clear_all_dialog_message">Clipboard clear all dialog message</string>
+    <string name="snygg__rule_element__clipboard_clear_all_dialog_buttons">Clipboard clear all dialog buttons</string>
+    <string name="snygg__rule_element__clipboard_clear_all_dialog_button">Clipboard clear all dialog button</string>
+    <string name="snygg__rule_element__clipboard_history_disabled_title">Clipboard history disabled title</string>
+    <string name="snygg__rule_element__clipboard_history_disabled_message">Clipboard history disabled message</string>
+    <string name="snygg__rule_element__clipboard_history_disabled_button">Clipboard history disabled button</string>
+    <string name="snygg__rule_element__clipboard_history_locked_title">Clipboard history locked title</string>
+    <string name="snygg__rule_element__clipboard_history_locked_message">Clipboard history locked message</string>
+
+    <string name="snygg__rule_element__extracted_landscape_input_layout">Landscape input layout</string>
+    <string name="snygg__rule_element__extracted_landscape_input_field">Landscape input field</string>
+    <string name="snygg__rule_element__extracted_landscape_input_action">Landscape input action</string>
+
+    <string name="snygg__rule_element__glide_trail">Glide trail</string>
+
+    <string name="snygg__rule_element__incognito_mode_indicator">Incognito mode indicator</string>
+
+    <string name="snygg__rule_element__inline_autofill_chip">Inline autofill chip</string>
+
+    <string name="snygg__rule_element__media">Media</string>
+
+    <string name="snygg__rule_element__media_emoji_subheader">Media emoji subheader</string>
+    <string name="snygg__rule_element__media_emoji_key">Media emoji key</string>
+    <string name="snygg__rule_element__media_emoji_key_popup_box">Media emoji key popup box</string>
+    <string name="snygg__rule_element__media_emoji_key_popup_element">Media emoji key popup element</string>
+    <string name="snygg__rule_element__media_emoji_key_popup_extended_indicator">Media emoji key popup extended indicator</string>
+
+    <string name="snygg__rule_element__media_bottom_row">Media bottom row</string>
+    <string name="snygg__rule_element__media_bottom_row_button">Media bottom row button</string>
+
+    <string name="snygg__rule_element__one_handed_panel">One-handed panel</string>
+    <string name="snygg__rule_element__one_handed_panel_button">One-handed panel button</string>
+
+    <string name="snygg__rule_element__smartbar">Smartbar</string>
+    <string name="snygg__rule_element__smartbar_shared_actions_row">Smartbar shared actions row</string>
+    <string name="snygg__rule_element__smartbar_shared_actions_toggle">Smartbar shared actions toggle</string>
+    <string name="snygg__rule_element__smartbar_extended_actions_row">Smartbar extended actions row</string>
+    <string name="snygg__rule_element__smartbar_extended_actions_toggle">Smartbar extended actions toggle</string>
+    <string name="snygg__rule_element__smartbar_action_key">Smartbar action key</string>
+
+    <string name="snygg__rule_element__smartbar_action_tile">Smartbar action tile</string>
+    <string name="snygg__rule_element__smartbar_action_tile_icon">Smartbar action tile icon</string>
+    <string name="snygg__rule_element__smartbar_action_tile_text">Smartbar action tile text</string>
+    <string name="snygg__rule_element__smartbar_actions_overflow">Smartbar actions overflow</string>
+    <string name="snygg__rule_element__smartbar_actions_overflow_customize_button">Smartbar actions overflow customize button</string>
+
+    <string name="snygg__rule_element__smartbar_actions_editor">Smartbar actions editor</string>
+    <string name="snygg__rule_element__smartbar_actions_editor_header">Smartbar actions editor header</string>
+    <string name="snygg__rule_element__smartbar_actions_editor_header_button">Smartbar actions editor header button</string>
+    <string name="snygg__rule_element__smartbar_actions_editor_subheader">Smartbar actions editor subheader</string>
+    <string name="snygg__rule_element__smartbar_actions_editor_tile_grid">Smartbar actions editor tile grid</string>
+    <string name="snygg__rule_element__smartbar_actions_editor_tile">Smartbar actions editor tile</string>
+
+    <string name="snygg__rule_element__smartbar_candidates_row">Smartbar candidates row</string>
+    <string name="snygg__rule_element__smartbar_candidate_word">Smartbar candidate word</string>
+    <string name="snygg__rule_element__smartbar_candidate_word_text">Smartbar candidate word text</string>
+    <string name="snygg__rule_element__smartbar_candidate_word_secondary_text">Smartbar candidate word secondary text</string>
+    <string name="snygg__rule_element__smartbar_candidate_clip">Smartbar candidate clip</string>
+    <string name="snygg__rule_element__smartbar_candidate_clip_icon">Smartbar candidate clip icon</string>
+    <string name="snygg__rule_element__smartbar_candidate_clip_text">Smartbar candidate clip text</string>
+    <string name="snygg__rule_element__smartbar_candidate_spacer">Smartbar candidate spacer</string>
+
+    <string name="snygg__rule_element__subtype_panel">Subtype panel</string>
+    <string name="snygg__rule_element__subtype_panel_header">Subtype panel header</string>
+    <string name="snygg__rule_element__subtype_panel_list">Subtype panel list</string>
+    <string name="snygg__rule_element__subtype_panel_list_item">Subtype panel list item</string>
+    <string name="snygg__rule_element__subtype_panel_list_item_icon_leading">Subtype panel list item icon (leading)</string>
+    <string name="snygg__rule_element__subtype_panel_list_item_text">Subtype panel list item text</string>
+
+    <string name="snygg__rule_selector__pressed">Pressed</string>
+    <string name="snygg__rule_selector__focus">Focused</string>
+    <string name="snygg__rule_selector__hover">Hover</string>
+    <string name="snygg__rule_selector__disabled">Disabled</string>
+
+    <string name="snygg__property_name__background">Background</string>
+    <string name="snygg__property_name__foreground">Foreground</string>
+    <string name="snygg__property_name__background_image">Background image</string>
+    <string name="snygg__property_name__content_scale">Content scale</string>
+    <string name="snygg__property_name__border_color">Border color</string>
+    <string name="snygg__property_name__border_style">Border style</string>
+    <string name="snygg__property_name__border_width">Border width</string>
+    <string name="snygg__property_name__font_family">Font family</string>
+    <string name="snygg__property_name__font_size">Font size</string>
+    <string name="snygg__property_name__font_style">Font style</string>
+    <string name="snygg__property_name__font_weight">Font weight</string>
+    <string name="snygg__property_name__letter_spacing">Letter spacing</string>
+    <string name="snygg__property_name__line_height">Line height</string>
+    <string name="snygg__property_name__margin">Margin</string>
+    <string name="snygg__property_name__padding">Padding</string>
+    <string name="snygg__property_name__shadow_color">Shadow color</string>
+    <string name="snygg__property_name__shadow_elevation">Shadow elevation</string>
+    <string name="snygg__property_name__shape">Shape</string>
+    <string name="snygg__property_name__clip">Clip</string>
+    <string name="snygg__property_name__src">Source</string>
+    <string name="snygg__property_name__text_align">Text align</string>
+    <string name="snygg__property_name__text_decoration_line">Text decoration line</string>
+    <string name="snygg__property_name__text_max_lines">Text max lines</string>
+    <string name="snygg__property_name__text_overflow">Text overflow</string>
+    <string name="snygg__property_name__var_primary">Primary color</string>
+    <string name="snygg__property_name__var_primary_variant">Primary color (variant)</string>
+    <string name="snygg__property_name__var_secondary">Secondary color</string>
+    <string name="snygg__property_name__var_secondary_variant">Secondary color (variant)</string>
+    <string name="snygg__property_name__var_background">Common background</string>
+    <string name="snygg__property_name__var_surface">Common surface</string>
+    <string name="snygg__property_name__var_surface_variant">Common surface (variant)</string>
+    <string name="snygg__property_name__var_on_primary">Foreground of primary</string>
+    <string name="snygg__property_name__var_on_secondary">Foreground of secondary</string>
+    <string name="snygg__property_name__var_on_background">Foreground of background</string>
+    <string name="snygg__property_name__var_on_surface">Foreground of surface</string>
+    <string name="snygg__property_name__var_on_surface_variant">Foreground of surface (variant)</string>
+    <string name="snygg__property_name__var_shape">Common shape</string>
+    <string name="snygg__property_name__var_shape_variant">Common shape (variant)</string>
+
+    <string name="snygg__property_value__explicit_inherit">Inherit</string>
+    <string name="snygg__property_value__defined_var">Var reference</string>
+    <string name="snygg__property_value__yes">Yes</string>
+    <string name="snygg__property_value__no">No</string>
+    <string name="snygg__property_value__solid_color">Solid color</string>
+    <string name="snygg__property_value__material_you_light_color">Material You color (Light)</string>
+    <string name="snygg__property_value__material_you_dark_color">Material You color (Dark)</string>
+    <string name="snygg__property_value__font_family_generic">Font family (generic)</string>
+    <string name="snygg__property_value__font_family_custom">Font family (custom)</string>
+    <string name="snygg__property_value__font_style">Font style</string>
+    <string name="snygg__property_value__font_weight">Font weight</string>
+    <string name="snygg__property_value__padding">Padding or Margin</string>
+    <string name="snygg__property_value__rectangle_shape">Rectangle shape</string>
+    <string name="snygg__property_value__circle_shape">Circle shape</string>
+    <string name="snygg__property_value__cut_corner_shape_dp">Cut corner shape (dp)</string>
+    <string name="snygg__property_value__cut_corner_shape_percent">Cut corner shape (%)</string>
+    <string name="snygg__property_value__rounded_corner_shape_dp">Rounded corner shape (dp)</string>
+    <string name="snygg__property_value__rounded_corner_shape_percent">Rounded corner shape (%)</string>
+    <string name="snygg__property_value__dp_size">Size (dp)</string>
+    <string name="snygg__property_value__sp_size">Size (sp)</string>
+    <string name="snygg__property_value__percentage_size">Size (%)</string>
+    <string name="snygg__property_value__content_scale">Content scale</string>
+    <string name="snygg__property_value__text_align">Text align</string>
+    <string name="snygg__property_value__text_decoration_line">Text decoration line</string>
+    <string name="snygg__property_value__text_max_lines">Text max lines</string>
+    <string name="snygg__property_value__text_overflow">Text overflow</string>
+    <string name="snygg__property_value__uri">URI reference</string>
+
+    <string name="settings__input_feedback__title" comment="Title of Input Feedback screen">Âm thanh &amp; Rung</string>
+    <string name="pref__input_feedback__group_audio__label" comment="Preference group title">Âm thanh phím</string>
+    <string name="pref__input_feedback__audio_enabled__label" comment="Preference title">Bật âm thanh</string>
+    <string name="pref__input_feedback__audio_enabled__summary_disabled" comment="Preference summary">Không bao giờ phát âm thanh, bất kể cài đặt hệ thống</string>
+    <string name="pref__input_feedback__audio_volume__label" comment="Preference title">Âm lượng</string>
+    <string name="pref__input_feedback__audio_feat_key_press__label" comment="Preference title">Âm thanh nhấn phím</string>
+    <string name="pref__input_feedback__audio_feat_key_long_press__label" comment="Preference title">Âm thanh nhấn giữ phím</string>
+    <string name="pref__input_feedback__audio_feat_key_repeated_action__label" comment="Preference title">Âm thanh lặp phím</string>
+    <string name="pref__input_feedback__audio_feat_gesture_swipe__label" comment="Preference title">Âm thanh vuốt cử chỉ</string>
+    <string name="pref__input_feedback__audio_feat_gesture_moving_swipe__label" comment="Preference title">Âm thanh vuốt di chuyển</string>
+    <string name="pref__input_feedback__group_haptic__label" comment="Preference group title">Rung</string>
+    <string name="pref__input_feedback__haptic_enabled__label" comment="Preference title">Bật rung</string>
+    <string name="pref__input_feedback__haptic_enabled__summary_disabled" comment="Preference summary">Không bao giờ rung, bất kể cài đặt hệ thống</string>
+    <string name="pref__input_feedback__haptic_vibration_mode__label" comment="Preference title">Chế độ rung</string>
+    <string name="pref__input_feedback__haptic_vibration_duration__label" comment="Preference title">Thời gian rung</string>
+    <string name="pref__input_feedback__haptic_vibration_strength__label" comment="Preference title">Cường độ rung</string>
+    <string name="pref__input_feedback__haptic_vibration_strength__summary_no_vibrator" comment="Preference summary">Tính năng này cần rung phần cứng, có vẻ thiết bị này không có</string>
+    <string name="pref__input_feedback__haptic_vibration_strength__summary_no_amplitude_ctrl" comment="Preference summary">Tính năng này cần hỗ trợ điều khiển biên độ phần cứng, thiết bị của bạn không có</string>
+    <string name="pref__input_feedback__haptic_feat_key_press__label" comment="Preference title">Rung khi nhấn phím</string>
+    <string name="pref__input_feedback__haptic_feat_key_long_press__label" comment="Preference title">Rung khi nhấn giữ phím</string>
+    <string name="pref__input_feedback__haptic_feat_key_repeated_action__label" comment="Preference title">Rung khi lặp phím</string>
+    <string name="pref__input_feedback__haptic_feat_gesture_swipe__label" comment="Preference title">Rung khi vuốt</string>
+    <string name="pref__input_feedback__haptic_feat_gesture_moving_swipe__label" comment="Preference title">Rung khi vuốt di chuyển</string>
+    <string name="pref__input_feedback__any_feat_key_press__summary" comment="Preference summary">ví dụ: phím, nút, tab biểu tượng cảm xúc</string>
+    <string name="pref__input_feedback__any_feat_key_long_press__summary" comment="Preference summary">ví dụ: menu bật lên</string>
+    <string name="pref__input_feedback__any_feat_key_repeated_action__summary" comment="Preference summary">ví dụ: phím xóa</string>
+    <string name="pref__input_feedback__any_feat_gesture_swipe__summary" comment="Preference summary">chưa được triển khai</string>
+    <string name="pref__input_feedback__any_feat_gesture_moving_swipe__summary" comment="Preference summary">ví dụ: vuốt điều khiển con trỏ</string>
+
+    <string name="settings__keyboard__title" comment="Title of Keyboard preferences screen">Bàn phím</string>
+    <string name="pref__keyboard__number_row__label" comment="Preference title">Hàng số</string>
+    <string name="pref__keyboard__number_row__summary" comment="Preference summary">Hiện hàng số trong phím</string>
+    <string name="pref__keyboard__hinted_number_row_mode__label" comment="Preference title">Hàng số gợi ý</string>
+    <string name="pref__keyboard__hinted_symbols_mode__label" comment="Preference title">Ký hiệu gợi ý</string>
+    <string name="pref__keyboard__utility_key_enabled__label" comment="Preference title">Hiện phím tiện ích</string>
+    <string name="pref__keyboard__utility_key_enabled__summary" comment="Preference summary">Hiện phím tiện ích cạnh phím cách</string>
+    <string name="pref__keyboard__utility_key_action__label" comment="Preference title">Phím tiện ích</string>
+    <string name="pref__keyboard__space_bar_mode__label" comment="Preference title">Nhãn phím cách</string>
+    <string name="pref__keyboard__capitalization_behavior__label" comment="Preference title">Hành vi viết hoa</string>
+    <string name="pref__keyboard__font_size_multiplier__label" comment="Preference title">Hệ số phóng chữ</string>
+    <string name="pref__keyboard__group_layout__label" comment="Preference group title">Bố cục</string>
+    <string name="pref__keyboard__landscape_input_ui_mode__label" comment="Preference value">Nhập liệu toàn màn hình ngang</string>
+    <string name="pref__keyboard__key_spacing__label" comment="Preference title">Khoảng cách phím</string>
+    <string name="pref__keyboard__bottom_padding__label" comment="Preference title">Đệm dưới</string>
+    <string name="pref__keyboard__bottom_padding__summary" comment="Preference summary">Khoảng trống bên dưới bàn phím</string>
+    <string name="pref__keyboard__group_keypress__label" comment="Preference group title">Nhấn phím</string>
+    <string name="pref__keyboard__popup_enabled__label" comment="Preference title">Hiển thị popup</string>
+    <string name="pref__keyboard__popup_enabled__summary" comment="Preference summary">Hiện popup khi nhấn phím</string>
+    <string name="pref__keyboard__merge_hint_popups_enabled__label" comment="Preference title">Dấu bao gồm popup ký hiệu</string>
+    <string name="pref__keyboard__merge_hint_popups_enabled__summary" comment="Preference summary">Thêm popup ký hiệu vào dấu của bố cục mặc định</string>
+    <string name="pref__keyboard__long_press_delay__label" comment="Preference title">Độ trễ nhấn giữ phím</string>
+    <string name="pref__keyboard__space_bar_switches_to_characters__label" comment="Preference title">Phím cách chuyển về chữ cái</string>
+    <string name="pref__keyboard__space_bar_switches_to_characters__summary" comment="Preference summary">Tự động chuyển về chữ cái khi đang ở chế độ ký hiệu hoặc số</string>
+    <string name="pref__keyboard__incognito_indicator__label" comment="Preference title">Chỉ báo ẩn danh</string>
+
+    <!-- Smartbar strings -->
+    <string name="settings__smartbar__title" comment="Title of Smartbar screen">Smartbar</string>
+    <string name="pref__smartbar__enabled__label" comment="Preference title">Bật Smartbar</string>
+    <string name="pref__smartbar__enabled__summary" comment="Preference summary">Sẽ hiện phía trên bàn phím</string>
+    <string name="pref__smartbar__layout__label" comment="Preference title">Bố cục</string>
+    <string name="pref__smartbar__group_layout_specific__label" comment="Preference group title">Tùy chọn bố cục</string>
+    <string name="pref__smartbar__flip_toggles__label" comment="Preference title">Đảo nút chuyển đổi</string>
+    <string name="pref__smartbar__flip_toggles__summary" comment="Preference summary">Đảo vị trí nút chuyển đổi hành động</string>
+    <string name="pref__smartbar__shared_actions_auto_expand_collapse__label" comment="Preference title">Tự động mở rộng</string>
+    <string name="pref__smartbar__shared_actions_auto_expand_collapse__summary" comment="Preference summary">Tự động mở rộng/thu gọn hành động dựa trên trạng thái hiện tại</string>
+    <string name="pref__smartbar__extended_actions_placement__label" comment="Preference title">Vị trí hành động</string>
+
+    <!-- Typing strings -->
+    <string name="settings__typing__title" comment="Title of Typing screen">Gõ</string>
+    <string name="pref__suggestion__title" comment="Preference group title">Gợi ý</string>
+    <string name="pref__suggestion__enabled__label" comment="Preference title">Hiển thị gợi ý</string>
+    <string name="pref__suggestion__enabled__summary" comment="Preference summary">Cung cấp gợi ý khi gõ</string>
+    <string name="pref__suggestion__display_mode__label" comment="Preference title">Chế độ hiển thị gợi ý</string>
+    <string name="pref__suggestion__block_possibly_offensive__label" comment="Preference title">Chặn từ có thể xúc phạm</string>
+    <string name="pref__suggestion__block_possibly_offensive__summary" comment="Preference summary">Ngăn từ có thể xúc phạm được đề xuất</string>
+    <string name="pref__suggestion__api30_inline_suggestions_enabled__label" comment="Preference title">Gợi ý tự động điền hệ thống</string>
+    <string name="pref__suggestion__api30_inline_suggestions_enabled__summary" comment="Preference summary">Hiện gợi ý nội tuyến từ dịch vụ tự động điền</string>
+    <string name="pref__suggestion__incognito_mode__label" comment="Label of Incognito mode preference in Typing">Chế độ ẩn danh</string>
+    <string name="pref__correction__title" comment="Preference group title">Sửa lỗi</string>
+    <string name="pref__correction__auto_capitalization__label" comment="Preference title">Tự động viết hoa</string>
+    <string name="pref__correction__auto_capitalization__summary" comment="Preference summary">Viết hoa dựa trên ngữ cảnh nhập</string>
+    <string name="pref__correction__auto_space_punctuation__label" comment="Preference title">Tự động cách sau dấu câu</string>
+    <string name="pref__correction__auto_space_punctuation__summary" comment="Preference summary">Tự động chèn khoảng trắng sau dấu câu</string>
+    <string name="pref__correction__remember_caps_lock_state__label" comment="Preference title">Nhớ trạng thái Caps Lock</string>
+    <string name="pref__correction__remember_caps_lock_state__summary" comment="Preference summary">Caps Lock vẫn bật khi chuyển sang ô nhập khác</string>
+    <string name="pref__correction__double_space_period__label" comment="Preference title">Cách đôi thành dấu chấm</string>
+    <string name="pref__correction__double_space_period__summary" comment="Preference summary">Nhấn phím cách hai lần chèn dấu chấm và khoảng trắng</string>
+    <string name="pref__correction__auto_correct__label" comment="Preference title">Tự động sửa</string>
+    <string name="pref__correction__auto_correct__summary" comment="Preference summary">Sửa lỗi chính tả dựa trên khoảng cách và vị trí phím</string>
+    <string name="pref__spelling__title" comment="Preference group title">Chính tả</string>
+    <string name="pref__spelling__active_spellchecker__summary_none">Chưa đặt dịch vụ kiểm tra chính tả. Nhấn để thay đổi.</string>
+    <string name="pref__spelling__language_mode__label" comment="Label of Language mode pref">Ngôn ngữ</string>
+    <string name="pref__spelling__use_contacts__label" comment="Label of Use contact list pref">Dùng tên từ danh bạ</string>
+    <string name="pref__spelling__use_contacts__summary" comment="Summary of Use contact list pref">Tra cứu tên từ danh bạ của bạn</string>
+    <string name="pref__spelling__use_udm_entries__label" comment="Label of Use user dictionary entries pref">Dùng từ điển người dùng</string>
+    <string name="pref__spelling__use_udm_entries__summary" comment="Summary of Use user dictionary entries pref">Tra cứu từ từ điển người dùng</string>
+
+    <string name="settings__dictionary__title" comment="Title of the User dictionaries screen">Từ điển người dùng</string>
+    <string name="pref__dictionary__enable_system_user_dictionary__label" comment="Preference title">Bật từ điển người dùng hệ thống</string>
+    <string name="pref__dictionary__enable_system_user_dictionary__summary" comment="Preference summary">Đề xuất từ trong từ điển hệ thống</string>
+    <string name="pref__dictionary__manage_system_user_dictionary__label" comment="Preference title">Quản lý từ điển hệ thống</string>
+    <string name="pref__dictionary__manage_system_user_dictionary__summary" comment="Preference summary">Thêm, xem, xóa mục từ trong từ điển hệ thống</string>
+    <string name="pref__dictionary__enable_internal_user_dictionary__label" comment="Preference title">Bật từ điển người dùng nội bộ</string>
+    <string name="pref__dictionary__enable_internal_user_dictionary__summary" comment="Preference summary">Đề xuất từ trong từ điển nội bộ</string>
+    <string name="pref__dictionary__manage_floris_user_dictionary__label" comment="Preference title">Quản lý từ điển nội bộ</string>
+    <string name="pref__dictionary__manage_floris_user_dictionary__summary" comment="Preference summary">Thêm, xem, xóa mục từ trong từ điển nội bộ</string>
+    <string name="pref__dictionary__clear_learned_words__label" comment="Preference title">Xóa từ đã học</string>
+    <string name="pref__dictionary__clear_learned_words__summary" comment="Preference summary">Xóa tất cả từ cá nhân đã học</string>
+    <string name="pref__dictionary__clear_learned_words__confirm_title" comment="Confirm dialog title">Xóa tất cả từ đã học?</string>
+    <string name="settings__udm__title_floris" comment="Title of the User Dictionary Manager activity for internal">Từ điển nội bộ</string>
+    <string name="settings__udm__title_system" comment="Title of the User Dictionary Manager activity for system">Từ điển hệ thống</string>
+    <string name="settings__udm__no_words_in_dictionary" comment="String to show if no words are present in the dictionary">Từ điển này chưa có từ nào.</string>
+    <string name="settings__udm__word_summary_freq" comment="Summary label for a word entry. The decimal placeholder inserts the frequency for the word it summarizes.">Tần suất: {freq}</string>
+    <string name="settings__udm__word_summary_freq_shortcut" comment="Summary label for a word entry. The first placeholder inserts the frequency for the word it summarizes, the second placeholder the shortcut defined.">Frequency: {freq} | Shortcut: {shortcut}</string>
+    <string name="settings__udm__all_languages" comment="Label of the For all languages entry in the language list">Cho mọi ngôn ngữ</string>
+    <string name="settings__udm__open_system_manager_ui" comment="Label of the Open system manager UI menu option">Mở giao diện quản lý hệ thống</string>
+    <string name="settings__udm__dictionary_import_success" comment="Message for dictionary import success">Nhập từ điển thành công!</string>
+    <string name="settings__udm__dictionary_export_success" comment="Message for dictionary export success">Xuất từ điển thành công!</string>
+    <string name="settings__udm__dialog__title_add" comment="Label for the title (when in adding mode) in the user dictionary add/edit dialog">Thêm từ</string>
+    <string name="settings__udm__dialog__title_edit" comment="Label for the title (when in editing mode) in the user dictionary add/edit dialog">Sửa từ</string>
+    <string name="settings__udm__dialog__word_label" comment="Label for the word in the user dictionary add/edit dialog">Từ</string>
+    <string name="settings__udm__dialog__word_error_empty" comment="Error label for the word in the user dictionary add/edit dialog">Vui lòng nhập từ</string>
+    <string name="settings__udm__dialog__word_error_invalid" comment="Error label for the word in the user dictionary add/edit dialog">Vui lòng nhập từ khớp {regex}</string>
+    <string name="settings__udm__dialog__freq_label" comment="Label for the frequency in the user dictionary add/edit dialog. The two decimal placeholders are the minimum and maximum frequency, both inclusive.">Tần suất (từ {f_min} đến {f_max})</string>
+    <string name="settings__udm__dialog__freq_error_empty" comment="Error label for the frequency in the user dictionary add/edit dialog">Vui lòng nhập tần suất</string>
+    <string name="settings__udm__dialog__freq_error_invalid" comment="Error label for the frequency in the user dictionary add/edit dialog">Vui lòng nhập số hợp lệ trong khoảng cho phép</string>
+    <string name="settings__udm__dialog__shortcut_label" comment="Label for the shortcut in the user dictionary add/edit dialog">Phím tắt (tùy chọn)</string>
+    <string name="settings__udm__dialog__shortcut_error_invalid" comment="Error label for the shortcut in the user dictionary add/edit dialog">Vui lòng nhập phím tắt khớp {regex}</string>
+    <string name="settings__udm__dialog__locale_label" comment="Label for the language code in the user dictionary add/edit dialog">Mã ngôn ngữ (tùy chọn)</string>
+    <string name="settings__udm__dialog__locale_error_invalid" comment="Error label for the language code in the user dictionary add/edit dialog">Mã ngôn ngữ không đúng cú pháp. Phải là ngôn ngữ (en), ngôn ngữ + quốc gia (en_US), hoặc + chữ viết (en_US-script).</string>
+
+    <string name="settings__gestures__title" comment="Title of Gestures screen">Cử chỉ</string>
+    <string name="pref__glide__title" comment="Preference group title">Glide</string>
+    <string name="pref__glide__enabled__label" comment="Preference title">Bật Glide</string>
+    <string name="pref__glide__enabled__summary" comment="Preference summary">Gõ từ bằng cách trượt ngón tay qua các chữ cái</string>
+    <string name="pref__glide__show_trail__label" comment="Preference title">Hiện đường trượt</string>
+    <string name="pref__glide__show_trail__summary" comment="Preference summary">Sẽ biến mất sau mỗi từ</string>
+    <string name="pref__glide_trail_fade_duration">Thời gian mờ dần đường trượt</string>
+    <string name="pref__glide_preview_refresh_delay">Độ trễ làm mới xem trước</string>
+    <string name="pref__glide__show_preview">Hiện xem trước khi trượt</string>
+    <string name="pref__glide__immediate_backspace_deletes_word__label">Luôn xóa từ</string>
+    <string name="pref__glide__immediate_backspace_deletes_word__summary">Nhấn xóa ngay sau khi trượt sẽ xóa toàn bộ từ</string>
+    <string name="pref__gestures__general_title" comment="Preference group title">Cử chỉ chung</string>
+    <string name="pref__gestures__space_bar_title" comment="Preference group title">Cử chỉ phím cách</string>
+    <string name="pref__gestures__other_title" comment="Preference group title">Cử chỉ khác / Ngưỡng cử chỉ</string>
+    <string name="pref__gestures__swipe_up__label" comment="Preference title">Vuốt lên</string>
+    <string name="pref__gestures__swipe_down__label" comment="Preference title">Vuốt xuống</string>
+    <string name="pref__gestures__swipe_left__label" comment="Preference title">Vuốt trái</string>
+    <string name="pref__gestures__swipe_right__label" comment="Preference title">Vuốt phải</string>
+    <string name="pref__gestures__space_bar_swipe_up__label" comment="Preference title">Phím cách vuốt lên</string>
+    <string name="pref__gestures__space_bar_swipe_left__label" comment="Preference title">Phím cách vuốt trái</string>
+    <string name="pref__gestures__space_bar_swipe_right__label" comment="Preference title">Phím cách vuốt phải</string>
+    <string name="pref__gestures__space_bar_long_press__label" comment="Preference title">Phím cách nhấn giữ</string>
+    <string name="pref__gestures__delete_key_swipe_left__label" comment="Preference title">Phím xóa vuốt trái</string>
+    <string name="pref__gestures__delete_key_long_press__label" comment="Preference title">Phím xóa nhấn giữ</string>
+    <string name="pref__gestures__swipe_velocity_threshold__label" comment="Preference title">Ngưỡng tốc độ vuốt</string>
+    <string name="pref__gestures__swipe_distance_threshold__label" comment="Preference title">Ngưỡng khoảng cách vuốt</string>
+
+    <string name="settings__other__title" comment="Title of Other settings">Khác</string>
+    <string name="pref__other__settings_theme__label" comment="Label of Settings theme preference in Other">Chủ đề cài đặt</string>
+    <string name="pref__other__settings_theme__auto_amoled" comment="Possible value of Settings theme preference in Other">Mặc định hệ thống (AMOLED)</string>
+    <string name="pref__other__settings_theme__light" comment="Possible value of Settings theme preference in Other">Sáng</string>
+    <string name="pref__other__settings_theme__dark" comment="Possible value of Settings theme preference in Other">Tối</string>
+    <string name="pref__other__settings_theme__amoled_dark" comment="Possible value of Settings theme preference in Other">AMOLED Tối</string>
+    <string name="pref__other__settings_accent_color__label" comment="Label of accent color preference in Other">Màu nhấn cài đặt</string>
+    <string name="pref__other__settings_language__label" comment="Label of Settings language preference in Other">Ngôn ngữ cài đặt</string>
+    <string name="pref__other__show_app_icon__label" comment="Label of Show app icon preference in Other">Hiện biểu tượng ứng dụng</string>
+    <string name="pref__other__show_app_icon__summary_atleast_q" comment="Summary of Show app icon preference in Other for Android 10+">Luôn bật trên Android 10+ do hạn chế hệ thống</string>
+
+    <!-- About UI strings -->
+    <string name="about__title" comment="Title of About activity">Giới thiệu</string>
+    <string name="about__app_icon_content_description" comment="Content description of app icon in About">Biểu tượng ứng dụng ViKey</string>
+    <string name="about__view_licenses" comment="Label of View licenses button in About">Giấy phép nguồn mở</string>
+    <string name="about__view_privacy_policy" comment="Label of View privacy policy button in About">Chính sách bảo mật</string>
+    <string name="about__view_source_code" comment="Label of View source code button in About">Mã nguồn</string>
+
+    <string name="about__license__title" comment="Title of Open-source licenses dialog">Giấy phép nguồn mở</string>
+
+    <string name="about__version__title" comment="Preference title">Phiên bản</string>
+    <string name="about__version_copied__title" comment="Title of the toast for copying the version string">Đã sao chép phiên bản</string>
+    <string name="about__version_copied__error" comment="Title of the error toast for copying the version string">Có lỗi xảy ra: {error_message}</string>
+    <string name="about__changelog__title" comment="Preference title">Nhật ký thay đổi</string>
+    <string name="about__changelog__summary" comment="Preference summary">Có gì mới</string>
+    <string name="about__repository__title" comment="Preference title">Kho mã nguồn</string>
+    <string name="about__repository__summary" comment="Preference summary">Mã nguồn, thảo luận, vấn đề và thông tin</string>
+    <string name="about__privacy_policy__title" comment="Preference title">Chính sách bảo mật</string>
+    <string name="about__privacy_policy__summary" comment="Preference summary">Chính sách bảo mật của dự án</string>
+    <string name="about__project_license__title" comment="Preference title">Giấy phép dự án</string>
+    <string name="about__project_license__summary" comment="Preference summary">ViKey được cấp phép theo {license_name}</string>
+    <string name="about__project_license__error_license_text_failed" comment="Error text for license text loading failure">Lỗi: Không thể tải nội dung giấy phép.
+-&gt; Lý do: {error_message}</string>
+    <string name="about__project_license__error_reason_asset_manager_null" comment="Error text if asset manager is null">Tham chiếu trình quản lý tài sản là null</string>
+    <string name="about__third_party_licenses__title" comment="Preference title">Giấy phép bên thứ ba</string>
+    <string name="about__third_party_licenses__summary" comment="Preference summary">Giấy phép của các thư viện bên thứ ba trong ứng dụng</string>
+
+    <!-- Setup UI strings -->
+    <string name="setup__title" comment="Title of Setup">Chào mừng!</string>
+    <string name="setup__intro_message" comment="Short intro message welcoming new users">Cảm ơn bạn đã dùng ViKey! Hướng dẫn nhanh này sẽ giúp bạn thiết lập ViKey trên thiết bị.</string>
+    <string name="setup__footer__privacy_policy" comment="Privacy policy label for URL">Chính sách bảo mật</string>
+    <string name="setup__footer__repository" comment="Repository label for URL">Kho mã nguồn</string>
+
+    <string name="setup__enable_ime__title">Bật ViKey</string>
+    <string name="setup__enable_ime__description">Android yêu cầu bật bàn phím tùy chỉnh trước khi dùng. Mở Cài đặt &lt;i&gt;Ngôn ngữ &amp; Nhập liệu&lt;/i&gt; và bật "ViKey".</string>
+    <string name="setup__enable_ime__open_settings_btn">Mở Cài đặt Hệ thống</string>
+
+    <string name="setup__select_ime__title">Chọn ViKey</string>
+    <string name="setup__select_ime__description">ViKey đã được bật. Để sử dụng, hãy chọn ViKey trong hộp thoại chọn bàn phím!</string>
+    <string name="setup__select_ime__switch_keyboard_btn">Chuyển Bàn phím</string>
+
+    <string name="setup__grant_notification_permission__title">Cho phép thông báo báo cáo lỗi</string>
+    <string name="setup__grant_notification_permission__description">Từ Android 13+, ứng dụng phải xin phép gửi thông báo. ViKey chỉ dùng để mở màn hình báo cáo lỗi khi ứng dụng gặp sự cố.</string>
+    <string name="setup__grant_notification_permission__btn">Cấp quyền</string>
+
+    <string name="setup__finish_up__title">Hoàn tất</string>
+    <string name="setup__finish_up__description_p1">ViKey đã được bật và sẵn sàng để tùy chỉnh.</string>
+    <string name="setup__finish_up__description_p2">Nếu gặp vấn đề, lỗi, hoặc muốn góp ý, hãy xem kho mã nguồn từ màn hình Giới thiệu!</string>
+    <string name="setup__finish_up__finish_btn">Bắt đầu Tùy chỉnh</string>
+
+    <!-- Physical keyboard -->
+    <string name="physical_keyboard__title">Bàn phím vật lý</string>
+    <string name="physical_keyboard__system_settings__title">Cài đặt bàn phím vật lý hệ thống</string>
+    <string name="physical_keyboard__system_settings__summary">Bố cục, phím tắt và phím bổ trợ</string>
+    <string name="physical_keyboard__system_settings__summary_not_attached">Chỉ khả dụng khi có bàn phím kết nối</string>
+    <string name="physical_keyboard__show_on_screen_keyboard__title">Hiện bàn phím ảo</string>
+    <string name="physical_keyboard__show_on_screen_keyboard__summary">Hiện bàn phím ảo khi dùng bàn phím vật lý</string>
+
+    <!-- Back up & Restore -->
+    <string name="backup_and_restore__title">Sao lưu &amp; Khôi phục</string>
+    <string name="backup_and_restore__back_up__title">Sao lưu dữ liệu</string>
+    <string name="backup_and_restore__back_up__summary">Tạo kho lưu trữ sao lưu tùy chỉnh</string>
+    <string name="backup_and_restore__back_up__destination">Chọn nơi sao lưu</string>
+    <string name="backup_and_restore__back_up__destination_file_sys">Hệ thống tệp cục bộ</string>
+    <string name="backup_and_restore__back_up__destination_share_intent">Ứng dụng bên thứ ba qua menu chia sẻ</string>
+    <string name="backup_and_restore__back_up__files">Chọn nội dung sao lưu</string>
+    <string name="backup_and_restore__back_up__files_jetpref_datastore">Tùy chọn</string>
+    <string name="backup_and_restore__back_up__files_ime_keyboard">Tiện ích mở rộng bàn phím</string>
+    <string name="backup_and_restore__back_up__files_ime_spelling">Tiện ích chính tả / từ điển</string>
+    <string name="backup_and_restore__back_up__files_ime_theme">Tiện ích chủ đề</string>
+    <string name="backup_and_restore__back_up__files_clipboard_history">Lịch sử bảng nhớ tạm</string>
+    <string name="backup_and_restore__back_up__files_clipboard_history__clipboard_text_items">Mục văn bản</string>
+    <string name="backup_and_restore__back_up__files_clipboard_history__clipboard_image_items">Hình ảnh</string>
+    <string name="backup_and_restore__back_up__files_clipboard_history__clipboard_video_items">Video</string>
+    <string name="backup_and_restore__back_up__success">Xuất kho lưu trữ thành công!</string>
+    <string name="backup_and_restore__back_up__failure">Xuất kho lưu trữ thất bại: {error_message}</string>
+    <string name="backup_and_restore__restore__title">Khôi phục dữ liệu</string>
+    <string name="backup_and_restore__restore__summary">Khôi phục tùy chỉnh từ kho lưu trữ</string>
+    <string name="backup_and_restore__restore__files">Chọn nội dung khôi phục</string>
+    <string name="backup_and_restore__restore__metadata">Kho lưu trữ đã chọn</string>
+    <string name="backup_and_restore__restore__metadata_warn_different_version">Kho lưu trữ được tạo từ phiên bản khác. Có thể có vấn đề nhỏ do khác biệt tính năng.</string>
+    <string name="backup_and_restore__restore__metadata_warn_different_vendor">Kho lưu trữ từ ứng dụng bên thứ ba, thường không được hỗ trợ. Có thể mất dữ liệu, tự chịu rủi ro!</string>
+    <string name="backup_and_restore__restore__metadata_error_invalid_metadata">Kho lưu trữ chứa dữ liệu không hợp lệ. Không thể khôi phục, vui lòng chọn kho khác.</string>
+    <string name="backup_and_restore__restore__metadata_error_nothing_to_restore">Kho lưu trữ không chứa tệp nào để khôi phục, vui lòng chọn kho khác.</string>
+    <string name="backup_and_restore__restore__mode">Chế độ khôi phục</string>
+    <string name="backup_and_restore__restore__mode_merge">Hợp nhất với dữ liệu hiện tại</string>
+    <string name="backup_and_restore__restore__mode_erase_and_overwrite">Xóa và ghi đè dữ liệu hiện tại</string>
+    <string name="backup_and_restore__restore__success">Khôi phục dữ liệu thành công!</string>
+    <string name="backup_and_restore__restore__failure">Khôi phục dữ liệu thất bại: {error_message}</string>
+
+    <!-- Crash Dialog strings -->
+    <string name="crash_dialog__title" comment="Title of crash dialog">Báo cáo lỗi ViKey</string>
+    <string name="crash_dialog__description" comment="Description of crash dialog">Xin lỗi vì sự bất tiện, ViKey đã gặp sự cố.</string>
+    <string name="crash_dialog__report_instructions" comment="Issue tracker report instructions for the crash dialog. The %s placeholder is the name of the crash report template and always in English/LTR.">Nếu muốn báo cáo lỗi, hãy kiểm tra GitHub xem lỗi đã được báo cáo chưa. Nếu chưa, sao chép nhật ký lỗi và mở issue mới với mẫu "%s".</string>
+    <string name="crash_dialog__bug_report_template" comment="Name of the template to use in the GitHub issue tracker (is always in English)" translatable="false">Crash report</string>
+    <string name="crash_dialog__copy_to_clipboard" comment="Label of Copy to clipboard button in crash dialog">Sao chép vào bảng nhớ tạm</string>
+    <string name="crash_dialog__copy_to_clipboard_success" comment="Label of Copy to clipboard success message in crash dialog">Đã sao chép</string>
+    <string name="crash_dialog__copy_to_clipboard_failure" comment="Label of Copy to clipboard failure message in crash dialog">Không thể sao chép: không tìm thấy trình quản lý bảng nhớ tạm</string>
+    <string name="crash_dialog__open_issue_tracker" comment="Label of Open issue tracker button in crash dialog">Mở trình theo dõi (github.com)</string>
+    <string name="crash_dialog__close" comment="Label of Close button in crash dialog">Đóng</string>
+    <string name="crash_notification_channel__title" comment="Title of crash notification channel">Báo cáo lỗi ViKey</string>
+    <string name="crash_once_notification__title" comment="Title of the notification for a single crash">ViKey đã dừng hoạt động…</string>
+    <string name="crash_once_notification__body" comment="Body of the notification for a single crash">Nhấn để xem chi tiết lỗi</string>
+    <string name="crash_multiple_notification__title" comment="Title of the notification for consecutive crashes">ViKey có vẻ ngừng hoạt động liên tục…</string>
+    <string name="crash_multiple_notification__body" comment="Body of the notification for consecutive crashes">Đang chuyển về bàn phím trước đó. Nhấn để xem chi tiết lỗi</string>
+
+
+    <!-- Clipboard strings -->
+    <string name="clipboard__header_title">Bảng nhớ tạm</string>
+    <string name="clipboard__disabled__title">Lịch sử bảng nhớ tạm đang bị tắt</string>
+    <string name="clipboard__disabled__message">Lịch sử bảng nhớ tạm của ViKey cho phép lưu và truy cập nhanh văn bản và hình ảnh đã sao chép.</string>
+    <string name="clipboard__disabled__enable_button">Bật lịch sử bảng nhớ tạm</string>
+    <string name="clipboard__empty__title">Bảng nhớ tạm trống</string>
+    <string name="clipboard__empty__message">Khi bạn sao chép văn bản hoặc hình ảnh, chúng sẽ xuất hiện ở đây.</string>
+    <string name="clipboard__locked__title">Bảng nhớ tạm bị khóa</string>
+    <string name="clipboard__locked__message">Để truy cập lịch sử, vui lòng mở khóa thiết bị trước.</string>
+    <string name="clipboard__group_pinned">Đã ghim</string>
+    <string name="clipboard__group_recent">Gần đây</string>
+    <string name="clipboard__group_other">Khác</string>
+    <string name="clipboard__item_description_email">Email</string>
+    <string name="clipboard__item_description_url">URL</string>
+    <string name="clipboard__item_description_phone">Điện thoại</string>
+    <string name="clip__clear_history">Xóa lịch sử</string>
+    <string name="clip__unpin_item">Bỏ ghim</string>
+    <string name="clip__pin_item">Ghim</string>
+    <string name="clip__delete_item">Xóa</string>
+    <string name="clip__paste_item">Dán</string>
+    <string name="clip__back_to_text_input">Quay lại nhập văn bản</string>
+    <string name="clip__cant_paste">Ứng dụng này không cho phép dán nội dung này.</string>
+    <string name="clipboard__cleared_primary_clip">Đã xóa clip chính</string>
+    <string name="clipboard__cleared_history">Đã xóa lịch sử</string>
+    <string name="clipboard__cleared_full_history">Đã xóa toàn bộ lịch sử</string>
+    <string name="clipboard__confirm_clear_unfiltered_history__message">Bạn có chắc muốn xóa toàn bộ lịch sử? Điều này sẽ ảnh hưởng đến tất cả mục, trừ các mục đã ghim.</string>
+    <string name="clipboard__confirm_clear_filtered_history__message">Bạn có chắc muốn xóa lịch sử? Điều này sẽ ảnh hưởng đến các mục đang lọc, trừ các mục đã ghim.</string>
+    <string name="settings__clipboard__title">Bảng nhớ tạm</string>
+    <string name="pref__clipboard__use_internal_clipboard__label">Dùng bảng nhớ tạm nội bộ</string>
+    <string name="pref__clipboard__use_internal_clipboard__summary">Dùng bảng nhớ tạm nội bộ thay vì bảng nhớ tạm hệ thống</string>
+    <string name="pref__clipboard__sync_from_system_clipboard__label">Đồng bộ từ hệ thống</string>
+    <string name="pref__clipboard__sync_to_system_clipboard__label">Đồng bộ đến hệ thống</string>
+    <string name="pref__clipboard__group_clipboard_suggestion__label">Gợi ý bảng nhớ tạm</string>
+    <string name="pref__clipboard__suggestion_enabled__label" comment="Preference title">Gợi ý nội dung bảng nhớ tạm</string>
+    <string name="pref__clipboard__suggestion_enabled__summary" comment="Preference summary">Gợi ý nội dung đã sao chép trước đó</string>
+    <string name="pref__clipboard__num_history_grid_columns__label">Số cột lưới</string>
+    <string name="pref__clipboard__suggestion_timeout__label" comment="Preference title; Translators: This should form a sentence together with `pref__clipboard__suggestion_timeout__summary` and is the first part">Giới hạn gợi ý trong</string>
+    <string name="pref__clipboard__suggestion_timeout__summary" comment="Preference summary; Translators: This should form a sentence together with `pref__clipboard__suggestion_timeout__label` and is the second part">Mục sao chép trong {v} s</string>
+    <string name="pref__clipboard__group_clipboard_history__label">Lịch sử bảng nhớ tạm</string>
+    <string name="pref__clipboard__enable_clipboard_history__label">Bật lịch sử bảng nhớ tạm</string>
+    <string name="pref__clipboard__enable_clipboard_history__summary">Giữ lại mục bảng nhớ tạm để truy cập nhanh</string>
+    <string name="pref__clipboard__clean_up_old__label">Dọn mục cũ</string>
+    <string name="pref__clipboard__clean_up_after__label">Dọn mục cũ sau</string>
+    <string name="pref__clipboard__auto_clean_sensitive__label">Tự động dọn mục nhạy cảm</string>
+    <string name="pref__clipboard__auto_clean_sensitive_after__label">Tự động dọn mục nhạy cảm sau</string>
+    <string name="pref__clipboard__limit_history_size__label">Giới hạn kích thước lịch sử</string>
+    <string name="pref__clipboard__max_history_size__label">Kích thước lịch sử tối đa</string>
+    <string name="pref__clipboard__history_hide_on_paste__label">Ẩn lịch sử khi dán</string>
+    <string name="pref__clipboard__history_hide_on_next_text_field__label">Ẩn lịch sử ở ô nhập tiếp theo</string>
+    <string name="pref__clipboard__clear_primary_clip_affects_history_if_unpinned__label">Xóa clip chính ảnh hưởng lịch sử</string>
+    <string name="pref__clipboard__clear_primary_clip_affects_history_if_unpinned__summary">Xóa clip chính cũng xóa khỏi lịch sử, nếu không được ghim</string>
+    <string name="send_to_clipboard__unknown_error">Lỗi không xác định. Vui lòng thử lại!</string>
+    <string name="send_to_clipboard__type_not_supported_error">Loại phương tiện này không được hỗ trợ.</string>
+    <string name="send_to_clipboard__description__copied_image_to_clipboard">Đã sao chép hình ảnh bên dưới vào bảng nhớ tạm.</string>
+
+
+    <!-- Devtools strings -->
+    <string name="devtools__title" comment="Title of Devtools screen. Translators: treat this string as 'Developer tools' for translation, except a similar short term is available for your language.">Công cụ phát triển</string>
+    <string name="devtools__enabled__label" comment="Label of Enable developer tools in Devtools">Bật công cụ phát triển</string>
+    <string name="devtools__enabled__summary" comment="Summary of Enable developer tools in Devtools">Công cụ dành cho gỡ lỗi</string>
+    <string name="devtools__show_primary_clip__label" comment="Label of Show primary clip in Devtools">Hiện clip chính</string>
+    <string name="devtools__show_primary_clip__summary" comment="Summary of Show primary clip in Devtools">Lớp phủ clip chính hiện tại</string>
+    <string name="devtools__show_input_state_overlay__label" comment="Label of Show input cache overlay in Devtools">Hiện lớp phủ trạng thái nhập</string>
+    <string name="devtools__show_input_state_overlay__summary" comment="Summary of Show input cache overlay in Devtools">Lớp phủ trạng thái nhập để gỡ lỗi</string>
+    <string name="devtools__show_spelling_overlay__label" comment="Label of Show spelling overlay in Devtools">Hiện lớp phủ chính tả</string>
+    <string name="devtools__show_spelling_overlay__summary" comment="Summary of Show spelling overlay in Devtools">Lớp phủ kết quả chính tả để gỡ lỗi</string>
+    <string name="devtools__show_inline_autofill_overlay__label">Hiện lớp phủ tự động điền</string>
+    <string name="devtools__show_inline_autofill_overlay__summary">Lớp phủ tự động điền để gỡ lỗi</string>
+    <string name="devtools__show_key_touch_boundaries__label" comment="Label of Show key touch boundaries in Devtools">Hiện ranh giới phím</string>
+    <string name="devtools__show_key_touch_boundaries__summary" comment="Summary of Show key touch boundaries in Devtools">Viền ranh giới phím màu đỏ</string>
+    <string name="devtools__show_drag_and_drop_helpers__label" comment="Label of Show drag and drop helpers in Devtools">Hiện trợ giúp kéo thả</string>
+    <string name="devtools__show_drag_and_drop_helpers__summary" comment="Summary of Show drag and drop helpers in Devtools">Hiện các trợ giúp vô hình trong màn hình kéo thả</string>
+    <string name="devtools__clear_udm_internal_database__label" comment="Label of Clear internal user dictionary database in Devtools">Xóa từ điển nội bộ</string>
+    <string name="devtools__clear_udm_internal_database__summary" comment="Summary of Clear internal user dictionary database in Devtools">Xóa tất cả từ khỏi bảng từ điển</string>
+    <string name="devtools__reset_quick_actions_to_default__label">Đặt lại hành động Smartbar</string>
+    <string name="devtools__reset_quick_actions_to_default__summary">Đặt lại hành động Smartbar về mặc định</string>
+    <string name="devtools__reset_quick_actions_to_default__toast_success">Đã đặt lại hành động Smartbar về mặc định</string>
+    <string name="devtools__reset_flag__label" comment="Label of Reset flag preferences in Devtools">Đặt lại cờ "{flag_name}"</string>
+    <string name="devtools__reset_flag_is_ime_set_up__summary" comment="Summary of Reset is IME set up flag in Devtools">Hành động gỡ lỗi để hiện lại màn hình thiết lập</string>
+    <string name="devtools__test_crash_report__label" comment="Label of Test Crash Report in Devtools">Thử màn hình báo cáo lỗi</string>
+    <string name="devtools__test_crash_report__summary" comment="Summary of Test Crash Report in Devtools">Hành động gỡ lỗi để tạo lỗi thử nghiệm</string>
+    <string name="devtools__group_ime_window_tools__title" comment="Title of IME window tools group in Devtools">Công cụ cửa sổ IME</string>
+    <string name="devtools__show_window_resize_handle_boundaries__label">Hiện ranh giới điều chỉnh cửa sổ</string>
+    <string name="devtools__show_window_resize_handle_boundaries__summary">Hiện ranh giới điều chỉnh để gỡ lỗi</string>
+    <string name="devtools__reset_window_config__label">Đặt lại cấu hình cửa sổ</string>
+    <string name="devtools__reset_window_config__summary">Đặt lại cấu hình cửa sổ về mặc định</string>
+    <string name="devtools__reset_window_config__toast_success">Đã đặt lại cấu hình cửa sổ</string>
+    <string name="devtools__reset_window_config__toast_failure">Đặt lại thất bại: {message}</string>
+    <string name="devtools__group_android__title" comment="Title of Android group in Devtools">Công cụ hệ thống Android</string>
+    <string name="devtools__android_settings_global__title" comment="Title of Android settings (global) screen">Cài đặt Android toàn cục</string>
+    <string name="devtools__android_settings_secure__title" comment="Title of Android settings (secure) screen">Cài đặt Android bảo mật</string>
+    <string name="devtools__android_settings_system__title" comment="Title of Android settings (system) screen">Cài đặt Android hệ thống</string>
+    <string name="devtools__android_locales__title" comment="Title of Android locales screen">Ngôn ngữ hệ thống</string>
+    <string name="devtools__debuglog__title">Nhật ký gỡ lỗi</string>
+    <string name="devtools__debuglog__copied_to_clipboard">Đã sao chép nhật ký</string>
+    <string name="devtools__debuglog__copy_log">Sao chép nhật ký</string>
+    <string name="devtools__debuglog__copy_for_github">Sao chép (định dạng GitHub)</string>
+    <string name="devtools__debuglog__loading">Đang tải…</string>
+
+
+    <!-- Extension strings -->
+    <string name="ext__home__title">Tiện ích &amp; Mở rộng</string>
+    <string name="ext__list__ext_theme">Tiện ích chủ đề</string>
+    <string name="ext__list__ext_keyboard">Tiện ích bàn phím</string>
+    <string name="ext__list__ext_languagepack">Gói ngôn ngữ</string>
+    <string name="ext__meta__authors">Tác giả</string>
+    <string name="ext__meta__components">Thành phần đi kèm</string>
+    <string name="ext__meta__components_theme">Chủ đề đi kèm</string>
+    <string name="ext__meta__components_language_pack">Gói ngôn ngữ đi kèm</string>
+    <string name="ext__meta__components_none_found">Kho lưu trữ này không chứa thành phần nào.</string>
+    <string name="ext__meta__description">Mô tả</string>
+    <string name="ext__meta__homepage">Trang chủ</string>
+    <string name="ext__meta__id">ID</string>
+    <string name="ext__meta__issue_tracker">Theo dõi vấn đề</string>
+    <string name="ext__meta__keywords">Từ khóa</string>
+    <string name="ext__meta__label">Nhãn</string>
+    <string name="ext__meta__license">Giấy phép</string>
+    <string name="ext__meta__maintainers">Người bảo trì</string>
+    <string name="ext__meta__maintainers_by">Bởi: {maintainers}</string>
+    <string name="ext__meta__title">Tiêu đề</string>
+    <string name="ext__meta__version">Phiên bản</string>
+    <string name="ext__error__not_found_title">Không tìm thấy tiện ích</string>
+    <string name="ext__error__not_found_description">Không tìm thấy tiện ích với ID "{id}".</string>
+    <string name="ext__editor__title_create_any">Tạo tiện ích</string>
+    <string name="ext__editor__title_create_keyboard">Tạo tiện ích bàn phím</string>
+    <string name="ext__editor__title_create_theme">Tạo tiện ích chủ đề</string>
+    <string name="ext__editor__title_edit_any">Sửa tiện ích</string>
+    <string name="ext__editor__title_edit_keyboard">Sửa tiện ích bàn phím</string>
+    <string name="ext__editor__title_edit_theme">Sửa tiện ích chủ đề</string>
+    <string name="ext__editor__metadata__title">Quản lý siêu dữ liệu</string>
+    <string name="ext__editor__metadata__title_invalid">Siêu dữ liệu không hợp lệ</string>
+    <string name="ext__editor__metadata__message_invalid">Siêu dữ liệu không hợp lệ, vui lòng kiểm tra trình sửa siêu dữ liệu!</string>
+    <string name="ext__editor__dependencies__title">Quản lý phụ thuộc</string>
+    <string name="ext__editor__files__title">Quản lý tệp lưu trữ</string>
+    <string name="ext__editor__files__type_fonts">Phông chữ</string>
+    <string name="ext__editor__files__type_images">Hình ảnh</string>
+    <string name="ext__editor__create_component__title">Tạo thành phần</string>
+    <string name="ext__editor__create_component__title_theme">Tạo chủ đề</string>
+    <string name="ext__editor__create_component__from_empty">Trống</string>
+    <string name="ext__editor__create_component__from_existing">Từ thành phần có sẵn</string>
+    <string name="ext__editor__create_component__from_empty_warning">Tạo thành phần trống có thể khó nếu bạn mới dùng ViKey. Hãy cân nhắc sao chép thành phần có sẵn.</string>
+    <string name="ext__editor__edit_component__title">Sửa thành phần</string>
+    <string name="ext__editor__edit_component__title_theme">Sửa thành phần chủ đề</string>
+    <string name="ext__export__success">Xuất tiện ích thành công!</string>
+    <string name="ext__export__failure">Xuất tiện ích thất bại: {error_message}</string>
+    <string name="ext__import__success">Nhập tiện ích thành công!</string>
+    <string name="ext__import__failure">Nhập tiện ích thất bại: {error_message}</string>
+    <string name="ext__import__ext_any" comment="Title of Importer screen for import of any supported ViKey extension">Nhập tiện ích</string>
+    <string name="ext__import__ext_keyboard" comment="Title of Importer screen for keyboard extension import">Nhập tiện ích bàn phím</string>
+    <string name="ext__import__ext_theme" comment="Title of Importer screen for theme extension import">Nhập tiện ích chủ đề</string>
+    <string name="ext__import__ext_languagepack" comment="Title of Importer screen for language pack extension import">Nhập gói ngôn ngữ</string>
+    <string name="ext__import__file_skip" comment="Label when a file cannot be imported in the current context. The actual reason string is in a separate text view below this string.">Không thể nhập tệp. Lý do:</string>
+    <string name="ext__import__file_skip_unsupported" comment="Reason string when file is unsupported">Loại tệp không được hỗ trợ.</string>
+    <string name="ext__import__file_skip_ext_core" comment="Reason string when ext has core extension ID">Không thể thay thế gói mở rộng mặc định. Hãy cập nhật ứng dụng.</string>
+    <string name="ext__import__file_skip_ext_corrupted" comment="Reason string when file seems to be ext but is corrupted">Tệp có vẻ là kho lưu trữ nhưng phân tích thất bại. Có thể tệp bị hỏng.</string>
+    <string name="ext__import__file_skip_ext_incorrect_type" comment="Reason string when file is of incorrect extension serial type">Dự kiến loại "{expected_serial_type}" nhưng là "{actual_serial_type}".</string>
+    <string name="ext__import__file_skip_ext_not_supported" comment="Reason string when file is loaded in incorrect context">Dự kiến tệp phương tiện nhưng tìm thấy kho lưu trữ.</string>
+    <string name="ext__import__file_skip_media_not_supported" comment="Reason string when file is loaded in incorrect context">Dự kiến kho lưu trữ nhưng tìm thấy tệp phương tiện.</string>
+    <string name="ext__import__error_unexpected_exception" comment="Label when an error occurred during import. The error message will be appended below this text view">Lỗi không mong đợi trong quá trình nhập. Chi tiết:</string>
+    <string name="ext__validation__enter_package_name">Vui lòng nhập tên gói</string>
+    <string name="ext__validation__error_package_name">Tên gói không khớp {id_regex}</string>
+    <string name="ext__validation__enter_version">Vui lòng nhập phiên bản</string>
+    <string name="ext__validation__enter_title">Vui lòng nhập tiêu đề</string>
+    <string name="ext__validation__enter_maintainer">Vui lòng nhập ít nhất một người bảo trì</string>
+    <string name="ext__validation__enter_license">Vui lòng nhập mã giấy phép</string>
+    <string name="ext__validation__enter_component_id">Vui lòng nhập ID thành phần</string>
+    <string name="ext__validation__error_component_id">Vui lòng nhập ID thành phần khớp {component_id_regex}</string>
+    <string name="ext__validation__enter_component_label">Vui lòng nhập nhãn thành phần</string>
+    <string name="ext__validation__hint_component_label_to_long">Nhãn thành phần khá dài, có thể bị cắt trong giao diện</string>
+    <string name="ext__validation__error_author">Vui lòng nhập ít nhất một tác giả</string>
+    <string name="ext__validation__error_stylesheet_path_blank">Đường dẫn bảng định kiểu không được để trống</string>
+    <string name="ext__validation__error_stylesheet_path">Vui lòng nhập đường dẫn khớp {stylesheet_path_regex}</string>
+    <string name="ext__validation__enter_property">Vui lòng nhập tên biến</string>
+    <string name="ext__validation__error_property">Vui lòng nhập tên biến khớp {variable_name_regex}</string>
+    <string name="ext__validation__enter_color">Vui lòng nhập chuỗi màu</string>
+    <string name="ext__validation__error_color">Vui lòng nhập chuỗi màu hợp lệ</string>
+    <string name="ext__validation__enter_dp_size">Vui lòng nhập kích thước dp</string>
+    <string name="ext__validation__enter_valid_number">Vui lòng nhập số hợp lệ</string>
+    <string name="ext__validation__enter_positive_number">Vui lòng nhập số dương (&gt;=0)</string>
+    <string name="ext__validation__enter_percent_size">Vui lòng nhập phần trăm</string>
+    <string name="ext__validation__enter_number_between_0_100">Vui lòng nhập số từ 0 đến 100</string>
+    <string name="ext__validation__hint_value_above_50_percent">Giá trị trên 50% sẽ hoạt động như 50%, hãy cân nhắc giảm xuống</string>
+    <string name="ext__update_box__internet_permission_hint">Ứng dụng không có quyền Internet, cần kiểm tra cập nhật thủ công.</string>
+    <string name="ext__update_box__search_for_updates">Tìm cập nhật</string>
+    <string name="ext__addon_management_box__managing_placeholder">Đang quản lý {extensions}</string>
+    <string name="ext__addon_management_box__addon_manager_info">Tất cả tác vụ liên quan đến tiện ích có thể được xử lý qua trình quản lý tập trung.</string>
+    <string name="ext__addon_management_box__go_to_page">Đi đến {ext_home_title}</string>
+    <string name="ext__home__info">Bạn có thể tải tiện ích từ ViKey Addons Store hoặc nhập tệp tiện ích đã tải về.</string>
+    <string name="ext__home__visit_store">Đến Addons Store</string>
+    <string name="ext__home__manage_extensions">Quản lý tiện ích đã cài</string>
+    <string name="ext__list__view_details">Xem chi tiết</string>
+    <string name="ext__check_updates__title">Kiểm tra cập nhật</string>
+
+    <!-- Action strings -->
+    <string name="action__add">Thêm</string>
+    <string name="action__apply">Áp dụng</string>
+    <string name="action__back_up">Sao lưu</string>
+    <string name="action__cancel">Hủy</string>
+    <string name="action__create">Tạo</string>
+    <string name="action__default">Mặc định</string>
+    <string name="action__delete">Xóa</string>
+    <string name="action__delete_confirm_title">Xác nhận xóa</string>
+    <string name="action__delete_confirm_message">Bạn có chắc muốn xóa "{name}"? Hành động này không thể hoàn tác.</string>
+    <string name="action__reset">Đặt lại</string>
+    <string name="action__reset_confirm_title">Xác nhận đặt lại</string>
+    <string name="action__reset_confirm_message">Bạn có chắc muốn đặt lại "{name}"? Hành động này không thể hoàn tác.</string>
+    <string name="action__discard">Hủy bỏ</string>
+    <string name="action__discard_confirm_title">Thay đổi chưa lưu</string>
+    <string name="action__discard_confirm_message">Bạn có chắc muốn hủy các thay đổi chưa lưu? Hành động này không thể hoàn tác.</string>
+    <string name="action__edit">Sửa</string>
+    <string name="action__export">Xuất</string>
+    <string name="action__export_file">Xuất tệp</string>
+    <string name="action__export_files">Xuất các tệp</string>
+    <string name="action__import">Nhập</string>
+    <string name="action__import_file">Nhập tệp</string>
+    <string name="action__import_files">Nhập các tệp</string>
+    <string name="action__no">Không</string>
+    <string name="action__ok">OK</string>
+    <string name="action__done">Xong</string>
+    <string name="action__restore">Khôi phục</string>
+    <string name="action__save">Lưu</string>
+    <string name="action__select">Chọn</string>
+    <string name="action__select_dir">Chọn thư mục</string>
+    <string name="action__select_dirs">Chọn các thư mục</string>
+    <string name="action__select_file">Chọn tệp</string>
+    <string name="action__select_files">Chọn các tệp</string>
+    <string name="action__yes">Có</string>
+
+    <!-- Error strings (generic) -->
+    <string name="error__title">Lỗi</string>
+    <string name="error__details">Chi tiết</string>
+    <string name="error__invalid">Không hợp lệ</string>
+    <string name="error__snackbar_message">Có lỗi xảy ra</string>
+    <string name="error__snackbar_message_template">Có lỗi xảy ra: {error_message}</string>
+
+    <!-- General strings -->
+    <string name="general__example_given" comment="This string is used where an example will be inserted in the {example} block. When translating, use the abbreviation used in your language for 'example given'.">vd: {example}</string>
+    <string name="general__no_browser_app_found_for_url">Không tìm thấy trình duyệt cho {url}</string>
+    <string name="general__select_dropdown_value_placeholder">— chọn —</string>
+    <string name="general__unlimited">Không giới hạn</string>
+    <string name="general__file_name">Tên tệp</string>
+    <string name="general__properties">Thuộc tính</string>
+    <string name="general__auto" comment="Generic shorthand for 'Automatic' value">Tự động</string>
+
+    <!-- Screen orientation strings -->
+    <string name="screen_orientation__portrait">Dọc</string>
+    <string name="screen_orientation__landscape">Ngang</string>
+    <string name="screen_orientation__vertical">Thẳng đứng</string>
+    <string name="screen_orientation__horizontal">Nằm ngang</string>
+
+    <!-- State strings -->
+    <string name="state__disabled">Đã tắt</string>
+    <string name="state__enabled">Đã bật</string>
+    <string name="state__no_dir_selected">Chưa chọn thư mục</string>
+    <string name="state__no_dirs_selected">Chưa chọn thư mục nào</string>
+    <string name="state__no_file_selected">Chưa chọn tệp</string>
+    <string name="state__no_files_selected">Chưa chọn tệp nào</string>
+
+
+    <!-- Enum label and description strings -->
+    <string name="enum__candidates_display_mode__classic" comment="Enum value label">Classic (3 columns)</string>
+    <string name="enum__candidates_display_mode__dynamic" comment="Enum value label">Dynamic width</string>
+    <string name="enum__candidates_display_mode__dynamic_scrollable" comment="Enum value label">Dynamic width &amp; scrollable</string>
+
+    <string name="enum__capitalization_behavior__capslock_by_double_tap" comment="Enum value label">Enable Capslock by double tapping shift</string>
+    <string name="enum__capitalization_behavior__capslock_by_cycle" comment="Enum value label">Switch to the next capitalization step each time the shift key is pressed</string>
+
+    <string name="enum__clipboard_sync_behavior__no_events" comment="Enum value label">No events</string>
+    <string name="enum__clipboard_sync_behavior__no_events__description" comment="Enum value description">No events are synced in this direction. In this mode, sync excludes text content.</string>
+    <string name="enum__clipboard_sync_behavior__only_clear_events" comment="Enum value label">Only clear events</string>
+    <string name="enum__clipboard_sync_behavior__only_clear_events__description" comment="Enum value description">Only events clearing clip data are synced in this direction. In this mode, sync excludes text content.</string>
+    <string name="enum__clipboard_sync_behavior__only_set_events" comment="Enum value label">Only set events</string>
+    <string name="enum__clipboard_sync_behavior__only_set_events__description" comment="Enum value description">Only events setting clip data are synced in this direction. In this mode, sync includes text content.</string>
+    <string name="enum__clipboard_sync_behavior__all_events" comment="Enum value label">All events</string>
+    <string name="enum__clipboard_sync_behavior__all_events__description" comment="Enum value description">Both events setting and clearing clip data are synced in this direction. In this mode, sync includes text content.</string>
+
+    <string name="enum__color_representation__hex" comment="Enum value label">Hexadecimal</string>
+    <string name="enum__color_representation__rgb" comment="Enum value label">Red Green Blue</string>
+    <string name="enum__color_representation__hsv" comment="Enum value label">Hue Saturation Value</string>
+
+    <string name="enum__display_kbd_after_dialogs__always" comment="Enum value label">Always show</string>
+    <string name="enum__display_kbd_after_dialogs__always__description" comment="Enum value description">Always show the keyboard after closing any editor dialog</string>
+    <string name="enum__display_kbd_after_dialogs__never" comment="Enum value label">Never show</string>
+    <string name="enum__display_kbd_after_dialogs__never__description" comment="Enum value description">Never show the keyboard after closing any editor dialog</string>
+    <string name="enum__display_kbd_after_dialogs__remember" comment="Enum value label">Remember last state</string>
+    <string name="enum__display_kbd_after_dialogs__remember__description" comment="Enum value description">Only show the keyboard after closing any editor dialog if it was previously visible</string>
+
+    <string name="enum__display_language_names_in__system_locale" comment="Enum value label">System locale</string>
+    <string name="enum__display_language_names_in__system_locale__description" comment="Enum value description">Language names across the app and keyboard UI are displayed in the locale which is set for the whole device</string>
+    <string name="enum__display_language_names_in__native_locale" comment="Enum value label">Native locale</string>
+    <string name="enum__display_language_names_in__native_locale__description" comment="Enum value description">Language names across the app and keyboard UI are displayed in the locale referred by itself</string>
+
+    <string name="enum__emoji_history_update_strategy__auto_sort_prepend" comment="Enum value label">Auto sort (prepend)</string>
+    <string name="enum__emoji_history_update_strategy__auto_sort_prepend__description" comment="Enum value description">Automatically reorder emojis on emoji usage. New emojis are added to the start.</string>
+    <string name="enum__emoji_history_update_strategy__auto_sort_append" comment="Enum value label">Auto sort (append)</string>
+    <string name="enum__emoji_history_update_strategy__auto_sort_append__description" comment="Enum value description">Automatically reorder emojis on emoji usage. New emojis are added to the end.</string>
+    <string name="enum__emoji_history_update_strategy__manual_sort_prepend" comment="Enum value label">Manual sort (prepend)</string>
+    <string name="enum__emoji_history_update_strategy__manual_sort_prepend__description" comment="Enum value description">Do not automatically reorder emojis on emoji usage. New emojis are added to the start.</string>
+    <string name="enum__emoji_history_update_strategy__manual_sort_append" comment="Enum value label">Manual sort (append)</string>
+    <string name="enum__emoji_history_update_strategy__manual_sort_append__description" comment="Enum value description">Do not automatically reorder emojis on emoji usage. New emojis are added to the end.</string>
+
+    <string name="enum__emoji_skin_tone__default" comment="Enum value label">{emoji} Default skin tone</string>
+    <string name="enum__emoji_skin_tone__light_skin_tone" comment="Enum value label">{emoji} Light skin tone</string>
+    <string name="enum__emoji_skin_tone__medium_light_skin_tone" comment="Enum value label">{emoji} Medium light skin tone</string>
+    <string name="enum__emoji_skin_tone__medium_skin_tone" comment="Enum value label">{emoji} Medium skin tone</string>
+    <string name="enum__emoji_skin_tone__medium_dark_skin_tone" comment="Enum value label">{emoji} Medium dark skin tone</string>
+    <string name="enum__emoji_skin_tone__dark_skin_tone" comment="Enum value label">{emoji} Dark skin tone</string>
+
+    <string name="enum__emoji_hair_style__default" comment="Enum value label">{emoji} Default hair</string>
+    <string name="enum__emoji_hair_style__red_hair" comment="Enum value label">{emoji} Red hair</string>
+    <string name="enum__emoji_hair_style__curly_hair" comment="Enum value label">{emoji} Curly hair</string>
+    <string name="enum__emoji_hair_style__white_hair" comment="Enum value label">{emoji} White hair</string>
+    <string name="enum__emoji_hair_style__bald" comment="Enum value label">{emoji} Bald</string>
+
+    <string name="enum__emoji_font__system">System emoji</string>
+
+    <string name="enum__emoji_suggestion_type__leading_colon">Leading colon</string>
+    <string name="enum__emoji_suggestion_type__leading_colon__description" comment="Keep the :emoji_name while translating, this is a syntax guide">Suggest emojis using the :emoji_name syntax</string>
+    <string name="enum__emoji_suggestion_type__inline_text">Inline text</string>
+    <string name="enum__emoji_suggestion_type__inline_text__description">Suggest emojis simply by typing the emoji name as a word</string>
+
+    <string name="enum__extended_actions_placement__above_candidates" comment="Enum value label">Above candidates</string>
+    <string name="enum__extended_actions_placement__above_candidates__description" comment="Enum value description">Places the extended actions row between the app UI and the candidate row</string>
+    <string name="enum__extended_actions_placement__below_candidates" comment="Enum value label">Below candidates</string>
+    <string name="enum__extended_actions_placement__below_candidates__description" comment="Enum value description">Places the extended actions row between the candidate row and the text keyboard</string>
+    <string name="enum__extended_actions_placement__overlay_app_ui" comment="Enum value label">Overlay app UI</string>
+    <string name="enum__extended_actions_placement__overlay_app_ui__description" comment="Enum value description">Places the extended actions row as an overlay above the app UI, without affecting the resulting keyboard UI height. Note that this placement may cause the app input field to be partially overdrawn</string>
+
+    <string name="enum__haptic_vibration_mode__use_vibrator_directly" comment="Enum value label">Use vibrator directly</string>
+    <string name="enum__haptic_vibration_mode__use_vibrator_directly__description" comment="Enum value description">ViKey directly interacts with the default hardware vibrator. This gives more control over duration and strength of a vibration, but the vibration may not be as smooth and optimized as using the haptic feedback interface</string>
+    <string name="enum__haptic_vibration_mode__use_haptic_feedback_interface" comment="Enum value label">Use haptic feedback interface</string>
+    <string name="enum__haptic_vibration_mode__use_haptic_feedback_interface__description" comment="Enum value description">ViKey uses the haptic feedback interface to trigger a predefined vibration sequence for key presses. This may work exceptionally well on some devices, but completely fail or perform very poorly on others</string>
+
+    <string name="enum__key_hint_mode__accent_priority" comment="Enum value label">Accent is prioritized</string>
+    <string name="enum__key_hint_mode__accent_priority__description" comment="Enum value description">The initial character selected after long press is always the primary accent, or the hint symbol if no primary accent is available</string>
+    <string name="enum__key_hint_mode__hint_priority" comment="Enum value label">Hint is prioritized</string>
+    <string name="enum__key_hint_mode__hint_priority__description" comment="Enum value description">The initial character selected after long press is always the hint symbol, or the primary accent if no hint symbol is available</string>
+    <string name="enum__key_hint_mode__smart_priority" comment="Enum value label">Smart prioritization</string>
+    <string name="enum__key_hint_mode__smart_priority__description" comment="Enum value description">The initial character selected after long press is dynamically decided to be either the primary accent or the hint symbol, based on the current language and layout</string>
+
+    <string name="enum__incognito_display_mode__replace_shared_actions_toggle" comment="Enum value label">Replace shared actions toggle icon with the incognito indicator</string>
+    <string name="enum__incognito_display_mode__display_behind_keyboard" comment="Enum value label">Display the incognito indicator behind the keyboard</string>
+
+    <string name="enum__incognito_mode__force_off" comment="Enum value label">Force off</string>
+    <string name="enum__incognito_mode__force_off__description" comment="Enum value description">Incognito mode will always be disabled, regardless of the target app\'s passed options. The incognito quick action in the Smartbar will not be available with this option.</string>
+    <string name="enum__incognito_mode__force_on" comment="Enum value label">Force on</string>
+    <string name="enum__incognito_mode__force_on__description" comment="Enum value description">Incognito mode will always be enabled, regardless of the target app\'s passed options. The incognito quick action in the Smartbar will not be available with this option.</string>
+    <string name="enum__incognito_mode__dynamic_on_off" comment="Enum value label">Dynamically on/off</string>
+    <string name="enum__incognito_mode__dynamic_on_off__description" comment="Enum value description">Recommended option. Incognito mode will be dynamically enabled or disabled either through the target app\'s passed options or by manually toggling it through the incognito quick action in the Smartbar.</string>
+
+    <string name="enum__input_feedback_activation_mode__audio_respect_system_settings" comment="Enum value label">Dynamically play sounds for input events, depending on system settings</string>
+    <string name="enum__input_feedback_activation_mode__audio_ignore_system_settings" comment="Enum value label">Always play sounds for input events, regardless of system settings</string>
+    <string name="enum__input_feedback_activation_mode__haptic_respect_system_settings" comment="Enum value label">Dynamically vibrate for input events, depending on system settings</string>
+    <string name="enum__input_feedback_activation_mode__haptic_ignore_system_settings" comment="Enum value label">Always vibrate for input events, regardless of system settings</string>
+
+    <string name="enum__input_shift_state__unshifted" comment="Enum value label">Unshifted</string>
+    <string name="enum__input_shift_state__shifted_manual" comment="Enum value label">Shifted (manual)</string>
+    <string name="enum__input_shift_state__shifted_automatic" comment="Enum value label">Shifted (automatic)</string>
+    <string name="enum__input_shift_state__caps_lock" comment="Enum value label">Caps lock</string>
+
+    <string name="enum__ime_window_mode__fixed" comment="Enum value label">Fixed</string>
+    <string name="enum__ime_window_mode__floating" comment="Enum value label">Floating</string>
+
+    <string name="enum__keyboard_mode__characters" comment="Enum value label">Characters</string>
+    <string name="enum__keyboard_mode__symbols" comment="Enum value label">Symbols</string>
+    <string name="enum__keyboard_mode__symbols2" comment="Enum value label">Symbols 2</string>
+    <string name="enum__keyboard_mode__numeric" comment="Enum value label">Numeric</string>
+    <string name="enum__keyboard_mode__numeric_advanced" comment="Enum value label">Numeric advanced</string>
+    <string name="enum__keyboard_mode__phone" comment="Enum value label">Phone</string>
+    <string name="enum__keyboard_mode__phone2" comment="Enum value label">Phone 2</string>
+
+    <string name="enum__landscape_input_ui_mode__never_show" comment="Enum value label">Never show</string>
+    <string name="enum__landscape_input_ui_mode__always_show" comment="Enum value label">Always show</string>
+    <string name="enum__landscape_input_ui_mode__dynamically_show" comment="Enum value label">Dynamically show</string>
+
+    <string name="enum__shape_corner__top_start" comment="Enum value label">Top start</string>
+    <string name="enum__shape_corner__top_end" comment="Enum value label">Top end</string>
+    <string name="enum__shape_corner__bottom_end" comment="Enum value label">Bottom end</string>
+    <string name="enum__shape_corner__bottom_start" comment="Enum value label">Bottom start</string>
+
+    <string name="enum__smartbar_layout__suggestions_only" comment="Enum value label">Suggestions only</string>
+    <string name="enum__smartbar_layout__suggestions_only__description" comment="Enum value description">Shows only the candidate row, without any action row/toggle or sticky action</string>
+    <string name="enum__smartbar_layout__actions_only" comment="Enum value label">Actions only</string>
+    <string name="enum__smartbar_layout__actions_only__description" comment="Enum value description">Shows only the actions row, without the candidate row or an explicit sticky action</string>
+    <string name="enum__smartbar_layout__suggestions_action_shared" comment="Enum value label">Suggestions &amp; Actions shared</string>
+    <string name="enum__smartbar_layout__suggestions_action_shared__description" comment="Enum value description">Shared toggleable candidate and actions row, with sticky action</string>
+    <string name="enum__smartbar_layout__suggestions_actions_extended" comment="Enum value label">Suggestions &amp; Actions extended</string>
+    <string name="enum__smartbar_layout__suggestions_actions_extended__description" comment="Enum value description">Static candidate row and additional toggleable action row, with sticky action</string>
+
+    <string name="enum__snygg_level__basic" comment="Enum value label">Basic</string>
+    <string name="enum__snygg_level__basic__description" comment="Enum value description">Only color properties are shown, properties and rules are translated.</string>
+    <string name="enum__snygg_level__advanced" comment="Enum value label">Advanced</string>
+    <string name="enum__snygg_level__advanced__description" comment="Enum value description">All properties are shown, properties and rules are translated.</string>
+    <string name="enum__snygg_level__developer" comment="Enum value label">Developer</string>
+    <string name="enum__snygg_level__developer__description" comment="Enum value description">All properties are shown, properties and rules are displayed as written in the stylesheet file itself.</string>
+
+    <string name="enum__space_bar_mode__nothing" comment="Enum value label">No label</string>
+    <string name="enum__space_bar_mode__current_language" comment="Enum value label">Current language</string>
+    <string name="enum__space_bar_mode__space_bar_key" comment="Enum value label">␣</string>
+    <string name="enum__space_bar_mode__icon_only" comment="Enum value label">Icon only</string>
+    <string name="enum__space_bar_mode__text_space" comment="Enum value label">Space</string>
+
+    <string name="enum__spelling_language_mode__use_system_languages" comment="Enum value label">Use system languages</string>
+    <string name="enum__spelling_language_mode__use_keyboard_subtypes" comment="Enum value label">Use keyboard subtypes</string>
+
+    <string name="enum__swipe_action__no_action" comment="Enum value label">No action</string>
+    <string name="enum__swipe_action__cycle_to_previous_keyboard_mode" comment="Enum value label">Cycle to previous keyboard mode</string>
+    <string name="enum__swipe_action__cycle_to_next_keyboard_mode" comment="Enum value label">Cycle to next keyboard mode</string>
+    <string name="enum__swipe_action__delete_character" comment="Enum value label">Delete character before cursor</string>
+    <string name="enum__swipe_action__delete_characters_precisely" comment="Enum value label">Delete characters precisely</string>
+    <string name="enum__swipe_action__delete_word" comment="Enum value label">Delete word before cursor</string>
+    <string name="enum__swipe_action__delete_words_precisely" comment="Enum value label">Delete words precisely</string>
+    <string name="enum__swipe_action__hide_keyboard" comment="Enum value label">Hide keyboard</string>
+    <string name="enum__swipe_action__insert_space" comment="Enum value label">Insert space</string>
+    <string name="enum__swipe_action__move_cursor_up" comment="Enum value label">Move cursor up</string>
+    <string name="enum__swipe_action__move_cursor_down" comment="Enum value label">Move cursor down</string>
+    <string name="enum__swipe_action__move_cursor_left" comment="Enum value label">Move cursor left</string>
+    <string name="enum__swipe_action__move_cursor_right" comment="Enum value label">Move cursor right</string>
+    <string name="enum__swipe_action__move_cursor_start_of_line" comment="Enum value label">Move cursor to start of line</string>
+    <string name="enum__swipe_action__move_cursor_end_of_line" comment="Enum value label">Move cursor to end of line</string>
+    <string name="enum__swipe_action__move_cursor_start_of_page" comment="Enum value label">Move cursor to start of page</string>
+    <string name="enum__swipe_action__move_cursor_end_of_page" comment="Enum value label">Move cursor to end of page</string>
+    <string name="enum__swipe_action__switch_to_clipboard_context" comment="Enum value label">Open clipboard manager/history</string>
+    <string name="enum__swipe_action__switch_to_media_context" comment="Enum value label">Open emoji panel</string>
+    <string name="enum__swipe_action__shift" comment="Enum value label">Shift</string>
+    <string name="enum__swipe_action__redo" comment="Enum value label">Redo</string>
+    <string name="enum__swipe_action__undo" comment="Enum value label">Undo</string>
+    <string name="enum__swipe_action__select_characters_precisely" comment="Enum value label">Select characters precisely</string>
+    <string name="enum__swipe_action__select_words_precisely" comment="Enum value label">Select words precisely</string>
+    <string name="enum__swipe_action__show_input_method_picker" comment="Enum value label">Show input method picker</string>
+    <string name="enum__swipe_action__switch_to_prev_keyboard" comment="Enum value label">Switch to previous keyboard</string>
+    <string name="enum__swipe_action__switch_to_prev_subtype" comment="Enum value label">Switch to previous subtype</string>
+    <string name="enum__swipe_action__switch_to_next_subtype" comment="Enum value label">Switch to next subtype</string>
+    <string name="enum__swipe_action__toggle_smartbar_visibility" comment="Enum value label">Toggle smartbar visibility</string>
+    <string name="enum__swipe_action__toggle_compact_layout" comment="Enum value label">Toggle compact layout</string>
+
+    <string name="enum__theme_mode__always_day" comment="Enum value label">Always day</string>
+    <string name="enum__theme_mode__always_night" comment="Enum value label">Always night</string>
+    <string name="enum__theme_mode__follow_system" comment="Enum value label">Follow system</string>
+    <string name="enum__theme_mode__follow_time" comment="Enum value label">Follow time</string>
+
+    <string name="enum__utility_key_action__switch_to_emojis" comment="Enum value label">Switch to emojis</string>
+    <string name="enum__utility_key_action__switch_language" comment="Enum value label">Switch language</string>
+    <string name="enum__utility_key_action__switch_keyboard_app" comment="Enum value label">Switch keyboard app</string>
+    <string name="enum__utility_key_action__dynamic_switch_language_emojis" comment="Enum value label">Dynamic: Switch to emojis / Switch language</string>
+
+    <!-- Unit strings (symbols) -->
+    <string name="unit__hours__symbol" translatable="false">{v} h</string>
+    <string name="unit__minutes__symbol" translatable="false">{v} m</string>
+    <string name="unit__seconds__symbol" translatable="false">{v} s</string>
+    <string name="unit__milliseconds__symbol" translatable="false">{v} ms</string>
+    <string name="unit__percent__symbol" translatable="false">{v}%</string>
+    <string name="unit__display_pixel__symbol" translatable="false">{v} dp</string>
+    <string name="unit__display_pixel_per_seconds__symbol" translatable="false">{v} dp/s</string>
+
+    <!-- Unit strings (written words) -->
+    <plurals name="unit__hours__written">
+        <item quantity="one">{v} hour</item>
+        <item quantity="other">{v} giờ</item>
+    </plurals>
+    <plurals name="unit__minutes__written">
+        <item quantity="one">{v} minute</item>
+        <item quantity="other">{v} phút</item>
+    </plurals>
+    <plurals name="unit__seconds__written">
+        <item quantity="one">{v} second</item>
+        <item quantity="other">{v} giây</item>
+    </plurals>
+    <plurals name="unit__items__written">
+        <item quantity="one">{v} item</item>
+        <item quantity="other">{v} mục</item>
+    </plurals>
+    <plurals name="unit__characters__written">
+        <item quantity="one">{v} character</item>
+        <item quantity="other">{v} ký tự</item>
+    </plurals>
+    <plurals name="unit__candidates__written">
+        <item quantity="one">{v} candidate</item>
+        <item quantity="other">{v} đề xuất</item>
+    </plurals>
+
+    <string name="pref__dictionary__clear_learned_words__confirm_body" comment="Confirm dialog body">Thao tác này sẽ xóa tất cả từ cá nhân đã học và không thể hoàn tác.</string>
+
+</resources>
