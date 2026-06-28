@@ -285,9 +285,9 @@ fun ClipboardInputLayout(
                 val file = ClipboardFileStorage.getFileForId(context, id)
                 val bitmap = remember(id) {
                     runCatching {
-                        check(file.exists()) { stringRes(R.string.clipboard__error_resolve_image, file.absolutePath) }
+                        check(file.exists()) { context.getString(R.string.clipboard__error_resolve_image, file.absolutePath) }
                         val rawBitmap = BitmapFactory.decodeFile(file.absolutePath)
-                        checkNotNull(rawBitmap) { stringRes(R.string.clipboard__error_decode_image, file.absolutePath) }
+                        checkNotNull(rawBitmap) { context.getString(R.string.clipboard__error_decode_image, file.absolutePath) }
                         rawBitmap.asImageBitmap()
                     }
                 }
@@ -309,7 +309,7 @@ fun ClipboardInputLayout(
                 val file = ClipboardFileStorage.getFileForId(context, id)
                 val bitmap = remember(id) {
                     runCatching {
-                        check(file.exists()) { stringRes(R.string.clipboard__error_resolve_video, file.absolutePath) }
+                        check(file.exists()) { context.getString(R.string.clipboard__error_resolve_video, file.absolutePath) }
                         val rawBitmap = if (AndroidVersion.ATLEAST_API29_Q) {
                             val dataRetriever = MediaMetadataRetriever()
                             dataRetriever.setDataSource(file.absolutePath)
@@ -320,7 +320,7 @@ fun ClipboardInputLayout(
                             @Suppress("DEPRECATION")
                             ThumbnailUtils.createVideoThumbnail(file.absolutePath, MediaStore.Video.Thumbnails.MINI_KIND)
                         }
-                        checkNotNull(rawBitmap) { stringRes(R.string.clipboard__error_decode_video, file.absolutePath) }
+                        checkNotNull(rawBitmap) { context.getString(R.string.clipboard__error_decode_video, file.absolutePath) }
                         rawBitmap.asImageBitmap()
                     }
                 }

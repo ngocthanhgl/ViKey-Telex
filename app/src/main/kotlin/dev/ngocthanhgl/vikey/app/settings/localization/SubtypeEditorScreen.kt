@@ -485,7 +485,7 @@ fun SubtypeEditorScreen(id: Long?) {
                             )
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                text = stringRes(R.string.subtype_editor__model_format, modelFile.value?.name ?: stringRes(R.string.subtype_editor__unknown)),
+                                text = stringRes(R.string.subtype_editor__model_format, "model" to (modelFile.value?.name ?: stringRes(R.string.subtype_editor__unknown))),
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.weight(1f),
                             )

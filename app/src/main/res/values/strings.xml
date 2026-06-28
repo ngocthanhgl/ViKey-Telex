@@ -1203,7 +1203,7 @@
 
     <!-- Subtype Editor -->
     <string name="subtype_editor__model">Model</string>
-    <string name="subtype_editor__model_format">Model: %1$s</string>
+    <string name="subtype_editor__model_format">Model: {model}</string>
     <string name="subtype_editor__unknown">unknown</string>
     <string name="subtype_editor__remove_model">Remove model</string>
     <string name="subtype_editor__select_gguf">Select GGUF file</string>
@@ -1217,7 +1217,7 @@
     <string name="keyboard__vietnamese_telex">Vietnamese Telex</string>
     <string name="keyboard__w_equals_u_u">w = ư</string>
     <string name="keyboard__english_fallback">English fallback</string>
-    <string name="keyboard__value_label_px">%1$s px</string>
+    <string name="keyboard__value_label_px">{v} px</string>
 
     <!-- Edit Property -->
     <string name="edit_property__select">--select--</string>
@@ -1241,12 +1241,16 @@
     <string name="clipboard__filter_images">Images</string>
     <string name="clipboard__filter_videos">Videos</string>
     <string name="clipboard__error_unknown">Unknown error</string>
+    <string name="clipboard__error_resolve_image">Unable to resolve image at %1$s</string>
+    <string name="clipboard__error_decode_image">Unable to decode image at %1$s</string>
+    <string name="clipboard__error_resolve_video">Unable to resolve video at %1$s</string>
+    <string name="clipboard__error_decode_video">Unable to decode video at %1$s</string>
 
     <!-- Media -->
     <string name="media__switch_to_abc">ABC</string>
 
     <!-- Theme Editor -->
-    <string name="theme_editor__required_property_missing">Required property \'%1$s\' does not exist</string>
+    <string name="theme_editor__required_property_missing">Required property {prop} does not exist</string>
     <string name="theme_editor__source_set">Source set</string>
     <string name="theme_editor__duplicate_id">A theme with this ID already exists!</string>
 

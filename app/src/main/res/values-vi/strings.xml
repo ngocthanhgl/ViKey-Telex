@@ -1199,7 +1199,7 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
 
     <!-- Subtype Editor -->
     <string name="subtype_editor__model">Mô hình</string>
-    <string name="subtype_editor__model_format">Mô hình: %1$s</string>
+    <string name="subtype_editor__model_format">Mô hình: {model}</string>
     <string name="subtype_editor__unknown">không xác định</string>
     <string name="subtype_editor__remove_model">Xóa mô hình</string>
     <string name="subtype_editor__select_gguf">Chọn tệp GGUF</string>
@@ -1213,7 +1213,7 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <string name="keyboard__vietnamese_telex">Telex Việt</string>
     <string name="keyboard__w_equals_u_u">w = ư</string>
     <string name="keyboard__english_fallback">Dự phòng English</string>
-    <string name="keyboard__value_label_px">%1$s px</string>
+    <string name="keyboard__value_label_px">{v} px</string>
 
     <!-- Edit Property -->
     <string name="edit_property__select">--select--</string>
@@ -1237,12 +1237,16 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <string name="clipboard__filter_images">Hình ảnh</string>
     <string name="clipboard__filter_videos">Video</string>
     <string name="clipboard__error_unknown">Lỗi không xác định</string>
+    <string name="clipboard__error_resolve_image">Không thể xác định ảnh tại %1$s</string>
+    <string name="clipboard__error_decode_image">Không thể giải mã ảnh tại %1$s</string>
+    <string name="clipboard__error_resolve_video">Không thể xác định video tại %1$s</string>
+    <string name="clipboard__error_decode_video">Không thể giải mã video tại %1$s</string>
 
     <!-- Media -->
     <string name="media__switch_to_abc">ABC</string>
 
     <!-- Theme Editor -->
-    <string name="theme_editor__required_property_missing">Thuộc tính bắt buộc \'%1$s\' không tồn tại</string>
+    <string name="theme_editor__required_property_missing">Thuộc tính bắt buộc {prop} không tồn tại</string>
     <string name="theme_editor__source_set">Bộ nguồn</string>
     <string name="theme_editor__duplicate_id">ID chủ đề đã tồn tại!</string>
 

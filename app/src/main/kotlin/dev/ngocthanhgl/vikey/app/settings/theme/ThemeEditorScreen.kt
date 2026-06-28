@@ -378,7 +378,7 @@ fun ThemeEditorScreen(
                                     ) {
                                         Text(
                                             modifier = Modifier.padding(12.dp),
-                                            text = stringRes(R.string.theme_editor__required_property_missing, propertyName),
+                                            text = stringRes(R.string.theme_editor__required_property_missing, "prop" to propertyName),
                                             color = MaterialTheme.colorScheme.error,
                                             style = MaterialTheme.typography.bodyMedium,
                                         )

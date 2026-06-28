@@ -54,6 +54,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import org.florisboard.lib.compose.stringRes
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,8 +75,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceModel
+import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
-import org.florisboard.lib.compose.stringRes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

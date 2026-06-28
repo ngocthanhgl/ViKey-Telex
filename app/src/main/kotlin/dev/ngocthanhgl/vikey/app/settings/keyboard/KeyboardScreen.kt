@@ -221,7 +221,7 @@ fun KeyboardScreen() {
                 title = stringRes(R.string.pref__keyboard__bottom_padding__label),
                 primaryLabel = stringRes(R.string.screen_orientation__portrait),
                 secondaryLabel = stringRes(R.string.screen_orientation__landscape),
-                valueLabel = { v: Int -> stringRes(R.string.keyboard__value_label_px, v) },
+                valueLabel = { v: Int -> stringRes(R.string.keyboard__value_label_px, "v" to v) },
                 min = 0, max = 200, stepIncrement = 5,
             )
         }

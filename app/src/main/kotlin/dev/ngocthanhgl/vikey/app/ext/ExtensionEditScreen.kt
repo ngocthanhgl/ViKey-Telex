@@ -776,7 +776,7 @@ private fun <T : ExtensionComponent> CreateComponentScreen(
                     when (createFrom) {
                         CreateFrom.EMPTY -> {
                             if (editor.themes.any { it.id == newId.trim() }) {
-                                context.showLongToastSync(R.string.ext__duplicate_theme_id)
+                                context.showLongToastSync(R.string.theme_editor__duplicate_id)
                             } else {
                                 val componentEditor = ThemeExtensionComponentEditor(
                                     id = newId.trim(),
