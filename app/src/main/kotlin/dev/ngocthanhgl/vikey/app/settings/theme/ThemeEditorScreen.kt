@@ -697,7 +697,7 @@ private fun ComponentMetaEditorDialog(
                 if (!allFieldsValid) {
                     showValidationErrors = true
                 } else if (id != editor.id && (workspace.editor as? ThemeExtensionEditor)?.themes?.find { it.id == id.trim() } != null) {
-                    context.showLongToastSync(stringRes(R.string.theme_editor__duplicate_id))
+                    context.showLongToastSync(context.getString(R.string.theme_editor__duplicate_id))
                 } else {
                     workspace.update {
                         editor.id = id.trim()

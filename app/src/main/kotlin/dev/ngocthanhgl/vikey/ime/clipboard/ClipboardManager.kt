@@ -18,6 +18,7 @@ package dev.ngocthanhgl.vikey.ime.clipboard
 
 import android.content.ClipData
 import android.content.Context
+import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.appContext
 import dev.ngocthanhgl.vikey.editorInstance

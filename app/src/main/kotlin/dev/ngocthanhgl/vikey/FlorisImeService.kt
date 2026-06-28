@@ -41,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.FlorisAppActivity
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.ime.ImeUiMode

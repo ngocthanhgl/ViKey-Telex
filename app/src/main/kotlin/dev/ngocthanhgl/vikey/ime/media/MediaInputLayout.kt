@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.ime.input.InputEventDispatcher
 import dev.ngocthanhgl.vikey.ime.input.LocalInputFeedbackController
 import dev.ngocthanhgl.vikey.ime.keyboard.FlorisImeSizing

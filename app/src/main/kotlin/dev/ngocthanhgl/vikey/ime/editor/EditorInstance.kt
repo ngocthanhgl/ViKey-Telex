@@ -25,6 +25,7 @@ import androidx.core.view.inputmethod.InputContentInfoCompat
 import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.appContext
+import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.clipboardManager
 import dev.ngocthanhgl.vikey.ime.ImeUiMode
 import dev.ngocthanhgl.vikey.ime.clipboard.provider.ClipboardFileStorage
