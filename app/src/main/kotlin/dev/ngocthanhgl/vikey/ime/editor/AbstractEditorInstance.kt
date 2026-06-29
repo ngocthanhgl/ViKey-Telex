@@ -69,7 +69,7 @@ abstract class AbstractEditorInstance(context: Context) {
     private val keyboardManager by context.keyboardManager()
     private val subtypeManager by context.subtypeManager()
     private val nlpManager by context.nlpManager()
-    protected val scope = MainScope()
+    protected var scope = MainScope()
     protected val breakIterators = BreakIteratorGroup()
 
     private val _activeInfoFlow = MutableStateFlow(FlorisEditorInfo.Unspecified)
@@ -107,6 +107,7 @@ abstract class AbstractEditorInstance(context: Context) {
     private fun currentInputConnection() = FlorisImeService.currentInputConnection()
 
     open fun handleStartInput(editorInfo: FlorisEditorInfo) {
+        if (!scope.isActive) scope = MainScope()
         activeInfo = editorInfo
         activeCursorCapsMode = editorInfo.initialCapsMode
         activeContent = EditorContent.Unspecified
