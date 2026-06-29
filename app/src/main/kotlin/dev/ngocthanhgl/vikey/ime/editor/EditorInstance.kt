@@ -224,10 +224,14 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
                 val ic = currentInputConnection()
                 if (ic != null) {
                     scope.launch {
-                        ic.beginBatchEdit()
-                        ic.deleteSurroundingText(1, 0)
-                        ic.commitText(char, 1)
-                        ic.endBatchEdit()
+                        try {
+                            ic.beginBatchEdit()
+                            ic.deleteSurroundingText(1, 0)
+                            ic.commitText(char, 1)
+                            ic.endBatchEdit()
+                        } catch (_: Exception) {
+                            onIpcFailure()
+                        }
                     }
                     lastCommitWasSuggestion = false
                     return true

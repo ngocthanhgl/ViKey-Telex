@@ -229,6 +229,12 @@ abstract class AbstractEditorInstance(context: Context) {
         _lastCommitPosition.reset()
     }
 
+    protected fun onIpcFailure() {
+        runBlocking { expectedContentQueue.clear() }
+        activeContent = EditorContent.Unspecified
+        _lastCommitPosition.reset()
+    }
+
     fun destroy() {
         scope.cancel()
     }
@@ -315,17 +321,22 @@ abstract class AbstractEditorInstance(context: Context) {
         if (content.selection == selection) return true
         val ic = currentInputConnection() ?: return false
         ic.beginBatchEdit()
-        runBlocking {
-            val newContent = content
-                .copy(localSelection = selection.translatedBy(-content.offset))
-                .generateCopy(selection = selection)
-            expectedContentQueue.push(newContent)
-            InputConnectionDispatcher.fire {
-                ic.setSelection(selection.start, selection.end)
-                ic.setComposingRegion(newContent.composing)
+        try {
+            runBlocking {
+                val newContent = content
+                    .copy(localSelection = selection.translatedBy(-content.offset))
+                    .generateCopy(selection = selection)
+                expectedContentQueue.push(newContent)
+                InputConnectionDispatcher.fire {
+                    ic.setSelection(selection.start, selection.end)
+                    ic.setComposingRegion(newContent.composing)
+                }
             }
+        } catch (_: Exception) {
+            onIpcFailure()
+        } finally {
+            ic.endBatchEdit()
         }
-        ic.endBatchEdit()
         return true
     }
 
@@ -388,11 +399,15 @@ abstract class AbstractEditorInstance(context: Context) {
                 expectedContentQueue.push(newContent)
             }
             scope.launch {
-                InputConnectionDispatcher.fire {
-                    ic.beginBatchEdit()
-                    ic.deleteSurroundingText(rm, 0)
-                    ic.commitText(finalText, 1)
-                    ic.endBatchEdit()
+                try {
+                    InputConnectionDispatcher.fire {
+                        ic.beginBatchEdit()
+                        ic.deleteSurroundingText(rm, 0)
+                        ic.commitText(finalText, 1)
+                        ic.endBatchEdit()
+                    }
+                } catch (_: Exception) {
+                    onIpcFailure()
                 }
             }
         }
@@ -407,8 +422,12 @@ abstract class AbstractEditorInstance(context: Context) {
         if (activeInfo.isRawInputEditor) {
             val ic = currentInputConnection() ?: return false
             scope.launch {
-                InputConnectionDispatcher.fire {
-                    ic.commitText(text, 1)
+                try {
+                    InputConnectionDispatcher.fire {
+                        ic.commitText(text, 1)
+                    }
+                } catch (_: Exception) {
+                    onIpcFailure()
                 }
             }
             return true
@@ -427,13 +446,17 @@ abstract class AbstractEditorInstance(context: Context) {
             expectedContentQueue.push(newContent)
         }
         scope.launch {
-            InputConnectionDispatcher.fire {
-                ic.beginBatchEdit()
-                if (content.composingText.isNotEmpty()) {
-                    ic.finishComposingText()
+            try {
+                InputConnectionDispatcher.fire {
+                    ic.beginBatchEdit()
+                    if (content.composingText.isNotEmpty()) {
+                        ic.finishComposingText()
+                    }
+                    ic.commitText(text, 1)
+                    ic.endBatchEdit()
                 }
-                ic.commitText(text, 1)
-                ic.endBatchEdit()
+            } catch (_: Exception) {
+                onIpcFailure()
             }
         }
         return true
@@ -460,11 +483,15 @@ abstract class AbstractEditorInstance(context: Context) {
             _lastCommitPosition.handleCommit(newContent.selection)
         }
         scope.launch {
-            InputConnectionDispatcher.fire {
-                ic.beginBatchEdit()
-                ic.deleteSurroundingText(content.composingText.length, 0)
-                ic.commitText(text, 1)
-                ic.endBatchEdit()
+            try {
+                InputConnectionDispatcher.fire {
+                    ic.beginBatchEdit()
+                    ic.deleteSurroundingText(content.composingText.length, 0)
+                    ic.commitText(text, 1)
+                    ic.endBatchEdit()
+                }
+            } catch (_: Exception) {
+                onIpcFailure()
             }
         }
         return true
@@ -553,8 +580,12 @@ abstract class AbstractEditorInstance(context: Context) {
         val ic = currentInputConnection() ?: return
         scope.launch {
             val newContent = content.generateCopy()
-            InputConnectionDispatcher.fire {
-                ic.setComposingRegion(newContent.composing)
+            try {
+                InputConnectionDispatcher.fire {
+                    ic.setComposingRegion(newContent.composing)
+                }
+            } catch (_: Exception) {
+                onIpcFailure()
             }
         }
     }
