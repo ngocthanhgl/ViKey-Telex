@@ -33,6 +33,7 @@ import dev.ngocthanhgl.vikey.nlpManager
 import dev.ngocthanhgl.vikey.subtypeManager
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
