@@ -51,12 +51,12 @@ private fun TextKey.baseCode(): Int {
 class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClassifier {
     private val nlpManager by context.nlpManager()
 
-    private val gesture = Gesture()
-    private var keysByCharacter: SparseArrayCompat<TextKey> = SparseArrayCompat()
+    protected val gesture = Gesture()
+    protected var keysByCharacter: SparseArrayCompat<TextKey> = SparseArrayCompat()
     private var words: List<String> = emptyList()
-    private var wordFrequencies: Map<String, Double> = emptyMap()
-    private var keys: ArrayList<TextKey> = arrayListOf()
-    private lateinit var pruner: Pruner
+    protected var wordFrequencies: Map<String, Double> = emptyMap()
+    protected var keys: ArrayList<TextKey> = arrayListOf()
+    protected lateinit var pruner: Pruner
     private var wordDataSubtype: Subtype? = null
     private var layoutSubtype: Subtype? = null
     private var currentSubtype: Subtype? = null
@@ -199,7 +199,7 @@ class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClassifier
         }
     }
 
-    private fun unCachedGetSuggestions(maxSuggestionCount: Int): List<Pair<CharSequence, Float>> {
+    protected open fun unCachedGetSuggestions(maxSuggestionCount: Int): List<Pair<CharSequence, Float>> {
         val candidates = arrayListOf<String>()
         val candidateScores = arrayListOf<Float>()
         val key = keys.firstOrNull() ?: return listOf()
@@ -623,6 +623,14 @@ class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClassifier
 
         fun getX(i: Int): Float = xs.getOrElse(i) { 0f }
         fun getY(i: Int): Float = ys.getOrElse(i) { 0f }
+
+        fun toPointList(): List<Pair<Float, Float>> {
+            val list = ArrayList<Pair<Float, Float>>(size)
+            for (i in 0 until size) {
+                list.add(xs[i] to ys[i])
+            }
+            return list
+        }
 
         fun clone(): Gesture {
             return Gesture(xs.clone(), ys.clone(), size)
