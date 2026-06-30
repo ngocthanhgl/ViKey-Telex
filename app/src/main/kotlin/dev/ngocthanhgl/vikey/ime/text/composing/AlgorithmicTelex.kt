@@ -357,11 +357,6 @@ class AlgorithmicTelex(
         if (!telexWEnabled) return word.length to (word + ch)
         val last = word.lastOrNull()
 
-        if (last?.lowercaseChar() == 'ư' && word.length > 1) {
-            val uChar = if (last.isUpperCase()) 'U' else 'u'
-            return word.length to (word.dropLast(1) + uChar + ch)
-        }
-
         if (last?.lowercaseChar() == 'w') {
             return word.length to (word + ch)
         }

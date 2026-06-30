@@ -179,9 +179,10 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 .aspectRatio(1f)
         ) {
             val transition = updateTransition(sharedActionsExpanded, label = "sharedActionsExpandedToggleBtn")
+            val rotationAnim = shouldAnimate
             val rotation by transition.animateFloat(
                 transitionSpec = {
-                    if (shouldAnimate) AnimationTween else NoAnimationTween
+                    if (rotationAnim) AnimationTween else NoAnimationTween
                 },
                 label = "rotation",
             ) {
@@ -218,20 +219,25 @@ private fun SmartbarMainRow(modifier: Modifier = Modifier) {
                 .weight(1f)
                 .fillMaxHeight(),
         ) {
-            val enterTransition = if (shouldAnimate) {
-                fadeIn(tween(AnimationDuration)) +
-                    slideInHorizontally(
-                        animationSpec = tween(AnimationDuration),
-                        initialOffsetX = { if (flipToggles) it / 6 else -it / 6 },
-                    )
-            } else NoEnterTransition
-            val exitTransition = if (shouldAnimate) {
-                fadeOut(tween(AnimationDuration)) +
-                    slideOutHorizontally(
-                        animationSpec = tween(AnimationDuration),
-                        targetOffsetX = { if (flipToggles) it / 6 else -it / 6 },
-                    )
-            } else NoExitTransition
+            val animate = shouldAnimate
+            val enterTransition = remember(animate, flipToggles) {
+                if (animate) {
+                    fadeIn(tween(AnimationDuration)) +
+                        slideInHorizontally(
+                            animationSpec = tween(AnimationDuration),
+                            initialOffsetX = { if (flipToggles) it / 6 else -it / 6 },
+                        )
+                } else NoEnterTransition
+            }
+            val exitTransition = remember(animate, flipToggles) {
+                if (animate) {
+                    fadeOut(tween(AnimationDuration)) +
+                        slideOutHorizontally(
+                            animationSpec = tween(AnimationDuration),
+                            targetOffsetX = { if (flipToggles) it / 6 else -it / 6 },
+                        )
+                } else NoExitTransition
+            }
             key(flipToggles) {
                 this@CenterContent.AnimatedVisibility(
                     visible = !expanded,

@@ -41,6 +41,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         private const val TRIGRAM_BOOST = 3.0
         private const val SEED_WORDS = "ime/dict/vi.json"
         private const val PHRASES_PATH = "ime/dict/phrases.json"
+        private val whitespace = Regex("\\s+")
 
         private var currentInstance: QwenSuggestionProvider? = null
 
@@ -411,7 +412,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 val lastChar = textBefore.last()
                 if (lastChar == '\n') return@withContext emptyList()
                 if (lastChar == '.' || lastChar == '?' || lastChar == '!') {
-                    val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
+                    val words = textBefore.trimEnd().split(whitespace).filter { it.isNotBlank() }
                     discourseBuffer.clear()
                     discourseBuffer.addAll(words.takeLast(5))
                     return@withContext emptyList()
@@ -422,7 +423,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 var autoCommitWord: String? = null
 
                 val pairs = if (lastChar == ' ' || lastChar == '\t') {
-                    val words = textBefore.trimEnd().split(Regex("\\s+")).filter { it.isNotBlank() }
+                    val words = textBefore.trimEnd().split(whitespace).filter { it.isNotBlank() }
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
                     if (lastWord.isBlank()) return@withContext emptyList()
                     if (now >= pasteUntil) {
@@ -469,7 +470,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         if (System.currentTimeMillis() < pasteUntil) return
         learnCounter++
         if (learnCounter % 3 != 0) return
-        val words = text.trimEnd().split(Regex("\\s+"))
+        val words = text.trimEnd().split(whitespace)
             .map { it.lowercase().trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>') }
             .filter { it.isNotEmpty() && !isNoise(it) }
         if (words.size < 2) return
@@ -568,7 +569,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     private fun suggestNextWord(textBefore: String, k: Int): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
-        val words = textBefore.split(Regex("\\s+")).filter { it.isNotBlank() }
+        val words = textBefore.split(whitespace).filter { it.isNotBlank() }
         val w2 = if (words.isNotEmpty()) words.last().lowercase() else ""
         val w1 = if (words.size >= 2) words[words.size - 2].lowercase() else null
 
@@ -576,7 +577,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         var qwenScored = false
 
         if (!natLoading && natLoaded && modelPtr != 0L) {
-            val contextText = if (discourseBuffer.isNotEmpty() && textBefore.split(Regex("\\s+")).size <= 2) {
+            val contextText = if (discourseBuffer.isNotEmpty() && textBefore.split(whitespace).size <= 2) {
                 discourseBuffer.joinToString(" ") + " " + textBefore.trimStart()
             } else {
                 textBefore
@@ -711,7 +712,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         }
 
         if (candidates.isEmpty()) {
-            val contextWords = context.trimEnd().split(Regex("\\s+"))
+            val contextWords = context.trimEnd().split(whitespace)
                 .map { it.trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>') }
                 .filter { it.isNotBlank() }
             val w2 = if (contextWords.isNotEmpty()) contextWords.last().lowercase() else ""

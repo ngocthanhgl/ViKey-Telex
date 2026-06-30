@@ -461,8 +461,8 @@ class PopupUiController(
             FlorisImeUi.Attr.Mode to evaluator.keyboard.mode.toString(),
             FlorisImeUi.Attr.ShiftState to evaluator.state.inputShiftState.toString(),
         )
-        val popupAnim = spring<Float>(dampingRatio = 0.6f, stiffness = 400f)
-        val popupFadeOut = tween<Float>(80)
+        val popupAnim = remember { spring<Float>(dampingRatio = 0.6f, stiffness = 400f) }
+        val popupFadeOut = remember { tween<Float>(80) }
         AnimatedContent(
             targetState = baseRenderInfo,
             transitionSpec = {

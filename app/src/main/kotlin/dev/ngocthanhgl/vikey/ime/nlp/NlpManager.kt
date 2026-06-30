@@ -263,7 +263,7 @@ class NlpManager(context: Context) {
             val stored = internalSuggestions.get()
             val (prevTime, _) = stored
             if (prevTime < reqTime) internalSuggestions.set(reqTime to suggestions)
-            scope.launch { assembleCandidates() }
+            assembleCandidates()
             hasPendingComposition = false
         }
     }
@@ -308,7 +308,7 @@ class NlpManager(context: Context) {
                     addAll(suggestions)
                 })
             }
-            scope.launch { assembleCandidates() }
+            assembleCandidates()
         }
     }
 
