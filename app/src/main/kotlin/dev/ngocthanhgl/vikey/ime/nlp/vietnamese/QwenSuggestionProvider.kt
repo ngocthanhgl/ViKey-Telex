@@ -40,6 +40,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         private const val BIGRAM_BOOST = 5.0
         private const val TRIGRAM_BOOST = 3.0
         private const val SEED_WORDS = "ime/dict/vi.json"
+        private const val EN_WORDS = "ime/dict/en.json"
         private const val PHRASES_PATH = "ime/dict/phrases.json"
         private val whitespace = Regex("\\s+")
 
@@ -73,6 +74,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     private val seedWords = mutableSetOf<String>()
     private val seedWordFrequencies = mutableMapOf<String, Int>()
+    private val enWordFrequencies = mutableMapOf<String, Int>()
     private var prefixTrie: Map<String, List<String>> = mapOf()
     private var useTrie = false
     private var bigrams = mutableMapOf<String, MutableMap<String, Int>>()
@@ -91,6 +93,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     override suspend fun create() {
         withContext(Dispatchers.IO) {
             loadSeedWords()
+            loadEnglishWords()
             loadPersonalDict()
             loadNgrams()
             loadDiscourseBuffer()
@@ -162,6 +165,22 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             loadPhrases()
         } catch (e: Exception) {
             flogDebug { "Qwen: seed words load: ${e.message}" }
+        }
+    }
+
+    private fun loadEnglishWords() {
+        try {
+            val raw = context.assets.open(EN_WORDS).bufferedReader().use { it.readText() }
+            val json = JSONObject(raw)
+            for (key in json.keys()) {
+                val w = key.lowercase()
+                if (w.isNotEmpty() && w.none { it.isWhitespace() } && w.all { it.isLetter() || it == '\'' }) {
+                    enWordFrequencies[w] = json.getInt(key)
+                }
+            }
+            flogDebug { "Qwen: loaded ${enWordFrequencies.size} English words" }
+        } catch (e: Exception) {
+            flogDebug { "Qwen: English words load: ${e.message}" }
         }
     }
 
@@ -772,14 +791,18 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     }
 
     override suspend fun getListOfWords(subtype: Subtype): List<String> =
-        seedWords.union(personalDict.keys).toList()
+        if (subtype.languageTag.startsWith("en"))
+            (enWordFrequencies.keys + personalDict.keys).toList()
+        else
+            seedWords.union(personalDict.keys).toList()
 
     override suspend fun getFrequencyForWord(subtype: Subtype, word: String): Double {
         val lc = word.lowercase()
         val pw = personalDict[lc]
         if (pw != null) return (decayedCount(pw) / 50.0).coerceIn(0.0, 1.0)
-        val sf = seedWordFrequencies[lc]
-        if (sf != null) return (sf / 50_000_000.0).coerceIn(0.0, 1.0)
+        val freq = if (subtype.languageTag.startsWith("en"))
+            enWordFrequencies[lc] else seedWordFrequencies[lc]
+        if (freq != null) return (freq / 50_000_000.0).coerceIn(0.0, 1.0)
         return 0.0
     }
 
