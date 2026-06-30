@@ -36,6 +36,7 @@ class DTWGlideTypingClassifier(context: Context) : StatisticalGlideTypingClassif
 
         val results = mutableListOf<Pair<String, Double>>()
         var bestScore = Double.MAX_VALUE
+        var bestDtwDist = Double.MAX_VALUE
 
         for (word in remaining) {
             val rawWord = word
@@ -45,10 +46,14 @@ class DTWGlideTypingClassifier(context: Context) : StatisticalGlideTypingClassif
                 if (wordPoints.size < 2) continue
 
                 val window = max(max(wordPoints.size, inputLen) / 2, 10)
-                val cutoff = if (bestScore < Double.MAX_VALUE) bestScore * inputLen * 1.5 else Double.MAX_VALUE
+                val cutoff = if (bestDtwDist < Double.MAX_VALUE) bestDtwDist * 1.5 else Double.MAX_VALUE
                 val dtwDist = dtwDistance(userPoints, wordPoints, window, cutoff)
 
                 if (dtwDist == Double.MAX_VALUE) continue
+
+                if (dtwDist < bestDtwDist) {
+                    bestDtwDist = dtwDist
+                }
 
                 val normalizedDist = dtwDist / inputLen
                 val freq = (wordFrequencies[rawWord] ?: 0.0)

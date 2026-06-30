@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.min
 
@@ -104,7 +105,7 @@ class GlideTypingManager(context: Context) : GlideTypingGesture.Listener {
                         maxSuggestionsToShow.coerceAtMost(suggestions.size)
                     ).forEach { (word, score) ->
                         val topScore = suggestions.first().second
-                        val confidence = exp(score - topScore)
+                        val confidence = exp(-abs(score - topScore))
                         add(WordSuggestionCandidate(
                             keyboardManager.fixCase(word.toString()),
                             confidence = confidence.toDouble()

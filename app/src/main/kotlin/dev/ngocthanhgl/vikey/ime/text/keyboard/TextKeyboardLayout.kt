@@ -85,6 +85,7 @@ import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.editorInstance
 import dev.ngocthanhgl.vikey.glideTypingManager
+import dev.ngocthanhgl.vikey.subtypeManager
 import dev.ngocthanhgl.vikey.ime.editor.OperationScope
 import dev.ngocthanhgl.vikey.ime.editor.OperationUnit
 import dev.ngocthanhgl.vikey.ime.input.InputEventDispatcher
@@ -147,11 +148,13 @@ fun TextKeyboardLayout(
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val glideTypingManager by context.glideTypingManager()
+    val subtypeManager by context.subtypeManager()
 
     val keyboard = evaluator.keyboard as TextKeyboard
     val glideEnabledInternal by prefs.glide.enabled.collectAsState()
     val glideEnabled = glideEnabledInternal && evaluator.editorInfo.isRichInputEditor &&
-        evaluator.state.keyVariation != KeyVariation.PASSWORD
+        evaluator.state.keyVariation != KeyVariation.PASSWORD &&
+        subtypeManager.activeSubtype.primaryLocale.language != "vi"
     val glideShowTrail by prefs.glide.showTrail.collectAsState()
     val glideTrailStyle = rememberSnyggThemeQuery(FlorisImeUi.GlideTrail.elementName)
     val glideTrailColor = glideTrailStyle.foreground(default = Color.Green)
@@ -649,6 +652,7 @@ private class TextKeyboardLayoutController(
     private val prefs by FlorisPreferenceStore
     private val editorInstance by context.editorInstance()
     private val keyboardManager by context.keyboardManager()
+    private val subtypeManager by context.subtypeManager()
 
     private val inputEventDispatcher get() = keyboardManager.inputEventDispatcher
     private val inputFeedbackController get() = FlorisImeService.inputFeedbackController()
@@ -670,7 +674,8 @@ private class TextKeyboardLayoutController(
     var size = Size.Zero
 
     val isGlideEnabled: Boolean get() = prefs.glide.enabled.get() && editorInstance.activeInfo.isRichInputEditor &&
-        keyboardManager.activeState.keyVariation != KeyVariation.PASSWORD
+        keyboardManager.activeState.keyVariation != KeyVariation.PASSWORD &&
+        subtypeManager.activeSubtype.primaryLocale.language != "vi"
 
     fun onTouchEventInternal(event: MotionEvent) {
         flogDebug { "event=$event" }
