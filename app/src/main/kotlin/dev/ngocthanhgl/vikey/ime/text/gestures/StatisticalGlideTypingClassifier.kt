@@ -427,7 +427,8 @@ open class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClass
                     }
                 }
                 return if (result.size <= 2) {
-                    keys.map { it.baseCode() }.take(3)
+                    keys.filter { val c = it.baseCode(); c >= 97 && c <= 122 }
+                        .map { it.baseCode() }.take(3)
                 } else result
             }
         }
