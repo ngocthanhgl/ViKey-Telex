@@ -48,7 +48,7 @@ private fun TextKey.baseCode(): Int {
  *
  * Check out Étienne Desticourt's excellent write up at https://github.com/AnySoftKeyboard/AnySoftKeyboard/pull/1870
  */
-class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClassifier {
+open class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClassifier {
     private val nlpManager by context.nlpManager()
 
     protected val gesture = Gesture()

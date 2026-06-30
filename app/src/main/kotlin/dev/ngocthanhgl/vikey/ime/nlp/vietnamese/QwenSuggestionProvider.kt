@@ -791,7 +791,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     }
 
     override suspend fun getListOfWords(subtype: Subtype): List<String> =
-        if (subtype.languageTag.startsWith("en"))
+        if (subtype.primaryLocale.language == "en")
             (enWordFrequencies.keys + personalDict.keys).toList()
         else
             seedWords.union(personalDict.keys).toList()
@@ -800,7 +800,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val lc = word.lowercase()
         val pw = personalDict[lc]
         if (pw != null) return (decayedCount(pw) / 50.0).coerceIn(0.0, 1.0)
-        val freq = if (subtype.languageTag.startsWith("en"))
+        val freq =         if (subtype.primaryLocale.language == "en")
             enWordFrequencies[lc] else seedWordFrequencies[lc]
         if (freq != null) return (freq / 50_000_000.0).coerceIn(0.0, 1.0)
         return 0.0
