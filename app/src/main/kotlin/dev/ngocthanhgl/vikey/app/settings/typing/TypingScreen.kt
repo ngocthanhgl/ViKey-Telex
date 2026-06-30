@@ -11,6 +11,7 @@ import androidx.compose.material.icons.rounded.FormatAlignLeft
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.MenuBook
+import androidx.compose.material.icons.rounded.PanTool
 import androidx.compose.material.icons.rounded.Spellcheck
 import androidx.compose.material.icons.rounded.TextFormat
 import androidx.compose.material3.Card
@@ -56,6 +57,7 @@ fun TypingScreen() {
         val languageMode by prefs.spelling.languageMode.collectAsState()
         val useContacts by prefs.spelling.useContacts.collectAsState()
         val useUdmEntries by prefs.spelling.useUdmEntries.collectAsState()
+        val glideEnabled by prefs.glide.enabled.collectAsState()
 
         Text(
             text = stringRes(R.string.pref__correction__title),
@@ -174,6 +176,31 @@ fun TypingScreen() {
                 icon = Icons.Rounded.MenuBook,
                 title = stringRes(R.string.settings__dictionary__title),
                 onClick = { navController.navigate(Routes.Settings.Dictionary) },
+            )
+        }
+
+        Text(
+            text = stringRes(R.string.pref__glide__title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
+        )
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            M3SwitchPreference(
+                icon = Icons.Rounded.PanTool,
+                checked = glideEnabled,
+                onCheckedChange = { scope.launch { prefs.glide.enabled.set(it) } },
+                title = stringRes(R.string.pref__glide__enabled__label),
+                summary = stringRes(R.string.pref__glide__enabled__summary),
             )
         }
     }

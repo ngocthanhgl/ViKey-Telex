@@ -502,13 +502,18 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         return false
     }
 
-    private fun recordWord(raw: String) {
+    fun recordWord(raw: String) {
         val lc = raw.lowercase().trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>')
         if (isNoise(lc)) return
         val existing = personalDict[lc]
         val newCount = (existing?.count ?: 0) + 1
         personalDict[lc] = PersonalWord(count = newCount, lastUsedTs = System.currentTimeMillis())
         personalDirty = true
+    }
+
+    fun getBigramFrequency(prev: String, next: String): Double {
+        val bi = bigrams[prev.lowercase()] ?: return 0.0
+        return (bi[next.lowercase()] ?: 0).toDouble()
     }
 
     private fun dampWord(word: String) {
@@ -766,11 +771,16 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         return false
     }
 
-    override suspend fun getListOfWords(subtype: Subtype): List<String> = personalDict.keys.toList()
+    override suspend fun getListOfWords(subtype: Subtype): List<String> =
+        seedWords.union(personalDict.keys).toList()
 
     override suspend fun getFrequencyForWord(subtype: Subtype, word: String): Double {
-        val pw = personalDict[word.lowercase()]
-        return if (pw != null) (decayedCount(pw) / 50.0).coerceIn(0.0, 1.0) else 0.0
+        val lc = word.lowercase()
+        val pw = personalDict[lc]
+        if (pw != null) return (decayedCount(pw) / 50.0).coerceIn(0.0, 1.0)
+        val sf = seedWordFrequencies[lc]
+        if (sf != null) return (sf / 50_000_000.0).coerceIn(0.0, 1.0)
+        return 0.0
     }
 
     override suspend fun destroy() {

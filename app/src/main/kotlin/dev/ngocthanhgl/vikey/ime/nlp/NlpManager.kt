@@ -382,6 +382,33 @@ class NlpManager(context: Context) {
         return runBlocking { getSuggestionProvider(subtype).getFrequencyForWord(subtype, word) }
     }
 
+    fun getFrequenciesForWords(subtype: Subtype, words: List<String>): Map<String, Double> {
+        return runBlocking {
+            val provider = getSuggestionProvider(subtype)
+            words.associateWith { word -> provider.getFrequencyForWord(subtype, word) }
+        }
+    }
+
+    fun getBigramFrequency(prevWord: String, nextWord: String): Double {
+        return runBlocking {
+            val subtype = subtypeManager.activeSubtype
+            val provider = getSuggestionProvider(subtype)
+            if (provider is QwenSuggestionProvider) {
+                provider.getBigramFrequency(prevWord, nextWord)
+            } else 0.0
+        }
+    }
+
+    fun learnWord(word: String) {
+        runBlocking {
+            val subtype = subtypeManager.activeSubtype
+            val provider = getSuggestionProvider(subtype)
+            if (provider is QwenSuggestionProvider) {
+                provider.recordWord(word)
+            }
+        }
+    }
+
     private suspend fun assembleCandidates() {
         val candidates = when {
             isSuggestionOn() -> {

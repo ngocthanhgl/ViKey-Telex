@@ -35,6 +35,10 @@
       "composer": "org.florisboard.composers:appender",
       "currencySet": "org.florisboard.currencysets:dollar",
       "popupMapping": "org.florisboard.localization:en",
+      "nlpProviders": {
+        "spelling": "org.florisboard.nlp.providers.vietnamese",
+        "suggestion": "org.florisboard.nlp.providers.vietnamese.qwen"
+      },
       "preferred": {
         "characters": "org.florisboard.layouts:qwerty"
       }
@@ -44,6 +48,10 @@
       "composer": "org.florisboard.composers:appender",
       "currencySet": "org.florisboard.currencysets:pound",
       "popupMapping": "org.florisboard.localization:en",
+      "nlpProviders": {
+        "spelling": "org.florisboard.nlp.providers.vietnamese",
+        "suggestion": "org.florisboard.nlp.providers.vietnamese.qwen"
+      },
       "preferred": {
         "characters": "org.florisboard.layouts:qwerty"
       }

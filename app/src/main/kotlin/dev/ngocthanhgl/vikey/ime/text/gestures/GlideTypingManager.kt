@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.exp
 import kotlin.math.min
 
 /**
@@ -101,14 +102,21 @@ class GlideTypingManager(context: Context) : GlideTypingGesture.Listener {
                     suggestions.subList(
                         1.coerceAtMost(min(commit.compareTo(false), suggestions.size)),
                         maxSuggestionsToShow.coerceAtMost(suggestions.size)
-                    ).map { keyboardManager.fixCase(it) }.forEach {
-                        add(WordSuggestionCandidate(it, confidence = 1.0))
+                    ).forEach { (word, score) ->
+                        val topScore = suggestions.first().second
+                        val confidence = exp(score - topScore)
+                        add(WordSuggestionCandidate(
+                            keyboardManager.fixCase(word),
+                            confidence = confidence.toDouble()
+                        ))
                     }
                 }
 
                 nlpManager.suggestDirectly(suggestionList)
                 if (commit && suggestions.isNotEmpty()) {
-                    keyboardManager.commitGesture(suggestions.first())
+                    val topWord = suggestions.first().first
+                    keyboardManager.commitGesture(topWord.toString())
+                    nlpManager.learnWord(topWord.toString())
                 }
                 callback.invoke(true)
             }
