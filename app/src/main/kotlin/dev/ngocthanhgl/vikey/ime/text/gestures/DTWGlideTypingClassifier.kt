@@ -17,6 +17,7 @@
 package dev.ngocthanhgl.vikey.ime.text.gestures
 
 import android.content.Context
+import dev.ngocthanhgl.vikey.lib.devtools.flogDebug
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -28,11 +29,17 @@ class DTWGlideTypingClassifier(context: Context) : StatisticalGlideTypingClassif
         val smoothed = gesture.smooth()
         var remaining = pruner.pruneByExtremities(smoothed, keys)
         remaining = pruner.pruneByLength(smoothed, remaining, keysByCharacter, keys)
-        if (remaining.isEmpty()) return emptyList()
+        if (remaining.isEmpty()) {
+            flogDebug { "DTW: empty after prune" }
+            return emptyList()
+        }
 
         val userPoints = smoothed.toPointList()
         val inputLen = userPoints.size
-        if (inputLen < 2) return emptyList()
+        if (inputLen < 2) {
+            flogDebug { "DTW: inputLen=$inputLen < 2" }
+            return emptyList()
+        }
 
         val results = mutableListOf<Pair<String, Double>>()
         var bestScore = Double.MAX_VALUE
@@ -67,6 +74,7 @@ class DTWGlideTypingClassifier(context: Context) : StatisticalGlideTypingClassif
         }
 
         results.sortBy { it.second }
+        flogDebug { "DTW: ${remaining.size} candidates -> ${results.size} results, best=${results.firstOrNull()?.first}" }
         return results.take(maxSuggestionCount)
             .map { (word, score) -> word as CharSequence to score.toFloat() }
     }

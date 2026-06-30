@@ -17,6 +17,7 @@
 package dev.ngocthanhgl.vikey.ime.text.gestures
 
 import android.content.Context
+import android.util.Log
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.ime.nlp.WordSuggestionCandidate
 import dev.ngocthanhgl.vikey.ime.text.keyboard.TextKey
@@ -91,31 +92,37 @@ class GlideTypingManager(context: Context) : GlideTypingGesture.Listener {
      */
     private fun updateSuggestionsAsync(maxSuggestionsToShow: Int, commit: Boolean, callback: (Boolean) -> Unit) {
         if (!glideTypingClassifier.ready) {
+            Log.v("GlideMgr", "updateSuggestionsAsync: not ready")
             callback.invoke(false)
             return
         }
 
         scope.launch(Dispatchers.Default) {
             val suggestions = glideTypingClassifier.getSuggestions(MAX_SUGGESTION_COUNT, true)
+            Log.v("GlideMgr", "getSuggestions returned ${suggestions.size} items: ${suggestions.take(3).map { "${it.first}=${it.second}" }}")
 
             withContext(Dispatchers.Main) {
                 val suggestionList = buildList {
-                    suggestions.subList(
-                        1.coerceAtMost(min(commit.compareTo(false), suggestions.size)),
-                        maxSuggestionsToShow.coerceAtMost(suggestions.size)
-                    ).forEach { (word, score) ->
-                        val topScore = suggestions.first().second
-                        val confidence = exp(-abs(score - topScore))
-                        add(WordSuggestionCandidate(
-                            keyboardManager.fixCase(word.toString()),
-                            confidence = confidence.toDouble()
-                        ))
+                    if (suggestions.size > 1 || (suggestions.size == 1 && !commit)) {
+                        suggestions.subList(
+                            1.coerceAtMost(min(commit.compareTo(false), suggestions.size)),
+                            maxSuggestionsToShow.coerceAtMost(suggestions.size)
+                        ).forEach { (word, score) ->
+                            val topScore = suggestions.first().second
+                            val confidence = exp(-abs(score - topScore))
+                            add(WordSuggestionCandidate(
+                                keyboardManager.fixCase(word.toString()),
+                                confidence = confidence.toDouble()
+                            ))
+                        }
                     }
                 }
 
+                Log.v("GlideMgr", "suggestionList size=${suggestionList.size}, commit=$commit, suggestions.isNotEmpty()=${suggestions.isNotEmpty()}")
                 nlpManager.suggestDirectly(suggestionList)
                 if (commit && suggestions.isNotEmpty()) {
                     val topWord = suggestions.first().first
+                    Log.v("GlideMgr", "COMMITTING: $topWord")
                     keyboardManager.commitGesture(topWord.toString())
                     nlpManager.learnWord(topWord.toString())
                 }

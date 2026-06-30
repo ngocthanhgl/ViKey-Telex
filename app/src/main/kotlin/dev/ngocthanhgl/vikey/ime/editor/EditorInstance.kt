@@ -335,7 +335,7 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
      * @return True on success, false if an error occurred or the input connection is invalid.
      */
     fun commitGesture(text: String): Boolean {
-        if (text.isEmpty() || activeInfo.isRawInputEditor) return false
+        if (text.isEmpty()) return false
         val isPhantomSpaceActive = phantomSpace.determine(text, forceActive = true)
         phantomSpace.setActive(showComposingRegion = true)
         return if (isPhantomSpaceActive) {
