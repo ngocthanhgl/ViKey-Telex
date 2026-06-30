@@ -173,7 +173,7 @@ class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClassifier
         if (cached == null) {
             val key = keys.firstOrNull()
             val radius = if (key != null) min(key.visibleBounds.height, key.visibleBounds.width) else 1f
-            this.pruner = Pruner(LENGTH_THRESHOLD_FACTOR * radius, this.words, keysByCharacter)
+            this.pruner = Pruner((LENGTH_THRESHOLD_FACTOR * radius).toDouble(), this.words, keysByCharacter)
             prunerCache.put(currentSubtype, this.pruner)
         } else {
             this.pruner = cached
@@ -410,7 +410,7 @@ class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClassifier
                 val dx = tx - cx
                 val dy = ty - cy
                 val sigma = key.visibleBounds.width / 3f
-                return exp(-(dx * dx + dy * dy) / (2f * sigma * sigma)) / (2f * PI * sigma * sigma)
+                return exp(-(dx * dx + dy * dy) / (2f * sigma * sigma)) / (2f * PI.toFloat() * sigma * sigma)
             }
 
             /**

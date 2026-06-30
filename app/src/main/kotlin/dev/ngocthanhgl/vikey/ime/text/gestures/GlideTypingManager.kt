@@ -106,7 +106,7 @@ class GlideTypingManager(context: Context) : GlideTypingGesture.Listener {
                         val topScore = suggestions.first().second
                         val confidence = exp(score - topScore)
                         add(WordSuggestionCandidate(
-                            keyboardManager.fixCase(word),
+                            keyboardManager.fixCase(word.toString()),
                             confidence = confidence.toDouble()
                         ))
                     }
