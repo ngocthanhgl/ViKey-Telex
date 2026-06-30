@@ -410,7 +410,7 @@ class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClassifier
                 val dx = tx - cx
                 val dy = ty - cy
                 val sigma = key.visibleBounds.width / 3f
-                return exp(-(dx * dx + dy * dy) / (2f * sigma * sigma)) / (2f * PI.toFloat() * sigma * sigma)
+                return exp(-(dx * dx + dy * dy) / (2f * sigma * sigma))
             }
 
             /**

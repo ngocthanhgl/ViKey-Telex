@@ -109,6 +109,9 @@ fun HomeScreen() {
             SettingsSection(
                 header = sectionInput,
                 items = listOf(
+                    SettingsItem(Icons.Rounded.Language, titleLocalization, null) {
+                        navController.navigate(Routes.Settings.Localization)
+                    },
                     SettingsItem(Icons.Rounded.Keyboard, titleKeyboard, null) {
                         navController.navigate(Routes.Settings.Keyboard)
                     },
@@ -117,9 +120,6 @@ fun HomeScreen() {
                     },
                     SettingsItem(Icons.Rounded.PanTool, titleGestures, null) {
                         navController.navigate(Routes.Settings.Gestures)
-                    },
-                    SettingsItem(Icons.Rounded.Language, titleLocalization, null) {
-                        navController.navigate(Routes.Settings.Localization)
                     },
                 ),
             ),
