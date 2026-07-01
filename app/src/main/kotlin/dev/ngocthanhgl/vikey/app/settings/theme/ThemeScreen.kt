@@ -115,6 +115,19 @@ fun ThemeScreen() {
             )
         }
 
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
+        ) {
+            LiquidGlassSettingsPanel(prefs)
+        }
+
         AddonManagementReferenceBox(type = ExtensionListScreenType.EXT_THEME)
     }
 }

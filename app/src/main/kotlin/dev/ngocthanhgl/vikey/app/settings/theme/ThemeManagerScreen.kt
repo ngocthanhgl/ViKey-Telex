@@ -156,24 +156,5 @@ fun ThemeManagerScreen(action: ThemeManagerScreenAction?) {
                 }
             }
         }
-
-        Text(
-            text = stringRes(R.string.theme_manager__liquid_glass),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
-        )
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            shape = RoundedCornerShape(28.dp),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            ),
-        ) {
-            LiquidGlassSettingsPanel(prefs)
-        }
     }
 }
