@@ -133,6 +133,7 @@ data class BackgroundPhotoState(
     val bitmap: ImageBitmap,
     val boxSize: IntSize,
     val windowPos: Offset,
+    val alpha: Float = 1f,
 )
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -632,6 +633,7 @@ private fun TextKeyButton(
                                     ),
                                     dstOffset = IntOffset.Zero,
                                     dstSize = IntSize(sw.toInt(), sh.toInt()),
+                                    alpha = photo.alpha,
                                 )
                             }
                         }

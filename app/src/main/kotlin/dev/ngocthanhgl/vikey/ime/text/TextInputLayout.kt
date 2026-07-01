@@ -93,15 +93,25 @@ fun TextInputLayout(
     }
 
     val bgPhotoBitmap = remember(bgBitmap) { bgBitmap?.asImageBitmap() }
+
+    val blurredBitmap = remember(bgBitmap, bgPhotoBlur) {
+        if (bgBitmap != null && bgPhotoBlur > 0) {
+            applyDownscaleBlur(bgBitmap!!, bgPhotoBlur)
+        } else null
+    }
+    val lensBitmap = remember(blurredBitmap, bgPhotoBitmap) {
+        blurredBitmap?.asImageBitmap() ?: bgPhotoBitmap
+    }
     var photoWindowPos by remember { mutableStateOf(Offset.Zero) }
     var photoBoxSize by remember { mutableStateOf(IntSize.Zero) }
 
-    val bgPhotoState = remember(bgPhotoBitmap, photoWindowPos, photoBoxSize) {
-        if (bgPhotoBitmap != null && photoBoxSize != IntSize.Zero) {
+    val bgPhotoState = remember(lensBitmap, photoWindowPos, photoBoxSize, bgPhotoVis) {
+        if (lensBitmap != null && photoBoxSize != IntSize.Zero) {
             BackgroundPhotoState(
-                bitmap = bgPhotoBitmap!!,
+                bitmap = lensBitmap!!,
                 boxSize = photoBoxSize,
                 windowPos = photoWindowPos,
+                alpha = bgPhotoVis / 100f,
             )
         } else null
     }
@@ -180,4 +190,12 @@ fun TextInputLayout(
             }
         }
     }
+}
+
+private fun applyDownscaleBlur(bitmap: Bitmap, radius: Int): Bitmap {
+    val factor = 1f + radius * 0.12f
+    val w = (bitmap.width / factor).toInt().coerceAtLeast(1)
+    val h = (bitmap.height / factor).toInt().coerceAtLeast(1)
+    val down = Bitmap.createScaledBitmap(bitmap, w, h, true)
+    return Bitmap.createScaledBitmap(down, bitmap.width, bitmap.height, true)
 }
