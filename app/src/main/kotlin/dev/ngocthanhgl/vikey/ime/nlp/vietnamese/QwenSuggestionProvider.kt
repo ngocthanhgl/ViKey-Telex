@@ -792,7 +792,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     override suspend fun getListOfWords(subtype: Subtype): List<String> =
         if (subtype.primaryLocale.language == "en")
-            (enWordFrequencies.keys + personalDict.keys).toList()
+            (enWordFrequencies.keys + personalDict.keys.filter { it.matches(Regex("^[a-z0-9']+$")) }).toList()
         else
             seedWords.union(personalDict.keys).toList()
 
