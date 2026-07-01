@@ -428,8 +428,19 @@ open class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClass
                 }
                 return if (result.size <= 2) {
                     keys.filter { val c = it.baseCode(); c >= 97 && c <= 122 }
-                        .map { it.baseCode() }.take(3)
+                        .map { it to squaredDist(x, y, it) }
+                        .sortedBy { it.second }
+                        .map { it.first.baseCode() }
+                        .take(3)
                 } else result
+            }
+
+            private fun squaredDist(x: Float, y: Float, key: TextKey): Float {
+                val cx = key.visibleBounds.center.x
+                val cy = key.visibleBounds.center.y
+                val dx = x - cx
+                val dy = y - cy
+                return dx * dx + dy * dy
             }
         }
 
