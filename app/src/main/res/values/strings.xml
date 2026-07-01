@@ -1212,6 +1212,7 @@
     <string name="subtype_editor__section_numeric">Numeric</string>
     <string name="subtype_editor__section_phone">Phone</string>
     <string name="subtype_editor__suggestion_english_vietnamese">English/Vietnamese</string>
+    <string name="subtype_editor__suggestion_english_only">English</string>
 
     <!-- Keyboard -->
     <string name="keyboard__vietnamese_telex">Vietnamese Telex</string>

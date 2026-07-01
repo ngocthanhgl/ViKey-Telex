@@ -29,6 +29,7 @@ import dev.ngocthanhgl.vikey.ime.editor.EditorContent
 import dev.ngocthanhgl.vikey.ime.editor.EditorRange
 import dev.ngocthanhgl.vikey.ime.editor.InputAttributes
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSuggestionProvider
+import dev.ngocthanhgl.vikey.ime.nlp.english.EnglishSuggestionProvider
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.VietnameseLanguageProvider
 import dev.ngocthanhgl.vikey.keyboardManager
@@ -67,6 +68,7 @@ class NlpManager(context: Context) {
     private val providers = guardedByLock {
         mapOf(
             QwenSuggestionProvider.ProviderId to ProviderInstanceWrapper(QwenSuggestionProvider(context)),
+            EnglishSuggestionProvider.ProviderId to ProviderInstanceWrapper(EnglishSuggestionProvider(context)),
             VietnameseLanguageProvider.ProviderId to ProviderInstanceWrapper(VietnameseLanguageProvider(context)),
         )
     }

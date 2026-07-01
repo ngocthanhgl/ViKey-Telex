@@ -66,6 +66,7 @@ import dev.ngocthanhgl.vikey.ime.keyboard.LayoutType
 import dev.ngocthanhgl.vikey.ime.keyboard.extCorePopupMapping
 import dev.ngocthanhgl.vikey.ime.nlp.FallbackNlpProvider
 
+import dev.ngocthanhgl.vikey.ime.nlp.english.EnglishSuggestionProvider
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenNatives
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
 import dev.ngocthanhgl.vikey.keyboardManager
@@ -421,7 +422,8 @@ fun SubtypeEditorScreen(id: Long?) {
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_suggestion_provider)) {
                 val nlpProviderMappings = mapOf(
                     FallbackNlpProvider.providerId to stringRes(R.string.quick_action__noop),
-                    QwenSuggestionProvider.ProviderId to stringRes(R.string.subtype_editor__suggestion_english_vietnamese)
+                    QwenSuggestionProvider.ProviderId to stringRes(R.string.subtype_editor__suggestion_english_vietnamese),
+                    EnglishSuggestionProvider.ProviderId to stringRes(R.string.subtype_editor__suggestion_english_only),
                 )
 
                 val nlpProviderMappingIds = remember(nlpProviderMappings) {
