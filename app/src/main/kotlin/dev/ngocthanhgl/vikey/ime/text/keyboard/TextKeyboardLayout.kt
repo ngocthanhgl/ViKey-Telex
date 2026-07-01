@@ -169,6 +169,10 @@ fun TextKeyboardLayout(
     val lqRipple by prefs.liquidGlass.rippleEnabled.collectAsState()
     val lqDamping by prefs.liquidGlass.reboundDamping.collectAsState()
     val lqStiffness by prefs.liquidGlass.reboundStiffness.collectAsState()
+    val keyCornerRadius by prefs.theme.keyCornerRadius.collectAsState()
+    val overrideShape = remember(keyCornerRadius) {
+        if (keyCornerRadius > 0) RoundedCornerShape(keyCornerRadius.dp) else null
+    }
     val lqConfig = remember(
         lqLensIdle, lqLensPeak, lqHeightMult, lqAmountMult, lqTextLift, lqPressScale,
         lqChromatic, lqDepth, lqRipple, lqDamping, lqStiffness,
@@ -391,6 +395,7 @@ fun TextKeyboardLayout(
                 rippleOrigin = rippleOrigin,
                 rippleProgress = rippleRadius.value,
                 onRipple = { center -> rippleOrigin = center },
+                overrideShape = overrideShape,
             )
         }
 
@@ -417,6 +422,7 @@ private fun TextKeyButton(
     rippleOrigin: Offset? = null,
     rippleProgress: Float = 0f,
     onRipple: ((Offset) -> Unit)? = null,
+    overrideShape: androidx.compose.ui.graphics.Shape? = null,
 ) = with(LocalDensity.current) {
     val attributes = mapOf(
         FlorisImeUi.Attr.Code to key.computedData.code,
@@ -516,6 +522,7 @@ private fun TextKeyButton(
                 attributes = attributes,
                 selector = selector,
                 modifier = Modifier.fillMaxSize(),
+                overrideShape = overrideShape,
             ) {
             val isTelPadKey = key.computedData.type == KeyType.NUMERIC && evaluator.keyboard.mode == KeyboardMode.PHONE
             key.label?.let { label ->

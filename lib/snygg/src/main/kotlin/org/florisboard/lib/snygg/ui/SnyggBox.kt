@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,6 +50,7 @@ import org.florisboard.lib.snygg.SnyggStylesheet
  * @param supportsBackgroundImage controls if this Box supports background images.
  * @param backgroundImageDescription The content description of the background image.
  * @param allowClip If clipping should be allowed on this box.
+ * @param overrideShape Optional shape override. If non-null, overrides the stylesheet's shape for background, border, and shadow.
  * @param content The content of the Box
  *
  * @since 0.5.0-alpha01
@@ -67,6 +69,7 @@ fun SnyggBox(
     supportsBackgroundImage: Boolean = false,
     backgroundImageDescription: String? = null,
     allowClip: Boolean = true,
+    overrideShape: Shape? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     ProvideSnyggStyle(elementName, attributes, selector) { style ->
@@ -83,9 +86,9 @@ fun SnyggBox(
         Box(
             modifier = modifier
                 .snyggMargin(style)
-                .snyggShadow(style)
-                .snyggBorder(style)
-                .snyggBackground(style, allowClip = allowClip)
+                .snyggShadow(style, shape = overrideShape ?: style.shape())
+                .snyggBorder(style, shape = overrideShape ?: style.shape())
+                .snyggBackground(style, shape = overrideShape ?: style.shape(), allowClip = allowClip)
                 .then(clickAndSemanticsModifier)
                 .snyggPadding(style),
             contentAlignment = contentAlignment,
@@ -95,7 +98,7 @@ fun SnyggBox(
                 AsyncImage(
                     modifier = Modifier
                         .matchParentSize()
-                        .clip(style.shape()),
+                        .clip(overrideShape ?: style.shape()),
                     // https://github.com/coil-kt/coil/issues/159
                     model = ImageRequest.Builder(context)
                         .data(imagePath)

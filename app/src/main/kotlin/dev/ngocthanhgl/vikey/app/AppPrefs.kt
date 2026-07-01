@@ -770,6 +770,10 @@ val audioActivationMode = enum(
             key = "theme__editor_level",
             default = SnyggLevel.ADVANCED,
         )
+        val keyCornerRadius = int(
+            key = "theme__key_corner_radius",
+            default = 0,
+        )
     }
 
     val liquidGlass = LiquidGlass()

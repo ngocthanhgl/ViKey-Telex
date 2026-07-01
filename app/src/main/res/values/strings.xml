@@ -129,6 +129,7 @@
     <string name="settings__home__ime_not_selected" comment="Warning message shown in Home fragment when ViKey is not selected as the default keyboard">ViKey is not selected as the default input method. Click here to resolve this issue.</string>
 
     <string name="settings__section__input" comment="Section header for input-related settings">Input</string>
+    <string name="theme__key_corner_radius">Key Corner Radius</string>
     <string name="settings__section__personalization" comment="Section header for personalization settings">Personalization</string>
     <string name="settings__section__features" comment="Section header for feature settings">Features</string>
     <string name="settings__section__system" comment="Section header for system settings">System</string>

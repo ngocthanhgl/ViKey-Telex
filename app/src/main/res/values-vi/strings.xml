@@ -1252,6 +1252,7 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <string name="theme_editor__duplicate_id">ID chủ đề đã tồn tại!</string>
 
     <!-- Theme Manager -->
+    <string name="theme__key_corner_radius">Độ cong góc phím</string>
     <string name="theme_manager__liquid_glass">Liquid Glass</string>
 
     <!-- Swipe Action Enum -->
