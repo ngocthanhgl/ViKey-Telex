@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.CenterFocusStrong
+import androidx.compose.material.icons.rounded.Flare
 import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.rounded.LineWeight
 import androidx.compose.material.icons.rounded.Palette
@@ -96,6 +97,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
     val chromatic by prefs.liquidGlass.chromaticEnabled.collectAsState()
     val depth by prefs.liquidGlass.depthEnabled.collectAsState()
     val ripple by prefs.liquidGlass.rippleEnabled.collectAsState()
+    val glow by prefs.liquidGlass.glowEnabled.collectAsState()
     val damping by prefs.liquidGlass.reboundDamping.collectAsState()
     val stiffness by prefs.liquidGlass.reboundStiffness.collectAsState()
     val bgPath by prefs.backgroundPhoto.imagePath.collectAsState()
@@ -221,6 +223,14 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
         label = stringRes(R.string.liquid_glass__ripple_wave),
         checked = ripple,
         onCheckedChange = { scope.launch { prefs.liquidGlass.rippleEnabled.set(it) } },
+    )
+    SettingsDivider()
+
+    SettingsSwitch(
+        icon = Icons.Rounded.Flare,
+        label = stringRes(R.string.liquid_glass__key_glow),
+        checked = glow,
+        onCheckedChange = { scope.launch { prefs.liquidGlass.glowEnabled.set(it) } },
     )
 
     Spacer(Modifier.height(16.dp))

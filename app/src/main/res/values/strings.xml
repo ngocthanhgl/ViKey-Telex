@@ -1193,6 +1193,7 @@
     <string name="liquid_glass__chromatic_aberration">Chromatic Aberration</string>
     <string name="liquid_glass__depth_effect">Depth Effect</string>
     <string name="liquid_glass__ripple_wave">Ripple Wave</string>
+    <string name="liquid_glass__key_glow">Key Glow</string>
     <string name="liquid_glass__background_photo">Background Photo</string>
     <string name="liquid_glass__photo_selected">Photo selected</string>
     <string name="liquid_glass__remove_photo">Remove Photo</string>

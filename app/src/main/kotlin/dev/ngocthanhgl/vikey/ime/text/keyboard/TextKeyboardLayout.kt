@@ -37,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -54,9 +55,11 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInWindow
@@ -168,6 +171,7 @@ fun TextKeyboardLayout(
     val lqChromatic by prefs.liquidGlass.chromaticEnabled.collectAsState()
     val lqDepth by prefs.liquidGlass.depthEnabled.collectAsState()
     val lqRipple by prefs.liquidGlass.rippleEnabled.collectAsState()
+    val lqGlow by prefs.liquidGlass.glowEnabled.collectAsState()
     val lqDamping by prefs.liquidGlass.reboundDamping.collectAsState()
     val lqStiffness by prefs.liquidGlass.reboundStiffness.collectAsState()
     val keyCornerRadius by prefs.theme.keyCornerRadius.collectAsState()
@@ -176,7 +180,7 @@ fun TextKeyboardLayout(
     }
     val lqConfig = remember(
         lqLensIdle, lqLensPeak, lqHeightMult, lqAmountMult, lqTextLift, lqPressScale,
-        lqChromatic, lqDepth, lqRipple, lqDamping, lqStiffness,
+        lqChromatic, lqDepth, lqRipple, lqGlow, lqDamping, lqStiffness,
     ) {
         LiquidGlassConfig(
             lensIdle = lqLensIdle / 100f,
@@ -188,6 +192,7 @@ fun TextKeyboardLayout(
             chromaticEnabled = lqChromatic,
             depthEnabled = lqDepth,
             rippleEnabled = lqRipple,
+            glowEnabled = lqGlow,
             reboundDamping = lqDamping / 100f,
             reboundStiffness = lqStiffness.toFloat(),
         )
@@ -439,7 +444,7 @@ private fun TextKeyButton(
         key.visibleBounds.size.toDpSize()
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
-    val backdrop = remember(overrideShape) { rememberLayerBackdrop() }
+    val backdrop = key(overrideShape) { rememberLayerBackdrop() }
     val keyShape = rememberSnyggThemeQuery(FlorisImeUi.Key.elementName).shape()
     var keyCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val lensRefraction = remember { Animatable(if (isLiquidGlass) lqConfig.lensIdle else 0f) }
@@ -498,19 +503,45 @@ private fun TextKeyButton(
             exp(-(fromWave * fromWave) / (2f * 30f * 30f)) * 5f
         } else 0f
     } else 0f
+    val glowAlpha by animateFloatAsState(
+        targetValue = if (lqConfig.glowEnabled && key.isPressed) 0.5f else 0f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f),
+        label = "glowAlpha",
+    )
     val effectiveLens = lensRefraction.value + rippleBoost
     Box(
         modifier = Modifier
             .requiredSize(size)
             .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() }
             .onGloballyPositioned { coords -> keyCoords = coords },
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .layerBackdrop(backdrop),
         ) {
             Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .layerBackdrop(backdrop),
+            ) {
+                if (lqConfig.glowEnabled && glowAlpha > 0f) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .drawBehind {
+                                val drawSize = this.size
+                                val center = Offset(drawSize.width / 2f, drawSize.height / 2f)
+                                val radius = drawSize.width.coerceAtLeast(drawSize.height) * 1.5f
+                                drawCircle(
+                                    brush = Brush.radialGradient(
+                                        colors = listOf(
+                                            Color.White.copy(alpha = glowAlpha),
+                                            Color.White.copy(alpha = 0f),
+                                        ),
+                                    ),
+                                    radius = radius,
+                                    center = center,
+                                )
+                            },
+                    )
+                }
+                Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer(
@@ -1281,6 +1312,7 @@ private data class LiquidGlassConfig(
     val chromaticEnabled: Boolean,
     val depthEnabled: Boolean,
     val rippleEnabled: Boolean,
+    val glowEnabled: Boolean,
     val reboundDamping: Float,
     val reboundStiffness: Float,
 )

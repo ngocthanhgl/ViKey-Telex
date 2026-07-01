@@ -1188,6 +1188,7 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <string name="liquid_glass__chromatic_aberration">Quang sai màu</string>
     <string name="liquid_glass__depth_effect">Hiệu ứng chiều sâu</string>
     <string name="liquid_glass__ripple_wave">Sóng gợn</string>
+    <string name="liquid_glass__key_glow">Phát sáng phím</string>
     <string name="liquid_glass__background_photo">Ảnh nền</string>
     <string name="liquid_glass__photo_selected">Đã chọn ảnh</string>
     <string name="liquid_glass__remove_photo">Xóa ảnh</string>

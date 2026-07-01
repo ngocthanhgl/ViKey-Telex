@@ -818,6 +818,10 @@ val audioActivationMode = enum(
             key = "liquid_glass__ripple",
             default = true,
         )
+        val glowEnabled = boolean(
+            key = "liquid_glass__glow",
+            default = false,
+        )
         val reboundDamping = int(
             key = "liquid_glass__rebound_damping",
             default = 28,
