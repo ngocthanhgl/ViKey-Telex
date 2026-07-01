@@ -405,8 +405,9 @@ class NlpManager(context: Context) {
         runBlocking {
             val subtype = subtypeManager.activeSubtype
             val provider = getSuggestionProvider(subtype)
-            if (provider is QwenSuggestionProvider) {
-                provider.recordWord(word)
+            when (provider) {
+                is QwenSuggestionProvider -> provider.recordWord(word, if (subtype.primaryLocale.language == "en") "en" else "vi")
+                is EnglishSuggestionProvider -> provider.recordWord(word)
             }
         }
     }

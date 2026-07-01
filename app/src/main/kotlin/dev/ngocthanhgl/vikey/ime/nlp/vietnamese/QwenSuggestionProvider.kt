@@ -66,7 +66,11 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private data class PersonalWord(val count: Int, val lastUsedTs: Long)
     private data class DampedWord(val dampCount: Int = 0, val lastDampedTs: Long = 0)
 
-    private val personalDict = mutableMapOf<String, PersonalWord>()
+    private val personalDicts = mutableMapOf<String, MutableMap<String, PersonalWord>>()
+    private fun pd(lang: String): MutableMap<String, PersonalWord> =
+        personalDicts.getOrPut(lang) { mutableMapOf() }
+    private fun langFor(subtype: Subtype?): String =
+        if (subtype?.primaryLocale?.language == "en") "en" else "vi"
     private val dampedWords = mutableMapOf<String, DampedWord>()
     private var personalDirty = false
     private var learnCounter = 0
@@ -116,24 +120,42 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     private fun loadPersonalDict() {
         try {
-            val f = File(context.filesDir, PERSONAL_DICT)
-            if (!f.exists()) return
-            val json = JSONObject(f.readText())
-            for (key in json.keys()) {
-                val obj = json.getJSONObject(key)
-                personalDict[key] = PersonalWord(
-                    count = obj.optInt("c", 1),
-                    lastUsedTs = obj.optLong("t", System.currentTimeMillis()),
-                )
-                val dc = obj.optInt("d", 0)
-                if (dc > 0) {
-                    dampedWords[key] = DampedWord(
-                        dampCount = dc,
-                        lastDampedTs = obj.optLong("dt", System.currentTimeMillis()),
+            val dir = context.filesDir
+            val oldF = File(dir, PERSONAL_DICT)
+            if (oldF.exists()) {
+                val json = JSONObject(oldF.readText())
+                val vi = pd("vi")
+                for (key in json.keys()) {
+                    val obj = json.getJSONObject(key)
+                    vi[key] = PersonalWord(
+                        count = obj.optInt("c", 1),
+                        lastUsedTs = obj.optLong("t", System.currentTimeMillis()),
+                    )
+                    val dc = obj.optInt("d", 0)
+                    if (dc > 0) {
+                        dampedWords[key] = DampedWord(
+                            dampCount = dc,
+                            lastDampedTs = obj.optLong("dt", System.currentTimeMillis()),
+                        )
+                    }
+                }
+                oldF.delete()
+            }
+            for (lang in arrayOf("en", "vi")) {
+                val f = File(dir, "${PERSONAL_DICT}_$lang.json")
+                if (!f.exists()) continue
+                val json = JSONObject(f.readText())
+                val dict = pd(lang)
+                for (key in json.keys()) {
+                    val obj = json.getJSONObject(key)
+                    dict[key] = PersonalWord(
+                        count = obj.optInt("c", 1),
+                        lastUsedTs = obj.optLong("t", System.currentTimeMillis()),
                     )
                 }
             }
-            flogDebug { "Qwen: loaded ${personalDict.size} personal words, ${dampedWords.size} damped" }
+            val total = pd("en").size + pd("vi").size
+            flogDebug { "Qwen: loaded $total personal words (en=${pd("en").size} vi=${pd("vi").size}), damped=${dampedWords.size}" }
         } catch (e: Exception) {
             flogDebug { "Qwen: personal dict load: ${e.message}" }
         }
@@ -204,19 +226,23 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         checkClearedMarker()
         if (!personalDirty) return
         try {
-            val json = JSONObject()
-            for ((word, pw) in personalDict) {
-                val obj = JSONObject()
-                obj.put("c", pw.count)
-                obj.put("t", pw.lastUsedTs)
-                val dw = dampedWords[word]
-                if (dw != null && dw.dampCount > 0) {
-                    obj.put("d", dw.dampCount)
-                    obj.put("dt", dw.lastDampedTs)
+            val dir = context.filesDir
+            for (lang in arrayOf("en", "vi")) {
+                val dict = personalDicts[lang] ?: continue
+                val json = JSONObject()
+                for ((word, pw) in dict) {
+                    val obj = JSONObject()
+                    obj.put("c", pw.count)
+                    obj.put("t", pw.lastUsedTs)
+                    val dw = dampedWords[word]
+                    if (dw != null && dw.dampCount > 0) {
+                        obj.put("d", dw.dampCount)
+                        obj.put("dt", dw.lastDampedTs)
+                    }
+                    json.put(word, obj)
                 }
-                json.put(word, obj)
+                File(dir, "${PERSONAL_DICT}_$lang.json").writeText(json.toString())
             }
-            File(context.filesDir, PERSONAL_DICT).writeText(json.toString())
             syncRoomDb()
             personalDirty = false
         } catch (e: Exception) {
@@ -229,23 +255,28 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             val dm = DictionaryManager.default()
             dm.loadUserDictionariesIfNecessary()
             val dao = dm.florisUserDictionaryDao() ?: return
-            for ((word, pw) in personalDict) {
-                val existing = dao.queryExact(word)
-                val freq = pw.count.coerceIn(1, 255)
-                if (existing.isNotEmpty()) {
-                    dao.update(existing[0].copy(freq = freq))
-                } else {
-                    dao.insert(UserDictionaryEntry(0, word, freq, null, null))
+            for ((_, dict) in personalDicts) {
+                for ((word, pw) in dict) {
+                    val existing = dao.queryExact(word)
+                    val freq = pw.count.coerceIn(1, 255)
+                    if (existing.isNotEmpty()) {
+                        dao.update(existing[0].copy(freq = freq))
+                    } else {
+                        dao.insert(UserDictionaryEntry(0, word, freq, null, null))
+                    }
                 }
             }
         } catch (_: Exception) {}
     }
 
     fun clearAll() {
-        personalDict.clear()
+        personalDicts.clear()
         personalDirty = false
-        File(context.filesDir, PERSONAL_DICT).delete()
         try {
+            val dir = context.filesDir
+            for (lang in arrayOf("en", "vi")) {
+                File(dir, "${PERSONAL_DICT}_$lang.json").delete()
+            }
             DictionaryManager.default().florisUserDictionaryDao()?.deleteAll()
         } catch (_: Exception) {}
     }
@@ -388,11 +419,15 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val f = File(context.filesDir, CLEARED_MARKER)
         if (!f.exists()) return
         f.delete()
-        personalDict.clear()
+        personalDicts.clear()
         personalDirty = false
-        File(context.filesDir, PERSONAL_DICT).delete()
-        try { DictionaryManager.default().florisUserDictionaryDao()?.deleteAll() }
-        catch (_: Exception) {}
+        try {
+            val dir = context.filesDir
+            for (lang in arrayOf("en", "vi")) {
+                File(dir, "${PERSONAL_DICT}_$lang.json").delete()
+            }
+            DictionaryManager.default().florisUserDictionaryDao()?.deleteAll()
+        } catch (_: Exception) {}
         flogDebug { "Qwen: processed .cleared marker" }
     }
 
@@ -420,6 +455,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     ): List<SuggestionCandidate> {
         checkClearedMarker()
         if (isPrivateSession) return emptyList()
+        val lang = langFor(subtype)
         return withContext(Dispatchers.Default) {
             try {
                 val textBefore = content.textBeforeSelection
@@ -446,19 +482,19 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
                     if (lastWord.isBlank()) return@withContext emptyList()
                     if (now >= pasteUntil) {
-                        recordWord(lastWord)
+                        recordWord(lastWord, lang)
                         val lastTop = lastTopSuggestion
                         if (lastTop != null && lastWord.lowercase() != lastTop) {
                             dampWord(lastTop)
                         }
                     }
-                    suggestNextWord(textBefore, maxCandidateCount)
+                    suggestNextWord(textBefore, maxCandidateCount, lang)
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
                     if (cur.isBlank()) return@withContext emptyList()
                     val stripped = cur.trimEnd { !it.isLetter() }
                     autoCommitWord = stripped.ifEmpty { null }?.lowercase()
-                    completeCurrentWord(stripped.ifEmpty { cur }, maxCandidateCount, textBefore)
+                    completeCurrentWord(stripped.ifEmpty { cur }, maxCandidateCount, textBefore, lang)
                 }
 
                 pairs.also { result ->
@@ -469,7 +505,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                         autoCommitWord != null && index == 0 &&
                         lcWord != autoCommitWord &&
                         !lcWord.startsWith(autoCommitWord!!) &&
-                        !personalDict.containsKey(autoCommitWord) &&
+                        !personalDicts.values.any { it.containsKey(autoCommitWord) } &&
                         autoCommitWord!!.let { !(it.any(Char::isLetter) && it.any(Char::isDigit)) }
                     WordSuggestionCandidate(
                         text = word,
@@ -521,12 +557,13 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         return false
     }
 
-    fun recordWord(raw: String) {
+    fun recordWord(raw: String, lang: String = "vi") {
         val lc = raw.lowercase().trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>')
         if (isNoise(lc)) return
-        val existing = personalDict[lc]
+        val dict = pd(lang)
+        val existing = dict[lc]
         val newCount = (existing?.count ?: 0) + 1
-        personalDict[lc] = PersonalWord(count = newCount, lastUsedTs = System.currentTimeMillis())
+        dict[lc] = PersonalWord(count = newCount, lastUsedTs = System.currentTimeMillis())
         personalDirty = true
     }
 
@@ -567,15 +604,16 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private fun personalScore(pw: PersonalWord): Double =
         (decayedCount(pw) / 50.0).coerceIn(0.0, 1.0)
 
-    private fun rerankWithPersonal(candidates: List<Pair<String, Double>>, qwenScored: Boolean = false): List<Pair<String, Double>> {
-        if (personalDict.isEmpty()) return candidates
+    private fun rerankWithPersonal(candidates: List<Pair<String, Double>>, lang: String = "vi", qwenScored: Boolean = false): List<Pair<String, Double>> {
+        val dict = personalDicts[lang] ?: return candidates
+        if (dict.isEmpty()) return candidates
         val rawScores = candidates.map { it.second }
         val minScore = rawScores.min()
         val maxScore = rawScores.max()
         val range = maxScore - minScore
         return candidates.map { (word, baseScore) ->
             var score = if (range > 0.0) (baseScore - minScore) / range else 0.5
-            val pw = personalDict[word.lowercase()]
+            val pw = dict[word.lowercase()]
             if (pw != null) {
                 val dc = decayedCount(pw)
                 val alpha = computeAlpha(dc, qwenScored)
@@ -591,7 +629,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         }.sortedByDescending { it.second }
     }
 
-    private fun suggestNextWord(textBefore: String, k: Int): List<Pair<String, Double>> {
+    private fun suggestNextWord(textBefore: String, k: Int, lang: String = "vi"): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
         val words = textBefore.split(whitespace).filter { it.isNotBlank() }
         val w2 = if (words.isNotEmpty()) words.last().lowercase() else ""
@@ -653,7 +691,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val topBase = scored.entries.sortedByDescending { it.value }
             .take(limit * 3).map { it.key to it.value }
 
-        return rerankWithPersonal(topBase, qwenScored).take(limit)
+        return rerankWithPersonal(topBase, lang, qwenScored).take(limit)
     }
 
     private fun ngramWords(): Set<String> {
@@ -665,18 +703,18 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         return words
     }
 
-    private fun completeCurrentWord(prefix: String, k: Int, textBefore: String): List<Pair<String, Double>> {
+    private fun completeCurrentWord(prefix: String, k: Int, textBefore: String, lang: String = "vi"): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
         val lcPrefix = prefix.lowercase()
         val cacheKey = "$lcPrefix|$textBefore.length"
         suggestionCache.get(cacheKey)?.let { return it }
 
-        val result = doCompleteCurrentWord(prefix, k, textBefore)
+        val result = doCompleteCurrentWord(prefix, k, textBefore, lang)
         suggestionCache.put(cacheKey, result)
         return result
     }
 
-    private fun doCompleteCurrentWord(prefix: String, k: Int, textBefore: String): List<Pair<String, Double>> {
+    private fun doCompleteCurrentWord(prefix: String, k: Int, textBefore: String, lang: String = "vi"): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
         val lcPrefix = prefix.lowercase()
         val resolvedPrefix = resolveTelexPrefix(lcPrefix)
@@ -688,6 +726,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             if (ctx.isNotEmpty()) append(' ')
         }
 
+        val personalWordPool = personalDicts[lang]?.keys ?: emptySet()
         val basePool = (
             if (useTrie) {
                 val trieResults = prefixTrie[lcPrefix].orEmpty()
@@ -700,7 +739,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     it.startsWith(lcPrefix) || it.startsWith(resolvedPrefix)
                 }.filter { it.length > resolvedPrefix.length }
             }
-        ).union(ngramWords()).union(personalDict.keys)
+        ).union(ngramWords()).union(personalWordPool)
             .filter { !isNoise(it) }
             .take(200)
             .toSet()
@@ -766,7 +805,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             }
         }
 
-        return rerankWithPersonal(candidates, qwenScored).take(limit)
+        return rerankWithPersonal(candidates, lang, qwenScored).take(limit)
     }
 
     private fun getCurrentWord(content: EditorContent): String? {
@@ -777,7 +816,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     override suspend fun notifySuggestionAccepted(subtype: Subtype, candidate: SuggestionCandidate) {
         val word = candidate.text.toString().lowercase().trim()
-        recordWord(word)
+        recordWord(word, langFor(subtype))
         bgScope.launch { savePersonalDict() }
     }
 
@@ -790,18 +829,21 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         return false
     }
 
-    override suspend fun getListOfWords(subtype: Subtype): List<String> =
-        if (subtype.primaryLocale.language == "en")
-            (enWordFrequencies.keys + personalDict.keys).toList()
+    override suspend fun getListOfWords(subtype: Subtype): List<String> {
+        val lang = langFor(subtype)
+        return if (lang == "en")
+            (enWordFrequencies.keys + pd("en").keys).toList()
         else
-            seedWords.union(personalDict.keys).toList()
+            seedWords.union(pd("vi").keys).toList()
+    }
 
     override suspend fun getFrequencyForWord(subtype: Subtype, word: String): Double {
         val lc = word.lowercase()
-        val pw = personalDict[lc]
+        val lang = langFor(subtype)
+        val dict = personalDicts[lang] ?: mutableMapOf()
+        val pw = dict[lc]
         if (pw != null) return (decayedCount(pw) / 50.0).coerceIn(0.0, 1.0)
-        val freq =         if (subtype.primaryLocale.language == "en")
-            enWordFrequencies[lc] else seedWordFrequencies[lc]
+        val freq = if (lang == "en") enWordFrequencies[lc] else seedWordFrequencies[lc]
         if (freq != null) return (freq / 50_000_000.0).coerceIn(0.0, 1.0)
         return 0.0
     }
