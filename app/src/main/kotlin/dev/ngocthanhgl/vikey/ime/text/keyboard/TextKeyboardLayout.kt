@@ -583,62 +583,62 @@ private fun TextKeyButton(
         }
         }
         }
-        if (isLiquidGlass && (lqConfig.depthEnabled || lqConfig.chromaticEnabled)) {
-            val heightPx = with(density) { (effectiveLens * lqConfig.heightMultiplier).dp.toPx() }
-            val amountPx = with(density) { (effectiveLens * lqConfig.amountMultiplier).dp.toPx() }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(
-                        scaleX = pressScale,
-                        scaleY = pressScale,
-                        transformOrigin = TransformOrigin(0.5f, 0.5f),
-                    )
-                    .drawBackdrop(
-                        backdrop = backdrop,
-                        shape = { overrideShape ?: keyShape },
-                        effects = {
-                            lens(
-                                refractionHeight = heightPx,
-                                refractionAmount = amountPx,
-                                depthEffect = lqConfig.depthEnabled,
-                                chromaticAberration = lqConfig.chromaticEnabled || !lqConfig.depthEnabled,
-                            )
-                        },
-                        highlight = { Highlight.Ambient },
-                        onDrawBackdrop = { onDraw: DrawScope.() -> Unit ->
-                            val photo = backgroundPhoto
-                            val coords = keyCoords
-                            if (photo != null && coords != null) {
-                                val keyPos = coords.positionInWindow()
-                                val photoPos = photo.windowPos
-                                val relX = keyPos.x - photoPos.x
-                                val relY = keyPos.y - photoPos.y
-                                if (relX >= 0f && relY >= 0f &&
-                                    relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
-                                ) {
-                                    val sw = this.size.width
-                                    val sh = this.size.height
-                                    this.drawImage(
-                                        image = photo.bitmap,
-                                        srcOffset = IntOffset(
-                                            (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
-                                            (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
-                                        ),
-                                        srcSize = IntSize(
-                                            (sw * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
-                                            (sh * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
-                                        ),
-                                        dstOffset = IntOffset.Zero,
-                                        dstSize = IntSize(sw.toInt(), sh.toInt()),
-                                    )
-                                }
+        val showGlass = isLiquidGlass && (lqConfig.depthEnabled || lqConfig.chromaticEnabled)
+        val heightPx = (effectiveLens * lqConfig.heightMultiplier).dp.toPx()
+        val amountPx = (effectiveLens * lqConfig.amountMultiplier).dp.toPx()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer(
+                    alpha = if (showGlass) 1f else 0f,
+                    scaleX = pressScale,
+                    scaleY = pressScale,
+                    transformOrigin = TransformOrigin(0.5f, 0.5f),
+                )
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { overrideShape ?: keyShape },
+                    effects = {
+                        lens(
+                            refractionHeight = heightPx,
+                            refractionAmount = amountPx,
+                            depthEffect = lqConfig.depthEnabled,
+                            chromaticAberration = lqConfig.chromaticEnabled || !lqConfig.depthEnabled,
+                        )
+                    },
+                    highlight = { Highlight.Ambient },
+                    onDrawBackdrop = { onDraw: DrawScope.() -> Unit ->
+                        val photo = backgroundPhoto
+                        val coords = keyCoords
+                        if (photo != null && coords != null) {
+                            val keyPos = coords.positionInWindow()
+                            val photoPos = photo.windowPos
+                            val relX = keyPos.x - photoPos.x
+                            val relY = keyPos.y - photoPos.y
+                            if (relX >= 0f && relY >= 0f &&
+                                relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
+                            ) {
+                                val sw = this.size.width
+                                val sh = this.size.height
+                                this.drawImage(
+                                    image = photo.bitmap,
+                                    srcOffset = IntOffset(
+                                        (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
+                                        (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
+                                    ),
+                                    srcSize = IntSize(
+                                        (sw * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
+                                        (sh * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
+                                    ),
+                                    dstOffset = IntOffset.Zero,
+                                    dstSize = IntSize(sw.toInt(), sh.toInt()),
+                                )
                             }
-                            onDraw()
-                        },
-                    ),
-            )
-        }
+                        }
+                        onDraw()
+                    },
+                ),
+        )
     }
     if (debugShowTouchBoundaries) {
         Box(
