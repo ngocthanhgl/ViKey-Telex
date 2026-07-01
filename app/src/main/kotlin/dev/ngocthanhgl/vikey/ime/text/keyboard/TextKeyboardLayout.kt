@@ -595,7 +595,7 @@ private fun TextKeyButton(
                     )
                     .drawBackdrop(
                         backdrop = backdrop,
-                        shape = { RoundedCornerShape(22.dp) },
+                        shape = { overrideShape ?: RoundedCornerShape(22.dp) },
                         effects = {
                             lens(
                                 refractionHeight = heightPx,
