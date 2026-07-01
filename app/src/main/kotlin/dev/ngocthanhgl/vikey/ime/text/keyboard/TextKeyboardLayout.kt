@@ -37,7 +37,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -439,7 +438,7 @@ private fun TextKeyButton(
         key.visibleBounds.size.toDpSize()
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
-    val backdrop = rememberLayerBackdrop()
+    val backdrop = remember(overrideShape) { rememberLayerBackdrop() }
     val keyShape = rememberSnyggThemeQuery(FlorisImeUi.Key.elementName).shape()
     var keyCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val lensRefraction = remember { Animatable(if (isLiquidGlass) lqConfig.lensIdle else 0f) }
@@ -587,7 +586,6 @@ private fun TextKeyButton(
         val showGlass = isLiquidGlass && (lqConfig.depthEnabled || lqConfig.chromaticEnabled)
         val heightPx = (effectiveLens * lqConfig.heightMultiplier).dp.toPx()
         val amountPx = (effectiveLens * lqConfig.amountMultiplier).dp.toPx()
-        key(overrideShape) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -641,7 +639,6 @@ private fun TextKeyButton(
                     },
                 ),
         )
-        }
     }
     if (debugShowTouchBoundaries) {
         Box(
