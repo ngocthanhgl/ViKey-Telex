@@ -37,7 +37,7 @@
       "popupMapping": "org.florisboard.localization:en",
       "nlpProviders": {
         "spelling": "org.florisboard.nlp.providers.vietnamese",
-        "suggestion": "org.florisboard.nlp.providers.vietnamese.qwen"
+        "suggestion": "org.florisboard.nlp.providers.english"
       },
       "preferred": {
         "characters": "org.florisboard.layouts:qwerty"
@@ -50,7 +50,7 @@
       "popupMapping": "org.florisboard.localization:en",
       "nlpProviders": {
         "spelling": "org.florisboard.nlp.providers.vietnamese",
-        "suggestion": "org.florisboard.nlp.providers.vietnamese.qwen"
+        "suggestion": "org.florisboard.nlp.providers.english"
       },
       "preferred": {
         "characters": "org.florisboard.layouts:qwerty"
@@ -63,7 +63,7 @@
       "popupMapping": "org.florisboard.localization:vi-VN",
       "nlpProviders": {
         "spelling": "org.florisboard.nlp.providers.vietnamese",
-        "suggestion": "org.florisboard.nlp.providers.vietnamese"
+        "suggestion": "org.florisboard.nlp.providers.vietnamese.qwen"
       },
       "preferred": {
         "characters": "org.florisboard.layouts:qwerty"

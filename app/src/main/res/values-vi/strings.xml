@@ -1207,7 +1207,7 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <string name="subtype_editor__section_layouts">Bố cục</string>
     <string name="subtype_editor__section_numeric">Số</string>
     <string name="subtype_editor__section_phone">Điện thoại</string>
-    <string name="subtype_editor__suggestion_english_vietnamese">English/Vietnamese</string>
+    <string name="subtype_editor__suggestion_english_vietnamese">Tiếng Việt</string>
     <string name="subtype_editor__suggestion_english_only">English</string>
 
     <!-- Keyboard -->

@@ -376,7 +376,21 @@ fun SubtypeEditorScreen(id: Long?) {
                         primaryLocale = locale
                         if (locale != SelectLocale) {
                             val preset = subtypeManager.getSubtypePresetForLocale(locale)
-                            popupMapping = preset?.popupMapping ?: extCorePopupMapping("default")
+                            if (preset != null) {
+                                nlpProviders = preset.nlpProviders
+                                popupMapping = preset.popupMapping
+                            } else {
+                                popupMapping = extCorePopupMapping("default")
+                                val suggestionId = when (locale.language) {
+                                    "en" -> EnglishSuggestionProvider.ProviderId
+                                    "vi" -> QwenSuggestionProvider.ProviderId
+                                    else -> FallbackNlpProvider.providerId
+                                }
+                                nlpProviders = SubtypeNlpProviderMap(
+                                    spelling = FallbackNlpProvider.providerId,
+                                    suggestion = suggestionId,
+                                )
+                            }
                         }
                     },
                 )

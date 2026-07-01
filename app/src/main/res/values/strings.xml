@@ -1211,7 +1211,7 @@
     <string name="subtype_editor__section_layouts">Layouts</string>
     <string name="subtype_editor__section_numeric">Numeric</string>
     <string name="subtype_editor__section_phone">Phone</string>
-    <string name="subtype_editor__suggestion_english_vietnamese">English/Vietnamese</string>
+    <string name="subtype_editor__suggestion_english_vietnamese">Tiếng Việt</string>
     <string name="subtype_editor__suggestion_english_only">English</string>
 
     <!-- Keyboard -->
