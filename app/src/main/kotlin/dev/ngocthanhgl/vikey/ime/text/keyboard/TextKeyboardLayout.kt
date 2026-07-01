@@ -477,7 +477,7 @@ private fun TextKeyButton(
     }
 
     val textLift by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) lqConfig.textLift else 1f,
+        targetValue = if (isLiquidGlass && key.isPressed) 1f + lqConfig.textLift else 1f,
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 400f),
         label = "textLift",
     )
