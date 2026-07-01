@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -143,8 +144,13 @@ fun ThemeScreen() {
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             ),
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Box(
                         modifier = Modifier
                             .size(40.dp)
@@ -160,18 +166,19 @@ fun ThemeScreen() {
                         )
                     }
                     Spacer(Modifier.width(16.dp))
-                    Column {
-                        Text(
-                            text = stringRes(R.string.theme__key_corner_radius),
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                        Text(
-                            text = if (kcr == 0) "Default" else "$kcr dp",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                    Text(
+                        text = stringRes(R.string.theme__key_corner_radius),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = if (kcr == 0) "Default" else "$kcr dp",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
+                Spacer(Modifier.height(4.dp))
                 var sliderValue by remember(kcr) { mutableFloatStateOf(kcr.toFloat()) }
                 Slider(
                     value = sliderValue,
@@ -181,7 +188,7 @@ fun ThemeScreen() {
                     },
                     valueRange = 0f..30f,
                     steps = 29,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(start = 56.dp),
                 )
             }
         }
