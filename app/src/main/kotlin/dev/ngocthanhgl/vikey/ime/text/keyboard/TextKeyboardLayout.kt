@@ -439,6 +439,7 @@ private fun TextKeyButton(
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
     val backdrop = rememberLayerBackdrop()
+    val keyShape = rememberSnyggThemeQuery(FlorisImeUi.Key.elementName).shape()
     var keyCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val lensRefraction = remember { Animatable(if (isLiquidGlass) lqConfig.lensIdle else 0f) }
     var shouldReachPeak by remember { mutableStateOf(false) }
@@ -595,7 +596,7 @@ private fun TextKeyButton(
                     )
                     .drawBackdrop(
                         backdrop = backdrop,
-                        shape = { overrideShape ?: RoundedCornerShape(22.dp) },
+                        shape = { overrideShape ?: keyShape },
                         effects = {
                             lens(
                                 refractionHeight = heightPx,

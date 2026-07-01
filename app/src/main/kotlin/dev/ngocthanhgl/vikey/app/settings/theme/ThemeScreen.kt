@@ -165,8 +165,8 @@ fun ThemeScreen() {
                     onValueChangeFinished = {
                         scope.launch { prefs.theme.keyCornerRadius.set(sliderValue.toInt()) }
                     },
-                    valueRange = 0f..50f,
-                    steps = 49,
+                    valueRange = 0f..30f,
+                    steps = 29,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
