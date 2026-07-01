@@ -456,9 +456,8 @@ private fun CropPhotoDialog(
                                 val dw = displayW
                                 val dh = displayH
                                 if (dw > 0f && dh > 0f) {
-                                    val fitScale = if (dw / bw < dh / bh) dw / bw else dh / bh
-                                    val contentW = bw * fitScale * scale
-                                    val contentH = bh * fitScale * scale
+                                    val contentW = dw * scale
+                                    val contentH = (bh * dw / bw) * scale
                                     val cropW = dw * 0.9f
                                     val cropH = cropW / aspectRatio
                                     val maxOffX = ((contentW - cropW) / 2f).coerceAtLeast(0f)
@@ -473,7 +472,7 @@ private fun CropPhotoDialog(
                     Image(
                         bitmap = bitmap.asImageBitmap(),
                         contentDescription = null,
-                        contentScale = ContentScale.Fit,
+                        contentScale = ContentScale.FillWidth,
                         modifier = Modifier
                             .fillMaxWidth()
                             .alpha(visibility / 100f)
@@ -538,10 +537,10 @@ private fun CropPhotoDialog(
                         val dw = displayW
                         val dh = displayH
                         if (dw > 0f && dh > 0f && scale > 0f) {
-                            val fs = if (dw / bw < dh / bh) dw / bw else dh / bh
-                            val rw = bw * fs
+                            val fs = dw / bw
+                            val rw = dw
                             val rh = bh * fs
-                            val ox = (dw - rw) / 2f
+                            val ox = 0f
                             val oy = (dh - rh) / 2f
                             val cw = dw * 0.9f
                             val ch = cw / aspectRatio
