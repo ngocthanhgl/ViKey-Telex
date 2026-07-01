@@ -549,7 +549,7 @@ private fun TextKeyButton(
                     modifier = Modifier
                         .wrapContentSize()
                         .graphicsLayer(
-                            scaleX = textLift,
+                            scaleX = 1f,
                             scaleY = textLift,
                             transformOrigin = TransformOrigin(0.5f, 0.5f),
                         )
