@@ -548,13 +548,13 @@ private fun TextKeyButton(
                 }
                 Box(
                     modifier = Modifier
-                        .wrapContentSize()
+                        .fillMaxSize()
                         .graphicsLayer(
                             scaleX = 1f,
                             scaleY = textLift,
                             transformOrigin = TransformOrigin(0.5f, 0.5f),
-                        )
-                        .align(if (isTelPadKey) BiasAlignment(-0.5f, 0f) else Alignment.Center),
+                        ),
+                    contentAlignment = Alignment.Center,
                 ) {
                     SnyggText(
                         modifier = Modifier.wrapContentSize(),

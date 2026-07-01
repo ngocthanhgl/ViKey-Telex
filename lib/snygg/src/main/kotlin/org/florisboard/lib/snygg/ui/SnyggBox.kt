@@ -83,12 +83,13 @@ fun SnyggBox(
             }
             else -> null
         }
+        val useShape = overrideShape ?: style.shape()
         Box(
             modifier = modifier
                 .snyggMargin(style)
-                .snyggShadow(style, shape = overrideShape ?: style.shape())
-                .snyggBorder(style, shape = overrideShape ?: style.shape())
-                .snyggBackground(style, shape = overrideShape ?: style.shape(), allowClip = allowClip)
+                .snyggShadow(style, shape = useShape, elevation = if (overrideShape != null) 0.dp else style.shadowElevation.dpSize().takeOrElse { 0.dp }.coerceAtLeast(0.dp))
+                .snyggBorder(style, shape = useShape)
+                .snyggBackground(style, shape = useShape, allowClip = allowClip)
                 .then(clickAndSemanticsModifier)
                 .snyggPadding(style),
             contentAlignment = contentAlignment,
@@ -98,7 +99,7 @@ fun SnyggBox(
                 AsyncImage(
                     modifier = Modifier
                         .matchParentSize()
-                        .clip(overrideShape ?: style.shape()),
+                        .clip(useShape),
                     // https://github.com/coil-kt/coil/issues/159
                     model = ImageRequest.Builder(context)
                         .data(imagePath)
