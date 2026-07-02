@@ -482,8 +482,10 @@ private fun TextKeyButton(
         }
     }
 
-    val textLift by animateFloatAsState(
-        targetValue = if (isLiquidGlass && key.isPressed) 1f + lqConfig.textLift else 1f,
+    val textLiftTarget = if (isLiquidGlass && key.isPressed)
+        -(lqConfig.textLift - 1f) * 12.dp.toPx() else 0f
+    val textLiftOffset by animateFloatAsState(
+        targetValue = textLiftTarget,
         animationSpec = spring(dampingRatio = 0.5f, stiffness = 400f),
         label = "textLift",
     )
@@ -520,6 +522,41 @@ private fun TextKeyButton(
                     .fillMaxSize()
                     .layerBackdrop(backdrop),
             ) {
+                backgroundPhoto?.let { photo ->
+                    val coords = keyCoords
+                    if (coords != null) {
+                        val keyPos = coords.positionInWindow()
+                        val photoPos = photo.windowPos
+                        val relX = keyPos.x - photoPos.x
+                        val relY = keyPos.y - photoPos.y
+                        if (relX >= 0f && relY >= 0f &&
+                            relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .drawBehind {
+                                        val sw = this.size.width
+                                        val sh = this.size.height
+                                        drawImage(
+                                            image = photo.bitmap,
+                                            srcOffset = IntOffset(
+                                                (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
+                                                (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
+                                            ),
+                                            srcSize = IntSize(
+                                                (sw * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
+                                                (sh * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
+                                            ),
+                                            dstOffset = IntOffset.Zero,
+                                            dstSize = IntSize(sw.toInt(), sh.toInt()),
+                                            alpha = photo.alpha,
+                                        )
+                                    },
+                            )
+                        }
+                    }
+                }
                 if (lqConfig.glowEnabled && glowAlpha > 0f) {
                     Box(
                         modifier = Modifier
@@ -581,11 +618,9 @@ private fun TextKeyButton(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .graphicsLayer(
-                            scaleX = 1f,
-                            scaleY = textLift,
-                            transformOrigin = TransformOrigin(0.5f, 0.5f),
-                        ),
+                        .graphicsLayer {
+                            translationY = textLiftOffset
+                        },
                     contentAlignment = Alignment.Center,
                 ) {
                     SnyggText(
@@ -640,34 +675,6 @@ private fun TextKeyButton(
                     },
                     highlight = { Highlight.Ambient },
                     onDrawBackdrop = { onDraw: DrawScope.() -> Unit ->
-                        val photo = backgroundPhoto
-                        val coords = keyCoords
-                        if (photo != null && coords != null) {
-                            val keyPos = coords.positionInWindow()
-                            val photoPos = photo.windowPos
-                            val relX = keyPos.x - photoPos.x
-                            val relY = keyPos.y - photoPos.y
-                            if (relX >= 0f && relY >= 0f &&
-                                relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
-                            ) {
-                                val sw = this.size.width
-                                val sh = this.size.height
-                                this.drawImage(
-                                    image = photo.bitmap,
-                                    srcOffset = IntOffset(
-                                        (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
-                                        (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
-                                    ),
-                                    srcSize = IntSize(
-                                        (sw * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
-                                        (sh * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
-                                    ),
-                                    dstOffset = IntOffset.Zero,
-                                    dstSize = IntSize(sw.toInt(), sh.toInt()),
-                                    alpha = photo.alpha,
-                                )
-                            }
-                        }
                         onDraw()
                     },
                 ),

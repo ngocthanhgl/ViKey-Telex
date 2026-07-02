@@ -566,7 +566,7 @@ class AlgorithmicTelex(
         if (lower.any { it in vietnameseChars }) return false
 
         // Extended English patterns
-        if (extendedEnglishPatterns.any { lower.contains(it) }) return true
+        if (extendedEnglishPatterns.any { lower.contains(it) && lower != it }) return true
 
         // Extended coda clusters (invalid Vietnamese codas)
         if (lower.length >= 2) {
