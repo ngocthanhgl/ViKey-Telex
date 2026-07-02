@@ -447,6 +447,7 @@ private fun TextKeyButton(
     val backdrop = key(overrideShape) { rememberLayerBackdrop() }
     val keyShape = rememberSnyggThemeQuery(FlorisImeUi.Key.elementName).shape()
     var keyCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val currentPhoto by rememberUpdatedState(backgroundPhoto)
     val lensRefraction = remember { Animatable(if (isLiquidGlass) lqConfig.lensIdle else 0f) }
     var shouldReachPeak by remember { mutableStateOf(false) }
 
@@ -522,41 +523,6 @@ private fun TextKeyButton(
                     .fillMaxSize()
                     .layerBackdrop(backdrop),
             ) {
-                backgroundPhoto?.let { photo ->
-                    val coords = keyCoords
-                    if (coords != null) {
-                        val keyPos = coords.positionInWindow()
-                        val photoPos = photo.windowPos
-                        val relX = keyPos.x - photoPos.x
-                        val relY = keyPos.y - photoPos.y
-                        if (relX >= 0f && relY >= 0f &&
-                            relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .drawBehind {
-                                        val sw = this.size.width
-                                        val sh = this.size.height
-                                        drawImage(
-                                            image = photo.bitmap,
-                                            srcOffset = IntOffset(
-                                                (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
-                                                (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
-                                            ),
-                                            srcSize = IntSize(
-                                                (sw * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
-                                                (sh * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
-                                            ),
-                                            dstOffset = IntOffset.Zero,
-                                            dstSize = IntSize(sw.toInt(), sh.toInt()),
-                                            alpha = photo.alpha,
-                                        )
-                                    },
-                            )
-                        }
-                    }
-                }
                 if (lqConfig.glowEnabled && glowAlpha > 0f) {
                     Box(
                         modifier = Modifier
@@ -564,15 +530,17 @@ private fun TextKeyButton(
                             .drawBehind {
                                 val drawSize = this.size
                                 val center = Offset(drawSize.width / 2f, drawSize.height / 2f)
-                                val radius = drawSize.width.coerceAtLeast(drawSize.height) * 1.5f
+                                val circumradius = sqrt(
+                                    drawSize.width * drawSize.width + drawSize.height * drawSize.height
+                                ) / 2f
+                                val glowRadius = circumradius * 2.5f
                                 drawCircle(
                                     brush = Brush.radialGradient(
-                                        colors = listOf(
-                                            Color.White.copy(alpha = glowAlpha),
-                                            Color.White.copy(alpha = 0f),
-                                        ),
+                                        0f to Color.White.copy(alpha = glowAlpha),
+                                        circumradius / glowRadius to Color.White.copy(alpha = glowAlpha),
+                                        1f to Color.White.copy(alpha = 0f),
                                     ),
-                                    radius = radius,
+                                    radius = glowRadius,
                                     center = center,
                                 )
                             },
@@ -675,6 +643,34 @@ private fun TextKeyButton(
                     },
                     highlight = { Highlight.Ambient },
                     onDrawBackdrop = { onDraw: DrawScope.() -> Unit ->
+                        val photo = currentPhoto
+                        val coords = keyCoords
+                        if (photo != null && coords != null) {
+                            val keyPos = coords.positionInWindow()
+                            val photoPos = photo.windowPos
+                            val relX = keyPos.x - photoPos.x
+                            val relY = keyPos.y - photoPos.y
+                            if (relX >= 0f && relY >= 0f &&
+                                relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
+                            ) {
+                                val sw = this.size.width
+                                val sh = this.size.height
+                                this.drawImage(
+                                    image = photo.bitmap,
+                                    srcOffset = IntOffset(
+                                        (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
+                                        (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
+                                    ),
+                                    srcSize = IntSize(
+                                        (sw * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
+                                        (sh * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
+                                    ),
+                                    dstOffset = IntOffset.Zero,
+                                    dstSize = IntSize(sw.toInt(), sh.toInt()),
+                                    alpha = photo.alpha,
+                                )
+                            }
+                        }
                         onDraw()
                     },
                 ),
