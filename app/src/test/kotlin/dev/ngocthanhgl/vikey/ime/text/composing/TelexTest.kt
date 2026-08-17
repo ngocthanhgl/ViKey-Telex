@@ -89,4 +89,26 @@ class TelexTest {
         assertEquals("polkw", simulate("polkww"))
         assertEquals("polkww", simulate("polkwww"))
     }
+
+    @Test
+    fun testDistantVowelShortcuts() {
+        assertEquals("tới", simulate("toiws"))
+        assertEquals("tơi", simulate("toiw"))
+        assertEquals("lớp", simulate("lopws"))
+        assertEquals("lôi", simulate("loio"))
+        assertEquals("tới", simulate("towsi")) // adjacent order regression
+        assertEquals("tâi", simulate("taia"))
+        assertEquals("lêi", simulate("leie"))
+        assertEquals("TƠI", simulate("TOIW"))
+    }
+
+    @Test
+    fun testEnglishFallbackLy() {
+        assertEquals("Lý", simulate("Lys"))
+        assertEquals("lý", simulate("lys"))
+        assertEquals("lỳ", simulate("lyf"))
+        assertEquals("familys", simulate("familys"))
+        assertEquals("quicklys", simulate("quicklys"))
+        assertEquals("oks", simulate("oks"))
+    }
 }

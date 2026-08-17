@@ -130,6 +130,10 @@ class AlgorithmicTelex(
         ),
     )
 
+    private val reverseToneMaps: Map<Char, Pair<Char, Char>> = toneMaps.entries
+        .flatMap { (toneKey, map) -> map.entries.map { it.value to (it.key to toneKey) } }
+        .toMap()
+
     // ── Vietnamese orthographic tone placement rules ──────────────
 
     private val toneRules = mapOf(
@@ -248,6 +252,11 @@ class AlgorithmicTelex(
             return word.length to shortcut
         }
 
+        val distant = applyDistantShortcut(word, ch)
+        if (distant != null) {
+            return word.length to distant
+        }
+
         if (lowerCh == 'w') {
             return handleW(word, ch)
         }
@@ -346,6 +355,54 @@ class AlgorithmicTelex(
         }
 
         return null
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  Distant shortcut handling (Unikey standard)
+    //  Applies a vowel modifier to the last modifiable vowel of a
+    //  valid Vietnamese syllable, even when not typed adjacently.
+    // ──────────────────────────────────────────────────────────────
+
+    private fun applyDistantShortcut(word: String, ch: Char): String? {
+        val lowerCh = ch.lowercaseChar()
+        if (lowerCh !in setOf('a', 'e', 'o', 'w')) return null
+
+        val syllable = parseSyllable(stripTones(word.lowercase())) ?: return null
+        if (syllable.nucleus.isEmpty() || syllable.nucleus.any { toBaseForm(it) !in baseVowels }) {
+            return null
+        }
+
+        for (pos in findVowelPositions(word).asReversed()) {
+            val base = toBaseForm(word[pos].lowercaseChar())
+            val target = when (lowerCh) {
+                'a' -> if (base == 'a') 'â' else null
+                'e' -> if (base == 'e') 'ê' else null
+                'o' -> if (base == 'o') 'ô' else null
+                else -> when (base) {
+                    'a' -> 'ă'
+                    'o' -> 'ơ'
+                    'u' -> 'ư'
+                    else -> null
+                }
+            }
+            if (target != null) {
+                val replaced = transformVowel(word[pos], target)
+                return word.substring(0, pos) + replaced + word.substring(pos + 1)
+            }
+        }
+
+        return null
+    }
+
+    private fun transformVowel(current: Char, target: Char): Char {
+        val lower = current.lowercaseChar()
+        val entry = reverseToneMaps[lower]
+        val result = if (entry != null) {
+            toneMaps[entry.second]?.get(target) ?: target
+        } else {
+            target
+        }
+        return if (current.isUpperCase()) result.uppercaseChar() else result
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -565,8 +622,9 @@ class AlgorithmicTelex(
         // Word already has Vietnamese diacritics → definitely Vietnamese
         if (lower.any { it in vietnameseChars }) return false
 
-        // Extended English patterns
-        if (extendedEnglishPatterns.any { lower.contains(it) }) return true
+        // Extended English patterns (whole-word matches excluded so that
+        // telex words like "ly" (lý/lỳ) are not treated as English)
+        if (extendedEnglishPatterns.any { lower.contains(it) && lower != it }) return true
 
         // Extended coda clusters (invalid Vietnamese codas)
         if (lower.length >= 2) {
