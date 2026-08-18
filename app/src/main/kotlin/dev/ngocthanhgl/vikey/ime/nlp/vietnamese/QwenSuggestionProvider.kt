@@ -81,8 +81,9 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         if (subtype?.primaryLocale?.language == "en") "en" else "vi"
     private val dampedWords = ConcurrentHashMap<String, DampedWord>()
     private var personalDirty = false
-    private var learnCounter = 0
     private var lastTopSuggestion: String? = null
+    private var lastCommittedWord = ""
+    private var lastTypedWord: String? = null
 
     private val seedWords = ConcurrentHashMap.newKeySet<String>()
     private val seedWordFrequencies = ConcurrentHashMap<String, Int>()
@@ -96,7 +97,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private var pasteUntil = 0L
     private val discourseBuffer = Collections.synchronizedList(mutableListOf<String>())
     private val phraseMap = ConcurrentHashMap<String, List<String>>()
-    private val suggestionCache = LruCache<String, List<Pair<String, Double>>>(50)
+    private val suggestionCache = LruCache<String, List<Pair<String, Double>>>(200)
 
     private val bgScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -114,6 +115,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             loadEnglishWords()
             loadPersonalDict()
             loadNgrams()
+            purgeJunk()
             loadDiscourseBuffer()
             try { DictionaryManager.default().loadUserDictionariesIfNecessary() }
             catch (_: Exception) {}
@@ -645,7 +647,10 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 if (textBefore.length > lastTextLen + 1) pasteUntil = now + 500
                 lastTextLen = textBefore.length
                 val lastChar = textBefore.last()
-                if (lastChar == '\n') return@withContext emptyList()
+                if (lastChar == '\n') {
+                    if (now >= pasteUntil) commitLearn(textBefore, lang)
+                    return@withContext emptyList()
+                }
                 if (lastChar == '.' || lastChar == '?' || lastChar == '!') {
                     val words = textBefore.trimEnd().split(whitespace).filter { it.isNotBlank() }
                     discourseBuffer.clear()
@@ -653,27 +658,21 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                     return@withContext emptyList()
                 }
 
-                bgScope.launch { learnFromText(textBefore) }
-
                 var autoCommitWord: String? = null
 
                 val pairs = if (lastChar == ' ' || lastChar == '\t') {
                     val words = textBefore.trimEnd().split(whitespace).filter { it.isNotBlank() }
                     val lastWord = if (words.isNotEmpty()) words.last() else ""
                     if (lastWord.isBlank()) return@withContext emptyList()
-                    if (now >= pasteUntil) {
-                        recordWord(lastWord, lang)
-                        val lastTop = lastTopSuggestion
-                        if (lastTop != null && lastWord.lowercase() != lastTop) {
-                            dampWord(lastTop)
-                        }
-                    }
+                    if (now >= pasteUntil) commitLearn(textBefore, lang)
                     suggestNextWord(textBefore, maxCandidateCount, lang)
                 } else {
                     val cur = getCurrentWord(content) ?: return@withContext emptyList()
                     if (cur.isBlank()) return@withContext emptyList()
                     val stripped = cur.trimEnd { !it.isLetter() }
                     autoCommitWord = stripped.ifEmpty { null }?.lowercase()
+                    lastTypedWord = autoCommitWord
+                    lastCommittedWord = ""
                     completeCurrentWord(stripped.ifEmpty { cur }, maxCandidateCount, textBefore, lang)
                 }
 
@@ -703,11 +702,9 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     private fun learnFromText(text: CharSequence) {
         if (System.currentTimeMillis() < pasteUntil) return
-        learnCounter++
-        if (learnCounter % 3 != 0) return
         val words = text.trimEnd().split(whitespace)
             .map { it.lowercase().trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>') }
-            .filter { it.isNotEmpty() && !isNoise(it) }
+            .filter { it.isNotEmpty() && shouldLearn(it) }
         if (words.size < 2) return
         val recent = words.takeLast(8)
 
@@ -723,7 +720,52 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             }
         }
         ngramDirty = true
-        if (ngramDirty && learnCounter % 30 == 0) saveNgrams()
+    }
+
+    private fun purgeJunk() {
+        var removed = false
+        for (dict in personalDicts.values) {
+            val it = dict.entries.iterator()
+            while (it.hasNext()) {
+                if (!shouldLearn(it.next().key)) {
+                    it.remove()
+                    removed = true
+                }
+            }
+        }
+        for ((k1, inner) in bigrams) {
+            if (!shouldLearn(k1)) {
+                bigrams.remove(k1)
+                removed = true
+                continue
+            }
+            val it = inner.entries.iterator()
+            while (it.hasNext()) {
+                if (!shouldLearn(it.next().key)) {
+                    it.remove()
+                    removed = true
+                }
+            }
+        }
+        for ((k1, inner) in trigrams) {
+            val parts = k1.split('|')
+            if (parts.size != 2 || !shouldLearn(parts[0]) || !shouldLearn(parts[1])) {
+                trigrams.remove(k1)
+                removed = true
+                continue
+            }
+            val it = inner.entries.iterator()
+            while (it.hasNext()) {
+                if (!shouldLearn(it.next().key)) {
+                    it.remove()
+                    removed = true
+                }
+            }
+        }
+        if (removed) {
+            personalDirty = true
+            ngramDirty = true
+        }
     }
 
     private fun isNoise(w: String): Boolean {
@@ -737,9 +779,16 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         return false
     }
 
+    private fun shouldLearn(w: String): Boolean {
+        if (isNoise(w)) return false
+        if (w.length < 2) return false
+        if (w.any { it.isDigit() }) return false
+        return w.all { it.isLetter() }
+    }
+
     fun recordWord(raw: String, lang: String = "vi") {
         val lc = raw.lowercase().trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>')
-        if (isNoise(lc)) return
+        if (!shouldLearn(lc)) return
         val dict = pd(lang)
         val existing = dict[lc]
         val newCount = (existing?.count ?: 0) + 1
@@ -757,6 +806,31 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
         val existing = dampedWords[lc]
         val newCount = (existing?.dampCount ?: 0).coerceAtMost(5) + 1
         dampedWords[lc] = DampedWord(dampCount = newCount, lastDampedTs = System.currentTimeMillis())
+    }
+
+    private fun commitLearn(textBefore: String, lang: String) {
+        val words = textBefore.trimEnd().split(whitespace).filter { it.isNotBlank() }
+        val last = words.lastOrNull()?.lowercase()
+            ?.trimEnd(',', '.', '?', '!', ';', ':', '"', '\'', ')', ']', '}', '>')
+            ?: return
+        if (!shouldLearn(last) || last == lastCommittedWord) return
+        lastCommittedWord = last
+        lastTypedWord = null
+        bgScope.launch { learnFromText(textBefore) }
+        recordWord(last, lang)
+        val lastTop = lastTopSuggestion
+        if (lastTop != null && last != lastTop) dampWord(lastTop)
+    }
+
+    private fun unlearnWord(word: String, lang: String) {
+        dampWord(word)
+        pd(lang).remove(word)
+        bigrams.remove(word)
+        for (inner in bigrams.values) inner.remove(word)
+        for (key in trigrams.keys.filter { it.split('|').any { part -> part == word } }) trigrams.remove(key)
+        for (inner in trigrams.values) inner.remove(word)
+        personalDirty = true
+        ngramDirty = true
     }
 
     private fun computeAlpha(decayedCount: Double, qwenScored: Boolean): Double = when {
@@ -829,36 +903,44 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
             } else null
         }
         if (predictions != null) {
-                qwenScored = true
-                val firstBatch = predictions.take(limit * 2)
-                val startScore = firstBatch.size.toDouble()
-                for ((idx, word) in firstBatch.withIndex()) {
-                    val lc = word.lowercase()
-                    var s = (startScore - idx) * 2.0
-                    if (w1 != null) {
-                        trigrams["$w1|$w2"]?.let { tri ->
-                            s += (tri[lc] ?: 0) * TRIGRAM_BOOST
-                        }
+            qwenScored = true
+            val firstBatch = predictions.take(limit * 2)
+            val startScore = firstBatch.size.toDouble()
+            for ((idx, word) in firstBatch.withIndex()) {
+                val lc = word.lowercase()
+                if (!shouldLearn(lc) || lc == w2 || lc == w1) continue
+                var s = (startScore - idx) * 2.0
+                if (w1 != null) {
+                    trigrams["$w1|$w2"]?.let { tri ->
+                        s += (tri[lc] ?: 0) * TRIGRAM_BOOST
                     }
-                    bigrams[w2]?.let { bi ->
-                        s += (bi[lc] ?: 0) * BIGRAM_BOOST
-                    }
-                    scored[lc] = s
                 }
+                bigrams[w2]?.let { bi ->
+                    s += (bi[lc] ?: 0) * BIGRAM_BOOST
+                }
+                scored[lc] = s
             }
+        }
 
-        if (scored.isEmpty()) {
-            if (w1 != null) {
-                trigrams["$w1|$w2"]?.forEach { (w3, freq) ->
+        bigrams[w2]?.forEach { (next, freq) ->
+            if (next !in scored && shouldLearn(next) && next != w2 && next != w1) {
+                scored[next] = (scored[next] ?: 0.0) + freq * BIGRAM_BOOST
+            }
+        }
+        if (w1 != null) {
+            trigrams["$w1|$w2"]?.forEach { (w3, freq) ->
+                if (w3 !in scored && shouldLearn(w3) && w3 != w2 && w3 != w1) {
                     scored[w3] = (scored[w3] ?: 0.0) + freq * TRIGRAM_BOOST
                 }
             }
-            bigrams[w2]?.forEach { (next, freq) ->
-                if (next !in scored) {
-                    scored[next] = (scored[next] ?: 0.0) + freq * BIGRAM_BOOST
-                }
-            }
         }
+        personalDicts[lang]?.entries
+            ?.filter { it.key !in scored && shouldLearn(it.key) && it.key != w2 && it.key != w1 }
+            ?.sortedByDescending { decayedCount(it.value) }
+            ?.take(10)
+            ?.forEach { (word, pw) ->
+                scored[word] = personalScore(pw) * 0.8
+            }
 
         if (scored.isEmpty() && seedWordFrequencies.isNotEmpty()) {
             val sorted = seedWordFrequencies.entries
@@ -888,7 +970,9 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
     private fun completeCurrentWord(prefix: String, k: Int, textBefore: String, lang: String = "vi"): List<Pair<String, Double>> {
         val limit = k.coerceIn(1, 15)
         val lcPrefix = prefix.lowercase()
-        val cacheKey = "$lcPrefix|$textBefore|$lang"
+        val ctxWords = textBefore.dropLast(prefix.length).trimEnd().split(whitespace).filter { it.isNotBlank() }
+        val ctxKey = ctxWords.lastOrNull()?.lowercase() ?: ""
+        val cacheKey = "$lcPrefix|$ctxKey|$lang"
         suggestionCache.get(cacheKey)?.let { return it }
 
         val result = doCompleteCurrentWord(prefix, k, textBefore, lang)
@@ -922,7 +1006,7 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
                 }.filter { it.length > resolvedPrefix.length }
             }
         ).union(ngramWords()).union(personalWordPool)
-            .filter { !isNoise(it) }
+            .filter { shouldLearn(it) }
             .take(200)
             .toSet()
 
@@ -1000,7 +1084,12 @@ class QwenSuggestionProvider(private val context: Context) : SuggestionProvider 
 
     override suspend fun notifySuggestionAccepted(subtype: Subtype, candidate: SuggestionCandidate) {
         val word = candidate.text.toString().lowercase().trim()
+        if (!shouldLearn(word)) return
         recordWord(word, langFor(subtype))
+        val typed = lastTypedWord
+        if (typed != null && typed != word && typed !in seedWords) {
+            unlearnWord(typed, langFor(subtype))
+        }
         bgScope.launch { savePersonalDict() }
     }
 
