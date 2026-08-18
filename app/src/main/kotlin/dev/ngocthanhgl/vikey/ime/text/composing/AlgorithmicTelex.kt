@@ -34,6 +34,11 @@ class AlgorithmicTelex(
     private val englishFallbackEnabled: Boolean
         get() = try { prefs.keyboard.englishFallbackEnabled.get() } catch (_: Exception) { true }
 
+    private companion object {
+        val VOWEL_SPLIT_REGEX = Regex("[aeiouyăâêôơ]")
+        val DISTANT_MODIFIERS = setOf('a', 'e', 'o', 'w')
+    }
+
     // ── Character classification ──────────────────────────────────
 
     private val toneKeys = setOf('s', 'f', 'r', 'x', 'j')
@@ -181,7 +186,11 @@ class AlgorithmicTelex(
     override fun getActions(precedingText: String, toInsert: String): Pair<Int, String> {
         if (toInsert.length != 1) return 0 to toInsert
 
-        val normalized = Normalizer.normalize(precedingText, Normalizer.Form.NFC)
+        val normalized = if (Normalizer.isNormalized(precedingText, Normalizer.Form.NFC)) {
+            precedingText
+        } else {
+            Normalizer.normalize(precedingText, Normalizer.Form.NFC)
+        }
         val ch = toInsert[0]
 
         if (normalized.isEmpty()) return 0 to firstChar(ch)
@@ -365,7 +374,7 @@ class AlgorithmicTelex(
 
     private fun applyDistantShortcut(word: String, ch: Char): String? {
         val lowerCh = ch.lowercaseChar()
-        if (lowerCh !in setOf('a', 'e', 'o', 'w')) return null
+        if (lowerCh !in DISTANT_MODIFIERS) return null
 
         val syllable = parseSyllable(stripTones(word.lowercase())) ?: return null
         if (syllable.nucleus.isEmpty() || syllable.nucleus.any { toBaseForm(it) !in baseVowels }) {
@@ -610,7 +619,7 @@ class AlgorithmicTelex(
         }
 
         val cleaned = stripTones(lower)
-        val consonantRun = cleaned.split(Regex("[aeiouyăâêôơ]")).filter { it.isNotEmpty() }
+        val consonantRun = cleaned.split(VOWEL_SPLIT_REGEX).filter { it.isNotEmpty() }
         if (consonantRun.any { it.length > 3 }) return true
 
         val vowelCount = lower.count { toBaseForm(it) in baseVowels }

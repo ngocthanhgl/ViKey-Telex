@@ -34,9 +34,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -371,6 +373,10 @@ fun TextKeyboardLayout(
 
         LaunchedEffect(rippleOrigin) {
             val origin = rippleOrigin ?: return@LaunchedEffect
+            if (!isLiquidGlass) {
+                rippleOrigin = null
+                return@LaunchedEffect
+            }
             rippleRadius.snapTo(0f)
             rippleRadius.animateTo(
                 keyboardWidth,
@@ -381,16 +387,18 @@ fun TextKeyboardLayout(
 
         for ((rowIndex, row) in keyboard.rows().withIndex()) {
             for (textKey in row) {
-                TextKeyButton(
-                    textKey, evaluator, desiredKey,
-                    debugShowTouchBoundaries,
-                    lqConfig = lqConfig,
-                    backgroundPhoto = backgroundPhoto,
-                    rippleOrigin = rippleOrigin,
-                    rippleProgress = rippleRadius.value,
-                    onRipple = { center -> rippleOrigin = center },
-                    rowIndex = rowIndex,
-                )
+                key(textKey) {
+                    TextKeyButton(
+                        textKey, evaluator, desiredKey,
+                        debugShowTouchBoundaries,
+                        lqConfig = lqConfig,
+                        backgroundPhoto = backgroundPhoto,
+                        rippleOrigin = rippleOrigin,
+                        rippleProgress = rippleRadius.value,
+                        onRipple = { center -> rippleOrigin = center },
+                        rowIndex = rowIndex,
+                    )
+                }
             }
         }
 
@@ -400,8 +408,15 @@ fun TextKeyboardLayout(
     LaunchedEffect(Unit) {
         for (event in touchEventChannel) {
             if (!isActive) break
-            controller.onTouchEventInternal(event)
-            event.recycle()
+            try {
+                controller.onTouchEventInternal(event)
+            } catch (_: Throwable) {
+                // Never let the touch consumer die: a single exception would otherwise
+                // permanently swallow all further input.
+                resetAllKeys()
+            } finally {
+                event.recycle()
+            }
         }
     }
 }
@@ -447,16 +462,20 @@ private fun TextKeyButton(
 
     LaunchedEffect(key.isPressed) {
         if (key.isPressed) {
-            if (lqConfig.rippleEnabled) {
+            if (isLiquidGlass && lqConfig.rippleEnabled) {
                 val center = Offset(
                     key.visibleBounds.center.x,
                     key.visibleBounds.center.y,
                 )
                 onRipple?.invoke(center)
             }
-            lensRefraction.snapTo(lqConfig.lensPeak)
+            if (isLiquidGlass) {
+                lensRefraction.snapTo(lqConfig.lensPeak)
+            }
         } else {
-            lensRefraction.animateTo(lqConfig.lensIdle, spring(dampingRatio = lqConfig.reboundDamping, stiffness = lqConfig.reboundStiffness))
+            if (isLiquidGlass) {
+                lensRefraction.animateTo(lqConfig.lensIdle, spring(dampingRatio = lqConfig.reboundDamping, stiffness = lqConfig.reboundStiffness))
+            }
         }
     }
 
@@ -695,7 +714,15 @@ private class TextKeyboardLayoutController(
             MotionEvent.ACTION_DOWN -> {
                 val pointerIndex = event.actionIndex
                 val pointerId = event.getPointerId(pointerIndex)
-                val pointer = pointerMap.add(pointerId, pointerIndex)
+                var pointer = pointerMap.findById(pointerId) ?: pointerMap.add(pointerId, pointerIndex)
+                if (pointer == null) {
+                    // Pointer map full with stale pointers from an interrupted gesture
+                    // (e.g. screen-off mid-press): cancel them so this touch is not swallowed.
+                    val cancel = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
+                    onTouchEventInternal(cancel)
+                    cancel.recycle()
+                    pointer = pointerMap.add(pointerId, pointerIndex)
+                }
                 if (pointer != null) {
                     swipeGestureDetector.onTouchDown(event, pointer)
                     onTouchDownInternal(event, pointer)
@@ -1260,6 +1287,7 @@ private class TextKeyboardLayoutController(
     }
 }
 
+@Stable
 private data class LiquidGlassConfig(
     val lensIdle: Float,
     val lensPeak: Float,
