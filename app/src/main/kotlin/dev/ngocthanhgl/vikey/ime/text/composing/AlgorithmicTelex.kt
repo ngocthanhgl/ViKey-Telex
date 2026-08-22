@@ -34,7 +34,7 @@ class AlgorithmicTelex(
     private val englishFallbackEnabled: Boolean
         get() = try { prefs.keyboard.englishFallbackEnabled.get() } catch (_: Exception) { true }
 
-    private companion object {
+    companion object {
         val VOWEL_SPLIT_REGEX = Regex("[aeiouyăâêôơ]")
         val DISTANT_MODIFIERS = setOf('w')
         private const val VIET_DIGRAPHS =
