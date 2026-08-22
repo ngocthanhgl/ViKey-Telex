@@ -54,7 +54,11 @@ jobs:
           for apk in app/build/outputs/apk/release/app-*-release.apk; do
             base=$(basename "$apk")
             abi=$(echo "$base" | sed 's/app-\(.*\)-release\.apk/\1/')
-            cp "$apk" "/tmp/apks/ViKey-${GITHUB_REF_NAME}-${abi}.apk"
+            if [ "$abi" = "$base" ]; then
+              cp "$apk" "/tmp/apks/ViKey-${GITHUB_REF_NAME}-universal.apk"
+            else
+              cp "$apk" "/tmp/apks/ViKey-${GITHUB_REF_NAME}-${abi}.apk"
+            fi
           done
 
       - name: Upload APKs as artifact
