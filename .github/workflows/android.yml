@@ -51,10 +51,11 @@ jobs:
       - name: Stash APKs
         run: |
           mkdir -p /tmp/apks
-          for apk in app/build/outputs/apk/release/app-*-release.apk; do
-            base=$(basename "$apk")
-            abi=$(echo "$base" | sed 's/app-\(.*\)-release\.apk/\1/')
-            if [ "$abi" = "$base" ]; then
+          cd app/build/outputs/apk/release
+          for apk in *.apk; do
+            base=$(basename "$apk" .apk)
+            abi=$(echo "$base" | sed 's/^app-//' | sed 's/-release$//')
+            if [ -z "$abi" ] || [ "$abi" = "$base" ]; then
               cp "$apk" "/tmp/apks/ViKey-${GITHUB_REF_NAME}-universal.apk"
             else
               cp "$apk" "/tmp/apks/ViKey-${GITHUB_REF_NAME}-${abi}.apk"
