@@ -37,6 +37,9 @@ class AlgorithmicTelex(
     private companion object {
         val VOWEL_SPLIT_REGEX = Regex("[aeiouyăâêôơ]")
         val DISTANT_MODIFIERS = setOf('w')
+        private const val VIET_DIGRAPHS =
+            "ưa|ươ|uô|iê|yê|uya|uyê|ươi|ươu|uôi|oai|oay"
+        private val vietDigraphList = VIET_DIGRAPHS.split("|")
     }
 
     // ── Character classification ──────────────────────────────────
@@ -597,12 +600,6 @@ class AlgorithmicTelex(
     )
 
     private val validVietnameseOnsets = setOf("ch", "gh", "gi", "kh", "nh", "ng", "ph", "qu", "th", "tr")
-
-    companion object {
-        private const val VIET_DIGRAPHS =
-            "ưa|ươ|uô|iê|yê|uya|uyê|ươi|ươu|uôi|oai|oay"
-        private val vietDigraphList = VIET_DIGRAPHS.split("|")
-    }
 
     private fun isEnglishLikely(word: String): Boolean {
         val lower = word.lowercase()
