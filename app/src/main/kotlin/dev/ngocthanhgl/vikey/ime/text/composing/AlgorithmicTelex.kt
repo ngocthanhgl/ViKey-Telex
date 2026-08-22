@@ -401,10 +401,10 @@ class AlgorithmicTelex(
         for (pos in findVowelPositions(word).asReversed()) {
             val base = toBaseForm(word[pos].lowercaseChar())
             val target = when (lowerCh) {
-                'a' -> when (base) { 'a' -> 'â'; else -> null }
-                'e' -> when (base) { 'e' -> 'ê'; else -> null }
-                'o' -> when (base) { 'o' -> 'ô'; else -> null }
-                'w' -> when (base) { 'a' -> 'ă'; 'o' -> 'ơ'; 'u' -> 'ư'; else -> null }
+                'a' -> when (base) { 'a', 'â' -> 'â'; else -> null }
+                'e' -> when (base) { 'e', 'ê' -> 'ê'; else -> null }
+                'o' -> when (base) { 'o', 'ô' -> 'ô'; else -> null }
+                'w' -> when (base) { 'a', 'ă' -> 'ă'; 'o', 'ơ' -> 'ơ'; 'u', 'ư' -> 'ư'; else -> null }
                 else -> null
             }
             if (target != null) {
