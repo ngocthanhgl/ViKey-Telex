@@ -26,13 +26,13 @@
 
 Mọi IME mã nguồn mở trên Android đều xử lý Tiếng Việt theo kiểu **"gõ thì được nhưng đúng hay không thì tuỳ"**:
 
-| IME | Engine Telex | Auto-correct VN | English detect | Gợi ý AI offline | VNI | Gợi ý đổi dấu |
-|-----|-------------|-----------------|----------------|------------------|-----|---------------|
-| **ViKey** | Thuật toán âm tiết | ✅ Levenshtein + QWERTY | ✅ 3 lớp heuristic | ✅ Qwen GGUF | ❌ | ✅ |
-| FlorisBoard | Mutation table (2000+ rules) | ❌ (hardcode ~20 case) | ❌ (chỉ tắt w→ư) | ❌ (NLP chưa merged) | ✅ extension | ❌ |
-| HeliBoard | ❌ (chưa hỗ trợ) | ❌ | ❌ | ❌ | ❌ | ❌ |
-| FUTO Keyboard | VietIME library (vi-rs) | ❌ (EN only) | ❌ | ✅ Transformer (EN only) | ✅ | ❌ |
-| OpenBoard | ❌ (chưa hỗ trợ) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| IME           | Engine Telex                 | Auto-correct VN         | English detect     | Gợi ý AI offline         | VNI          | Gợi ý đổi dấu |
+| ------------- | ---------------------------- | ----------------------- | ------------------ | ------------------------ | ------------ | ------------- |
+| **ViKey**     | Thuật toán âm tiết           | ✅ Levenshtein + QWERTY | ✅ 3 lớp heuristic | ❌                       |              | ✅            |
+| FlorisBoard   | Mutation table (2000+ rules) | ❌ (hardcode ~20 case)  | ❌ (chỉ tắt w→ư)   | ❌ (NLP chưa merged)     | ✅ extension | ❌            |
+| HeliBoard     | ❌ (chưa hỗ trợ)             | ❌                      | ❌                 | ❌                       | ❌           | ❌            |
+| FUTO Keyboard | VietIME library (vi-rs)      | ❌ (EN only)            | ❌                 | ✅ Transformer (EN only) | ✅           | ❌            |
+| OpenBoard     | ❌ (chưa hỗ trợ)             | ❌                      | ❌                 | ❌                       | ❌           | ❌            |
 
 **Mutation table** là cách FlorisBoard dùng: tra bảng `"aof" → "ào"`, `"oo" → "ô"`. HeliBoard và OpenBoard chưa có Telex. FUTO dùng VietIME library từ v0.1.28. Cách mutation table có vấn đề:
 
@@ -64,38 +64,35 @@ gõ "chaof" → parseSyllable("chao") → onset:"ch" + nucleus:"ao"
 
 **Hệ quả thực tế:**
 
-| Tình huống | IME khác | ViKey |
-|------------|----------|-------|
+| Tình huống                     | IME khác                 | ViKey                                     |
+| ------------------------------ | ------------------------ | ----------------------------------------- |
 | Gõ `"bá"` rồi sửa thành `"bà"` | Gợi ý không đổi hoặc sai | Gợi ý lập tức chuyển → `bàn — bàng — bài` |
-| Gõ `"uow"` → `"ươ"` | Không hỗ trợ | ✅ Phím tắt 3 ký tự |
-| Gõ `"z"` cuối từ để xoá dấu | Không hỗ trợ | ✅ `"chàoz"` → `"chao"` |
-| Gõ Tiếng Anh "school" | Biến thành "schôôl" | ✅ Tự nhận diện, không biến đổi |
-| Gõ `"w"` đầu từ | Ra `"w"` hoặc lỗi | ✅ Ra `"ư"` nếu là âm tiết Việt |
+| Gõ `"uow"` → `"ươ"`            | Không hỗ trợ             | ✅ Phím tắt 3 ký tự                       |
+| Gõ `"z"` cuối từ để xoá dấu    | Không hỗ trợ             | ✅ `"chàoz"` → `"chao"`                   |
+| Gõ Tiếng Anh "school"          | Biến thành "schôôl"      | ✅ Tự nhận diện, không biến đổi           |
+| Gõ `"w"` đầu từ                | Ra `"w"` hoặc lỗi        | ✅ Ra `"ư"` nếu là âm tiết Việt           |
 
 ---
 
 ## Tính Năng Nổi Bật
 
-### 🤖 Gợi Ý Thông Minh (AI + Personal)
+### Gợi Ý Thông Minh
 
-ViKey hội tụ **3 tầng** gợi ý từ:
+ViKey hội tụ **2 tầng** gợi ý từ:
 
 1. **Từ điển tĩnh** — ~40,000 từ Anh Việt có tần suất thực tế
 2. **Personal dictionary** — tự động học từ bạn hay gõ, có **decay theo thời gian** (từ lâu không dùng tự tụt hạng) + **damping** (bạn không chọn, nó không học lại)
-3. **Qwen GGUF LLM** *(bản Full, optional)* — import model ngôn ngữ, suggest từ tiếp theo theo context thực tế
-
-**Autocorrect** thông minh: kết hợp Levenshtein distance + keyboard proximity (QWERTY) + Qwen score + length ratio — composite scoring 4 thành phần.
 
 **TypoDetector** chuyên biệt cho người Việt: phát hiện thiếu dấu thanh, swap phím bên cạnh, gõ thừa ký tự, thiếu modifier (a→aa/aw), sai tone key.
 
 ### 🎨 Giao Diện & Themes
 
-| Giao diện | Mô tả |
-|-----------|-------|
-| **Liquid Glass** 🪟 | Hiệu ứng kính mờ real-time với lens animation, chromatic aberration, ripple wave, depth effect. **Không IME mã nguồn mở nào có.** |
-| **Sakura / Valentine** | 12 theme tùy chỉnh theo mùa |
-| **Material You** | Dynamic color theo hệ thống |
-| **20+ themes** | Cài thêm qua extension store |
+| Giao diện              | Mô tả                                                                                                                             |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Liquid Glass** 🪟    | Hiệu ứng kính mờ real-time với lens animation, chromatic aberration, ripple wave, depth effect. **Không IME mã nguồn mở nào có.** |
+| **Sakura / Valentine** | 12 theme tùy chỉnh theo mùa                                                                                                       |
+| **Material You**       | Dynamic color theo hệ thống                                                                                                       |
+| **20+ themes**         | Cài thêm qua extension store                                                                                                      |
 
 <table align="center">
   <tr>
@@ -154,14 +151,14 @@ Tỉ lệ dương tính giả cực thấp nhờ kết hợp cả 3 lớp.
 
 ### ⌨️ Phím Tắt Telex Thông Minh
 
-| Tổ hợp | Kết quả | Ghi chú |
-|--------|---------|---------|
-| `uow` | `ươ` | Phím tắt 3 ký tự — không IME nào có |
-| `aw` / `aa` / `ee` / `oo` / `ow` / `uw` / `dd` | ă / â / ê / ô / ơ / ư / đ | 7 phím tắt chuẩn |
-| `ưw` → `uw` | Undo phím tắt | Gõ lại lần hai để undo |
-| `z` cuối từ | Xoá toàn bộ dấu | `"chàoz"` → `"chao"` |
-| `w` đầu/sau phụ âm | `ư` / `Ư` | `"kw"` → `"kư"` |
-| `w` sau nguyên âm | `w` thường | `"baw"` → `"băw"`? Không, `"baw"` → `"bă"` |
+| Tổ hợp                                         | Kết quả                   | Ghi chú                                     |
+| ---------------------------------------------- | ------------------------- | ------------------------------------------- |
+| `uow`                                          | `ươ`                      | Phím tắt 3 ký tự — không IME android nào có |
+| `aw` / `aa` / `ee` / `oo` / `ow` / `uw` / `dd` | ă / â / ê / ô / ơ / ư / đ | 7 phím tắt chuẩn                            |
+| `ưw` → `uw`                                    | Undo phím tắt             | Gõ lại lần hai để undo                      |
+| `z` cuối từ                                    | Xoá toàn bộ dấu           | `"chàoz"` → `"chao"`                        |
+| `w` đầu/sau phụ âm                             | `ư` / `Ư`                 | `"kw"` → `"kư"`                             |
+| `w` sau nguyên âm                              | `w` thường                | `"baw"` → `"băw"`? Không, `"baw"` → `"bă"`  |
 
 ---
 
@@ -172,9 +169,9 @@ Tỉ lệ dương tính giả cực thấp nhờ kết hợp cả 3 lớp.
 ```
 ╭──────────────────────────────────────────────╮
 │  Mọi thao tác gõ phím → ở lại trên máy bạn   │
-│  Không Internet → không gửi dữ liệu đi đâu    │
-│  Telex engine local 100% → không API call     │
-│  Qwen model chạy native (JNI) → offline       │
+│  Không Internet → không gửi dữ liệu đi đâu   │
+│  Telex engine local 100% → không API call    │
+│  Qwen model chạy native (JNI) → offline      │
 ╰──────────────────────────────────────────────╯
 ```
 
@@ -183,11 +180,6 @@ ViKey theo triết lý **privacy-first** của FlorisBoard. Mọi thứ từ g�
 ---
 
 ## Download
-
-| Phiên bản | Mô tả |
-|-----------|-------|
-| **Full** | Bao gồm Qwen JNI .so. Import GGUF model để có gợi ý AI. |
-| **Lite** | Gọn nhẹ, không model. Frequency-based suggestions. |
 
 Tải về từ [Releases](https://github.com/ngocthanhgl/ViKey-Telex/releases).
 
