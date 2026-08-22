@@ -1,10 +1,6 @@
 [versions]
 buildTools = "36.0.0"
-cmake = "4.1.2"
 jdk = "17"
-ndk = "29.0.14206865"
-rustup = "1.28.2"
-rustToolchain = "1.93.0"
 
 ### Command line tools ###
 # See: https://developer.android.com/studio#command-line-tools-only

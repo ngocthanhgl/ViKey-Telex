@@ -59,7 +59,6 @@ configure<ApplicationExtension> {
     namespace = "dev.ngocthanhgl.vikey"
     compileSdk = projectCompileSdk.toInt()
     buildToolsVersion = tools.versions.buildTools.get()
-    ndkVersion = tools.versions.ndk.get()
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -86,15 +85,6 @@ configure<ApplicationExtension> {
         }
     }
 
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("arm64-v8a", "armeabi-v7a")
-            isUniversalApk = false
-        }
-    }
-
     bundle {
         language {
             enableSplit = false
@@ -112,7 +102,6 @@ configure<ApplicationExtension> {
             versionNameSuffix = "-debug+${getGitCommitHash(short = true).get()}"
 
             isDebuggable = true
-            isJniDebuggable = false
         }
 
         create("beta") {

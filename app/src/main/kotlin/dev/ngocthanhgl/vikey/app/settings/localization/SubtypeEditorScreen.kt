@@ -1,4 +1,4 @@
-package dev.ngocthanhgl.vikey.app.settings.localization
+﻿package dev.ngocthanhgl.vikey.app.settings.localization
 
 import androidx.compose.foundation.clickable
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -70,8 +70,7 @@ import dev.ngocthanhgl.vikey.ime.keyboard.extCorePopupMapping
 import dev.ngocthanhgl.vikey.ime.nlp.FallbackNlpProvider
 
 import dev.ngocthanhgl.vikey.ime.nlp.english.EnglishSuggestionProvider
-import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenNatives
-import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
+import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.VietnameseLanguageProvider
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.devtools.flogDebug
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
@@ -386,7 +385,7 @@ fun SubtypeEditorScreen(id: Long?) {
                                 popupMapping = extCorePopupMapping("default")
                                 val suggestionId = when (locale.language) {
                                     "en" -> EnglishSuggestionProvider.ProviderId
-                                    "vi" -> QwenSuggestionProvider.ProviderId
+                                    "vi" -> VietnameseLanguageProvider.ProviderId
                                     else -> FallbackNlpProvider.providerId
                                 }
                                 nlpProviders = SubtypeNlpProviderMap(
@@ -439,7 +438,7 @@ fun SubtypeEditorScreen(id: Long?) {
             SubtypeProperty(stringRes(R.string.settings__localization__subtype_suggestion_provider)) {
                 val nlpProviderMappings = mapOf(
                     FallbackNlpProvider.providerId to stringRes(R.string.quick_action__noop),
-                    QwenSuggestionProvider.ProviderId to stringRes(R.string.subtype_editor__suggestion_english_vietnamese),
+                    VietnameseLanguageProvider.ProviderId to stringRes(R.string.subtype_editor__suggestion_english_vietnamese),
                     EnglishSuggestionProvider.ProviderId to stringRes(R.string.subtype_editor__suggestion_english_only),
                 )
 
@@ -458,134 +457,6 @@ fun SubtypeEditorScreen(id: Long?) {
                         spelling = nlpProviderMappingIds[it]
                     ) },
                 )
-            }
-
-            if (nlpProviders.suggestion == QwenSuggestionProvider.ProviderId && QwenNatives.isAvailable) {
-                val scope = rememberCoroutineScope()
-                val dir = context.filesDir
-
-                fun scanModel(): File? = dir.listFiles { f -> f.extension == "gguf" && f.length() > 0 }
-                    ?.maxByOrNull { it.length() }
-
-                val modelFile = remember { mutableStateOf(scanModel()) }
-                val modelExists = modelFile.value != null
-                val importError = remember { mutableStateOf<String?>(null) }
-                val provider = QwenSuggestionProvider.getInstance()
-                val modelLoading by provider?.modelLoading?.collectAsState() ?: remember { mutableStateOf(false) }
-                val modelError by provider?.modelError?.collectAsState() ?: remember { mutableStateOf<String?>(null) }
-
-                val importLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.GetContent()
-                ) { uri ->
-                    if (uri != null) {
-                        scope.launch {
-                            importError.value = null
-                            try {
-                                context.contentResolver.openInputStream(uri)?.use { input ->
-                                    File(dir, "model.gguf").outputStream().use { output ->
-                                        input.copyTo(output)
-                                    }
-                                }
-                                modelFile.value = scanModel()
-                                if (modelFile.value != null) {
-                                    provider?.unloadModel()
-                                    provider?.reloadModel()
-                                } else {
-                                    importError.value = "Copied file not found or empty"
-                                }
-                            } catch (e: Exception) {
-                                importError.value = "Import failed: ${e.message}"
-                                flogDebug { "Import model failed: ${e.message}" }
-                            }
-                        }
-                    }
-                }
-
-                SettingsDivider()
-                SubtypeProperty(stringRes(R.string.subtype_editor__model)) {
-                    Column {
-                        if (modelLoading) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                                Spacer(Modifier.width(8.dp))
-                                Text("Loading model…", style = MaterialTheme.typography.bodySmall)
-                            }
-                        } else if (modelExists) {
-                            val hasError = modelError != null
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = if (hasError) Icons.Rounded.Warning else Icons.Rounded.CheckCircle,
-                                    contentDescription = null,
-                                    tint = if (hasError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                                Spacer(Modifier.width(4.dp))
-                                Text(
-                                    text = stringRes(R.string.subtype_editor__model_format, "model" to (modelFile.value?.name ?: stringRes(R.string.subtype_editor__unknown))),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.weight(1f),
-                                )
-                                if (hasError) {
-                                    IconButton(onClick = { importLauncher.launch("*/*") }) {
-                                        Icon(
-                                            imageVector = Icons.Rounded.Refresh,
-                                            contentDescription = "Replace model",
-                                            tint = MaterialTheme.colorScheme.primary,
-                                        )
-                                    }
-                                }
-                                IconButton(onClick = {
-                                    scope.launch {
-                                        provider?.removeModel()
-                                        modelFile.value = null
-                                    }
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Delete,
-                                        contentDescription = stringRes(R.string.subtype_editor__remove_model),
-                                        tint = MaterialTheme.colorScheme.error,
-                                    )
-                                }
-                            }
-                            if (hasError) {
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    text = modelError ?: "",
-                                    color = MaterialTheme.colorScheme.error,
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
-                            }
-                        } else {
-                            Column {
-                                Button(onClick = { importLauncher.launch("*/*") }) {
-                                    Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                                    Spacer(Modifier.width(4.dp))
-                                    Text(stringRes(R.string.subtype_editor__select_gguf))
-                                }
-                                Spacer(Modifier.height(4.dp))
-                                OutlinedButton(onClick = {
-                                    val intent = android.content.Intent(
-                                        android.content.Intent.ACTION_VIEW,
-                                        android.net.Uri.parse("https://github.com/ngocthanhgl/ViKey-Telex/releases/tag/Model")
-                                    )
-                                    context.startActivity(intent)
-                                }) {
-                                    Icon(Icons.Rounded.FileDownload, contentDescription = null, modifier = Modifier.size(18.dp))
-                                    Spacer(Modifier.width(4.dp))
-                                    Text(stringRes(R.string.subtype_editor__download_github))
-                                }
-                            }
-                        }
-                        importError.value?.let { err ->
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = err,
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-                    }
-                }
             }
         }
 

@@ -33,7 +33,6 @@ import dev.ngocthanhgl.vikey.app.settings.components.M3ClickablePreference
 import dev.ngocthanhgl.vikey.app.settings.components.M3SwitchPreference
 import dev.ngocthanhgl.vikey.app.settings.components.SettingsDivider
 import dev.ngocthanhgl.vikey.ime.dictionary.DictionaryManager
-import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 import kotlinx.coroutines.launch
 import org.florisboard.lib.compose.stringRes
@@ -109,9 +108,6 @@ fun DictionaryScreen() {
                     showClearDialog = false
                     File(context.filesDir, ".cleared").writeText("1")
                     File(context.filesDir, "personal_dict.json").delete()
-                    File(context.filesDir, ".qwen_cleared").writeText("1")
-                    File(context.filesDir, "qwen_personal_dict.json").delete()
-                    QwenSuggestionProvider.getInstance()?.clearAll()
                     try {
                         DictionaryManager.default().florisUserDictionaryDao()?.deleteAll()
                     } catch (_: Exception) {}

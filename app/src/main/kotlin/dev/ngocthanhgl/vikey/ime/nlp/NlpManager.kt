@@ -30,7 +30,6 @@ import dev.ngocthanhgl.vikey.ime.editor.EditorRange
 import dev.ngocthanhgl.vikey.ime.editor.InputAttributes
 import dev.ngocthanhgl.vikey.ime.media.emoji.EmojiSuggestionProvider
 import dev.ngocthanhgl.vikey.ime.nlp.english.EnglishSuggestionProvider
-import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.QwenSuggestionProvider
 import dev.ngocthanhgl.vikey.ime.nlp.vietnamese.VietnameseLanguageProvider
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.util.NetworkUtils
@@ -67,7 +66,6 @@ class NlpManager(context: Context) {
     private val emojiSuggestionProvider = EmojiSuggestionProvider(context)
     private val providers = guardedByLock {
         mapOf(
-            QwenSuggestionProvider.ProviderId to ProviderInstanceWrapper(QwenSuggestionProvider(context)),
             EnglishSuggestionProvider.ProviderId to ProviderInstanceWrapper(EnglishSuggestionProvider(context)),
             VietnameseLanguageProvider.ProviderId to ProviderInstanceWrapper(VietnameseLanguageProvider(context)),
         )
@@ -241,7 +239,7 @@ class NlpManager(context: Context) {
 
     fun liveSuggestionsEnabled(): Boolean {
         if (!isSuggestionOn()) return false
-        return subtypeManager.activeSubtype.nlpProviders.suggestion == QwenSuggestionProvider.ProviderId
+        return true
     }
 
     fun suggestComposition(prefix: String, shiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState) {
@@ -408,9 +406,7 @@ class NlpManager(context: Context) {
         return runBlocking {
             val subtype = subtypeManager.activeSubtype
             val provider = getSuggestionProvider(subtype)
-            if (provider is QwenSuggestionProvider) {
-                provider.getBigramFrequency(prevWord, nextWord)
-            } else 0.0
+            0.0
         }
     }
 
@@ -419,7 +415,6 @@ class NlpManager(context: Context) {
             val subtype = subtypeManager.activeSubtype
             val provider = getSuggestionProvider(subtype)
             when (provider) {
-                is QwenSuggestionProvider -> provider.recordWord(word, if (subtype.primaryLocale.language == "en") "en" else "vi")
                 is EnglishSuggestionProvider -> provider.recordWord(word)
             }
         }

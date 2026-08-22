@@ -1198,12 +1198,6 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <string name="liquid_glass__reset_to_defaults">Đặt lại mặc định</string>
 
     <!-- Subtype Editor -->
-    <string name="subtype_editor__model">Mô hình</string>
-    <string name="subtype_editor__model_format">Mô hình: {model}</string>
-    <string name="subtype_editor__unknown">không xác định</string>
-    <string name="subtype_editor__remove_model">Xóa mô hình</string>
-    <string name="subtype_editor__select_gguf">Chọn tệp GGUF</string>
-    <string name="subtype_editor__download_github">Tải từ GitHub</string>
     <string name="subtype_editor__section_layouts">Bố cục</string>
     <string name="subtype_editor__section_numeric">Số</string>
     <string name="subtype_editor__section_phone">Điện thoại</string>
