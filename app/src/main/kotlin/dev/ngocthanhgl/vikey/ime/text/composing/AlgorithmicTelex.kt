@@ -408,10 +408,11 @@ class AlgorithmicTelex(
                 else -> null
             }
             if (target != null) {
-                val currentBase = toBaseForm(word[pos].lowercaseChar())
-                val finalTarget = if (currentBase == target) base else target
+                val isRevert = word[pos].lowercaseChar() == target
+                val finalTarget = if (isRevert) base else target
                 val replaced = transformVowel(word[pos], finalTarget)
-                return word.substring(0, pos) + replaced + word.substring(pos + 1)
+                val reverted = word.substring(0, pos) + replaced + word.substring(pos + 1)
+                return if (isRevert) reverted + ch else reverted
             }
         }
 
