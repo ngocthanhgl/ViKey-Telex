@@ -233,7 +233,7 @@ class AlgorithmicTelex(
         if (lowerCh in toneKeys) {
             if (word.isNotEmpty()) {
                 val candidate = "${word.last().lowercaseChar()}$lowerCh"
-                if (knownOnsets.contains(candidate)) {
+                if (knownOnsets.contains(candidate) && word.none { it.lowercaseChar() in baseVowels }) {
                     return word.length to (word + ch)
                 }
             }
@@ -613,7 +613,7 @@ class AlgorithmicTelex(
             val hasVietDigraph = vietDigraphList.any { lower.contains(it) }
             if (!hasVietDigraph) {
                 if (lower.endsWith("ck") || lower.endsWith("sh") ||
-                    lower.endsWith("ch") || lower.endsWith("th") ||
+                    lower.endsWith("th") ||
                     lower.endsWith("ph") || lower.endsWith("nd") ||
                     lower.endsWith("nt") || lower.endsWith("st")
                 ) return true
