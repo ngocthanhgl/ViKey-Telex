@@ -36,7 +36,7 @@ class AlgorithmicTelex(
 
     private companion object {
         val VOWEL_SPLIT_REGEX = Regex("[aeiouyăâêôơ]")
-        val DISTANT_MODIFIERS = setOf('a', 'e', 'o', 'w')
+        val DISTANT_MODIFIERS = setOf('w')
     }
 
     // ── Character classification ──────────────────────────────────
