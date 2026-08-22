@@ -409,7 +409,7 @@ class AlgorithmicTelex(
             }
             if (target != null) {
                 val isRevert = word[pos].lowercaseChar() == target
-                val finalTarget = if (isRevert) base else target
+                val finalTarget = if (isRevert) (reverseShortcuts[base]?.first ?: base) else target
                 val replaced = transformVowel(word[pos], finalTarget)
                 val reverted = word.substring(0, pos) + replaced + word.substring(pos + 1)
                 return if (isRevert) reverted + ch else reverted
