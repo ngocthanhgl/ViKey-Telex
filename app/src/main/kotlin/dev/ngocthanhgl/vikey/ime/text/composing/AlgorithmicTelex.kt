@@ -36,7 +36,7 @@ class AlgorithmicTelex(
 
     companion object {
         val VOWEL_SPLIT_REGEX = Regex("[aeiouyăâêôơ]")
-        val DISTANT_MODIFIERS = setOf('w')
+        val DISTANT_MODIFIERS = setOf('a', 'e', 'o', 'w')
         private const val VIET_DIGRAPHS =
             "ưa|ươ|uô|iê|yê|uya|uyê|ươi|ươu|uôi|oai|oay"
         private val vietDigraphList = VIET_DIGRAPHS.split("|")
@@ -401,15 +401,16 @@ class AlgorithmicTelex(
         for (pos in findVowelPositions(word).asReversed()) {
             val base = toBaseForm(word[pos].lowercaseChar())
             val target = when (lowerCh) {
-                else -> when (base) {
-                    'a' -> 'ă'
-                    'o' -> 'ơ'
-                    'u' -> 'ư'
-                    else -> null
-                }
+                'a' -> when (base) { 'a' -> 'â'; else -> null }
+                'e' -> when (base) { 'e' -> 'ê'; else -> null }
+                'o' -> when (base) { 'o' -> 'ô'; else -> null }
+                'w' -> when (base) { 'a' -> 'ă'; 'o' -> 'ơ'; 'u' -> 'ư'; else -> null }
+                else -> null
             }
             if (target != null) {
-                val replaced = transformVowel(word[pos], target)
+                val currentBase = toBaseForm(word[pos].lowercaseChar())
+                val finalTarget = if (currentBase == target) base else target
+                val replaced = transformVowel(word[pos], finalTarget)
                 return word.substring(0, pos) + replaced + word.substring(pos + 1)
             }
         }
