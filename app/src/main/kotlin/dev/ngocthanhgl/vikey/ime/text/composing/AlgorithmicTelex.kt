@@ -381,12 +381,23 @@ class AlgorithmicTelex(
             return null
         }
 
+        if (lowerCh == 'w') {
+            val positions = findVowelPositions(word)
+            for (i in 0 until positions.size - 1) {
+                val base1 = toBaseForm(word[positions[i]].lowercaseChar())
+                val base2 = toBaseForm(word[positions[i + 1]].lowercaseChar())
+                if (base1 == 'u' && base2 == 'o') {
+                    val sb = StringBuilder(word)
+                    sb[positions[i]] = transformVowel(word[positions[i]], 'ư')
+                    sb[positions[i + 1]] = transformVowel(word[positions[i + 1]], 'ơ')
+                    return sb.toString()
+                }
+            }
+        }
+
         for (pos in findVowelPositions(word).asReversed()) {
             val base = toBaseForm(word[pos].lowercaseChar())
             val target = when (lowerCh) {
-                'a' -> if (base == 'a') 'â' else null
-                'e' -> if (base == 'e') 'ê' else null
-                'o' -> if (base == 'o') 'ô' else null
                 else -> when (base) {
                     'a' -> 'ă'
                     'o' -> 'ơ'
