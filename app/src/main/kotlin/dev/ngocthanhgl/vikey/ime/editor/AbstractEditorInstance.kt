@@ -65,6 +65,13 @@ abstract class AbstractEditorInstance(context: Context) {
         private const val CursorUpdateAll: Int =
             InputConnection.CURSOR_UPDATE_MONITOR or InputConnection.CURSOR_UPDATE_IMMEDIATE
         private const val CursorUpdateNone: Int = 0
+
+        private val NO_AUTOCAP_VARIATIONS = setOf(
+            InputAttributes.Variation.PASSWORD,
+            InputAttributes.Variation.VISIBLE_PASSWORD,
+            InputAttributes.Variation.URI,
+            InputAttributes.Variation.EMAIL_ADDRESS,
+        )
     }
 
     private val keyboardManager by context.keyboardManager()
@@ -291,13 +298,34 @@ abstract class AbstractEditorInstance(context: Context) {
     }
 
     private fun EditorContent.cursorCapsMode(): InputAttributes.CapsMode {
-        return when {
-            localSelection.isNotValid -> InputAttributes.CapsMode.NONE
-            else -> {
-                InputAttributes.CapsMode.fromCapsMode(
-                    TextUtils.getCapsMode(text, localSelection.start, activeInfo.inputAttributes.raw)
-                )
-            }
+        val attrs = activeInfo.inputAttributes
+        if (activeInfo.isRawInputEditor || localSelection.isNotValid) {
+            return InputAttributes.CapsMode.NONE
+        }
+        val detected = InputAttributes.CapsMode.fromCapsMode(
+            TextUtils.getCapsMode(text, localSelection.start, attrs.raw)
+        )
+        if (detected != InputAttributes.CapsMode.NONE) return detected
+        // Many apps omit caps flags from their inputType, which makes TextUtils.getCapsMode
+        // always return 0 there. Behave like mainstream keyboards and fall back to our own
+        // sentence-start detection for plain text editors (never passwords/URIs/emails).
+        if (attrs.type == InputAttributes.Type.TEXT &&
+            attrs.variation !in NO_AUTOCAP_VARIATIONS &&
+            isSentenceStart(text, localSelection.start)
+        ) {
+            return InputAttributes.CapsMode.SENTENCES
+        }
+        return InputAttributes.CapsMode.NONE
+    }
+
+    private fun isSentenceStart(text: CharSequence, pos: Int): Boolean {
+        var i = pos - 1
+        while (i >= 0 && text[i].isWhitespace() && text[i] != '\n') i--
+        if (i < 0) return true
+        return when (text[i]) {
+            '\n' -> true
+            '.', '!', '?' -> true
+            else -> false
         }
     }
 
