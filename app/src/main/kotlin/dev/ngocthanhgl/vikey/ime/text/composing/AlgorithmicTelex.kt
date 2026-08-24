@@ -170,6 +170,78 @@ class AlgorithmicTelex(
         "ould", "ight", "ough",
     )
 
+    // ── Legal Vietnamese rhymes (order-independence validity gate) ──
+
+    private val legalRhymes: Set<String> = buildSet {
+        addAll(
+            listOf(
+                "a", "ă", "â", "e", "ê", "i", "y", "o", "ô", "ơ", "u", "ư",
+                "ai", "ay", "ây", "ao", "au", "âu", "eo", "êu", "iu",
+                "oi", "ôi", "ơi", "ui", "ưi", "ưu",
+                "ia", "ya", "ua", "ưa", "oa", "oe", "uy", "uya", "uơ",
+                "oai", "oay", "uay",
+                "iêu", "yêu", "uôi", "ươi", "ươu",
+            ),
+        )
+        val closed = mapOf(
+            "a" to "m n ng nh p t c ch",
+            "ă" to "m n ng p t c",
+            "â" to "m n ng p t c",
+            "e" to "m n ng p t c",
+            "ê" to "m n ng nh ch t p",
+            "i" to "m n nh ng ch t p",
+            "o" to "m n ng p t c",
+            "ô" to "m n ng p t c",
+            "ơ" to "n ng m t",
+            "u" to "m n ng p t c",
+            "ư" to "n ng c t p",
+            "iê" to "n ng c t m p",
+            "yê" to "n t m",
+            "uô" to "n ng c t",
+            "ươ" to "n ng c t m",
+            "uyê" to "n t",
+            "oa" to "n t c ch",
+            "oe" to "t",
+            "ua" to "ch",
+            "uâ" to "n t c",
+        )
+        for ((nucleus, codas) in closed) {
+            for (coda in codas.split(" ")) add(nucleus + coda)
+        }
+        // Plain spellings (modifier key not typed yet), e.g. "duoc" mid-state
+        addAll(
+            "uo uon uoc uong uot uom ie ien iec ieng iem iep iet " +
+                "ye yen yet yem uye uyen uyet uoi"
+                .split(" "),
+        )
+    }
+
+    private fun splitRhymeBase(cleanLower: String): String? {
+        var remaining = cleanLower
+        var matched = false
+        for (o in knownOnsets) {
+            if (remaining.startsWith(o)) {
+                val candidate = remaining.substring(o.length)
+                val hasVowel = candidate.any { toBaseForm(it) in baseVowels }
+                val multiEndsInVowel = o.length > 1 && toBaseForm(o.last()) in baseVowels
+                if (hasVowel || o.length == 1 || !multiEndsInVowel) {
+                    remaining = candidate
+                    matched = true
+                    break
+                }
+            }
+        }
+        if (remaining.isEmpty()) return null
+        if (!matched) return null
+        return remaining
+    }
+
+    private fun isValidRhymeWord(displayLower: String): Boolean {
+        val base = displayLower.map { toBaseForm(it) }.joinToString("")
+        val rhyme = splitRhymeBase(base) ?: return false
+        return rhyme in legalRhymes
+    }
+
     // ──────────────────────────────────────────────────────────────
     //  Syllable model
     // ──────────────────────────────────────────────────────────────
@@ -263,6 +335,17 @@ class AlgorithmicTelex(
             return doShortcutUndo(word, ch)
         }
 
+        if (lowerCh == 'w') {
+            convertUoPair(word)?.let { return word.length to it }
+
+            val legal = wInterpretations(word)
+                .filter { isValidRhymeWord(it.second.lowercase()) }
+            if (legal.isNotEmpty()) {
+                val best = legal.minByOrNull { it.first }!!
+                return word.length to best.second
+            }
+        }
+
         val shortcut = applyShortcut(word, ch)
         if (shortcut != null) {
             return word.length to shortcut
@@ -273,9 +356,7 @@ class AlgorithmicTelex(
             return word.length to distant
         }
 
-        if (lowerCh == 'w') {
-            return handleW(word, ch)
-        }
+        retroactiveDd(word, ch)?.let { return word.length to it }
 
         return word.length to (word + ch)
     }
@@ -314,15 +395,26 @@ class AlgorithmicTelex(
         return word.length to String(chars)
     }
 
+    private val cancelMap = mapOf(
+        'ă' to 'a', 'â' to 'a', 'ê' to 'e', 'ô' to 'o',
+        'ơ' to 'o', 'ư' to 'u', 'đ' to 'd',
+    )
+
     private fun handleCancel(precedingText: String): Pair<Int, String> {
         val word = lastWord(precedingText)
         if (word.isEmpty()) return 0 to "z"
 
-        val clean = stripTones(word)
-        if (clean == word) {
+        val clean = StringBuilder()
+        for (c in word) {
+            var b = toBaseForm(c).toString()
+            cancelMap[b]?.let { b = it }
+            clean.append(if (c.isUpperCase()) b.uppercase() else b)
+        }
+        val result = clean.toString()
+        if (result == word) {
             return word.length to (word + "z")
         }
-        return word.length to clean
+        return word.length to result
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -373,6 +465,58 @@ class AlgorithmicTelex(
         return null
     }
 
+    // ── Order-independence helpers (w targeting / uo-pair migration) ──
+
+    private fun wTargetFor(base: Char): Char? = when (base) {
+        'a', 'ă' -> 'ă'
+        'o', 'ơ' -> 'ơ'
+        'u', 'ư' -> 'ư'
+        else -> null
+    }
+
+    private fun convertUoPair(word: String): String? {
+        val positions = findVowelPositions(word)
+        for (i in 0 until positions.size - 1) {
+            val base1 = toBaseForm(word[positions[i]].lowercaseChar())
+            val base2 = toBaseForm(word[positions[i + 1]].lowercaseChar())
+            if (base1 == 'u' && base2 == 'o') {
+                val pi = positions[i]
+                val pj = positions[i + 1]
+                var toneKey: Char? = null
+                for (p in positions) {
+                    reverseToneMaps[word[p].lowercaseChar()]?.let { toneKey = it.second }
+                }
+                val newSecond = toneKey?.let { toneMaps[it]?.get('ơ') } ?: 'ơ'
+                val sb = StringBuilder(word)
+                sb[pi] = if (word[pi].isUpperCase()) 'Ư' else 'ư'
+                sb[pj] = if (word[pj].isUpperCase()) newSecond.uppercaseChar() else newSecond
+                for (p in positions) {
+                    if (p == pi || p == pj) continue
+                    val b = toBaseForm(sb[p])
+                    sb[p] = if (word[p].isUpperCase()) b.uppercaseChar() else b
+                }
+                return sb.toString()
+            }
+        }
+        return null
+    }
+
+    private fun wInterpretations(word: String): List<Pair<Int, String>> {
+        val out = mutableListOf<Pair<Int, String>>()
+        val positions = findVowelPositions(word)
+        applyShortcut(word, 'w')?.let { sc ->
+            out.add((positions.lastOrNull() ?: (word.length - 1)) to sc)
+        }
+        for (pos in positions.asReversed()) {
+            val base = toBaseForm(word[pos].lowercaseChar())
+            val target = wTargetFor(base) ?: continue
+            if (word[pos].lowercaseChar() == target) continue
+            val cand = word.substring(0, pos) + transformVowel(word[pos], target) + word.substring(pos + 1)
+            out.add(pos to cand)
+        }
+        return out
+    }
+
     // ──────────────────────────────────────────────────────────────
     //  Distant shortcut handling (Unikey standard)
     //  Applies a vowel modifier to the last modifiable vowel of a
@@ -389,34 +533,48 @@ class AlgorithmicTelex(
         }
 
         if (lowerCh == 'w') {
-            val positions = findVowelPositions(word)
-            for (i in 0 until positions.size - 1) {
-                val base1 = toBaseForm(word[positions[i]].lowercaseChar())
-                val base2 = toBaseForm(word[positions[i + 1]].lowercaseChar())
-                if (base1 == 'u' && base2 == 'o') {
-                    val sb = StringBuilder(word)
-                    sb[positions[i]] = transformVowel(word[positions[i]], 'ư')
-                    sb[positions[i + 1]] = transformVowel(word[positions[i + 1]], 'ơ')
-                    return sb.toString()
+            convertUoPair(word)?.let { return it }
+        }
+
+        fun targetFor(pos: Int): Char? {
+            val base = toBaseForm(word[pos].lowercaseChar())
+            return when (lowerCh) {
+                'a' -> if (base == 'a' || base == 'â') 'â' else null
+                'e' -> if (base == 'e' || base == 'ê') 'ê' else null
+                'o' -> if (base == 'o' || base == 'ô') 'ô' else null
+                'w' -> wTargetFor(base)
+                else -> null
+            }
+        }
+
+        // Pass 1: right-to-left, accept first candidate whose transformed
+        // word forms a legal Vietnamese rhyme (order-independence gate).
+        for (pos in findVowelPositions(word).asReversed()) {
+            val target = targetFor(pos) ?: continue
+            if (word[pos].lowercaseChar() != target) {
+                val cand = word.substring(0, pos) + transformVowel(word[pos], target) + word.substring(pos + 1)
+                if (isValidRhymeWord(cand.lowercase())) {
+                    return cand
                 }
             }
         }
 
+        // Revert path (unchanged semantics)
         for (pos in findVowelPositions(word).asReversed()) {
-            val base = toBaseForm(word[pos].lowercaseChar())
-            val target = when (lowerCh) {
-                'a' -> when (base) { 'a', 'â' -> 'â'; else -> null }
-                'e' -> when (base) { 'e', 'ê' -> 'ê'; else -> null }
-                'o' -> when (base) { 'o', 'ô' -> 'ô'; else -> null }
-                'w' -> when (base) { 'a', 'ă' -> 'ă'; 'o', 'ơ' -> 'ơ'; 'u', 'ư' -> 'ư'; else -> null }
-                else -> null
+            val target = targetFor(pos) ?: continue
+            if (word[pos].lowercaseChar() == target) {
+                val base = toBaseForm(word[pos].lowercaseChar())
+                val revertTarget = reverseShortcuts[base]?.first ?: base
+                return word.substring(0, pos) + transformVowel(word[pos], revertTarget) +
+                    word.substring(pos + 1) + ch
             }
-            if (target != null) {
-                val isRevert = word[pos].lowercaseChar() == target
-                val finalTarget = if (isRevert) (reverseShortcuts[base]?.first ?: base) else target
-                val replaced = transformVowel(word[pos], finalTarget)
-                val reverted = word.substring(0, pos) + replaced + word.substring(pos + 1)
-                return if (isRevert) reverted + ch else reverted
+        }
+
+        // Pass 2: legacy fallback (first transformable right-to-left)
+        for (pos in findVowelPositions(word).asReversed()) {
+            val target = targetFor(pos) ?: continue
+            if (word[pos].lowercaseChar() != target) {
+                return word.substring(0, pos) + transformVowel(word[pos], target) + word.substring(pos + 1)
             }
         }
 
@@ -454,6 +612,23 @@ class AlgorithmicTelex(
 
         val uChar = if (ch.isUpperCase()) 'Ư' else 'ư'
         return word.length to (word + uChar)
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  Retroactive dd → đ (order-independent)
+    // ──────────────────────────────────────────────────────────────
+
+    private fun retroactiveDd(word: String, ch: Char): String? {
+        if (ch.lowercaseChar() != 'd' || word.length < 2) return null
+        val first = word.first()
+        if (first == 'd' || first == 'D') {
+            val rest = word.substring(1)
+            if (isValidRhymeWord("d" + rest.lowercase())) {
+                val dd = if (first == 'D') 'Đ' else 'đ'
+                return "$dd$rest"
+            }
+        }
+        return null
     }
 
     // ──────────────────────────────────────────────────────────────
