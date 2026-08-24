@@ -677,10 +677,14 @@ private fun TextKeyButton(
                     )
                     .clip(RoundedCornerShape(22.dp))
                     .drawBehind {
+                        // NOTE: a local `size: DpSize` shadows DrawScope.size here, so the
+                        // pixel dimensions must be taken through the explicit receiver.
+                        val boxW = this.size.width
+                        val boxH = this.size.height
                         val p = glintProgress.value
                         if (p < 0.999f) {
-                            val bandWidth = size.width * 0.55f
-                            val travel = size.width + bandWidth * 2f
+                            val bandWidth = boxW * 0.55f
+                            val travel = boxW + bandWidth * 2f
                             val center = -bandWidth + p * travel
                             drawRect(
                                 brush = Brush.linearGradient(
@@ -692,7 +696,7 @@ private fun TextKeyButton(
                                         1.0f to Color.Transparent,
                                     ),
                                     start = Offset(center - bandWidth / 2f, 0f),
-                                    end = Offset(center + bandWidth / 2f, size.height),
+                                    end = Offset(center + bandWidth / 2f, boxH),
                                 ),
                             )
                         }
