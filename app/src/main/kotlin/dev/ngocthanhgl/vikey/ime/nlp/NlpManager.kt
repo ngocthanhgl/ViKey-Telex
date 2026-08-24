@@ -249,6 +249,9 @@ class NlpManager(context: Context) {
         lastShiftSeen = shiftState
         val reqTime = SystemClock.uptimeMillis()
         hasPendingComposition = true
+        // KeyboardManager resets inputShiftState right after each keystroke; the resulting
+        // spurious UNSHIFTED emission must not recase away the casing we are about to store.
+        skipNextRecase = true
         compositionJob = scope.launch {
             val subtype = subtypeManager.activeSubtype
             currentShiftState = shiftState
@@ -258,7 +261,15 @@ class NlpManager(context: Context) {
                 maxCandidateCount = 8,
                 allowPossiblyOffensive = !prefs.suggestion.blockPossiblyOffensive.get(),
                 isPrivateSession = keyboardManager.activeState.isIncognitoMode,
-            )
+            ).map { candidate ->
+                // Carry the shift state this word was typed with so assembleCandidates()
+                // never falls back to a stale (already reset) currentShiftState.
+                if (candidate is WordSuggestionCandidate) {
+                    candidate.copy(shiftState = shiftState)
+                } else {
+                    candidate
+                }
+            }
             while (true) {
                 val stored = internalSuggestions.get()
                 val (prevTime, _) = stored
@@ -324,8 +335,17 @@ class NlpManager(context: Context) {
         scope.launch { assembleCandidates() }
     }
 
+    @Volatile
+    private var skipNextRecase = false
+
     fun recaseSuggestions(shiftState: dev.ngocthanhgl.vikey.ime.input.InputShiftState) {
         currentShiftState = shiftState
+        val wasFlagged = skipNextRecase
+        skipNextRecase = false
+        if (wasFlagged && shiftState == dev.ngocthanhgl.vikey.ime.input.InputShiftState.UNSHIFTED) {
+            // Spurious emission right after a keystroke: keep freshly composed casing.
+            return
+        }
         while (true) {
             val current = internalSuggestions.get()
             val recased = current.second.map { candidate ->

@@ -89,14 +89,29 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
         if (matches.isEmpty()) return emptyList()
 
         return matches.mapIndexed { index, (word, _) ->
-            val isExact = word == lowerPrefix
+            // Only treat as exact (auto-commit eligible) when the typed prefix matches the
+            // dictionary entry character-for-character, including letter case.
+            val isExact = word == prefix
             WordSuggestionCandidate(
-                text = word,
+                text = applyCasePattern(prefix, word),
                 confidence = if (isExact) 1.0 else (0.9 - index * 0.1).coerceAtLeast(0.1),
                 isEligibleForAutoCommit = isExact && index == 0,
                 sourceProvider = this,
             )
         }
+    }
+
+    private fun applyCasePattern(typed: String, word: String): String {
+        if (typed.isEmpty()) return word
+        val sb = StringBuilder(word)
+        var i = 0
+        while (i < typed.length && i < sb.length) {
+            if (typed[i].isUpperCase()) {
+                sb[i] = sb[i].uppercaseChar()
+            }
+            i++
+        }
+        return sb.toString()
     }
 
     private fun getCurrentWord(content: EditorContent): String? {

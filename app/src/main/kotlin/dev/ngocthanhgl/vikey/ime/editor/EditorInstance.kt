@@ -218,24 +218,13 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
 
     override fun commitChar(char: String): Boolean {
         if (lastCommitWasSuggestion && char.length == 1 && char[0] in ",.;:?!") {
-            val content = activeContent
-            val textBefore = content.textBeforeSelection
-            if (textBefore.lastOrNull() == ' ') {
-                val ic = currentInputConnection()
-                if (ic != null) {
-                    scope.launch {
-                        try {
-                            ic.beginBatchEdit()
-                            ic.deleteSurroundingText(1, 0)
-                            ic.commitText(char, 1)
-                            ic.endBatchEdit()
-                        } catch (_: Exception) {
-                            onIpcFailure()
-                        }
-                    }
-                    lastCommitWasSuggestion = false
-                    return true
-                }
+            // Synchronous so the trailing space of a just-committed suggestion is reliably
+            // replaced; the async version raced with the suggestion commit and duplicated words.
+            if (activeContent.textBeforeSelection.lastOrNull() == ' ' &&
+                deleteSurroundingAndCommitSync(1, char)
+            ) {
+                lastCommitWasSuggestion = false
+                return true
             }
         }
         lastCommitWasSuggestion = false

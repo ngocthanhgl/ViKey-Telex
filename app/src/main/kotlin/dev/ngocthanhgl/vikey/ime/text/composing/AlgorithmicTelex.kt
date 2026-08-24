@@ -248,11 +248,15 @@ class AlgorithmicTelex(
         }
 
         if (lowerCh == 'w' && word.length == 1 && word.single().lowercaseChar() == 'ư') {
-            return word.length to ch.toString()
+            // Preserve the case of the word being reverted, not the freshly typed key
+            // (shift state may already have been reset): "Ư"+w must yield "W", not "w".
+            val result = if (word.single().isUpperCase()) 'W' else 'w'
+            return word.length to result.toString()
         }
 
         if (lowerCh == 'w' && word.last().lowercaseChar() == 'ư' && word.length > 1) {
-            return word.length to (word.dropLast(1) + ch)
+            val reverted = if (word.last().isUpperCase()) ch.uppercaseChar() else ch
+            return word.length to (word.dropLast(1) + reverted)
         }
 
         if (isShortcutUndo(word, ch)) {

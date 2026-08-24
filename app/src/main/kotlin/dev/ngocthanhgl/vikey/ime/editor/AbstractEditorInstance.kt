@@ -329,10 +329,10 @@ abstract class AbstractEditorInstance(context: Context) {
                     .copy(localSelection = selection.translatedBy(-content.offset))
                     .generateCopy(selection = selection)
                 expectedContentQueue.push(newContent)
-                InputConnectionDispatcher.fire {
-                    ic.setSelection(selection.start, selection.end)
-                    ic.setComposingRegion(newContent.composing)
-                }
+                // Synchronous IPC keeps editor state and key-event order consistent; async
+                // dispatch caused out-of-order commits when typing fast.
+                ic.setSelection(selection.start, selection.end)
+                ic.setComposingRegion(newContent.composing)
             }
         } catch (_: Exception) {
             onIpcFailure()
@@ -400,17 +400,13 @@ abstract class AbstractEditorInstance(context: Context) {
                 )
                 expectedContentQueue.push(newContent)
             }
-            scope.launch {
-                try {
-                    InputConnectionDispatcher.fire {
-                        ic.beginBatchEdit()
-                        ic.deleteSurroundingText(rm, 0)
-                        ic.commitText(finalText, 1)
-                        ic.endBatchEdit()
-                    }
-                } catch (_: Exception) {
-                    onIpcFailure()
-                }
+            try {
+                ic.beginBatchEdit()
+                ic.deleteSurroundingText(rm, 0)
+                ic.commitText(finalText, 1)
+                ic.endBatchEdit()
+            } catch (_: Exception) {
+                onIpcFailure()
             }
         }
         return true
@@ -423,14 +419,10 @@ abstract class AbstractEditorInstance(context: Context) {
         val selection = content.selection
         if (activeInfo.isRawInputEditor) {
             val ic = currentInputConnection() ?: return false
-            scope.launch {
-                try {
-                    InputConnectionDispatcher.fire {
-                        ic.commitText(text, 1)
-                    }
-                } catch (_: Exception) {
-                    onIpcFailure()
-                }
+            try {
+                ic.commitText(text, 1)
+            } catch (_: Exception) {
+                onIpcFailure()
             }
             return true
         }
@@ -447,21 +439,51 @@ abstract class AbstractEditorInstance(context: Context) {
             )
             expectedContentQueue.push(newContent)
         }
-        scope.launch {
-            try {
-                InputConnectionDispatcher.fire {
-                    ic.beginBatchEdit()
-                    if (content.composingText.isNotEmpty()) {
-                        ic.finishComposingText()
-                    }
-                    ic.commitText(text, 1)
-                    ic.endBatchEdit()
-                }
-            } catch (_: Exception) {
-                onIpcFailure()
+        try {
+            ic.beginBatchEdit()
+            if (content.composingText.isNotEmpty()) {
+                ic.finishComposingText()
             }
+            ic.commitText(text, 1)
+            ic.endBatchEdit()
+        } catch (_: Exception) {
+            onIpcFailure()
         }
         return true
+    }
+
+    /**
+     * Synchronously deletes [deleteCount] chars before the cursor and commits [text], keeping the
+     * expected-content queue in sync. Used by punctuation handling which must not race with a
+     * preceding auto-committed suggestion.
+     */
+    protected fun deleteSurroundingAndCommitSync(deleteCount: Int, text: String): Boolean {
+        val content = activeContent
+        val ic = currentInputConnection() ?: return false
+        return try {
+            runBlocking {
+                val newSelection = EditorRange.cursor(
+                    content.selection.start - deleteCount + text.length
+                )
+                val newContent = content.generateCopy(
+                    selection = newSelection,
+                    textBeforeSelection = buildString {
+                        append(content.textBeforeSelection.dropLast(deleteCount))
+                        append(text)
+                    },
+                    selectedText = "",
+                )
+                expectedContentQueue.push(newContent)
+            }
+            ic.beginBatchEdit()
+            ic.deleteSurroundingText(deleteCount, 0)
+            ic.commitText(text, 1)
+            ic.endBatchEdit()
+            true
+        } catch (_: Exception) {
+            onIpcFailure()
+            false
+        }
     }
 
     open fun finalizeComposingText(text: String): Boolean {
@@ -484,17 +506,13 @@ abstract class AbstractEditorInstance(context: Context) {
             expectedContentQueue.push(newContent)
             _lastCommitPosition.handleCommit(newContent.selection)
         }
-        scope.launch {
-            try {
-                InputConnectionDispatcher.fire {
-                    ic.beginBatchEdit()
-                    ic.deleteSurroundingText(content.composingText.length, 0)
-                    ic.commitText(text, 1)
-                    ic.endBatchEdit()
-                }
-            } catch (_: Exception) {
-                onIpcFailure()
-            }
+        try {
+            ic.beginBatchEdit()
+            ic.deleteSurroundingText(content.composingText.length, 0)
+            ic.commitText(text, 1)
+            ic.endBatchEdit()
+        } catch (_: Exception) {
+            onIpcFailure()
         }
         return true
     }
@@ -580,15 +598,11 @@ abstract class AbstractEditorInstance(context: Context) {
         }
         if (!shouldSet) return
         val ic = currentInputConnection() ?: return
-        scope.launch {
+        try {
             val newContent = content.generateCopy()
-            try {
-                InputConnectionDispatcher.fire {
-                    ic.setComposingRegion(newContent.composing)
-                }
-            } catch (_: Exception) {
-                onIpcFailure()
-            }
+            ic.setComposingRegion(newContent.composing)
+        } catch (_: Exception) {
+            onIpcFailure()
         }
     }
 
