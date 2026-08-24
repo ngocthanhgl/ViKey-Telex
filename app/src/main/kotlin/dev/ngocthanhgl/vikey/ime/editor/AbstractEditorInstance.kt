@@ -294,7 +294,7 @@ abstract class AbstractEditorInstance(context: Context) {
         return when {
             localSelection.isNotValid -> InputAttributes.CapsMode.NONE
             else -> {
-                InputAttributes.CapsMode.fromFlags(
+                InputAttributes.CapsMode.fromCapsMode(
                     TextUtils.getCapsMode(text, localSelection.start, activeInfo.inputAttributes.raw)
                 )
             }

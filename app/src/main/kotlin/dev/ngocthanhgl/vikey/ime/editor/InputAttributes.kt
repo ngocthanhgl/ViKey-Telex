@@ -17,6 +17,7 @@
 package dev.ngocthanhgl.vikey.ime.editor
 
 import android.text.InputType
+import android.text.TextUtils
 import android.view.inputmethod.EditorInfo
 
 /**
@@ -146,6 +147,20 @@ value class InputAttributes private constructor(val raw: Int) {
                     flags and InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS != 0 -> ALL
                     flags and InputType.TYPE_TEXT_FLAG_CAP_WORDS != 0 -> WORDS
                     flags and InputType.TYPE_TEXT_FLAG_CAP_SENTENCES != 0 -> SENTENCES
+                    else -> NONE
+                }
+            }
+
+            /**
+             * Converts a value from [TextUtils.getCapsMode] or [EditorInfo.initialCapsMode].
+             * These hold TextUtils.CAP_MODE_* constants (0x4000/0x8000/0x10000), NOT
+             * InputType flag bits — use [fromFlags] for InputType-derived values.
+             */
+            fun fromCapsMode(capsMode: Int): CapsMode {
+                return when {
+                    capsMode and TextUtils.CAP_MODE_CHARACTERS != 0 -> ALL
+                    capsMode and TextUtils.CAP_MODE_WORDS != 0 -> WORDS
+                    capsMode and TextUtils.CAP_MODE_SENTENCES != 0 -> SENTENCES
                     else -> NONE
                 }
             }

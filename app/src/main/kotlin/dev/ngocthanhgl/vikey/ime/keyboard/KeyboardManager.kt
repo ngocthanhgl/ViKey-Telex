@@ -807,10 +807,17 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
                     else -> when (data.type) {
                         KeyType.CHARACTER, KeyType.NUMERIC ->{
                             val text = data.asString(isForDisplay = false)
+                            var replaceTrailingSpace = false
                             if (!UCharacter.isUAlphabetic(UCharacter.codePointAt(text, 0))) {
-                                nlpManager.getAutoCommitCandidate()?.let { commitCandidate(it) }
+                                nlpManager.getAutoCommitCandidate()?.let {
+                                    commitCandidate(it)
+                                    // We just committed "word " in this same key event;
+                                    // activeContent is not synced yet, so tell commitChar
+                                    // deterministically to replace that trailing space.
+                                    replaceTrailingSpace = true
+                                }
                             }
-                            editorInstance.commitChar(text)
+                            editorInstance.commitChar(text, replaceTrailingSpace)
                         }
                         else -> {
                             flogError(LogTopic.KEY_EVENTS) { "Received unknown key: $data" }

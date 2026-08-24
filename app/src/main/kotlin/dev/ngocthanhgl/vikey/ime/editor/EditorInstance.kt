@@ -216,20 +216,31 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
         return true
     }
 
-    override fun commitChar(char: String): Boolean {
-        if (char.length == 1 && char[0] in ",.;:?!") {
-            // Content-derived collapse: any trailing space directly after a letter/digit is
-            // removed when punctuation follows ("word ," -> "word,"), regardless of where the
-            // space came from (suggestion trailing space, chip tap, auto-commit, ...).
-            val before = activeContent.textBeforeSelection
-            if (before.length >= 2 && before.last() == ' ' &&
-                before[before.length - 2].isLetterOrDigit() &&
-                deleteSurroundingAndCommitSync(1, char)
-            ) {
+    /**
+     * Deterministic variant for the same-key-event flow where an auto-commit candidate was
+     * committed immediately before this call: the trailing space we just wrote is replaced
+     * by [char] without consulting activeContent for the deletion itself (which is not yet
+     * synced within the event). Auto-space-after rules are still evaluated from content,
+     * whose decision inputs are unaffected by the pending suggestion commit.
+     */
+    fun commitChar(char: String, replaceTrailingSpace: Boolean): Boolean {
+        if (replaceTrailingSpace && char.length == 1 && char[0] in ",.;:?!") {
+            val insertSpaceAfter = shouldInsertAutoSpaceAfter(char)
+            val payload = if (insertSpaceAfter) "$char$SPACE" else char
+            if (deleteSurroundingAndCommitSync(1, payload)) {
                 lastCommitWasSuggestion = false
+                if (insertSpaceAfter) {
+                    autoSpace.setActive()
+                } else {
+                    autoSpace.setInactive()
+                }
                 return true
             }
         }
+        return commitChar(char)
+    }
+
+    override fun commitChar(char: String): Boolean {
         if (lastCommitWasSuggestion && char.length == 1 && char[0] in ",.;:?!") {
             // Synchronous so the trailing space of a just-committed suggestion is reliably
             // replaced; the async version raced with the suggestion commit and duplicated words.
