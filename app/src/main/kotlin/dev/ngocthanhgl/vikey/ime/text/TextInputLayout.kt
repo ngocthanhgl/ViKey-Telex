@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -46,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.ui.unit.Dp
@@ -67,6 +67,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.florisboard.lib.snygg.ui.SnyggIcon
 import java.io.File
+import kotlin.math.roundToInt
 
 @Composable
 fun TextInputLayout(
@@ -115,6 +116,23 @@ fun TextInputLayout(
     var photoWindowPos by remember { mutableStateOf(Offset.Zero) }
     var photoBoxSize by remember { mutableStateOf(IntSize.Zero) }
 
+    // Pre-blur the photo ONCE so the per-key glass slices sample exactly what the
+    // background shows. Compose's Modifier.blur cannot be captured into the key
+    // backdrop; a cached pre-blurred bitmap keeps every key slice pixel-identical
+    // to the surrounding background (iOS liquid-glass behaviour) and also removes
+    // a per-frame GPU blur.
+    val density = LocalDensity.current
+    val blurPx = with(density) { bgPhotoBlur.dp.toPx() }.roundToInt()
+    var blurredBitmap by remember(blurPx) { mutableStateOf<Bitmap?>(null) }
+    LaunchedEffect(bgBitmap, blurPx) {
+        val src = bgBitmap
+        blurredBitmap = if (src != null && blurPx > 0) {
+            withContext(Dispatchers.Default) { BitmapBlur.blur(src, blurPx) }
+        } else {
+            null
+        }
+    }
+
     val gradBitmap = remember(gradPresetId, photoBoxSize) {
         if (gradPresetId.isNotBlank() && photoBoxSize.width > 0 && photoBoxSize.height > 0) {
             val w = photoBoxSize.width
@@ -146,15 +164,23 @@ fun TextInputLayout(
     }
 
     val bgBitmapFromSource = if (bgPhotoPath.isNotBlank()) bgBitmap else gradBitmap
-    val bgPhotoBitmap = remember(bgBitmapFromSource) { bgBitmapFromSource?.asImageBitmap() }
+    // Prefer the pre-blurred photo while it is being computed; fall back to the raw
+    // decode for the brief first-frame window (and whenever blur is disabled).
+    val displaySource = if (bgPhotoPath.isNotBlank() && blurPx > 0) {
+        blurredBitmap ?: bgBitmapFromSource
+    } else {
+        bgBitmapFromSource
+    }
+    val bgPhotoBitmap = remember(displaySource) { displaySource?.asImageBitmap() }
 
-    val bgPhotoState = remember(bgPhotoBitmap, photoWindowPos, photoBoxSize) {
+    val bgPhotoState = remember(bgPhotoBitmap, photoWindowPos, photoBoxSize, bgPhotoVis) {
         bgPhotoBitmap?.let { bitmap ->
             if (photoBoxSize != IntSize.Zero) {
                 BackgroundPhotoState(
                     bitmap = bitmap,
                     boxSize = photoBoxSize,
                     windowPos = photoWindowPos,
+                    alpha = bgPhotoVis / 100f,
                 )
             } else null
         }
@@ -188,8 +214,7 @@ fun TextInputLayout(
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .matchParentSize()
-                    .alpha(bgPhotoVis / 100f)
-                    .blur(radius = bgPhotoBlur.dp),
+                    .alpha(bgPhotoVis / 100f),
             )
         }
         Column(

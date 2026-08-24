@@ -54,9 +54,12 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInWindow
@@ -132,6 +135,8 @@ data class BackgroundPhotoState(
     val bitmap: ImageBitmap,
     val boxSize: IntSize,
     val windowPos: Offset,
+    /** Same visibility factor the background Image itself uses, so key slices match it. */
+    val alpha: Float = 1f,
 )
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -591,7 +596,7 @@ private fun TextKeyButton(
         }
         }
         }
-        if (isLiquidGlass && (lqConfig.depthEnabled || lqConfig.chromaticEnabled)) {
+        if (isLiquidGlass && (lqConfig.depthEnabled || lqConfig.chromaticEnabled || currentPhoto != null)) {
             val heightPx = with(density) { (effectiveLens * lqConfig.heightMultiplier).dp.toPx() }
             val amountPx = with(density) { (effectiveLens * lqConfig.amountMultiplier).dp.toPx() }
             Box(
@@ -641,12 +646,57 @@ private fun TextKeyButton(
                                         ),
                                         dstOffset = IntOffset.Zero,
                                         dstSize = IntSize(sw.toInt(), sh.toInt()),
+                                        alpha = photo.alpha,
                                     )
                                 }
                             }
                             onDraw()
                         },
                     ),
+            )
+        }
+        // iOS-style moving specular glint: a soft diagonal light band sweeps across the
+        // key once per press, giving the glass surface its characteristic sheen.
+        if (isLiquidGlass) {
+            val glintProgress = remember { Animatable(1f) }
+            LaunchedEffect(key.isPressed) {
+                if (key.isPressed) {
+                    glintProgress.snapTo(0f)
+                    glintProgress.animateTo(1f, tween(durationMillis = 500, easing = LinearEasing))
+                } else {
+                    glintProgress.snapTo(1f)
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(
+                        scaleX = pressScale,
+                        scaleY = pressScale,
+                        transformOrigin = TransformOrigin(0.5f, 0.5f),
+                    )
+                    .clip(RoundedCornerShape(22.dp))
+                    .drawBehind {
+                        val p = glintProgress.value
+                        if (p < 0.999f) {
+                            val bandWidth = size.width * 0.55f
+                            val travel = size.width + bandWidth * 2f
+                            val center = -bandWidth + p * travel
+                            drawRect(
+                                brush = Brush.linearGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Transparent,
+                                        0.35f to Color.White.copy(alpha = 0.10f),
+                                        0.5f to Color.White.copy(alpha = 0.28f),
+                                        0.65f to Color.White.copy(alpha = 0.10f),
+                                        1.0f to Color.Transparent,
+                                    ),
+                                    start = Offset(center - bandWidth / 2f, 0f),
+                                    end = Offset(center + bandWidth / 2f, size.height),
+                                ),
+                            )
+                        }
+                    },
             )
         }
     }

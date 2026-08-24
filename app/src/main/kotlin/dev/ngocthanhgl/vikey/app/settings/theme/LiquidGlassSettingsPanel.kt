@@ -97,10 +97,12 @@ import java.io.FileOutputStream
 private const val CROP_WIDTH_FRACTION = 0.9f
 
 private object LgDefaults {
-    const val lensIdle = 500
-    const val lensPeak = 800
+    // iOS-tuned: subtle idle refraction keeps resting labels crisp; a stronger
+    // press pop plus a slightly softer horizontal displacement sells the glass.
+    const val lensIdle = 300
+    const val lensPeak = 900
     const val heightMultiplier = 250
-    const val amountMultiplier = 150
+    const val amountMultiplier = 120
     const val textLift = 140
     const val pressScale = 108
     const val chromaticEnabled = true
