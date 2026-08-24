@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -51,8 +52,11 @@ import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import dev.ngocthanhgl.vikey.R
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
+import dev.ngocthanhgl.vikey.ime.theme.LocalWallpaperBackdrop
 import dev.ngocthanhgl.vikey.ime.smartbar.IncognitoDisplayMode
 import dev.ngocthanhgl.vikey.ime.smartbar.InlineSuggestionsStyleCache
 import dev.ngocthanhgl.vikey.ime.smartbar.Smartbar
@@ -173,6 +177,11 @@ fun TextInputLayout(
     }
     val bgPhotoBitmap = remember(displaySource) { displaySource?.asImageBitmap() }
 
+    // Single shared backdrop capturing the wallpaper image. Key glass refracts THIS
+    // layer, so the bent content is exactly the background the user sees — no
+    // duplicated copy is drawn inside keys.
+    val bgBackdrop = rememberLayerBackdrop()
+
     val bgPhotoState = remember(bgPhotoBitmap, photoWindowPos, photoBoxSize, bgPhotoVis) {
         bgPhotoBitmap?.let { bitmap ->
             if (photoBoxSize != IntSize.Zero) {
@@ -214,6 +223,7 @@ fun TextInputLayout(
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .matchParentSize()
+                    .layerBackdrop(bgBackdrop)
                     .alpha(bgPhotoVis / 100f),
             )
         }
@@ -253,7 +263,9 @@ fun TextInputLayout(
                             imageVector = Icons.Rounded.VisibilityOff,
                         )
                     }
-                    TextKeyboardLayout(evaluator = evaluator, backgroundPhoto = bgPhotoState)
+                    CompositionLocalProvider(LocalWallpaperBackdrop provides bgBackdrop) {
+            TextKeyboardLayout(evaluator = evaluator, backgroundPhoto = bgPhotoState)
+        }
                 }
             }
             if (bottomPaddingDp > 0.dp) {

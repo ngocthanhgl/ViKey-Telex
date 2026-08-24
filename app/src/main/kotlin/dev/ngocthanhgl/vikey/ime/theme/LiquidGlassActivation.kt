@@ -6,9 +6,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceModel
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
+import com.kyant.backdrop.backdrops.LayerBackdrop
 import dev.patrickgold.jetpref.datastore.model.collectAsState
 
 val LocalLiquidGlassEnabled = staticCompositionLocalOf { false }
+
+/** Shared backdrop capturing the wallpaper image so key glass can refract it. */
+val LocalWallpaperBackdrop = staticCompositionLocalOf<LayerBackdrop?> { null }
 
 private const val LIQUID_GLASS_EXTENSION_ID = "dev.ngocthanhgl.vikey.themes.liquidglass"
 

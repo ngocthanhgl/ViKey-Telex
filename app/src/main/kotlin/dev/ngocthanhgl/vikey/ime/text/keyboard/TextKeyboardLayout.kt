@@ -61,13 +61,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
@@ -80,8 +76,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
@@ -89,6 +84,7 @@ import dev.ngocthanhgl.vikey.FlorisImeService
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
 import dev.ngocthanhgl.vikey.editorInstance
 import dev.ngocthanhgl.vikey.glideTypingManager
+import dev.ngocthanhgl.vikey.ime.theme.LocalWallpaperBackdrop
 import dev.ngocthanhgl.vikey.ime.editor.OperationScope
 import dev.ngocthanhgl.vikey.ime.editor.OperationUnit
 import dev.ngocthanhgl.vikey.ime.input.InputEventDispatcher
@@ -458,8 +454,7 @@ private fun TextKeyButton(
         key.visibleBounds.size.toDpSize()
     }
     val isLiquidGlass = LocalLiquidGlassEnabled.current
-    val backdrop = rememberLayerBackdrop()
-    var keyCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val backdrop: LayerBackdrop? = LocalWallpaperBackdrop.current
     val currentPhoto by rememberUpdatedState(backgroundPhoto)
     val lensRefraction = remember { Animatable(if (isLiquidGlass) lqConfig.lensIdle else 0f) }
 
@@ -519,13 +514,10 @@ private fun TextKeyButton(
     Box(
         modifier = Modifier
             .requiredSize(size)
-            .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() }
-            .onGloballyPositioned { coords -> keyCoords = coords },
+            .absoluteOffset { key.visibleBounds.topLeft.toIntOffset() },
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .layerBackdrop(backdrop),
+            modifier = Modifier.fillMaxSize(),
         ) {
             Box(
                 modifier = Modifier
@@ -600,9 +592,15 @@ private fun TextKeyButton(
         }
         }
         }
-        if (isLiquidGlass && (lqConfig.depthEnabled || lqConfig.chromaticEnabled || currentPhoto != null)) {
+        val glassBackdrop = backdrop
+        if (isLiquidGlass && glassBackdrop != null &&
+            (lqConfig.depthEnabled || lqConfig.chromaticEnabled || currentPhoto != null)
+        ) {
             val heightPx = with(density) { (effectiveLens * lqConfig.heightMultiplier).dp.toPx() }
             val amountPx = with(density) { (effectiveLens * lqConfig.amountMultiplier).dp.toPx() }
+            // The glass refracts the shared wallpaper backdrop captured in
+            // TextInputLayout — the same pixels the user sees behind the keyboard.
+            // No photo copy is drawn here; the lens alone bends the background.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -612,7 +610,7 @@ private fun TextKeyButton(
                         transformOrigin = TransformOrigin(0.5f, 0.5f),
                     )
                     .drawBackdrop(
-                        backdrop = backdrop,
+                        backdrop = glassBackdrop,
                         shape = { RoundedCornerShape(22.dp) },
                         effects = {
                             lens(
@@ -625,37 +623,6 @@ private fun TextKeyButton(
                             )
                         },
                         highlight = { Highlight.Ambient },
-                        onDrawBackdrop = { onDraw: DrawScope.() -> Unit ->
-                            val photo = currentPhoto
-                            val coords = keyCoords
-                            if (photo != null && coords != null) {
-                                val keyPos = coords.positionInWindow()
-                                val photoPos = photo.windowPos
-                                val relX = keyPos.x - photoPos.x
-                                val relY = keyPos.y - photoPos.y
-                                if (relX >= 0f && relY >= 0f &&
-                                    relX < photo.boxSize.width.toFloat() && relY < photo.boxSize.height.toFloat()
-                                ) {
-                                    val sw = this.size.width
-                                    val sh = this.size.height
-                                    this.drawImage(
-                                        image = photo.bitmap,
-                                        srcOffset = IntOffset(
-                                            (relX * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(0, photo.bitmap.width),
-                                            (relY * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(0, photo.bitmap.height),
-                                        ),
-                                        srcSize = IntSize(
-                                            (sw * photo.bitmap.width / photo.boxSize.width).toInt().coerceIn(1, photo.bitmap.width),
-                                            (sh * photo.bitmap.height / photo.boxSize.height).toInt().coerceIn(1, photo.bitmap.height),
-                                        ),
-                                        dstOffset = IntOffset.Zero,
-                                        dstSize = IntSize(sw.toInt(), sh.toInt()),
-                                        alpha = photo.alpha,
-                                    )
-                                }
-                            }
-                            onDraw()
-                        },
                     ),
             )
         }
