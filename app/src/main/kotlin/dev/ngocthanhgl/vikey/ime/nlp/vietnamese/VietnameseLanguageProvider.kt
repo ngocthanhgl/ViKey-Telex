@@ -40,19 +40,19 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
 
         /**
          * Fold a Vietnamese word to its toneless ASCII skeleton so toneless input
-         * ("duoc") can match dictionary forms carrying diacritics ("Ä‘Æ°á»£c").
+         * ("duoc") can match dictionary forms carrying diacritics ("được").
          *
          * NFD splits every precomposed Vietnamese glyph into base letter + combining
          * mark; all such marks live in U+0300..U+036F (including U+031B, the horn of
-         * Æ¡/Æ°). Ä (U+0111) has no canonical decomposition, so it is mapped manually.
+         * ơ/ư). Đ (U+0111) has no canonical decomposition, so it is mapped manually.
          */
         fun foldVietnamese(word: String): String {
             val normalized = Normalizer.normalize(word, Normalizer.Form.NFD)
             val sb = StringBuilder(normalized.length)
             for (c in normalized) {
                 when {
-                    c == 'Ä‘' -> sb.append('d')
-                    c == 'Ä' -> sb.append('D')
+                    c == 'đ' -> sb.append('d')
+                    c == 'Đ' -> sb.append('D')
                     c in '\u0300'..'\u036F' -> {}
                     else -> sb.append(c)
                 }
@@ -302,7 +302,7 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
         }
 
         // Fallback path: match through the toneless folded skeleton so typing
-        // "duoc" can surface "Ä‘Æ°á»£c" even without an ASCII dictionary entry.
+        // "duoc" can surface "được" even without an ASCII dictionary entry.
         val foldedPrefix = foldVietnamese(lowerPrefix)
         if (pool.size < maxCandidateCount && foldedPrefix.isNotEmpty()) {
             val foldedHits = synchronized(dictLock) {
