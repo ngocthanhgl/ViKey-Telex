@@ -599,8 +599,10 @@ abstract class AbstractEditorInstance(context: Context) {
         if (!shouldSet) return
         val ic = currentInputConnection() ?: return
         try {
-            val newContent = content.generateCopy()
-            ic.setComposingRegion(newContent.composing)
+            runBlocking {
+                val newContent = content.generateCopy()
+                ic.setComposingRegion(newContent.composing)
+            }
         } catch (_: Exception) {
             onIpcFailure()
         }
