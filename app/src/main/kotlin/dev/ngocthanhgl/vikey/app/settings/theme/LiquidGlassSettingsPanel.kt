@@ -342,7 +342,7 @@ fun LiquidGlassSettingsPanel(prefs: FlorisPreferenceModel) {
                 onClick = { showGradientPicker = true },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(50.dp),
-            ) { Text("Gradient Presets") }
+            ) { Text("Gradient") }
         }
     }
 

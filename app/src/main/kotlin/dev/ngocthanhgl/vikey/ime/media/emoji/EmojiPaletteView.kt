@@ -312,7 +312,10 @@ fun EmojiPaletteView(
                 val lazyGridState = rememberLazyGridState()
 
                 LaunchedEffect(pagerState) {
-                    snapshotFlow { pagerState.currentPage }.collect { page ->
+                    // settledPage only updates once the scroll animation has come to rest.
+                    // Using currentPage here would re-fire for every intermediate page while
+                    // animateScrollToPage() crosses them, making the category chips flicker.
+                    snapshotFlow { pagerState.settledPage }.collect { page ->
                         lazyGridState.scrollToItem(0)
                         activeCategory = pageNumberToCategory(page)
                         recentlyUsedVersion++
@@ -320,6 +323,9 @@ fun EmojiPaletteView(
                 }
 
                 val category = pageNumberToCategory(page)
+                // Remember the mapping per category so key(emojiMapping) below stays stable
+                // across recompositions; an inline instance would get a new identity every
+                // time activeCategory changes and tear the whole grid down (visible flash).
                 val emojiMapping = if (category == EmojiCategory.RECENTLY_USED) {
                     remember(recentlyUsedVersion) {
                         val data = prefs.emoji.historyData.get()
@@ -330,11 +336,13 @@ fun EmojiPaletteView(
                         )
                     }
                 } else {
-                    EmojiMappingForView(
-                        pinned = emptyList(),
-                        recent = emptyList(),
-                        simple = emojiMappings[category]!!,
-                    )
+                    remember(category, emojiMappings) {
+                        EmojiMappingForView(
+                            pinned = emptyList(),
+                            recent = emptyList(),
+                            simple = emojiMappings[category]!!,
+                        )
+                    }
                 }
 
                 val isEmojiHistoryEmpty = emojiMapping.pinned.isEmpty() && emojiMapping.recent.isEmpty()
