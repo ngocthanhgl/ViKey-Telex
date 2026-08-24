@@ -1,4 +1,4 @@
-package dev.ngocthanhgl.vikey.ime.nlp.vietnamese
+﻿package dev.ngocthanhgl.vikey.ime.nlp.vietnamese
 
 import android.content.Context
 import dev.ngocthanhgl.vikey.appContext
@@ -22,7 +22,6 @@ import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import org.florisboard.lib.android.readText
-import org.florisboard.lib.kotlin.guardedByLock
 import org.json.JSONObject
 import java.io.File
 import java.text.Normalizer
@@ -41,19 +40,19 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
 
         /**
          * Fold a Vietnamese word to its toneless ASCII skeleton so toneless input
-         * ("duoc") can match dictionary forms carrying diacritics ("được").
+         * ("duoc") can match dictionary forms carrying diacritics ("Ä‘Æ°á»£c").
          *
          * NFD splits every precomposed Vietnamese glyph into base letter + combining
          * mark; all such marks live in U+0300..U+036F (including U+031B, the horn of
-         * ơ/ư). Đ (U+0111) has no canonical decomposition, so it is mapped manually.
+         * Æ¡/Æ°). Ä (U+0111) has no canonical decomposition, so it is mapped manually.
          */
         fun foldVietnamese(word: String): String {
             val normalized = Normalizer.normalize(word, Normalizer.Form.NFD)
             val sb = StringBuilder(normalized.length)
             for (c in normalized) {
                 when {
-                    c == 'đ' -> sb.append('d')
-                    c == 'Đ' -> sb.append('D')
+                    c == 'Ä‘' -> sb.append('d')
+                    c == 'Ä' -> sb.append('D')
                     c in '\u0300'..'\u036F' -> {}
                     else -> sb.append(c)
                 }
@@ -74,17 +73,21 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
 
     private val appContext by context.appContext()
 
-    private val wordData = guardedByLock { mutableMapOf<String, Int>() }
+    // All dictionary/index maps are guarded together by dictLock (plain monitor locks,
+    // so they are also safe to touch from non-suspend helpers).
+    private val dictLock = Any()
+
+    private val wordData = mutableMapOf<String, Int>()
     private val wordDataSerializer = MapSerializer(String.serializer(), Int.serializer())
 
     /** prefix (1..6 chars, lowercase) -> entries sorted by frequency descending. */
-    private val prefixIndex = guardedByLock { mutableMapOf<String, MutableList<DictEntry>>() }
+    private val prefixIndex = mutableMapOf<String, MutableList<DictEntry>>()
 
     /** folded lowercase skeleton -> real dictionary words sorted by frequency descending. */
-    private val foldedIndex = guardedByLock { mutableMapOf<String, MutableList<String>>() }
+    private val foldedIndex = mutableMapOf<String, MutableList<String>>()
 
     /** lowercase -> original dictionary casing, so suggestions restore proper capitalization. */
-    private val lowerToOriginal = guardedByLock { mutableMapOf<String, String>() }
+    private val lowerToOriginal = mutableMapOf<String, String>()
 
     @Volatile
     private var maxFreq = 1L
@@ -111,57 +114,54 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
     }
 
     private suspend fun loadDict() {
-        wordData.withLock { dict ->
-            if (dict.isEmpty()) {
-                try {
-                    val rawData = withContext(Dispatchers.IO) {
-                        appContext.assets.readText("ime/dict/vi.json")
-                    }
-                    val jsonData = Json.decodeFromString(wordDataSerializer, rawData)
-                    dict.putAll(jsonData)
-                } catch (e: Exception) {
-                    flogDebug { "Failed to load Vietnamese dictionary: ${e.message}" }
-                }
-                rebuildIndexes(dict)
+        val shouldLoad = synchronized(dictLock) { wordData.isEmpty() }
+        if (!shouldLoad) return
+        try {
+            val rawData = withContext(Dispatchers.IO) {
+                appContext.assets.readText("ime/dict/vi.json")
             }
+            val jsonData = Json.decodeFromString(wordDataSerializer, rawData)
+            synchronized(dictLock) {
+                if (wordData.isEmpty()) {
+                    wordData.putAll(jsonData)
+                    rebuildIndexesLocked(jsonData)
+                }
+            }
+        } catch (e: Exception) {
+            flogDebug { "Failed to load Vietnamese dictionary: ${e.message}" }
         }
     }
 
-    private fun rebuildIndexes(dict: Map<String, Int>) {
+    /** Caller must hold [dictLock]. */
+    private fun rebuildIndexesLocked(dict: Map<String, Int>) {
         var max = 1L
-        prefixIndex.withLock { pIdx ->
-            pIdx.clear()
-            for ((word, freq) in dict) {
-                if (freq > max) max = freq.toLong()
-                val lower = word.lowercase(Locale.ROOT)
-                val upperLen = minOf(PREFIX_INDEX_MAX_LENGTH, lower.length)
-                for (len in 1..upperLen) {
-                    pIdx.getOrPut(lower.take(len)) { mutableListOf() }.add(DictEntry(word, freq))
-                }
-            }
-            for (list in pIdx.values) {
-                list.sortByDescending { it.freq }
+        prefixIndex.clear()
+        for ((word, freq) in dict) {
+            if (freq > max) max = freq.toLong()
+            val lower = word.lowercase(Locale.ROOT)
+            val upperLen = minOf(PREFIX_INDEX_MAX_LENGTH, lower.length)
+            for (len in 1..upperLen) {
+                prefixIndex.getOrPut(lower.take(len)) { mutableListOf() }.add(DictEntry(word, freq))
             }
         }
-        foldedIndex.withLock { fIdx ->
-            fIdx.clear()
-            for ((word, freq) in dict) {
-                val folded = foldVietnamese(word).lowercase(Locale.ROOT)
-                if (folded.isEmpty()) continue
-                fIdx.getOrPut(folded) { mutableListOf() }.add(word)
-            }
-            // Sort every bucket by its corpus frequency (descending).
-            for (list in fIdx.values) {
-                list.sortByDescending { dict[it] ?: 0 }
-            }
+        for (list in prefixIndex.values) {
+            list.sortByDescending { it.freq }
+        }
+        foldedIndex.clear()
+        for ((word, _) in dict) {
+            val folded = foldVietnamese(word).lowercase(Locale.ROOT)
+            if (folded.isEmpty()) continue
+            foldedIndex.getOrPut(folded) { mutableListOf() }.add(word)
+        }
+        // Sort every bucket by its corpus frequency (descending).
+        for (list in foldedIndex.values) {
+            list.sortByDescending { dict[it] ?: 0 }
+        }
+        lowerToOriginal.clear()
+        for (word in dict.keys) {
+            lowerToOriginal.putIfAbsent(word.lowercase(Locale.ROOT), word)
         }
         maxFreq = max
-        lowerToOriginal.withLock { l2o ->
-            l2o.clear()
-            for (word in dict.keys) {
-                l2o.putIfAbsent(word.lowercase(Locale.ROOT), word)
-            }
-        }
     }
 
     // ---- Learning API ----
@@ -285,28 +285,29 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
         val lowerPrefix = prefix.lowercase(Locale.ROOT)
 
         // Pool corpus hits from the prebuilt index...
-        val direct = prefixIndex.withLock { it[lowerPrefix] }.orEmpty()
+        val direct = synchronized(dictLock) {
+            prefixIndex[lowerPrefix].orEmpty().map { it.word to it.freq }
+        }
         val pool = LinkedHashMap<String, Int>(direct.size + 8)
-        for (entry in direct) {
-            pool.putIfAbsent(entry.word.lowercase(Locale.ROOT), entry.freq)
+        for ((word, freq) in direct) {
+            pool.putIfAbsent(word.lowercase(Locale.ROOT), freq)
         }
 
         // ...merge personal-dictionary hits (they may not exist in the corpus at all).
-        synchronized(personalWords) {
-            for ((word, count) in personalWords) {
-                if (!word.startsWith(lowerPrefix)) continue
-                val corpusFreq = wordData.withLock { it[word] ?: 0 }
-                pool[word] = maxOf(pool[word] ?: 0, corpusFreq)
-            }
+        val personalSnapshot = synchronized(personalWords) { personalWords.toMap() }
+        for ((word, count) in personalSnapshot) {
+            if (!word.startsWith(lowerPrefix)) continue
+            val corpusFreq = synchronized(dictLock) { wordData[word] ?: 0 }
+            pool[word] = maxOf(pool[word] ?: 0, corpusFreq)
         }
 
         // Fallback path: match through the toneless folded skeleton so typing
-        // "duoc" can surface "được" even without an ASCII dictionary entry.
+        // "duoc" can surface "Ä‘Æ°á»£c" even without an ASCII dictionary entry.
         val foldedPrefix = foldVietnamese(lowerPrefix)
         if (pool.size < maxCandidateCount && foldedPrefix.isNotEmpty()) {
-            val foldedHits = foldedIndex.withLock { fIdx ->
+            val foldedHits = synchronized(dictLock) {
                 val out = mutableListOf<String>()
-                for ((skeleton, words) in fIdx) {
+                for ((skeleton, words) in foldedIndex) {
                     if (!skeleton.startsWith(foldedPrefix)) continue
                     for (word in words) {
                         if (pool.putIfAbsent(word.lowercase(Locale.ROOT), 0) == null) {
@@ -317,7 +318,7 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
                 out
             }
             for (word in foldedHits) {
-                val freq = wordData.withLock { it[word] ?: 0 }
+                val freq = synchronized(dictLock) { wordData[word] ?: 0 }
                 if (freq > 0) pool[word.lowercase(Locale.ROOT)] = freq
             }
         }
@@ -326,10 +327,8 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
 
         // Rank with the personal-count boost layered over corpus frequency.
         val scored = ArrayList<ScoredWord>(pool.size)
-        synchronized(personalWords) {
-            for ((lowerWord, corpusFreq) in pool) {
-                scored.add(ScoredWord(lowerWord, corpusFreq, personalWords[lowerWord] ?: 0))
-            }
+        for ((lowerWord, corpusFreq) in pool) {
+            scored.add(ScoredWord(lowerWord, corpusFreq, personalSnapshot[lowerWord] ?: 0))
         }
         scored.sortByDescending { it.blendedScore(maxFreq) }
 
@@ -345,7 +344,7 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
         index: Int,
         maxCandidateCount: Int,
     ): SuggestionCandidate {
-        val restored = restoreDictionaryCasing(prefix, lowerWord)
+        val restored = restoreDictionaryCasing(lowerWord)
         // Only treat as exact (auto-commit eligible) when the typed prefix matches the
         // dictionary entry character-for-character, including letter case.
         val isExact = restored == prefix
@@ -364,8 +363,8 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
     }
 
     /** Personal entries are stored lowercase; prefer the corpus's original casing when known. */
-    private fun restoreDictionaryCasing(prefix: String, lowerWord: String): String {
-        val original = lowerToOriginal.withLock { it[lowerWord] }
+    private fun restoreDictionaryCasing(lowerWord: String): String {
+        val original = synchronized(dictLock) { lowerToOriginal[lowerWord] }
         return original ?: lowerWord
     }
 
@@ -376,9 +375,11 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
     ): List<String> {
         if (candidates.size < 2) return candidates
         val prevWord = textBefore.substringAfterLast(' ').trim().trimEnd(',', '.', '?', '!', ';', ':')
-        return candidates.sortedByDescending { candidate ->
-            getBigramFrequencyFor(prevWord, candidate)
+        val scored = ArrayList<Pair<String, Double>>(candidates.size)
+        for (candidate in candidates) {
+            scored.add(candidate to getBigramFrequencyFor(prevWord, candidate))
         }
+        return scored.sortedByDescending { it.second }.map { it.first }
     }
 
     private fun applyCasePattern(typed: String, word: String): String {
@@ -421,7 +422,8 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
     }
 
     override suspend fun getListOfWords(subtype: Subtype): List<String> {
-        return wordData.withLock { it.keys.toList() } + synchronized(personalWords) { personalWords.keys.toList() }
+        return synchronized(dictLock) { wordData.keys.toList() } +
+            synchronized(personalWords) { personalWords.keys.toList() }
     }
 
     override suspend fun getFrequencyForWord(subtype: Subtype, word: String): Double {
@@ -429,7 +431,7 @@ class VietnameseLanguageProvider(context: Context) : SpellingProvider, Suggestio
         // dynamic range (raw counts span single digits to tens of millions); callers
         // receive a value in [0, 1] instead of the old saturating count/255 formula.
         val lc = word.lowercase(Locale.ROOT)
-        val count = wordData.withLock { it[lc] ?: it[word] ?: 0 }
+        val count = synchronized(dictLock) { wordData[lc] ?: wordData[word] ?: 0 }
         val base = ln(1.0 + count) / ln(1.0 + maxFreq)
         val personal = synchronized(personalWords) { personalWords[lc] ?: 0 }
         val boosted = base + 0.35 * (personal.coerceAtMost(20) / 20.0)
