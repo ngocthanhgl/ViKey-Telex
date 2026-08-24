@@ -511,6 +511,34 @@ private fun TextKeyButton(
         } else 0f
     } else 0f
     val effectiveLens = lensRefraction.value + rippleBoost
+    // The glass refracts the shared wallpaper backdrop captured in TextInputLayout.
+    // It is attached DIRECTLY to the content container so Kyant renders the lens
+    // BEHIND the label/hint/icon children — attaching it as a later sibling would
+    // paint an opaque refracted pane over the text whenever a background is set.
+    val glassBackdrop = backdrop
+    val glassModifier = if (isLiquidGlass && glassBackdrop != null &&
+        (lqConfig.depthEnabled || lqConfig.chromaticEnabled || currentPhoto != null)
+    ) {
+        val heightPx = with(density) { (effectiveLens * lqConfig.heightMultiplier).dp.toPx() }
+        val amountPx = with(density) { (effectiveLens * lqConfig.amountMultiplier).dp.toPx() }
+        Modifier.drawBackdrop(
+            backdrop = glassBackdrop,
+            shape = { RoundedCornerShape(22.dp) },
+            effects = {
+                lens(
+                    refractionHeight = heightPx,
+                    refractionAmount = amountPx,
+                    depthEffect = lqConfig.depthEnabled,
+                    // Chromatic aberration fallback: when depth is off, lens shader
+                    // still needs chromatic aberration for visual fidelity
+                    chromaticAberration = lqConfig.chromaticEnabled || !lqConfig.depthEnabled,
+                )
+            },
+            highlight = { Highlight.Ambient },
+        )
+    } else {
+        Modifier
+    }
     Box(
         modifier = Modifier
             .requiredSize(size)
@@ -526,7 +554,8 @@ private fun TextKeyButton(
                         scaleX = pressScale,
                         scaleY = pressScale,
                         transformOrigin = TransformOrigin(0.5f, 0.5f),
-                    ),
+                    )
+                    .then(glassModifier),
             ) {
                 SnyggBox(
                 FlorisImeUi.Key.elementName,
@@ -591,40 +620,6 @@ private fun TextKeyButton(
             }
         }
         }
-        }
-        val glassBackdrop = backdrop
-        if (isLiquidGlass && glassBackdrop != null &&
-            (lqConfig.depthEnabled || lqConfig.chromaticEnabled || currentPhoto != null)
-        ) {
-            val heightPx = with(density) { (effectiveLens * lqConfig.heightMultiplier).dp.toPx() }
-            val amountPx = with(density) { (effectiveLens * lqConfig.amountMultiplier).dp.toPx() }
-            // The glass refracts the shared wallpaper backdrop captured in
-            // TextInputLayout — the same pixels the user sees behind the keyboard.
-            // No photo copy is drawn here; the lens alone bends the background.
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(
-                        scaleX = pressScale,
-                        scaleY = pressScale,
-                        transformOrigin = TransformOrigin(0.5f, 0.5f),
-                    )
-                    .drawBackdrop(
-                        backdrop = glassBackdrop,
-                        shape = { RoundedCornerShape(22.dp) },
-                        effects = {
-                            lens(
-                                refractionHeight = heightPx,
-                                refractionAmount = amountPx,
-                                depthEffect = lqConfig.depthEnabled,
-                                // Chromatic aberration fallback: when depth is off, lens shader
-                                // still needs chromatic aberration for visual fidelity
-                                chromaticAberration = lqConfig.chromaticEnabled || !lqConfig.depthEnabled,
-                            )
-                        },
-                        highlight = { Highlight.Ambient },
-                    ),
-            )
         }
         // iOS-style moving specular glint: a soft diagonal light band sweeps across the
         // key once per press, giving the glass surface its characteristic sheen.
