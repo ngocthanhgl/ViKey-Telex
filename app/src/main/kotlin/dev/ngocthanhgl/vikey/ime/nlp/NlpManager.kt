@@ -388,7 +388,14 @@ class NlpManager(context: Context) {
             suppressNextAutoCommit = false
             return null
         }
+        // Staleness guard: suggestComposition() runs asynchronously, so activeCandidates may
+        // still hold suggestions for a previous prefix when space/punctuation arrives. Only
+        // auto-commit when the candidate matches the word currently in the editor — otherwise
+        // commitCompletion() would silently replace freshly typed text with stale output.
+        val currentWord = editorInstance.activeContent.currentWordText?.toString()?.lowercase()
+            ?: return null
         return activeCandidates.firstOrNull { it.isEligibleForAutoCommit }
+            ?.takeIf { it.text.toString().lowercase() == currentWord }
     }
 
     fun removeSuggestion(subtype: Subtype, candidate: SuggestionCandidate): Boolean {
