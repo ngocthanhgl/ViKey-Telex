@@ -148,16 +148,18 @@ class AlgorithmicTelex(
         "oa" to 'a', "oe" to 'e', "uy" to 'y',
         "ưa" to 'ư', "ươ" to 'ơ', "uô" to 'ô',
         "ua" to 'u', "iê" to 'ê', "yê" to 'ê',
-        "uyê" to 'ê', "uya" to 'y', "uye" to 'y',
+        "uyê" to 'ê', "uya" to 'y', "uye" to 'ê',
         "uôi" to 'ô', "ươi" to 'ơ', "ươu" to 'ơ',
         "oai" to 'a', "oay" to 'a', "uay" to 'a',
         "oeo" to 'e', "oeu" to 'e',
         "ia" to 'i', "ya" to 'y',
         "iêu" to 'ê', "yêu" to 'ê',
+        // Plain-spelling clusters (typed without w/ee/oo yet): e.g. "tien"+f
+        "ie" to 'ê', "ye" to 'ê', "ieu" to 'ê', "yeu" to 'ê',
         "ai" to 'a', "ay" to 'a', "au" to 'a', "ao" to 'a',
         "oi" to 'o', "ôi" to 'ô', "ơi" to 'ơ',
         "ui" to 'u', "ưi" to 'ư',
-        "eo" to 'e', "êu" to 'ê',
+        "eo" to 'e', "êu" to 'ê', "eu" to 'ê',
         "iu" to 'i', "ưu" to 'ư',
         "ây" to 'â',
     )
@@ -211,7 +213,7 @@ class AlgorithmicTelex(
         // Plain spellings (modifier key not typed yet), e.g. "duoc" mid-state
         addAll(
             "uo uon uoc uong uot uom ie ien iec ieng iem iep iet " +
-                "ye yen yet yem uye uyen uyet uoi"
+                "ye yen yet yem uye uyen uyet uoi yeu ieu"
                 .split(" "),
         )
     }
@@ -380,7 +382,17 @@ class AlgorithmicTelex(
         }
 
         val current = word[tonePos]
-        val base = toBaseForm(current)
+        var base = toBaseForm(current)
+        // Rule-driven base override: when the cluster rule names a vowel
+        // class (ê/ô/ơ) different from the plain char at the position
+        // (e.g. plain "e" in an iên-cluster typed without w/ee yet),
+        // borrow the rule's glyph class so the tone lands right.
+        val vc = findVowelPositions(word)
+            .joinToString("") { toBaseForm(word[it].lowercaseChar()) }
+        val ruleChar = toneRules[vc]
+        if (ruleChar != null && ruleChar != base && ruleChar in "êôơ") {
+            base = ruleChar
+        }
         val toned = toneMaps[toneKey]?.get(base) ?: current
 
         if (current.lowercaseChar() == toned) {
@@ -709,6 +721,22 @@ class AlgorithmicTelex(
             for (pos in vowelPositions) {
                 if (toBaseForm(word[pos].lowercaseChar()) == rule) {
                     return pos
+                }
+            }
+            // Plain-spelling cluster (e.g. "ieu" typed without w/ee yet):
+            // no char has the rule's diacritic class yet — fall back to the
+            // plain member of the same class family so the tone lands right.
+            val expanded = when (rule) {
+                'ê' -> arrayOf('e')
+                'ô' -> arrayOf('o')
+                'ơ' -> arrayOf('o', 'u')
+                else -> emptyArray()
+            }
+            if (expanded.isNotEmpty()) {
+                for (pos in vowelPositions) {
+                    if (toBaseForm(word[pos].lowercaseChar()) in expanded) {
+                        return pos
+                    }
                 }
             }
         }
