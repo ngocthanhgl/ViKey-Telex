@@ -486,6 +486,32 @@ abstract class AbstractEditorInstance(context: Context) {
         }
     }
 
+    /**
+     * Synchronously deletes [deleteCount] characters before the cursor, keeping the expected-content
+     * queue in sync. Unlike the async deleteBackwards path this guarantees ordering with a directly
+     * following synchronous commit, which double-space period handling relies on.
+     */
+    protected fun deleteCharsBeforeCursorSync(deleteCount: Int): Boolean {
+        val content = activeContent
+        val ic = currentInputConnection() ?: return false
+        return try {
+            runBlocking {
+                val newSelection = EditorRange.cursor(content.selection.start - deleteCount)
+                val newContent = content.generateCopy(
+                    selection = newSelection,
+                    textBeforeSelection = content.textBeforeSelection.dropLast(deleteCount),
+                    selectedText = "",
+                )
+                expectedContentQueue.push(newContent)
+            }
+            ic.deleteSurroundingText(deleteCount, 0)
+            true
+        } catch (_: Exception) {
+            onIpcFailure()
+            false
+        }
+    }
+
     open fun finalizeComposingText(text: String): Boolean {
         val content = activeContent
         val composing = content.composing

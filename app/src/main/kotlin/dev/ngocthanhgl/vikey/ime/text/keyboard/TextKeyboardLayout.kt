@@ -69,6 +69,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -261,12 +262,15 @@ fun TextKeyboardLayout(
                 if (rippleOrigin != null && isLiquidGlass && lqConfig.rippleEnabled) {
                     val maxRadius = size.width
                     val progress = (rippleRadius.value / maxRadius).coerceIn(0f, 1f)
-                    drawCircle(
-                        Color.White.copy(alpha = 0.15f * (1f - progress)),
-                        rippleRadius.value,
-                        rippleOrigin!!,
-                        style = Stroke(2.dp.toPx()),
-                    )
+                    // Clip so the expanding wave never draws outside the IME area.
+                    clipRect(0f, 0f, size.width, size.height) {
+                        drawCircle(
+                            Color.White.copy(alpha = 0.15f * (1f - progress)),
+                            rippleRadius.value,
+                            rippleOrigin!!,
+                            style = Stroke(2.dp.toPx()),
+                        )
+                    }
                 }
                 if (glideEnabled && glideShowTrail) {
                     val targetDist = 3.0f

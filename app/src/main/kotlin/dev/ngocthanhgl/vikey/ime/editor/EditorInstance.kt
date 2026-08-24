@@ -217,6 +217,19 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
     }
 
     override fun commitChar(char: String): Boolean {
+        if (char.length == 1 && char[0] in ",.;:?!") {
+            // Content-derived collapse: any trailing space directly after a letter/digit is
+            // removed when punctuation follows ("word ," -> "word,"), regardless of where the
+            // space came from (suggestion trailing space, chip tap, auto-commit, ...).
+            val before = activeContent.textBeforeSelection
+            if (before.length >= 2 && before.last() == ' ' &&
+                before[before.length - 2].isLetterOrDigit() &&
+                deleteSurroundingAndCommitSync(1, char)
+            ) {
+                lastCommitWasSuggestion = false
+                return true
+            }
+        }
         if (lastCommitWasSuggestion && char.length == 1 && char[0] in ",.;:?!") {
             // Synchronous so the trailing space of a just-committed suggestion is reliably
             // replaced; the async version raced with the suggestion commit and duplicated words.
@@ -374,6 +387,15 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
                 keyboardManager.activeState.imeUiMode = ImeUiMode.TEXT
             }
         }
+    }
+
+    /**
+     * Synchronously deletes [count] characters before the cursor. Unlike [deleteBackwards] this
+     * guarantees the deletion lands before any directly following synchronous commit, which
+     * double-space period handling relies on.
+     */
+    fun deleteBackwardsSync(count: Int = 1): Boolean {
+        return deleteCharsBeforeCursorSync(count)
     }
 
     /**

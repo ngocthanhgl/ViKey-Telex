@@ -311,14 +311,21 @@ fun EmojiPaletteView(
         HorizontalPager(pagerState, beyondViewportPageCount = 1) { page ->
                 val lazyGridState = rememberLazyGridState()
 
+                // targetPage flips the moment a drag crosses the page midpoint and updates
+                // immediately for animateScrollToPage(), keeping the category bar responsive.
                 LaunchedEffect(pagerState) {
-                    // settledPage only updates once the scroll animation has come to rest.
-                    // Using currentPage here would re-fire for every intermediate page while
-                    // animateScrollToPage() crosses them, making the category chips flicker.
-                    snapshotFlow { pagerState.settledPage }.collect { page ->
+                    snapshotFlow { pagerState.targetPage }.collect { target ->
+                        activeCategory = pageNumberToCategory(target)
+                    }
+                }
+                LaunchedEffect(pagerState.settledPage) {
+                    // settledPage fires once per resting position; reset the freshly settled
+                    // grid and refresh the recents mapping only when actually settling on it.
+                    if (pagerState.settledPage == page) {
                         lazyGridState.scrollToItem(0)
-                        activeCategory = pageNumberToCategory(page)
-                        recentlyUsedVersion++
+                        if (pageNumberToCategory(page) == EmojiCategory.RECENTLY_USED) {
+                            recentlyUsedVersion++
+                        }
                     }
                 }
 

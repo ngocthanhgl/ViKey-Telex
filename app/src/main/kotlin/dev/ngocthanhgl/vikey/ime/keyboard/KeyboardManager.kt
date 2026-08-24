@@ -564,7 +564,9 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
             if (inputEventDispatcher.isConsecutiveUp(data)) {
                 val text = editorInstance.run { activeContent.getTextBeforeCursor(2) }
                 if (text.length == 2 && DoubleSpacePeriodMatcher.matches(text)) {
-                    editorInstance.deleteBackwards(OperationUnit.CHARACTERS)
+                    // Synchronous so the deletion is guaranteed to land before ". " commits;
+                    // the async deleteBackwards raced and corrupted output like "word .".
+                    editorInstance.deleteBackwardsSync()
                     editorInstance.commitText(". ")
                     return
                 }
@@ -816,7 +818,14 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
                     }
                 }
                 if (activeState.inputShiftState != InputShiftState.CAPS_LOCK && !inputEventDispatcher.isPressed(KeyCode.SHIFT)) {
-                    activeState.inputShiftState = InputShiftState.UNSHIFTED
+                    when (activeState.inputShiftState) {
+                        // Manual shift deactivates after one key press.
+                        InputShiftState.SHIFTED_MANUAL -> activeState.inputShiftState = InputShiftState.UNSHIFTED
+                        // UNSHIFTED / SHIFTED_AUTOMATIC: re-evaluate from the current content so
+                        // auto-capitalization works even when the app's selection event lags
+                        // behind fast typing instead of staying unshifted after sentence ends.
+                        else -> reevaluateInputShiftState()
+                    }
                 }
             }
         }
