@@ -215,6 +215,13 @@ interface SuggestionProvider : NlpProvider {
     ): List<String> = candidates
 
     /**
+     * Contextual score for the word pair (prevWord, nextWord), normalized to [0, 1].
+     * Used to boost candidates that naturally follow the preceding word. The default
+     * implementation returns 0.0 for providers without a bigram model.
+     */
+    suspend fun getBigramFrequencyFor(prevWord: String, nextWord: String): Double = 0.0
+
+    /**
      * When initializing composing text given a new context, the suggestion engine determines the composing range.
      * The default behavior gets the last word according to the current subtype's primaryLocale.
      * @param subtype The current subtype used to determine word or character boundary.

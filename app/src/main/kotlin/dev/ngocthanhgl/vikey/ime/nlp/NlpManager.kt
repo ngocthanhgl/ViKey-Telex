@@ -47,6 +47,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.florisboard.lib.kotlin.guardedByLock
 import org.florisboard.lib.kotlin.collectLatestIn
+import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
@@ -77,6 +78,10 @@ class NlpManager(context: Context) {
     private var lastPrefix: String? = null
     @Volatile
     private var lastShiftSeen: dev.ngocthanhgl.vikey.ime.input.InputShiftState? = null
+    @Volatile
+    private var pendingCompletion: String? = null
+    @Volatile
+    private var lastCompletedWord: String? = null
 
     fun hasPendingCompositionSuggestion(): Boolean = hasPendingComposition
 
@@ -96,8 +101,50 @@ class NlpManager(context: Context) {
     }
 
     fun clearCompositionState() {
+        flushPendingCompletion()
         lastPrefix = null
         lastShiftSeen = null
+    }
+
+    /**
+     * Tracks the in-progress composition so that when a word boundary arrives
+     * (whitespace via [clearCompositionState] or a punctuation keystroke) the just
+     * completed word can be learned into the personal dictionary and bigram model.
+     */
+    private fun noteCompositionProgress(prefix: String) {
+        val trimmed = prefix.trim()
+        if (trimmed.isEmpty()) {
+            flushPendingCompletion()
+            return
+        }
+        if (trimmed.length == 1 && !trimmed[0].isLetter()) {
+            // Punctuation terminates the word being typed.
+            flushPendingCompletion()
+            return
+        }
+        if (trimmed.any { !it.isLetter() }) {
+            flushPendingCompletion()
+            return
+        }
+        pendingCompletion = trimmed.lowercase(Locale.ROOT)
+    }
+
+    private fun flushPendingCompletion() {
+        val word = pendingCompletion ?: return
+        pendingCompletion = null
+        if (word.length < 2 || keyboardManager.activeState.isIncognitoMode) return
+        val subtype = subtypeManager.activeSubtype
+        scope.launch(Dispatchers.IO) {
+            when (val provider = getSuggestionProvider(subtype)) {
+                is VietnameseLanguageProvider -> {
+                    provider.recordWord(word)
+                    lastCompletedWord?.let { provider.recordBigram(it, word) }
+                }
+                is EnglishSuggestionProvider -> provider.recordWord(word)
+                else -> {}
+            }
+            lastCompletedWord = word
+        }
     }
 
     private val internalSuggestions = AtomicReference(SystemClock.uptimeMillis() to listOf<SuggestionCandidate>())
@@ -247,6 +294,7 @@ class NlpManager(context: Context) {
         compositionJob?.cancel()
         lastPrefix = prefix
         lastShiftSeen = shiftState
+        noteCompositionProgress(prefix)
         val reqTime = SystemClock.uptimeMillis()
         hasPendingComposition = true
         // KeyboardManager resets inputShiftState right after each keystroke; the resulting
@@ -443,6 +491,8 @@ class NlpManager(context: Context) {
             val provider = getSuggestionProvider(subtype)
             when (provider) {
                 is EnglishSuggestionProvider -> provider.recordWord(word)
+                is VietnameseLanguageProvider -> provider.recordWord(word)
+                else -> {}
             }
         }
     }
@@ -457,7 +507,7 @@ class NlpManager(context: Context) {
                     allowPossiblyOffensive = !prefs.suggestion.blockPossiblyOffensive.get(),
                     isPrivateSession = keyboardManager.activeState.isIncognitoMode,
                 ).ifEmpty {
-                    internalSuggestions.get().second.map { candidate ->
+                    val recased = internalSuggestions.get().second.map { candidate ->
                         if (candidate is WordSuggestionCandidate) {
                             val st = candidate.shiftState ?: currentShiftState
                             candidate.copy(
@@ -466,12 +516,40 @@ class NlpManager(context: Context) {
                             )
                         } else candidate
                     }
+                    applyBigramContextBoost(recased)
                 }
             }
             else -> emptyList()
         }
         activeCandidates = candidates
         autoExpandCollapseSmartbarActions()
+    }
+
+    /**
+     * Re-ranks word candidates using the bigram model against the word preceding the
+     * one being typed, so contextually natural continuations float to the top. The
+     * second-to-last token of textBeforeSelection is used because the last token is
+     * the in-progress composition itself.
+     */
+    private suspend fun applyBigramContextBoost(
+        candidates: List<SuggestionCandidate>,
+    ): List<SuggestionCandidate> {
+        if (candidates.none { it is WordSuggestionCandidate && it.confidence < 1.0 }) return candidates
+        val tokens = editorInstance.activeContent.textBeforeSelection
+            .split(Regex("[\\s\\p{Punct}]+"))
+            .filter { it.length >= 2 && it[0].isLetter() }
+        val prevWord = tokens.getOrNull(tokens.size - 2) ?: return candidates
+        val provider = getSuggestionProvider(subtypeManager.activeSubtype)
+        return candidates
+            .map { candidate ->
+                if (candidate is WordSuggestionCandidate && candidate.confidence < 1.0) {
+                    val boost = provider.getBigramFrequencyFor(prevWord, candidate.text.toString())
+                    candidate.copy(confidence = (candidate.confidence * (1.0 + 0.6 * boost)).coerceAtMost(0.995))
+                } else {
+                    candidate
+                }
+            }
+            .sortedByDescending { it.confidence }
     }
 
     fun autoExpandCollapseSmartbarActions() {
