@@ -212,8 +212,8 @@ class AlgorithmicTelex(
         }
         // Plain spellings (modifier key not typed yet), e.g. "duoc" mid-state
         addAll(
-            "uo uon uoc uong uot uom ie ien iec ieng iem iep iet " +
-                "ye yen yet yem uye uyen uyet uoi yeu ieu"
+            ("uo uon uoc uong uot uom ie ien iec ieng iem iep iet " +
+                "ye yen yet yem uye uyen uyet uoi yeu ieu")
                 .split(" "),
         )
     }
@@ -388,7 +388,7 @@ class AlgorithmicTelex(
         // (e.g. plain "e" in an iên-cluster typed without w/ee yet),
         // borrow the rule's glyph class so the tone lands right.
         val vc = findVowelPositions(word)
-            .joinToString("") { toBaseForm(word[it].lowercaseChar()) }
+            .joinToString("") { toBaseForm(word[it].lowercaseChar()).toString() }
         val ruleChar = toneRules[vc]
         if (ruleChar != null && ruleChar != base && ruleChar in "êôơ") {
             base = ruleChar
@@ -418,9 +418,9 @@ class AlgorithmicTelex(
 
         val clean = StringBuilder()
         for (c in word) {
-            var b = toBaseForm(c).toString()
+            var b = toBaseForm(c)
             cancelMap[b]?.let { b = it }
-            clean.append(if (c.isUpperCase()) b.uppercase() else b)
+            clean.append(if (c.isUpperCase()) b.uppercaseChar() else b)
         }
         val result = clean.toString()
         if (result == word) {
