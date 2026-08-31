@@ -352,7 +352,7 @@ class AlgorithmicTelex(
                         else -> c
                     }
                 }.joinToString("")
-                return word.length to reverted
+                return word.length to (reverted + ch)
             }
 
             convertUoPair(word)?.let { return word.length to it }
