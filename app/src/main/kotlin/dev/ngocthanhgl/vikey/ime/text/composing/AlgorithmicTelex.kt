@@ -338,6 +338,23 @@ class AlgorithmicTelex(
         }
 
         if (lowerCh == 'w') {
+            // Undo: if word already has ư or ơ from a previous w conversion,
+            // revert them back to u/o when 'w' is pressed again.
+            val hasWVowel = word.any {
+                val b = it.lowercaseChar()
+                b == 'ư' || b == 'ơ'
+            }
+            if (hasWVowel) {
+                val reverted = word.map { c ->
+                    when (c.lowercaseChar()) {
+                        'ư' -> if (c.isUpperCase()) 'U' else 'u'
+                        'ơ' -> if (c.isUpperCase()) 'O' else 'o'
+                        else -> c
+                    }
+                }.joinToString("")
+                return word.length to reverted
+            }
+
             convertUoPair(word)?.let { return word.length to it }
 
             val legal = wInterpretations(word)
@@ -373,6 +390,13 @@ class AlgorithmicTelex(
 
         val syllable = parseSyllable(clean.lowercase())
         if (syllable == null || syllable.nucleus.isEmpty()) {
+            return word.length to (word + ch)
+        }
+
+        // Nucleus must be pure vowels — consonants in nucleus mean the
+        // syllable is not a valid Vietnamese syllable (e.g. "inte" parsed
+        // as nucleus "inte" with consonants n,t). Treat tone key as literal.
+        if (syllable.nucleus.any { toBaseForm(it) !in baseVowels }) {
             return word.length to (word + ch)
         }
 
@@ -816,6 +840,10 @@ class AlgorithmicTelex(
         // ── Original checks (run in both modes) ──
         if (englishPatterns.any { lower.contains(it) }) return true
 
+        // Word already has Vietnamese diacritics → definitely Vietnamese
+        // (must run before coda check which misclassifies words ending in 'g')
+        if (lower.any { it in vietnameseChars }) return false
+
         if (lower.length <= 4) {
             val hasVietDigraph = vietDigraphList.any { lower.contains(it) }
             if (!hasVietDigraph) {
@@ -844,9 +872,6 @@ class AlgorithmicTelex(
 
         // ── Enhanced checks (only when toggle ON) ──
         if (!englishFallbackEnabled) return false
-
-        // Word already has Vietnamese diacritics → definitely Vietnamese
-        if (lower.any { it in vietnameseChars }) return false
 
         // Extended English patterns (whole-word matches excluded so that
         // telex words like "ly" (lý/lỳ) are not treated as English)
