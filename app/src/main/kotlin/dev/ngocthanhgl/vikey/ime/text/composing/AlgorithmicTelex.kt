@@ -515,7 +515,7 @@ class AlgorithmicTelex(
         for (i in 0 until positions.size - 1) {
             val base1 = toBaseForm(word[positions[i]].lowercaseChar())
             val base2 = toBaseForm(word[positions[i + 1]].lowercaseChar())
-            if (base1 == 'u' && base2 == 'o') {
+            if ((base1 == 'u' || base1 == 'ư') && base2 == 'o') {
                 val pi = positions[i]
                 val pj = positions[i + 1]
                 var toneKey: Char? = null
