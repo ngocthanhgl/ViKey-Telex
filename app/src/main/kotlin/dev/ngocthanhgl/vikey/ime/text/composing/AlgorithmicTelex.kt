@@ -344,7 +344,11 @@ class AlgorithmicTelex(
                 val b = it.lowercaseChar()
                 b == 'ư' || b == 'ơ'
             }
-            if (hasWVowel) {
+            // Don't undo if ư+ơ form a cluster (e.g. "ươ" in "được")
+            val hasUoCluster = word.windowed(2).any { (a, b) ->
+                a.lowercaseChar() == 'ư' && toBaseForm(b.lowercaseChar()) == 'ơ'
+            }
+            if (hasWVowel && !hasUoCluster) {
                 val reverted = word.map { c ->
                     when (c.lowercaseChar()) {
                         'ư' -> if (c.isUpperCase()) 'U' else 'u'
