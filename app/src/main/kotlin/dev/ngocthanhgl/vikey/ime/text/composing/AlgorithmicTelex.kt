@@ -338,17 +338,22 @@ class AlgorithmicTelex(
         }
 
         if (lowerCh == 'w') {
-            // Undo: if word already has ư or ơ from a previous w conversion,
-            // revert them back to u/o when 'w' is pressed again.
+            // Try conversions first (e.g. ưo → ươ, u → ư)
+            convertUoPair(word)?.let { return word.length to it }
+
+            val legal = wInterpretations(word)
+                .filter { isValidRhymeWord(it.second.lowercase()) }
+            if (legal.isNotEmpty()) {
+                val best = legal.minByOrNull { it.first }!!
+                return word.length to best.second
+            }
+
+            // Undo only if no conversion worked
             val hasWVowel = word.any {
                 val b = it.lowercaseChar()
                 b == 'ư' || b == 'ơ'
             }
-            // Don't undo if ư+ơ form a cluster (e.g. "ươ" in "được")
-            val hasUoCluster = word.windowed(2).any { pair ->
-                pair[0].lowercaseChar() == 'ư' && toBaseForm(pair[1].lowercaseChar()) == 'ơ'
-            }
-            if (hasWVowel && !hasUoCluster) {
+            if (hasWVowel) {
                 val reverted = word.map { c ->
                     when (c.lowercaseChar()) {
                         'ư' -> if (c.isUpperCase()) 'U' else 'u'
@@ -357,15 +362,6 @@ class AlgorithmicTelex(
                     }
                 }.joinToString("")
                 return word.length to (reverted + ch)
-            }
-
-            convertUoPair(word)?.let { return word.length to it }
-
-            val legal = wInterpretations(word)
-                .filter { isValidRhymeWord(it.second.lowercase()) }
-            if (legal.isNotEmpty()) {
-                val best = legal.minByOrNull { it.first }!!
-                return word.length to best.second
             }
         }
 
