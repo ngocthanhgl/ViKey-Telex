@@ -357,6 +357,7 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
             super.commitText(text)
         }.also {
             updateLastCommitPosition()
+            nlpManager.suppressSuggestionForNextContentUpdate()
         }
     }
 

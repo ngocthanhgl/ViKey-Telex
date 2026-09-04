@@ -281,7 +281,9 @@ class NlpManager(context: Context) {
             && !prefs.emoji.suggestionEnabled.get()
             && !providerForcesSuggestionOn(subtypeManager.activeSubtype)) return false
         val attrs = editorInstance.activeInfo.inputAttributes
-        return !attrs.flagTextNoSuggestions && attrs.variation != InputAttributes.Variation.URI
+        if (attrs.variation == InputAttributes.Variation.PASSWORD) return false
+        if (attrs.variation == InputAttributes.Variation.URI) return false
+        return true
     }
 
     fun liveSuggestionsEnabled(): Boolean {
@@ -431,6 +433,21 @@ class NlpManager(context: Context) {
         suppressNextAutoCommit = true
     }
 
+    @Volatile
+    private var suppressNextContentSuggestion = false
+
+    fun suppressSuggestionForNextContentUpdate() {
+        suppressNextContentSuggestion = true
+    }
+
+    fun consumeSuppressNextContentSuggestion(): Boolean {
+        if (suppressNextContentSuggestion) {
+            suppressNextContentSuggestion = false
+            return true
+        }
+        return false
+    }
+
     fun getAutoCommitCandidate(): SuggestionCandidate? {
         if (suppressNextAutoCommit) {
             suppressNextAutoCommit = false
@@ -478,11 +495,9 @@ class NlpManager(context: Context) {
     }
 
     fun getBigramFrequency(prevWord: String, nextWord: String): Double {
-        return runBlocking {
-            val subtype = subtypeManager.activeSubtype
-            val provider = getSuggestionProvider(subtype)
-            0.0
-        }
+        val subtype = subtypeManager.activeSubtype
+        val provider = getSuggestionProvider(subtype)
+        return runBlocking { provider.getBigramFrequencyFor(prevWord, nextWord) }
     }
 
     fun learnWord(word: String) {

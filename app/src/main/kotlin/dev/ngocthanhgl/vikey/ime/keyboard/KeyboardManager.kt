@@ -164,7 +164,8 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
             }
             editorInstance.activeContentFlow.collectIn(scope) { content ->
                 if (FlorisImeService.windowControllerOrNull()?.isWindowShown?.value == true
-                    && !nlpManager.hasPendingCompositionSuggestion()) {
+                    && !nlpManager.hasPendingCompositionSuggestion()
+                    && !nlpManager.consumeSuppressNextContentSuggestion()) {
                     resetSuggestions(content)
                 }
             }
