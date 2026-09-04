@@ -1207,7 +1207,6 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <!-- Keyboard -->
     <string name="keyboard__vietnamese_telex">Telex Việt</string>
     <string name="keyboard__w_equals_u_u">w = ư</string>
-    <string name="keyboard__english_fallback">Dự phòng English</string>
     <string name="keyboard__value_label_px">{v} px</string>
 
     <!-- Edit Property -->

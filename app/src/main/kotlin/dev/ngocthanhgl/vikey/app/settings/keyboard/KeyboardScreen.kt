@@ -302,13 +302,6 @@ fun KeyboardScreen() {
                 onCheckedChange = { scope.launch { prefs.keyboard.telexWEnabled.set(it) } },
                 title = stringRes(R.string.keyboard__w_equals_u_u),
             )
-            val englishFallbackEnabled by prefs.keyboard.englishFallbackEnabled.collectAsState()
-            M3SwitchPreference(
-                icon = Icons.Rounded.Language,
-                checked = englishFallbackEnabled,
-                onCheckedChange = { scope.launch { prefs.keyboard.englishFallbackEnabled.set(it) } },
-                title = stringRes(R.string.keyboard__english_fallback),
-            )
         }
     }
 }

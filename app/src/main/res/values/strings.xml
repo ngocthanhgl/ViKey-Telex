@@ -1211,7 +1211,6 @@
     <!-- Keyboard -->
     <string name="keyboard__vietnamese_telex">Vietnamese Telex</string>
     <string name="keyboard__w_equals_u_u">w = ư</string>
-    <string name="keyboard__english_fallback">English fallback</string>
     <string name="keyboard__value_label_px">{v} px</string>
 
     <!-- Edit Property -->

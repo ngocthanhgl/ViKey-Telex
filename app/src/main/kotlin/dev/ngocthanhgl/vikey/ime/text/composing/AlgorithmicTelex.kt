@@ -31,9 +31,6 @@ class AlgorithmicTelex(
     private val telexWEnabled: Boolean
         get() = try { prefs.keyboard.telexWEnabled.get() } catch (_: Exception) { true }
 
-    private val englishFallbackEnabled: Boolean
-        get() = try { prefs.keyboard.englishFallbackEnabled.get() } catch (_: Exception) { true }
-
     companion object {
         val VOWEL_SPLIT_REGEX = Regex("[aeiouyăâêôơ]")
         val DISTANT_MODIFIERS = setOf('a', 'e', 'o', 'w')
@@ -162,14 +159,6 @@ class AlgorithmicTelex(
         "eo" to 'e', "êu" to 'ê', "eu" to 'ê',
         "iu" to 'i', "ưu" to 'ư',
         "ây" to 'â',
-    )
-
-    // ── English fallback patterns ─────────────────────────────────
-
-    private val englishPatterns = listOf(
-        "tion", "ness", "ship", "less", "able", "ment",
-        "sch", "ck", "dge", "scr", "str",
-        "ould", "ight", "ough",
     )
 
     // ── Legal Vietnamese rhymes (order-independence validity gate) ──
@@ -310,9 +299,6 @@ class AlgorithmicTelex(
                 if (knownOnsets.contains(candidate) && word.none { it.lowercaseChar() in baseVowels }) {
                     return word.length to (word + ch)
                 }
-            }
-            if (isEnglishLikely(word)) {
-                return word.length to (word + ch)
             }
             return handleTone(word, ch)
         }
@@ -799,116 +785,6 @@ class AlgorithmicTelex(
         }
 
         return result
-    }
-
-    // ── English fallback detection ─────────────────────────────────
-
-    private val vietnameseChars = setOf(
-        'ă', 'â', 'đ', 'ê', 'ô', 'ơ', 'ư',
-        'á', 'à', 'ả', 'ã', 'ạ',
-        'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ',
-        'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ',
-        'é', 'è', 'ẻ', 'ẽ', 'ẹ',
-        'ế', 'ề', 'ể', 'ễ', 'ệ',
-        'í', 'ì', 'ỉ', 'ĩ', 'ị',
-        'ó', 'ò', 'ỏ', 'õ', 'ọ',
-        'ố', 'ồ', 'ổ', 'ỗ', 'ộ',
-        'ớ', 'ờ', 'ở', 'ỡ', 'ợ',
-        'ú', 'ù', 'ủ', 'ũ', 'ụ',
-        'ứ', 'ừ', 'ử', 'ữ', 'ự',
-        'ý', 'ỳ', 'ỷ', 'ỹ', 'ỵ',
-    )
-
-    private val extendedEnglishPatterns = listOf(
-        "ing", "ful", "ive", "ure", "sion", "ist",
-        "ize", "ise", "ward", "wise", "like",
-        "hood", "dom", "ous", "ly", "ed", "er", "est",
-        "ex", "ax", "ix", "ox", "ux",
-        "ject", "just",
-    )
-
-    private val extendedClusters = setOf(
-        "mp", "ld", "nk", "rk", "rm", "rn", "rt", "sk", "sp",
-        "ft", "pt", "ct", "lp", "lf", "lk", "lm", "ln",
-    )
-
-    private val validVietnameseOnsets = setOf("ch", "gh", "gi", "kh", "nh", "ng", "ph", "qu", "th", "tr")
-
-    private fun isEnglishLikely(word: String): Boolean {
-        val lower = word.lowercase()
-
-        // ── Original checks (run in both modes) ──
-        if (englishPatterns.any { lower.contains(it) }) return true
-
-        // Word already has Vietnamese diacritics → definitely Vietnamese
-        // (must run before coda check which misclassifies words ending in 'g')
-        if (lower.any { it in vietnameseChars }) return false
-
-        if (lower.length <= 4) {
-            val hasVietDigraph = vietDigraphList.any { lower.contains(it) }
-            if (!hasVietDigraph) {
-                if (lower.endsWith("ck") || lower.endsWith("sh") ||
-                    lower.endsWith("th") ||
-                    lower.endsWith("ph") || lower.endsWith("nd") ||
-                    lower.endsWith("nt") || lower.endsWith("st")
-                ) return true
-            }
-        }
-
-        for (codaLen in minOf(3, lower.length - 1) downTo 1) {
-            val suffix = lower.takeLast(codaLen)
-            if (suffix.all { it in consonantLetters }) {
-                if (isInvalidVietnameseCoda(suffix)) return true
-                break
-            }
-        }
-
-        val cleaned = stripTones(lower)
-        val consonantRun = cleaned.split(VOWEL_SPLIT_REGEX).filter { it.isNotEmpty() }
-        if (consonantRun.any { it.length > 3 }) return true
-
-        val vowelCount = lower.count { toBaseForm(it) in baseVowels }
-        if (vowelCount == 0 && lower.any { it in consonantLetters }) return true
-
-        // ── Enhanced checks (only when toggle ON) ──
-        if (!englishFallbackEnabled) return false
-
-        // Extended English patterns (whole-word matches excluded so that
-        // telex words like "ly" (lý/lỳ) are not treated as English)
-        if (extendedEnglishPatterns.any { lower.contains(it) && lower != it }) return true
-
-        // Extended coda clusters (invalid Vietnamese codas)
-        if (lower.length >= 2) {
-            val suffix2 = lower.takeLast(2)
-            if (suffix2 in extendedClusters) return true
-        }
-
-        // Onset cluster check — start of word has cluster invalid in Vietnamese
-        if (lower.length >= 2) {
-            val firstTwo = lower.take(2)
-            if (firstTwo.all { it.lowercaseChar() !in baseVowels } && firstTwo !in validVietnameseOnsets) return true
-            if (lower.length >= 3) {
-                val firstThree = lower.take(3)
-                if (firstThree.all { it.lowercaseChar() !in baseVowels } && firstThree != "ngh") return true
-            }
-        }
-
-        return false
-    }
-
-    private val validSingleCodas = setOf('c', 'm', 'n', 'p', 't')
-
-    private fun isInvalidVietnameseCoda(coda: String): Boolean {
-        if (coda.length == 1) {
-            return coda[0].lowercaseChar() !in validSingleCodas
-        }
-        if (coda.length == 2) {
-            return coda !in listOf("ch", "ng", "nh")
-        }
-        if (coda.length == 3) {
-            return coda != "ngh"
-        }
-        return true
     }
 
     // ──────────────────────────────────────────────────────────────
