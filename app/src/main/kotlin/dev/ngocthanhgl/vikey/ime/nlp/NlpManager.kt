@@ -495,9 +495,11 @@ class NlpManager(context: Context) {
     }
 
     fun getBigramFrequency(prevWord: String, nextWord: String): Double {
-        val subtype = subtypeManager.activeSubtype
-        val provider = getSuggestionProvider(subtype)
-        return runBlocking { provider.getBigramFrequencyFor(prevWord, nextWord) }
+        return runBlocking {
+            val subtype = subtypeManager.activeSubtype
+            val provider = getSuggestionProvider(subtype)
+            provider.getBigramFrequencyFor(prevWord, nextWord)
+        }
     }
 
     fun learnWord(word: String) {
