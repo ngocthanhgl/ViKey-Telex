@@ -392,17 +392,7 @@ class AlgorithmicTelex(
         }
 
         val current = word[tonePos]
-        var base = toBaseForm(current)
-        // Rule-driven base override: when the cluster rule names a vowel
-        // class (ê/ô/ơ) different from the plain char at the position
-        // (e.g. plain "e" in an iên-cluster typed without w/ee yet),
-        // borrow the rule's glyph class so the tone lands right.
-        val vc = findVowelPositions(word)
-            .joinToString("") { toBaseForm(word[it].lowercaseChar()).toString() }
-        val ruleChar = toneRules[vc]
-        if (ruleChar != null && ruleChar != base && ruleChar in "êôơ") {
-            base = ruleChar
-        }
+        val base = toBaseForm(current)
         val toned = toneMaps[toneKey]?.get(base) ?: current
 
         if (current.lowercaseChar() == toned) {
