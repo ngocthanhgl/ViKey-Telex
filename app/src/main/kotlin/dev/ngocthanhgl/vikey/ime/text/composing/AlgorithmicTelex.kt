@@ -327,10 +327,17 @@ class AlgorithmicTelex(
             // Try conversions first (e.g. ưo → ươ, u → ư)
             convertUoPair(word)?.let { return word.length to it }
 
-            val legal = wInterpretations(word)
-                .filter { isValidRhymeWord(it.second.lowercase()) }
-            if (legal.isNotEmpty()) {
-                val best = legal.minByOrNull { it.first }!!
+            val candidates = wInterpretations(word)
+            if (candidates.isNotEmpty()) {
+                // Ranking only (no hard rhyme gate): prefer legal Vietnamese
+                // rhymes, otherwise take the closest (rightmost) candidate so
+                // free typing still converts and undo stays reachable.
+                val best = candidates.minWithOrNull(
+                    compareBy(
+                        { if (isValidRhymeWord(it.second.lowercase())) 0 else 1 },
+                        { it.first },
+                    ),
+                )!!
                 return word.length to best.second
             }
 
@@ -559,17 +566,23 @@ class AlgorithmicTelex(
             }
         }
 
-        // Pass 1: right-to-left, accept first candidate whose transformed
-        // word forms a legal Vietnamese rhyme (order-independence gate).
+        // Pass 1: ranking only (no hard rhyme gate) — prefer candidates
+        // forming a legal Vietnamese rhyme, otherwise fall back to the
+        // rightmost transformable vowel so free typing still converts.
+        val pass1 = mutableListOf<Pair<Int, String>>()
         for (pos in findVowelPositions(word).asReversed()) {
             val target = targetFor(pos) ?: continue
             if (word[pos].lowercaseChar() != target) {
                 val cand = word.substring(0, pos) + transformVowel(word[pos], target) + word.substring(pos + 1)
-                if (isValidRhymeWord(cand.lowercase())) {
-                    return cand
-                }
+                pass1.add(pos to cand)
             }
         }
+        pass1.minWithOrNull(
+            compareBy(
+                { if (isValidRhymeWord(it.second.lowercase())) 0 else 1 },
+                { -it.first },
+            ),
+        )?.let { return it.second }
 
         // Revert path (unchanged semantics)
         for (pos in findVowelPositions(word).asReversed()) {
@@ -635,10 +648,8 @@ class AlgorithmicTelex(
         val first = word.first()
         if (first == 'd' || first == 'D') {
             val rest = word.substring(1)
-            if (isValidRhymeWord("d" + rest.lowercase())) {
-                val dd = if (first == 'D') 'Đ' else 'đ'
-                return "$dd$rest"
-            }
+            val dd = if (first == 'D') 'Đ' else 'đ'
+            return "$dd$rest"
         }
         return null
     }
