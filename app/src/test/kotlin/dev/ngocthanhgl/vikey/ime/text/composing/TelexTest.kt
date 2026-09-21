@@ -203,4 +203,18 @@ class TelexTest {
         // (no vowel touched), so 2nd w REPLACES it — "softw", not "softuw"
         assertEquals("softw", simulate("softww"))
     }
+
+    @Test
+    fun testToneKeyLiteralOnConsonantOnset() {
+        // Tone key 'r' after a consonant that forms a known onset "tr"
+        // must be a literal consonant, NOT a tone mark.
+        // (Unikey/EVkey-verified: "nhatrang" typed char-by-char → plain)
+        assertEquals("nhatr", simulate("nhatr"))
+        assertEquals("nhatrr", simulate("nhatrr"))
+        assertEquals("datr", simulate("datr"))
+        // Tone key 'r' after a vowel still applies tone (unchanged)
+        assertEquals("hả", simulate("har"))
+        // Other tone keys + consonant ∉ knownOnsets → tone applies
+        assertEquals("hả", simulate("har"))
+    }
 }

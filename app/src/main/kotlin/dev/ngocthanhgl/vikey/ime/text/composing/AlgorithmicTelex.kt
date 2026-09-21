@@ -393,6 +393,15 @@ class AlgorithmicTelex(
     // ──────────────────────────────────────────────────────────────
 
     private fun handleTone(word: String, ch: Char): Pair<Int, String> {
+        // If the tone key + last char forms a known consonant onset
+        // (e.g. "tr" in "nhat"+"r" → "nhatr" for "nhatrang"), the
+        // tone key is a literal consonant starting a new syllable,
+        // NOT a tone mark. No other tone key + consonant ∈
+        // knownOnsets (verified), so this is targeted and safe.
+        if (word.isNotEmpty() && knownOnsets.contains("${word.last().lowercaseChar()}${ch.lowercaseChar()}")) {
+            return word.length to (word + ch)
+        }
+
         val toneKey = ch.lowercaseChar()
         val clean = stripTones(word)
 
