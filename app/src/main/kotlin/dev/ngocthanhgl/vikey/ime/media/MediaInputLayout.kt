@@ -17,6 +17,9 @@
 package dev.ngocthanhgl.vikey.ime.media
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -76,11 +79,18 @@ fun MediaInputLayout(
         emojiLayoutDataMap = EmojiData.get(context, "ime/media/emoji/root.txt")
     }
 
+    val targetImeHeight = FlorisImeSizing.imeUiHeight() + bottomPaddingDp
+    val animatedImeHeight by animateDpAsState(
+        targetValue = targetImeHeight,
+        animationSpec = tween(250, easing = FastOutSlowInEasing),
+        label = "imeHeight",
+    )
+
     SnyggColumn(
         elementName = FlorisImeUi.Media.elementName,
         modifier = modifier
             .fillMaxWidth()
-            .height(FlorisImeSizing.imeUiHeight() + bottomPaddingDp),
+            .height(animatedImeHeight),
     ) {
         EmojiPaletteView(
             modifier = Modifier.weight(1f),

@@ -459,10 +459,12 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
         return if (content.selection.isSelectionMode) {
             commitText("")
         } else {
-            scope.launch {
-                deleteAroundCursor(unit, OperationScope.BEFORE_CURSOR, n = 1)
-            }
-            true
+            // Synchronous delete: guarantees expectedContentQueue and
+            // InputConnection stay in lockstep. The previous async
+            // scope.launch allowed the next keystroke to read stale
+            // activeContent.selection, producing cursor jumps under
+            // rapid typing (delete → type race).
+            runBlocking { deleteAroundCursor(unit, OperationScope.BEFORE_CURSOR, n = 1) }
         }
     }
 
@@ -480,10 +482,7 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
         return if (content.selection.isSelectionMode) {
             commitText("")
         } else {
-            scope.launch {
-                deleteAroundCursor(unit, OperationScope.AFTER_CURSOR, n = 1)
-            }
-            true
+            runBlocking { deleteAroundCursor(unit, OperationScope.AFTER_CURSOR, n = 1) }
         }
     }
 

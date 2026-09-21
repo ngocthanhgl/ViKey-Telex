@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
+import dev.ngocthanhgl.vikey.ime.ImeUiMode
 import dev.ngocthanhgl.vikey.ime.nlp.NlpInlineAutofill
 import dev.ngocthanhgl.vikey.ime.smartbar.ExtendedActionsPlacement
 import dev.ngocthanhgl.vikey.ime.smartbar.InlineSuggestionsChipMargin
@@ -60,14 +61,17 @@ object FlorisImeSizing {
         val keyboardManager by context.keyboardManager()
         val evaluator by keyboardManager.activeEvaluator.collectAsState()
         val lastCharactersEvaluator by keyboardManager.lastCharactersEvaluator.collectAsState()
-        val rowCount = when (evaluator.keyboard.mode) {
+        val activeState by keyboardManager.activeState.collectAsState()
+        val imeUiMode = activeState.imeUiMode
+        val baseRowCount = when (evaluator.keyboard.mode) {
             KeyboardMode.CHARACTERS,
             KeyboardMode.NUMERIC_ADVANCED,
             KeyboardMode.SYMBOLS,
             KeyboardMode.SYMBOLS2 -> lastCharactersEvaluator.keyboard as TextKeyboard
             else -> evaluator.keyboard as TextKeyboard
-        }.rowCount.coerceAtLeast(4)
-        return (keyboardRowBaseHeight * rowCount)
+        }.rowCount
+        val rowCount = if (imeUiMode == ImeUiMode.MEDIA) 6 else baseRowCount
+        return (keyboardRowBaseHeight * rowCount.coerceAtLeast(4))
     }
 
     @Composable

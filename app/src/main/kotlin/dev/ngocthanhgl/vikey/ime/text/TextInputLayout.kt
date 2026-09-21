@@ -91,16 +91,6 @@ fun TextInputLayout(
     val bgPhotoVis by prefs.backgroundPhoto.visibility.collectAsState()
     val bgPhotoBlur by prefs.backgroundPhoto.blurRadius.collectAsState()
     val gradPresetId by prefs.backgroundPhoto.gradientPreset.collectAsState()
-    val isLiquidGlass = LocalLiquidGlassEnabled.current
-    // Liquid glass always needs visible content to refract. When the user has
-    // not selected a photo or gradient, fall back to the built-in aurora
-    // gradient instead of leaving the shared backdrop empty.
-    val effectiveGradPresetId =
-        if (isLiquidGlass && bgPhotoPath.isBlank() && gradPresetId.isBlank()) {
-            "aurora"
-        } else {
-            gradPresetId
-        }
 
     var bgBitmap by remember(bgPhotoPath) { mutableStateOf<Bitmap?>(null) }
     LaunchedEffect(bgPhotoPath) {
@@ -148,11 +138,13 @@ fun TextInputLayout(
         }
     }
 
-    val gradBitmap = remember(effectiveGradPresetId, photoBoxSize) {
-        if (effectiveGradPresetId.isNotBlank() && photoBoxSize.width > 0 && photoBoxSize.height > 0) {
+    // Liquid glass has NO default background – when no image/gradient is
+    // selected the backdrop stays empty and keys refract the real wallpaper.
+    val gradBitmap = remember(gradPresetId, photoBoxSize) {
+        if (gradPresetId.isNotBlank() && photoBoxSize.width > 0 && photoBoxSize.height > 0) {
             val w = photoBoxSize.width
             val h = photoBoxSize.height
-            val preset = GradientPreset.ALL.find { it.id == effectiveGradPresetId }
+            val preset = GradientPreset.ALL.find { it.id == gradPresetId }
             if (preset != null) {
                 val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
                 val canvas = android.graphics.Canvas(bmp)
@@ -227,7 +219,7 @@ fun TextInputLayout(
                 photoBoxSize = coords.size
             },
     ) {
-        if ((bgPhotoPath.isNotBlank() || effectiveGradPresetId.isNotBlank()) && bgPhotoBitmap != null) {
+        if ((bgPhotoPath.isNotBlank() || gradPresetId.isNotBlank()) && bgPhotoBitmap != null) {
             Image(
                 bitmap = bgPhotoBitmap,
                 contentDescription = null,
@@ -248,7 +240,7 @@ fun TextInputLayout(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .then(
-                        if ((bgPhotoPath.isNotBlank() || effectiveGradPresetId.isNotBlank()) && bgBitmapFromSource != null) {
+                        if ((bgPhotoPath.isNotBlank() || gradPresetId.isNotBlank()) && bgBitmapFromSource != null) {
                             Modifier.drawBehind {
                                 val overlayAlpha = (bgPhotoVis / 100f) * 0.35f
                                 drawRect(Color.Black.copy(alpha = overlayAlpha), size = size)
