@@ -24,7 +24,28 @@
       "isNight": false
     },
     {
-      "id": "paper_dark",
+      "id": "paper_amoled",
+      "label": "Paper AMOLED",
+      "authors": ["NgocThanhGL"],
+      "materialYouFlags": {
+        "paletteStyle": "Neutral",
+        "contrastLevel": "Default",
+        "specVersion": "SPEC_2021"
+      }
+    },
+    {
+      "id": "ink_light",
+      "label": "Ink Light",
+      "authors": ["NgocThanhGL"],
+      "materialYouFlags": {
+        "paletteStyle": "Neutral",
+        "contrastLevel": "Default",
+        "specVersion": "SPEC_2021"
+      },
+      "isNight": false
+    },
+    {
+      "id": "ink_amoled",
       "label": "Ink Dark",
       "authors": ["NgocThanhGL"],
       "materialYouFlags": {
@@ -34,8 +55,8 @@
       }
     },
     {
-      "id": "paper_cia_aged",
-      "label": "CIA Aged Paper",
+      "id": "cia_light",
+      "label": "CIA Aged Paper Light",
       "authors": ["NgocThanhGL"],
       "materialYouFlags": {
         "paletteStyle": "Neutral",
@@ -43,6 +64,16 @@
         "specVersion": "SPEC_2021"
       },
       "isNight": false
+    },
+    {
+      "id": "cia_amoled",
+      "label": "CIA Aged Paper AMOLED",
+      "authors": ["NgocThanhGL"],
+      "materialYouFlags": {
+        "paletteStyle": "Neutral",
+        "contrastLevel": "Default",
+        "specVersion": "SPEC_2021"
+      }
     }
   ]
 }
