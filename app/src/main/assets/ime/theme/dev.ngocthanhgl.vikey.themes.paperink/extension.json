@@ -1,0 +1,48 @@
+{
+  "$": "ime.extension.theme",
+  "meta": {
+    "id": "dev.ngocthanhgl.vikey.themes.paperink",
+    "version": "1.0.0",
+    "title": "ViKey Paper & Ink",
+    "homepage": "https://github.com/ngocthanhgl/vikey-themes",
+    "issueTracker": "https://github.com/ngocthanhgl/vikey-themes/issues",
+    "maintainers": [
+      "NgocThanhGL <ngocthanhgl@proton.me>"
+    ],
+    "license": "MIT"
+  },
+  "themes": [
+    {
+      "id": "paper_light",
+      "label": "Paper Light",
+      "authors": ["NgocThanhGL"],
+      "materialYouFlags": {
+        "paletteStyle": "Neutral",
+        "contrastLevel": "Default",
+        "specVersion": "SPEC_2021"
+      },
+      "isNight": false
+    },
+    {
+      "id": "paper_dark",
+      "label": "Ink Dark",
+      "authors": ["NgocThanhGL"],
+      "materialYouFlags": {
+        "paletteStyle": "Neutral",
+        "contrastLevel": "Default",
+        "specVersion": "SPEC_2021"
+      }
+    },
+    {
+      "id": "paper_cia_aged",
+      "label": "CIA Aged Paper",
+      "authors": ["NgocThanhGL"],
+      "materialYouFlags": {
+        "paletteStyle": "Neutral",
+        "contrastLevel": "Default",
+        "specVersion": "SPEC_2021"
+      },
+      "isNight": false
+    }
+  ]
+}

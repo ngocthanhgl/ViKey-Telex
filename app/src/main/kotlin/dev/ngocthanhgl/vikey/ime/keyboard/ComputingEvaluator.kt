@@ -243,7 +243,7 @@ fun ComputingEvaluator.computeImageVector(data: KeyData): ImageVector? {
                     ImeOptions.Action.GO -> Icons.AutoMirrored.Rounded.ArrowRightAlt
                     ImeOptions.Action.NEXT -> Icons.AutoMirrored.Rounded.ArrowRightAlt
                     ImeOptions.Action.NONE -> Icons.AutoMirrored.Rounded.KeyboardReturn
-                    ImeOptions.Action.PREVIOUS -> Icons.AutoMirrored.Rounded.ArrowRightAlt
+                    ImeOptions.Action.PREVIOUS -> Icons.AutoMirrored.Rounded.KeyboardArrowLeft
                     ImeOptions.Action.SEARCH -> Icons.Rounded.Search
                     ImeOptions.Action.SEND -> Icons.AutoMirrored.Rounded.Send
                     ImeOptions.Action.UNSPECIFIED -> Icons.AutoMirrored.Rounded.KeyboardReturn
