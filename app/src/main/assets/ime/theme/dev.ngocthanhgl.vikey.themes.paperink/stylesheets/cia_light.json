@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schemas.florisboard.org/snygg/v2/stylesheet",
   "@defines": {
     "--bg": "rgba(232,217,184,1)",
