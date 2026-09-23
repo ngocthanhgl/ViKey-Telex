@@ -217,4 +217,18 @@ class TelexTest {
         // Other tone keys + consonant ∉ knownOnsets → tone applies
         assertEquals("hả", simulate("har"))
     }
+
+    @Test
+    fun testApkMirrorForeignWordTonePosition() {
+        // EVKey-verified: foreign word "apkmi" (a+p+k+m+i) + r must place tone on last vowel i (ỉ), not first a (ả).
+        // ViKey previously misapplied toneRules "ai"->'a' across pkm gap, putting on a.
+        // Gated toneRules with isValidRhymeWord fixes to last vowel.
+        assertEquals("apkmỉ", simulate("apkmir"))
+        // Full apkmirror sequence a+p+k+m+i+r+r+r+o+r+r → need r+r to undo i and o, ending plain
+        // Stepwise: apkmi+r -> apkmỉ, +r -> apkmir (undo), +r -> apkmirr, +o -> apkmirro, +r -> apkmirrỏ, +r -> apkmirror
+        assertEquals("apkmirror", simulate("apkmirrrorr"))
+        // Sanity: valid Vietnamese still uses toneRules (e.g. "mai" + s -> "mái" via ai->a)
+        assertEquals("mái", simulate("mais"))
+        assertEquals("hảo", simulate("haor"))
+    }
 }

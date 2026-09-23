@@ -741,17 +741,22 @@ class AlgorithmicTelex(
         if (vowelPositions.isEmpty()) return -1
         if (vowelPositions.size == 1) return vowelPositions[0]
 
-        val vowelCluster = buildString {
-            for (pos in vowelPositions) {
-                append(toBaseForm(word[pos].lowercaseChar()))
+        // EVKey parity: toneRules (Vietnamese placement) only when valid Vietnamese rhyme.
+        // Foreign words like "apkmi" (vowelCluster "ai" across pkm) would otherwise
+        // misplace tone on first vowel (a) instead of last (i) – e.g. apkmirror a+p+k+m+i+r+r+r+o+r+r
+        // needs isValidRhymeWord gate (Unikey spelling check "Allow f,w,j,z as consonants").
+        if (isValidRhymeWord(word.lowercase())) {
+            val vowelCluster = buildString {
+                for (pos in vowelPositions) {
+                    append(toBaseForm(word[pos].lowercaseChar()))
+                }
             }
-        }
-
-        val rule = toneRules[vowelCluster]
-        if (rule != null) {
-            for (pos in vowelPositions) {
-                if (toBaseForm(word[pos].lowercaseChar()) == rule) {
-                    return pos
+            val rule = toneRules[vowelCluster]
+            if (rule != null) {
+                for (pos in vowelPositions) {
+                    if (toBaseForm(word[pos].lowercaseChar()) == rule) {
+                        return pos
+                    }
                 }
             }
         }
