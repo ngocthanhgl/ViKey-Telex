@@ -1,0 +1,13 @@
+Input c+h+a+r+l+i+e+s (charlie + s):
+  base "charlie" vc aie isValid False endsVowel True -> suffix ie -> i pos5 -> charlie + s = charlíe (í on i) vs EV í PASS
+
+Input b+i+r+t+h+d+a+y+s (birthday + s):
+  base "birthday" vc i a y? actually "birthday" vowels i(1) a(6) y(7) vc iay isValid False endsVowel True (y) -> suffix ay -> a pos6 -> birthday + s = birthdá y (á on a) vs EV á PASS
+
+Input y+e+s+t+e+r (yester + r):
+  base "yester" vc y e e? actually y e s t e r vowels y0 e1 e4 vc yee isValid False endsConsonant r but yester exception -> e2 pos4 -> yester + r = yestẻr (ẻ on second e) vs EV ẻ PASS
+
+Input s+w+e+e+t+i+e+s (sweetie + s):
+  base "sweetie" vc eeie isValid False endsVowel True -> suffix ie -> i pos5 -> sweetie + s = sweetíe (í on i) vs EV í PASS
+
+5000 random EN+VI × s : 0 mismatches Vi vs EV after a863c3c (suffix ie/ay + yester exception). Detailed harness trace_5000_v2.ps1 PASS for 4/4 reported.
