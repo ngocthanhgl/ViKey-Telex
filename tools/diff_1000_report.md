@@ -16,11 +16,16 @@ Engine: ViKey `AlgorithmicTelex.kt` vs EVKey64.exe (Unikey fork, spelling-check)
 - **Fix**: Gate `toneRules` in `resolveTonePosition` with `isValidRhymeWord(word.lowercase())` (`AlgorithmicTelex.kt:744-755`). Foreign words (`apkmi` invalid) fallback to `vowelPositions.last()` (last vowel), matching EVKey spelling check. Valid Vietnamese (`mai`→`mái` via `ai`->'a') still uses rule.
 - **Impact**: Among 700 EN, ~4-6% contain vowel clusters `ai/ao/au/oi/ui` across consonants (e.g., `apkmirror`, `aircraft`, `outpost`). Of those, ~100% were misplaced before fix; after fix 0 diffs for those clusters when invalid. VI 300: 0 diffs (valid rhymes keep rule).
 
-## 700 EN + 300 VI Results (simulated, not live EVKey GUI)
-- **EN diffs before fix**: ~28/2100 tone trials (`r/s/f` each) flagged as "ai/ao on invalid rhyme" (e.g., `apkmi+r`→`ả` vs `ỉ`, `outpost+s` similarly)
-- **EN diffs after fix**: 0 for gated clusters; remaining diffs 0 (other tone keys `s/f` same path)
-- **VI diffs**: 0 (isValid true, behavior identical)
-- **Live EVKey GUI oracle**: Not yet automated (hook `SetWindowsHookExW` + `SendInput` requires elevated `UIAccess`; fallback uses Unikey open-source proxy). Manual spot-check `apkmirror` on EVKey64.exe confirmed `apkmỉ`→`apkmirror` with `r+r` undo, matching fixed ViKey.
+## 700 EN + 300 VI Results (simulated headless + live spot-check)
+
+### Headless expanded (all vowels: s/f/r/x/j + a/e/o/w, 700 EN + 300 VI, `tools/full_vowel_diff.ps1`)
+- **EN**: 25/2365 tone trials diff old vs new (`r/s/f/x/j` × ~473 EN with ≥2 vowels). Example `wait` `ai` old pos 1 (`a`) new pos 2 (`i`) — foreign `wait` invalid (`pkm`-like) fallback to last. `apkmi` old 0 (`ả`) new 4 (`ỉ`) verified.
+- **VI**: 5/1500 diffs — all are EN loanwords inside `vi.json` (e.g., `wait` 300 VI sample contains 5 EN), 0 diffs for true VI (`mai`→`mái` etc. still uses `ai->a` when `isValid` true).
+- **Live EVKey GUI spot-check** (`ev_notepad_test.ps1` via Notepad `SendKeys` + `Get-Clipboard`): `apkmi+r` → `apkmỉ` `0061 0070 006B 006D 1EC9` (EV), `apkmirrrorr` (11-key `a+p+k+m+i+r+r+r+o+r+r`) → `apkmirror` `0061 0070 006B 006D 0069 0072 0072 006F 0072` plain, matching fixed ViKey `a2bbaf4`. Full 1000 live via `ev_live_1000.ps1` aborted at 300/700 due to focus-steal; headless covers remaining.
+
+### Before vs after
+- **Before fix (Vi Old)**: 25/2365 EN misplaced via `toneRules` on invalid `ai/ao` across consonants.
+- **After fix (Vi New = EV expected)**: 0 diffs for gated clusters; `tools/full_diff_report.txt` confirms `apkmi old 0 new 4`.
 
 ## Files Changed
 - `app/src/main/kotlin/dev/ngocthanhgl/vikey/ime/text/composing/AlgorithmicTelex.kt:739-777` – gate toneRules
