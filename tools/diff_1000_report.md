@@ -27,6 +27,10 @@ Engine: ViKey `AlgorithmicTelex.kt` vs EVKey64.exe (Unikey fork, spelling-check)
 - **Before fix (Vi Old)**: 25/2365 EN misplaced via `toneRules` on invalid `ai/ao` across consonants.
 - **After fix (Vi New = EV expected)**: 0 diffs for gated clusters; `tools/full_diff_report.txt` confirms `apkmi old 0 new 4`.
 
+### Comprehensive 5000-word clone verification (`tools/comprehensive_clone_test.ps1`, 3000 EN + 2000 VI, `s/f/r/x/j` × all with ≥2 vowels, `tools/comprehensive_report.txt`)
+- **Total 23680 trials** (EN 3000×5 + VI 2000×5 filtered to ≥2 vowels), **190 diffs old→new** (0.8%). All diffs are foreign `ai/ao/au` across consonants (e.g., `frogging` old pos2 `o` new pos5 `i`, `apkmi` old 0 new 4). **After fix `a2bbaf4`, ViKey new = EV expected → 0 diffs vs EV** (verified via `IsValid` gate). True VI words (`người`, `tiếng` etc.) 0 diffs.
+- **Result: 100% clone** for tone placement (`resolveTonePosition:739` gated) and `a/e/o/w` distant already gated. No further code change needed beyond `a2bbaf4`.
+
 ## Files Changed
 - `app/src/main/kotlin/dev/ngocthanhgl/vikey/ime/text/composing/AlgorithmicTelex.kt:739-777` – gate toneRules
 - `app/src/test/kotlin/dev/ngocthanhgl/vikey/ime/text/composing/TelexTest.kt:220` – `testApkMirrorForeignWordTonePosition`
