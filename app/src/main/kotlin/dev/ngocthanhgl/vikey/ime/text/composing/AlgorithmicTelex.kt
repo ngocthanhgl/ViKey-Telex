@@ -747,25 +747,52 @@ class AlgorithmicTelex(
         // end with vowel (e/o/y) → toned even if foreign (e.g. apkmi+r→apkmỉ, mousef→mousè).
         // This matches user live EV 2026-09-23: 10 plain (consonant tail) vs 5 toned (vowel tail).
         if (!isValid && toBaseForm(word.last().lowercaseChar()) !in baseVowels) {
-            return -1
+            // yester-like: y...e...r with consonant tail but EV still tones second e (user live 2026-09-23)
+            // Allow tone when ends with 'r' and has y+second e – otherwise foreign consonant stays plain (waitr/mailr...)
+            val last = word.last().lowercaseChar()
+            if (last == 'r' && word.lowercase().startsWith("y") && word.count { toBaseForm(it) in baseVowels } >= 3) {
+                // fall through to tone placement
+            } else {
+                return -1
+            }
         }
 
-        // EVKey parity: toneRules (Vietnamese placement) only when valid Vietnamese rhyme.
-        // Foreign words like "apkmi" (vowelCluster "ai" across pkm) would otherwise
-        // misplace tone on first vowel (a) instead of last (i) – e.g. apkmirror a+p+k+m+i+r+r+r+o+r+r
-        // needs isValidRhymeWord gate (Unikey spelling check "Allow f,w,j,z as consonants").
-        if (isValid) {
-            val vowelCluster = buildString {
-                for (pos in vowelPositions) {
-                    append(toBaseForm(word[pos].lowercaseChar()))
-                }
+        // Tone placement: for valid Vietnamese use full vowelCluster rule; for vowel-ending foreign
+        // with VI sound (charlie/birthday/sweetie) use suffix rule (ie→i, ay→a) – EV live 2026-09-23:
+        // charlie+s i vs e, birthday+s a vs y, sweetie+s i vs e. Check suffix before fallback to last/y.
+        val vowelCluster = buildString {
+            for (pos in vowelPositions) {
+                append(toBaseForm(word[pos].lowercaseChar()))
             }
+        }
+        if (isValid) {
             val rule = toneRules[vowelCluster]
             if (rule != null) {
                 for (pos in vowelPositions) {
                     if (toBaseForm(word[pos].lowercaseChar()) == rule) {
                         return pos
                     }
+                }
+            }
+        } else if (toBaseForm(word.last().lowercaseChar()) in baseVowels) {
+            // foreign vowel-ending: check suffix toneRules (ay→a, ie handled via legalRhymes fallback)
+            for (len in 3 downTo 2) {
+                if (vowelCluster.length >= len) {
+                    val suffix = vowelCluster.takeLast(len)
+                    val rule = toneRules[suffix]
+                    if (rule != null) {
+                        for (pos in vowelPositions) {
+                            if (toBaseForm(word[pos].lowercaseChar()) == rule) {
+                                return pos
+                            }
+                        }
+                    }
+                }
+            }
+            // ie cluster has no toneRules entry (deliberately removed) – EV puts on i, not last e
+            if (vowelCluster.endsWith("ie")) {
+                for (pos in vowelPositions.asReversed()) {
+                    if (toBaseForm(word[pos].lowercaseChar()) == 'i') return pos
                 }
             }
         }
