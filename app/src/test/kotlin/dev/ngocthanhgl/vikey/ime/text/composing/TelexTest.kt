@@ -231,4 +231,26 @@ class TelexTest {
         assertEquals("mái", simulate("mais"))
         assertEquals("hảo", simulate("haor"))
     }
+
+    @Test
+    fun testEvPlainVsToned_15words() {
+        // EVKey live results 2026-09-23: user typed 15 strings, EV gave these outputs
+        // 10 plain = tone literal, 5 toned = tone applied (verified diacritic tone maps)
+        assertEquals("waitr", simulate("waitr")) // EV waitr plain (r literal)
+        assertEquals("mailr", simulate("mailr")) // mailr plain
+        assertEquals("pains", simulate("pains")) // pains plain (s literal)
+        assertEquals("rainf", simulate("rainf")) // rainf plain (f literal)
+        assertEquals("stairs", simulate("stairs"))
+        assertEquals("chairx", simulate("chairx"))
+        assertEquals("hairj", simulate("hairj"))
+        // toned: mouse + f (huyền) -> è, house + s (sắc) -> é, audio + x (ngã) -> õ, enjoy + s -> ý, employ + f -> ỳ
+        assertEquals("mousè", simulate("mousef")) // EV mousè (è U+00E8)
+        assertEquals("housé", simulate("houses")) // EV housé (é U+00E9) - house + s
+        assertEquals("audiõ", simulate("audiox")) // EV audiõ (õ U+00F5) - audio + x
+        assertEquals("enjoý", simulate("enjoys")) // EV enjoý (ý U+00FD) - enjoy + s
+        assertEquals("emploỳ", simulate("employf")) // EV emploỳ (ỳ U+1EF3) - employ + f
+        assertEquals("outlookj", simulate("outlookj"))
+        assertEquals("froggings", simulate("froggings"))
+        assertEquals("outpostr", simulate("outpostr"))
+    }
 }

@@ -741,11 +741,20 @@ class AlgorithmicTelex(
         if (vowelPositions.isEmpty()) return -1
         if (vowelPositions.size == 1) return vowelPositions[0]
 
+        val isValid = isValidRhymeWord(word.lowercase())
+        // EVKey parity: foreign words ending with consonant stay plain (no tone).
+        // waitr/mailr/pains/... end with t/l/s etc. → plain, while mouse/house/audio/enjoý/emploỳ
+        // end with vowel (e/o/y) → toned even if foreign (e.g. apkmi+r→apkmỉ, mousef→mousè).
+        // This matches user live EV 2026-09-23: 10 plain (consonant tail) vs 5 toned (vowel tail).
+        if (!isValid && toBaseForm(word.last().lowercaseChar()) !in baseVowels) {
+            return -1
+        }
+
         // EVKey parity: toneRules (Vietnamese placement) only when valid Vietnamese rhyme.
         // Foreign words like "apkmi" (vowelCluster "ai" across pkm) would otherwise
         // misplace tone on first vowel (a) instead of last (i) – e.g. apkmirror a+p+k+m+i+r+r+r+o+r+r
         // needs isValidRhymeWord gate (Unikey spelling check "Allow f,w,j,z as consonants").
-        if (isValidRhymeWord(word.lowercase())) {
+        if (isValid) {
             val vowelCluster = buildString {
                 for (pos in vowelPositions) {
                     append(toBaseForm(word[pos].lowercaseChar()))
