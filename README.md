@@ -21,15 +21,14 @@
 
 ---
 
-## Tính Năng
+## Triết Lý
 
-### ⌨️ Telex Tự Do — Độc Lập Thứ Tự Phím
+Vikey tập trung vào **bộ gõ thuần** như **Unikey** hay **EVKey** trên desktop — engine telex thuần thuật toán, **phản hồi tức thì, không delay**. Không như Gboard hay SwiftKey vốn có AI và ML chạy ngầm gây trễ và phụ thuộc mạng, Vikey gõ tới đâu ra tới đó.
 
-Engine parse cấu trúc âm tiết thay vì tra bảng mutation. Kết quả không phụ thuộc thứ tự bạn gõ:
+Engine parse cấu trúc âm tiết thay vì tra bảng mutation. Độc lập thứ tự phím — gõ sai thứ tự vẫn ra đúng một kết quả:
 
 ```
 tuaws = tuwas = tuaw s = tuw as  →  tựa
-duongwf → đường          nguoifw → người
 ```
 
 | Tổ hợp | Kết quả |
@@ -38,52 +37,12 @@ duongwf → đường          nguoifw → người
 | `uow` | ươ |
 | Gõ lại phím tắt lần hai | Undo (`ưw` → `uw`) |
 | `z` cuối từ | Xoá toàn bộ dấu (`chàoz` → `chao`) |
-| `w` đầu từ / sau phụ âm | ư nếu là âm tiết Việt |
 
-### 💡 Gợi Ý Thông Minh
-
-- Từ điển ~33.000 từ Tiếng Việt kèm tần suất thực tế + từ điển Tiếng Anh
-- **Gõ không dấu ra có dấu** — `duoc` gợi ý ngay `được`
-- **Học từ cá nhân** — từ bạn hay gõ được ưu tiên dần
-- **Xếp hạng theo ngữ cảnh** — bigram của câu đang gõ quyết định thứ tự gợi ý
-- Không học gì ở chế độ ẩn danh
-
-### 🌐 Song Ngữ Không Cần Chuyển Chế Độ
-
-Tự nhận diện Tiếng Anh theo pattern, âm cuối và mật độ phụ âm — gõ `school` không bị biến thành tiếng Việt.
-
-### 🔠 Viết Hoa Tự Động
-
-Tự viết hoa đầu câu, sau dấu chấm — hoạt động cả trong những app không khai báo hỗ trợ (kiểu Gboard).
-
-### ❓ Dấu Câu Thông Minh
-
-- `word` + `,` → `word,` (không bị thành `word ,`)
-- Double-space → `word. `
-
-### 👆 Glide Typing
-
-Gõ trượt ngón tay qua các phím. Tùy chọn trong cài đặt (mặc định tắt).
-
----
-
-## 🎨 Liquid Glass
-
-Hiệu ứng kính mờ real-time — nền wallpaper hoặc gradient tùy chọn, mặt kính trên từng phím bẻ cong phản chiếu nền thật, ánh sáng trượt khi nhấn, ripple wave, depth & chromatic aberration. Kèm thanh chỉnh độ mờ, độ sáng ảnh nền.
-
-<table align="center">
-  <tr>
-    <td align="center"><img src=".github/theme-dark.jpg" width="220" alt="Sakura Dark"><br><em>Sakura Dark</em></td>
-    <td align="center"><img src=".github/theme-light.jpg" width="220" alt="Valentine Light"><br><em>Valentine Light</em></td>
-    <td align="center"><img src=".github/liquid-glass.jpg" width="220" alt="Liquid Glass"><br><em>Liquid Glass</em></td>
-  </tr>
-</table>
-
-Ngoài ra: Material You dynamic color, emoji palette đầy đủ, one-handed mode, clipboard.
+Các tính năng như gợi ý từ, theme, glide typing chỉ là phụ — có sẵn nhưng không phải trọng tâm, mặc định nhẹ hoặc tắt. Vì tập trung vào gõ thuần nên Vikey khá kén người dùng.
 
 ## Quyền Riêng Tư
 
-**Zero network access. Zero tracking. Zero analytics.**
+**Zero network access. Zero tracking. Zero analytics.** Mọi thao tác gõ phím ở lại trên máy bạn — không Internet, engine + từ điển local 100%. Nhưng với người thích Privacy thì Vikey hoàn toàn là lựa chọn phù hợp nhất ngoài kia.
 
 ```
 ╭──────────────────────────────────────────────╮
