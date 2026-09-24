@@ -602,12 +602,15 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
     fun performEnter(): Boolean {
         autoSpace.setInactive()
         phantomSpace.setInactive()
+        if (!activeInfo.isRawInputEditor && activeContent.composing.isValid && activeContent.composingText.isNotEmpty()) {
+            finalizeComposingText(activeContent.composingText)
+        }
         // Enter ends the typed word: learn it into the personal dictionary.
         nlpManager.clearCompositionState()
         return if (activeInfo.isRawInputEditor) {
             sendDownUpKeyEvent(KeyEvent.KEYCODE_ENTER)
         } else {
-            commitText("\n")
+            commitText("\n").also { if (it) updateLastCommitPosition() }
         }
     }
 
@@ -629,6 +632,9 @@ class EditorInstance(context: Context) : AbstractEditorInstance(context) {
     fun performEnterAction(action: ImeOptions.Action): Boolean {
         autoSpace.setInactive()
         phantomSpace.setInactive()
+        if (!activeInfo.isRawInputEditor && activeContent.composing.isValid && activeContent.composingText.isNotEmpty()) {
+            finalizeComposingText(activeContent.composingText)
+        }
         // Submitting ends the typed word: learn it into the personal dictionary.
         nlpManager.clearCompositionState()
         val ic = currentInputConnection() ?: return false
