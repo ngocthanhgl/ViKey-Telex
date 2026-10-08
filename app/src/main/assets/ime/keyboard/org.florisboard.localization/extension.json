@@ -36,7 +36,7 @@
       "currencySet": "org.florisboard.currencysets:dollar",
       "popupMapping": "org.florisboard.localization:en",
       "nlpProviders": {
-        "spelling": "org.florisboard.nlp.providers.vietnamese",
+        "spelling": "org.florisboard.nlp.providers.fallback",
         "suggestion": "org.florisboard.nlp.providers.english"
       },
       "preferred": {
@@ -49,7 +49,7 @@
       "currencySet": "org.florisboard.currencysets:pound",
       "popupMapping": "org.florisboard.localization:en",
       "nlpProviders": {
-        "spelling": "org.florisboard.nlp.providers.vietnamese",
+        "spelling": "org.florisboard.nlp.providers.fallback",
         "suggestion": "org.florisboard.nlp.providers.english"
       },
       "preferred": {

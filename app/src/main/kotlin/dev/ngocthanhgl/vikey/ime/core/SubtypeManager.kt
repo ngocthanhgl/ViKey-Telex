@@ -18,6 +18,7 @@ package dev.ngocthanhgl.vikey.ime.core
 
 import android.content.Context
 import dev.ngocthanhgl.vikey.app.FlorisPreferenceStore
+import dev.ngocthanhgl.vikey.appContext
 import dev.ngocthanhgl.vikey.ime.keyboard.CurrencySet
 import dev.ngocthanhgl.vikey.keyboardManager
 import dev.ngocthanhgl.vikey.lib.FlorisLocale
@@ -43,6 +44,7 @@ val SubtypeJsonConfig = Json {
 class SubtypeManager(context: Context) {
     private val prefs by FlorisPreferenceStore
     private val keyboardManager by context.keyboardManager()
+    private val appContext = context.appContext()
     private val scope = CoroutineScope(Dispatchers.Default)
 
     val subtypesFlow: StateFlow<List<Subtype>>
@@ -68,6 +70,26 @@ class SubtypeManager(context: Context) {
             subtypes = list
             evaluateActiveSubtype(list)
         }
+        // The preference store is not necessarily ready when the IME process starts, so the flow
+        // above may deliver the default "[]" value before the persisted subtypes actually load.
+        // Re-read the value once the store signals that it is ready, otherwise the subtype list can
+        // stay empty (and the language switch button would silently do nothing).
+        appContext.preferenceStoreLoaded.collectLatestIn(scope) { loaded ->
+            if (loaded) {
+                flogDebug { "preferenceStoreLoaded, re-evaluating subtype list" }
+                val listRaw = prefs.localization.subtypes.get()
+                val list = if (listRaw.isNotBlank()) {
+                    runCatching { SubtypeJsonConfig.decodeFromString<List<Subtype>>(listRaw) }
+                        .getOrDefault(emptyList())
+                } else {
+                    emptyList()
+                }
+                if (list != subtypes) {
+                    subtypes = list
+                }
+                evaluateActiveSubtype(list)
+            }
+        }
     }
 
     private fun persistNewSubtypeList(list: List<Subtype>) = scope.launch {
@@ -82,10 +104,14 @@ class SubtypeManager(context: Context) {
      * @return The active subtype or null, if the subtype list is empty or no new active subtype
      *  could be determined.
      */
-    private fun evaluateActiveSubtype(list: List<Subtype>) = scope.launch {
+    private fun evaluateActiveSubtype(list: List<Subtype>) {
         val activeSubtypeId = prefs.localization.activeSubtypeId.get()
         val subtype = list.find { it.id == activeSubtypeId } ?: list.firstOrNull() ?: Subtype.DEFAULT
-        if (subtype.id != activeSubtypeId) {
+        if (list.isNotEmpty() && subtype.id != activeSubtypeId) {
+            flogDebug {
+                "evaluateActiveSubtype: stored id $activeSubtypeId not found, " +
+                    "falling back to ${subtype.toShortString()} (${subtype.id})"
+            }
             prefs.localization.activeSubtypeId.set(subtype.id)
         }
         activeSubtype = subtype
@@ -188,53 +214,69 @@ class SubtypeManager(context: Context) {
     /**
      * Switch to the previous subtype in the subtype list if possible.
      */
-    fun switchToPrevSubtype() = scope.launch {
-        val subtypeList = subtypes
-        val cachedActiveSubtype = activeSubtype
-        var triggerNextSubtype = false
-        var newActiveSubtype: Subtype = Subtype.DEFAULT
-        for (subtype in subtypeList.asReversed()) {
-            if (triggerNextSubtype) {
-                triggerNextSubtype = false
-                newActiveSubtype = subtype
-            } else if (subtype == cachedActiveSubtype) {
-                triggerNextSubtype = true
-            }
-        }
-        if (triggerNextSubtype) {
-            newActiveSubtype = subtypeList.last()
-        }
-        prefs.localization.activeSubtypeId.set(newActiveSubtype.id)
-        activeSubtype = newActiveSubtype
-    }
+    fun switchToPrevSubtype() = switchToAdjacentSubtype(1)
 
     /**
      * Switch to the next subtype in the subtype list if possible.
      */
-    fun switchToNextSubtype() = scope.launch {
+    fun switchToNextSubtype() = switchToAdjacentSubtype(-1)
+
+    /**
+     * Switches the active subtype by index instead of by [Subtype] equality.
+     *
+     * The previous implementation searched the list for the currently active subtype and only
+     * picked the following entry on a match. That silently failed whenever the active subtype was
+     * not part of the persisted list (e.g. the [Subtype.DEFAULT] fallback, whose id is -1), and
+     * it wrote that fallback back to the prefs, so every single tap looked like a no-op. It also
+     * ran inside a coroutine, so two quick taps could both read the same stale active subtype and
+     * persist the same id twice.
+     *
+     * @param step -1 to advance to the next subtype, 1 to go back to the previous one.
+     *
+     * @return True if the active subtype changed, false otherwise.
+     */
+    private fun switchToAdjacentSubtype(step: Int): Boolean {
         val subtypeList = subtypes
-        val cachedActiveSubtype = activeSubtype
-        var triggerNextSubtype = false
-        var newActiveSubtype: Subtype = Subtype.DEFAULT
-        for (subtype in subtypeList) {
-            if (triggerNextSubtype) {
-                triggerNextSubtype = false
-                newActiveSubtype = subtype
-            } else if (subtype == cachedActiveSubtype) {
-                triggerNextSubtype = true
+        if (subtypeList.isEmpty()) {
+            flogDebug { "switchToAdjacentSubtype: no subtypes configured, ignoring switch request" }
+            return false
+        }
+        val cachedActiveSubtypeId = activeSubtype.id
+        val currentIndex = subtypeList.indexOfFirst { it.id == cachedActiveSubtypeId }
+        val newIndex = when {
+            currentIndex < 0 -> if (step < 0) 0 else subtypeList.lastIndex
+            else -> (currentIndex + step).mod(subtypeList.size)
+        }
+        val newActiveSubtype = subtypeList[newIndex]
+        if (newActiveSubtype.id == cachedActiveSubtypeId) {
+            flogDebug { "switchToAdjacentSubtype: only one subtype (${newActiveSubtype.toShortString()}), nothing to switch to" }
+            return false
+        }
+        if (currentIndex < 0) {
+            flogDebug {
+                "switchToAdjacentSubtype: active id $cachedActiveSubtypeId is not in the list, " +
+                    "falling back to ${newActiveSubtype.toShortString()}"
             }
         }
-        if (triggerNextSubtype) {
-            newActiveSubtype = subtypeList.first()
+        flogDebug {
+            "switchToAdjacentSubtype: $cachedActiveSubtypeId -> ${newActiveSubtype.id} " +
+                "(${newActiveSubtype.toShortString()})"
         }
-        prefs.localization.activeSubtypeId.set(newActiveSubtype.id)
+        // Update the flow first so the keyboard re-renders immediately, then persist the id.
         activeSubtype = newActiveSubtype
+        prefs.localization.activeSubtypeId.set(newActiveSubtype.id)
+        return true
     }
 
-    fun switchToSubtypeById(id: Long) = scope.launch {
-        if (subtypes.any { it.id == id }) {
-            activeSubtype = getSubtypeById(id)!!
-            prefs.localization.activeSubtypeId.set(id)
+    fun switchToSubtypeById(id: Long): Boolean {
+        val subtypeToSwitchTo = getSubtypeById(id) ?: run {
+            flogDebug { "switchToSubtypeById: no subtype with id $id" }
+            return false
         }
+        if (subtypeToSwitchTo.id == activeSubtype.id) return true
+        flogDebug { "switchToSubtypeById: ${activeSubtype.id} -> $id (${subtypeToSwitchTo.toShortString()})" }
+        activeSubtype = subtypeToSwitchTo
+        prefs.localization.activeSubtypeId.set(id)
+        return true
     }
 }

@@ -113,6 +113,10 @@
     <string name="quick_actions_editor__subheader_hidden_actions">Hành động ẩn ({n})</string>
     <string name="select_subtype_panel__header">Chọn kiểu con</string>
 
+    <!-- Language switch strings -->
+    <string name="keyboard__subtype_switch_requires_two" comment="Toast shown when the language switch key is pressed but fewer than two subtypes are configured">Cần thêm ngôn ngữ trong Cài đặt → Ngôn ngữ trước khi chuyển</string>
+    <string name="keyboard__subtype_switch_failed" comment="Toast shown when the language switch key could not switch to another subtype">Không chuyển được ngôn ngữ, hãy thử lại</string>
+
     <!-- Incognito mode strings -->
     <string name="incognito_mode__toast_after_enabled">Chế độ ẩn danh đã được bật
 

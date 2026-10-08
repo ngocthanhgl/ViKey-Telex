@@ -58,6 +58,7 @@ import dev.ngocthanhgl.vikey.ime.text.keyboard.TextKeyData
 import dev.ngocthanhgl.vikey.ime.text.keyboard.TextKeyboardCache
 import dev.ngocthanhgl.vikey.lib.devtools.LogTopic
 import dev.ngocthanhgl.vikey.lib.devtools.flogError
+import dev.ngocthanhgl.vikey.lib.devtools.flogInfo
 import dev.ngocthanhgl.vikey.lib.ext.ExtensionComponentName
 import dev.ngocthanhgl.vikey.lib.titlecase
 import dev.ngocthanhgl.vikey.lib.uppercase
@@ -490,7 +491,21 @@ class KeyboardManager(context: Context) : InputKeyEventReceiver {
     private fun handleLanguageSwitch() {
         when (prefs.keyboard.utilityKeyAction.get()) {
             UtilityKeyAction.DYNAMIC_SWITCH_LANGUAGE_EMOJIS,
-            UtilityKeyAction.SWITCH_LANGUAGE -> subtypeManager.switchToNextSubtype()
+            UtilityKeyAction.SWITCH_LANGUAGE -> {
+                // The key is always present in the smartbar even when there is nothing to switch to,
+                // so tell the user what is missing instead of silently doing nothing.
+                if (subtypeManager.subtypes.size < 2) {
+                    flogInfo {
+                        "handleLanguageSwitch: only ${subtypeManager.subtypes.size} subtype(s) " +
+                            "configured, nothing to switch to"
+                    }
+                    appContext.showShortToastSync(R.string.keyboard__subtype_switch_requires_two)
+                    return
+                }
+                if (!subtypeManager.switchToNextSubtype()) {
+                    appContext.showShortToastSync(R.string.keyboard__subtype_switch_failed)
+                }
+            }
             else -> FlorisImeService.switchToNextInputMethod()
         }
     }
