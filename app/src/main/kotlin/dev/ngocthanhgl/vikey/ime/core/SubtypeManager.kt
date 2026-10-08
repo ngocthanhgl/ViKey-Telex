@@ -25,6 +25,7 @@ import dev.ngocthanhgl.vikey.lib.FlorisLocale
 import dev.ngocthanhgl.vikey.lib.devtools.flogDebug
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -46,6 +47,14 @@ class SubtypeManager(context: Context) {
     private val keyboardManager by context.keyboardManager()
     private val appContext by context.appContext()
     private val scope = CoroutineScope(Dispatchers.Default)
+
+    /**
+     * Suspending writes for [prefs.localization.activeSubtypeId] have to happen in a coroutine, but
+     * they must not be able to complete out of order: two quick taps on the language switch key
+     * would otherwise be able to persist the older selection last. This channel is consumed by a
+     * single collector, so the writes are applied strictly in the order they were requested.
+     */
+    private val activeSubtypeIdWrites = Channel<Long>(Channel.UNLIMITED)
 
     val subtypesFlow: StateFlow<List<Subtype>>
         field = MutableStateFlow(listOf())
@@ -90,6 +99,19 @@ class SubtypeManager(context: Context) {
                 evaluateActiveSubtype(list)
             }
         }
+        scope.launch {
+            for (id in activeSubtypeIdWrites) {
+                prefs.localization.activeSubtypeId.set(id)
+            }
+        }
+    }
+
+    /**
+     * Persists the id of the given subtype. The write is queued so that consecutive switches cannot
+     * be applied out of order.
+     */
+    private fun persistActiveSubtypeId(id: Long) {
+        activeSubtypeIdWrites.trySend(id)
     }
 
     private fun persistNewSubtypeList(list: List<Subtype>) = scope.launch {
@@ -112,7 +134,7 @@ class SubtypeManager(context: Context) {
                 "evaluateActiveSubtype: stored id $activeSubtypeId not found, " +
                     "falling back to ${subtype.toShortString()} (${subtype.id})"
             }
-            prefs.localization.activeSubtypeId.set(subtype.id)
+            persistActiveSubtypeId(subtype.id)
         }
         activeSubtype = subtype
     }
@@ -264,7 +286,7 @@ class SubtypeManager(context: Context) {
         }
         // Update the flow first so the keyboard re-renders immediately, then persist the id.
         activeSubtype = newActiveSubtype
-        prefs.localization.activeSubtypeId.set(newActiveSubtype.id)
+        persistActiveSubtypeId(newActiveSubtype.id)
         return true
     }
 
@@ -276,7 +298,7 @@ class SubtypeManager(context: Context) {
         if (subtypeToSwitchTo.id == activeSubtype.id) return true
         flogDebug { "switchToSubtypeById: ${activeSubtype.id} -> $id (${subtypeToSwitchTo.toShortString()})" }
         activeSubtype = subtypeToSwitchTo
-        prefs.localization.activeSubtypeId.set(id)
+        persistActiveSubtypeId(id)
         return true
     }
 }
