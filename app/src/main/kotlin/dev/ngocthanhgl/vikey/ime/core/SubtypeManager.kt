@@ -44,7 +44,7 @@ val SubtypeJsonConfig = Json {
 class SubtypeManager(context: Context) {
     private val prefs by FlorisPreferenceStore
     private val keyboardManager by context.keyboardManager()
-    private val appContext = context.appContext()
+    private val appContext by context.appContext()
     private val scope = CoroutineScope(Dispatchers.Default)
 
     val subtypesFlow: StateFlow<List<Subtype>>
