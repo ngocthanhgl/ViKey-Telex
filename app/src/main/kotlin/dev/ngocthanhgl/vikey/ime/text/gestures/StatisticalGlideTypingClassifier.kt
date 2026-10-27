@@ -57,7 +57,7 @@ class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClassifier
     private var wordDataSubtype: Subtype? = null
     private var layoutSubtype: Subtype? = null
     private var currentSubtype: Subtype? = null
-    val ready: Boolean
+    override val ready: Boolean
         get() = currentSubtype == layoutSubtype && wordDataSubtype == layoutSubtype && wordDataSubtype != null
     private val prunerCache = LruCache<Subtype, Pruner>(PRUNER_CACHE_SIZE)
 
@@ -291,7 +291,7 @@ class StatisticalGlideTypingClassifier(context: Context) : GlideTypingClassifier
      * literal trail is the best commit candidate. Returns null when no
      * sane word-shape exists (too short or no letter keys hit).
      */
-    fun decodeTrailLetters(): String? {
+    override fun decodeTrailLetters(): String? {
         if (gesture.isEmpty || keys.isEmpty()) return null
         val sampled = gesture.resample(SAMPLING_POINTS)
         val sb = StringBuilder()

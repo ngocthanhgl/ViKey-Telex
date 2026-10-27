@@ -555,7 +555,7 @@
     <string name="settings__gestures__title" comment="Title of Gestures screen">Gestures</string>
     <string name="pref__glide__title" comment="Preference group title">Glide typing</string>
     <string name="pref__glide__enabled__label" comment="Preference title">Enable glide typing</string>
-    <string name="pref__glide__enabled__summary" comment="Preference summary">Type in a word by sliding your finger through its letters</string>
+    <string name="pref__glide__enabled__summary" comment="Preference summary">English only, fully offline. Powered by FUTO Swipe.</string>
     <string name="pref__glide__show_trail__label" comment="Preference title">Show glide trail</string>
     <string name="pref__glide__show_trail__summary" comment="Preference summary">Will disappear after each word</string>
     <string name="pref__glide_trail_fade_duration">Glide trail fade time</string>

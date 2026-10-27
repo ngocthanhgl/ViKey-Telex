@@ -24,6 +24,17 @@ import dev.ngocthanhgl.vikey.ime.text.keyboard.TextKey
  * spits out what it thinks the gesture is.
  */
 interface GlideTypingClassifier {
+    /** True once the classifier has enough layout/word data to answer. */
+    val ready: Boolean get() = true
+
+    /** False for classifiers that only support completed swipes (no live preview). */
+    val supportsPreview: Boolean get() = true
+
+    /**
+     * Best-effort literal trail decode, used as an out-of-vocabulary fallback.
+     */
+    fun decodeTrailLetters(): String? = null
+
     /**
      * Called to notify gesture classifier that it can add a new point to the gesture.
      *
@@ -52,7 +63,7 @@ interface GlideTypingClassifier {
      * @param maxSuggestionCount The maximum number of suggestions that are accepted.
      * @param gestureCompleted Whether the gesture is finished. (e.g to use a different algorithm for in progress words)
      */
-    fun getSuggestions(maxSuggestionCount: Int, gestureCompleted: Boolean): List<CharSequence>
+    fun getSuggestions(maxSuggestionCount: Int, gestureCompleted: Boolean): List<String>
 
     fun clear()
 }

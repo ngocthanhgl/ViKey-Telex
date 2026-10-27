@@ -555,7 +555,7 @@ ViKey sẽ không học từ khi chế độ này đang hoạt động</string>
     <string name="settings__gestures__title" comment="Title of Gestures screen">Cử chỉ</string>
     <string name="pref__glide__title" comment="Preference group title">Glide</string>
     <string name="pref__glide__enabled__label" comment="Preference title">Bật Glide</string>
-    <string name="pref__glide__enabled__summary" comment="Preference summary">Gõ từ bằng cách trượt ngón tay qua các chữ cái</string>
+    <string name="pref__glide__enabled__summary" comment="Preference summary">Chỉ tiếng Anh, hoàn toàn ngoại tuyến. Sử dụng FUTO Swipe.</string>
     <string name="pref__glide__show_trail__label" comment="Preference title">Hiện đường trượt</string>
     <string name="pref__glide__show_trail__summary" comment="Preference summary">Sẽ biến mất sau mỗi từ</string>
     <string name="pref__glide_trail_fade_duration">Thời gian mờ dần đường trượt</string>

@@ -1,6 +1,13 @@
 # Disable obfuscation (we use Proguard exclusively for optimization)
 -dontobfuscate
 
+# JNI entry points for FUTO Swipe and the trie loader must keep their names.
+-keep class org.futo.ml.inference.** { *; }
+-keep class dev.ngocthanhgl.vikey.ime.text.gestures.FutoTrieLoader { *; }
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
 # Keep `Companion` object fields of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
 -if @kotlinx.serialization.Serializable class **

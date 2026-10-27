@@ -14,7 +14,13 @@ Tải về từ [Releases](https://github.com/ngocthanhgl/ViKey-Telex/releases).
 
 ## Giấy Phép
 
-Apache 2.0. Xem [LICENSE](LICENSE).
+GNU GPLv3. Xem [LICENSE](LICENSE) và [NOTICE](NOTICE).
+
+## Glide typing (English)
+
+Glide typing dùng FUTO Swipe, chạy hoàn toàn offline. Model và từ điển đã nằm
+trong APK, không tải gì thêm. Hiện chỉ hỗ trợ tiếng Anh; các ngôn ngữ khác tạm
+tắt glide. "Powered by FUTO Swipe".
 
 Bản quyền gốc © 2020-2026 The FlorisBoard Contributors.
 ViKey Telex engine © 2026 Nguyễn Ngọc Thành.

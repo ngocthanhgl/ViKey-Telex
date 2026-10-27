@@ -185,6 +185,8 @@ dependencies {
     // testImplementation(composeBom)
     // androidTestImplementation(composeBom)
 
+    implementation(files("libs/futo-swipe-release.aar"))
+
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.autofill)

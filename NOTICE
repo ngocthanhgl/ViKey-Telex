@@ -1,0 +1,47 @@
+ViKey Telex
+Copyright (C) 2026 Nguyen Ngoc Thanh and ViKey contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <https://www.gnu.org/licenses/>.
+
+---
+
+Third-party components
+
+1. FlorisBoard
+   Copyright (C) 2020-2026 The FlorisBoard Contributors
+   Licensed under the Apache License, Version 2.0.
+   Source: https://github.com/florisboard/florisboard
+   Apache-2.0 is compatible with GPL-3.0; the original Apache headers are
+   retained in the derived source files.
+
+2. FUTO Swipe inference library
+   Copyright (C) FUTO Holdings, Inc. and contributors
+   Licensed under the GNU General Public License, version 3.
+   Source: https://gitlab.futo.org/keyboard/swipe-library
+   Prebuilt AAR: https://gitlab.futo.org/keyboard/android-libs
+   The unmodified AAR is bundled at app/libs/futo-swipe-release.aar.
+
+3. FUTO Swipe model weights
+   Copyright (C) FUTO Holdings, Inc.
+   Licensed under the FUTO Model Weights License 1.0.
+   Source: https://huggingface.co/futo-org/futo-swipe
+   This product displays the required notice: "Powered by FUTO Swipe".
+
+4. English dictionary
+   Derived from the AOSP/Android Open Source Project word list, distributed
+   under the Apache License, Version 2.0, via the FUTO Keyboard repository.
+   Source: https://github.com/futo-org/android-keyboard/tree/master/dictionaries
+
+5. ViKey dictionary data
+   See app/src/main/assets/ime/dict/LICENSE.txt for FrequencyWords (CC BY-SA
+   4.0), Viet74K (GPL-2.0) and original ViKey entries.
