@@ -1,20 +1,24 @@
 Dictionary Data License Information
 ====================================
 
-This directory contains dictionary data derived from the following sources:
+1. English wordlist and bigrams
+   Source: OpenBoard / AOSP `en_wordlist.combined`
+   https://github.com/openboard-team/openboard/blob/v1.4.5/dictionaries/en_wordlist.combined.gz
+   Repackaged by the HeliBoard dictionary repository:
+   https://codeberg.org/Helium314/aosp-dictionaries
+   License: Apache License, Version 2.0.
 
-1. FrequencyWords (English & Vietnamese)
-   - Source: https://github.com/hermitdave/FrequencyWords
-   - Derived from OpenSubtitles 2018
-   - License: Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)
-   - Used for word frequency data
+2. Vietnamese wordlist and bigrams
+   Source: HeliBoard `main_vi__experimental.combined`
+   https://codeberg.org/Helium314/aosp-dictionaries
+   Built from word lists from the Leipzig Corpora Collection:
+   https://wortschatz.uni-leipzig.de/en/download/
+   License: Creative Commons Attribution 4.0 International (CC BY 4.0).
 
-2. Vietnamese Word List (Viet74K)
-   - Source: https://github.com/duyetdev/vietnamese-wordlist
-   - Based on Hồ Ngọc Đức's Free Vietnamese Dictionary Project
-   - License: GNU General Public License v2.0 (GPL-2.0)
-   - Used for Vietnamese vocabulary
+Both files were converted to ViKey's JSON format by
+`scripts/generate_keyboard_dicts.py`. The `.combined` `f=` field is an AOSP
+log-frequency; it is converted to a monotonic integer count. Bigram `f=1..3`
+is a rank and becomes a relative count.
 
-3. Original ViKey dictionary (vi.json initial entries)
-   - 538 multi-word Vietnamese phrases from the original ViKey project
-   - Preserved from initial commit
+The original `.combined` files are not bundled; download them from the URLs
+above and rerun the script if you need to regenerate the dictionaries.

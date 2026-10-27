@@ -37,11 +37,19 @@ Third-party components
    Source: https://huggingface.co/futo-org/futo-swipe
    This product displays the required notice: "Powered by FUTO Swipe".
 
-4. English dictionary
+4. English suggestion dictionary
+   OpenBoard / AOSP `en_wordlist.combined`, Apache License 2.0.
+   Source: https://github.com/openboard-team/openboard
+   Repackaged via https://codeberg.org/Helium314/aosp-dictionaries
+   Bundled as app/src/main/assets/ime/dict/en.json + en_ngrams.json.
+
+5. Vietnamese suggestion dictionary
+   HeliBoard `main_vi__experimental.combined`, built from the Leipzig Corpora
+   Collection, Creative Commons Attribution 4.0 International (CC BY 4.0).
+   Source: https://codeberg.org/Helium314/aosp-dictionaries
+   Bundled as app/src/main/assets/ime/dict/vi.json + vi_ngrams.json.
+
+6. FUTO Swipe English dictionary
    Derived from the AOSP/Android Open Source Project word list, distributed
    under the Apache License, Version 2.0, via the FUTO Keyboard repository.
    Source: https://github.com/futo-org/android-keyboard/tree/master/dictionaries
-
-5. ViKey dictionary data
-   See app/src/main/assets/ime/dict/LICENSE.txt for FrequencyWords (CC BY-SA
-   4.0), Viet74K (GPL-2.0) and original ViKey entries.
