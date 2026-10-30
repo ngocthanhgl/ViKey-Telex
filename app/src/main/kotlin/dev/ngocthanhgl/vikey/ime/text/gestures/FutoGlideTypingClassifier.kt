@@ -59,6 +59,13 @@ class FutoGlideTypingClassifier(private val context: Context) : GlideTypingClass
     private var layoutKeyRefs: List<TextKey> = emptyList()
     private var layoutSubtype: Subtype? = null
     private var layoutValid = false
+    // Pixel bounds of the letter keys. FUTO expects swipe points and key
+    // centres in the same normalized [0,1] frame, so gesture points must be
+    // mapped with exactly these bounds.
+    private var layoutMinX = 0f
+    private var layoutMaxX = 0f
+    private var layoutMinY = 0f
+    private var layoutMaxY = 0f
 
     override val ready: Boolean
         get() = layoutValid && engine.isReady
@@ -107,6 +114,10 @@ class FutoGlideTypingClassifier(private val context: Context) : GlideTypingClass
             return
         }
 
+        layoutMinX = minX
+        layoutMaxX = maxX
+        layoutMinY = minY
+        layoutMaxY = maxY
         layoutValid = true
         engine.setLayout(
             FutoSwipeEngine.Layout(
@@ -125,8 +136,13 @@ class FutoGlideTypingClassifier(private val context: Context) : GlideTypingClass
         if (!gestureCompleted || !ready || points.size < 2) return emptyList()
 
         val n = points.size
-        val xs = FloatArray(n) { points[it].x }
-        val ys = FloatArray(n) { points[it].y }
+        // MotionEvent points are in pixels while the layout given to FUTO is
+        // normalized to [0,1]. Map them with the same key bounds, otherwise
+        // every gesture lands outside the layout and decodes to the same word.
+        val spanX = (layoutMaxX - layoutMinX).takeIf { it > 1f } ?: 1f
+        val spanY = (layoutMaxY - layoutMinY).takeIf { it > 1f } ?: 1f
+        val xs = FloatArray(n) { ((points[it].x - layoutMinX) / spanX).coerceIn(0f, 1f) }
+        val ys = FloatArray(n) { ((points[it].y - layoutMinY) / spanY).coerceIn(0f, 1f) }
         val firstTime = points.first().time
         val times = FloatArray(n) { i ->
             val raw = points[i].time - firstTime
