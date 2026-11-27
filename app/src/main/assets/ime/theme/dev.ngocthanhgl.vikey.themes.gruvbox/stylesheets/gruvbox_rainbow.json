@@ -98,8 +98,8 @@
     "foreground": "var(--t-fn)"
   },
   "key[code=-201]": {
-    "background": "var(--del)",
-    "foreground": "var(--t-del)",
+    "background": "var(--fn)",
+    "foreground": "var(--t-fn)",
     "font-size": "18sp"
   },
   "key[code=-202,-203]": {
@@ -163,8 +163,8 @@
     "foreground": "var(--t-fn)"
   },
   "key[code=-201]:pressed": {
-    "background": "var(--del-pressed)",
-    "foreground": "var(--t-del)"
+    "background": "var(--fn-pressed)",
+    "foreground": "var(--t-fn)"
   },
   "key[code=-202,-203]:pressed": {
     "background": "var(--fn-pressed)",
@@ -376,8 +376,8 @@
     "font-size": "18sp"
   },
   "smartbar-shared-actions-toggle": {
-    "background": "var(--action)",
-    "foreground": "var(--t-action)",
+    "background": "var(--del)",
+    "foreground": "var(--t-del)",
     "margin": "6dp 6dp 6dp 6dp",
     "shape": "circle()",
     "shadow-elevation": "2dp"
