@@ -1,0 +1,38 @@
+{
+  "$": "ime.extension.theme",
+  "meta": {
+    "id": "dev.ngocthanhgl.vikey.themes.gruvbox",
+    "version": "1.0.0",
+    "title": "ViKey Gruvbox Rainbow",
+    "homepage": "https://github.com/ngocthanhgl/vikey-themes",
+    "issueTracker": "https://github.com/ngocthanhgl/vikey-themes/issues",
+    "maintainers": [
+      "NgocThanhGL <ngocthanhgl@proton.me>"
+    ],
+    "license": "MIT"
+  },
+  "themes": [
+    {
+      "id": "gruvbox_rainbow",
+      "label": "Gruvbox Rainbow",
+      "authors": ["MelonSteak", "NgocThanhGL"],
+      "isNight": true,
+      "materialYouFlags": {
+        "paletteStyle": "Fidelity",
+        "contrastLevel": "Default",
+        "specVersion": "SPEC_2021"
+      }
+    },
+    {
+      "id": "gruvbox_rainbow_light",
+      "label": "Gruvbox Rainbow Light",
+      "authors": ["MelonSteak", "NgocThanhGL"],
+      "isNight": false,
+      "materialYouFlags": {
+        "paletteStyle": "Fidelity",
+        "contrastLevel": "Default",
+        "specVersion": "SPEC_2021"
+      }
+    }
+  ]
+}
