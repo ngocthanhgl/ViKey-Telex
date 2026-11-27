@@ -1,0 +1,49 @@
+name: Release Media
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/screenshots/gruvbox-rainbow-dark.jpg'
+      - 'docs/screenshots/gruvbox-rainbow-light.jpg'
+      - '.github/workflows/release-media.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: v4.4.1
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload theme screenshots
+        run: |
+          gh release upload "$TAG" \
+            docs/screenshots/gruvbox-rainbow-dark.jpg \
+            docs/screenshots/gruvbox-rainbow-light.jpg \
+            --repo "$REPO" --clobber
+
+      - name: Update release changelog
+        run: |
+          cat > "$RUNNER_TEMP/notes.md" <<'EOF'
+          ## Cập nhật theme mới với phím vuông để tăng diện tích gõ phím
+
+          Theme **ViKey Gruvbox Rainbow** đã có mặt trong bản cập nhật này: phím vuông góc giúp tăng diện tích gõ, viền tối rõ nét, font Courier Prime và nền sọc rainbow. Có sẵn 2 biến thể Sáng/Tối.
+
+          ### 🌙 Dark
+          ![ViKey Gruvbox Rainbow Dark](https://github.com/ngocthanhgl/ViKey-Telex/releases/download/v4.4.1/gruvbox-rainbow-dark.jpg)
+
+          ### ☀️ Light
+          ![ViKey Gruvbox Rainbow Light](https://github.com/ngocthanhgl/ViKey-Telex/releases/download/v4.4.1/gruvbox-rainbow-light.jpg)
+
+          ---
+
+          ViKey Vietnamese keyboard for Android.
+          EOF
+          gh release edit "$TAG" --repo "$REPO" --notes-file "$RUNNER_TEMP/notes.md"
